@@ -1,3 +1,0 @@
-"""
-A server extension for 
-"""
