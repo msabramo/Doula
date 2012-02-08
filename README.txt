@@ -1,1 +1,5 @@
-/Users/whit/dev/bambino/src/Doula/README.rst
+=========
+Doula
+=========
+
+Serving doula node, creating releases, being awesome.

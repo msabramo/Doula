@@ -1,0 +1,6 @@
+-e git+https://github.com/schmir/gevent.git#egg=gevent-dev
+gevent-socketio==0.2.1
+gevent-websocket==0.2.3
+-e git+git@github.com:whitmo/GeventUtil.git#egg=GeventUtil
+-e git+git@github.com:whitmo/pyramid_socketio.git#egg=pyramid_socketio-dev
+-e ./
