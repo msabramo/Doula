@@ -2,4 +2,4 @@
 Doula
 =========
 
-Serving doula node, creating releases, being awesome.
+Serving bambino nodes, creating releases, being awesome.
