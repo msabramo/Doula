@@ -44,6 +44,13 @@
 	clear: both;
 }
 
+.app-actions {
+    float: left;
+    padding: 5px 0px 2px 0px;
+	margin: 3px;
+	clear: both;
+}
+
 /* Application states */
 
 .unchanged {
