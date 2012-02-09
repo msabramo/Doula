@@ -28,4 +28,12 @@ def get_applications():
     json_data = data.read()
     data.close()
     
-    return json.loads(json_data)
+    applications = json.loads(json_data)
+    id_counter = 1
+    
+    # apply ids
+    for app in applications:
+        app['id'] = id_counter
+        id_counter +=1
+    
+    return applications

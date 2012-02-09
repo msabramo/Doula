@@ -1,4 +1,4 @@
-<form class="well">
+<form id="tag_form_{{application.id}}" class="hide">
     <label>Tag for <strong>{{ application.name }}</strong>:</label>
     <input type="text" class="span3" placeholder="Enter your tag…">
     
@@ -6,6 +6,7 @@
     <textarea class="commit input-xlarge" id="textarea" cols="50" rows="10"></textarea>
     
     <br />
-    <button type="submit" class="btn btn-large">Cancel</button>
-    <button type="submit" class="btn btn-large btn-primary">Submit</button>
+    
+    <button id="cancel_comment" type="submit" class="btn btn-large">Cancel</button>
+    <button id="submit_comment" type="submit" class="btn btn-large btn-primary">Submit</button>
 </form>

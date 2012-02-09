@@ -16,11 +16,23 @@
             <h2>Applications on [MT1]</h2>
         </div>
       <br />
-
+      
+      <div id="applications" class="row application">
+        <div class="span1 checkbox-actions">
+            <label for="selectAll">Select All</label>
+            <input id="selectAll" type="checkbox" value="check" group="applications">
+        </div>
+        <div class="span2 application-name">
+          <h3>Application</h3>
+        </div>
+        <div class="span9">
+        </div>
+      </div>
+      
       {% for application in applications %}
       <div id="applications" class="row application">
         <div class="span1 checkbox-actions">
-          <input type="checkbox" value="check" group="applications">
+            <input id="checkbox_select_{{ application.id }}" type="checkbox" value="check" group="applications">
         </div>
         <div class="span2 application-name {{ application.status }}">
           <h3>{{ application.name }}</h3>
@@ -52,9 +64,7 @@
           </div>
           <!-- /row -->
           <div class="row details">
-            {% if application.status == 'change_to_config' %}
-                {% include 'tag_form.html' %}
-            {% endif %}
+            {% include 'tag_form.html' %}
           </div>
         </div>
       </div>
@@ -65,15 +75,14 @@
       <br />
       <div class="row application">
         <div class="span1 checkbox-actions">
-            <label for="selectAll">Select All</label>
-            <input id="selectAll" type="checkbox" value="check" group="applications">
+            
         </div>
         <div class="span2 application-name">
           
         </div>
-        <div class="span9">
+        <div class="span9" style="float: right;">
             <div class="actions">
-              <button class="btn btn-large btn-primary" value="">Tag Selected</button>
+              <button id="tag_selected" class="btn btn-large btn-primary" value="">Tag Selected</button>
               <button class="btn btn-large btn-primary {% if not is_ready_for_release%}disabled{% endif %}" value="">Tag for Deployment</button>
             </div>
         </div>
