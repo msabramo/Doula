@@ -41,6 +41,9 @@
           <p>
               <strong>Status:</strong> {{ status }}
           </p>
+          <p>
+             Compare this release against last release tag <a href="{{application.diff_link}}">here</a>.
+          </p>
         {% for change in application.changes %}
         <p>{{ change }}</p>
         {% endfor %}

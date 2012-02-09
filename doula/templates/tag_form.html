@@ -1,12 +1,12 @@
 <form id="tag_form_{{application.id}}" class="hide">
     <label>Tag for <strong>{{ application.name }}</strong>:</label>
-    <input type="text" class="span3" placeholder="Enter your tag…">
-    
+    <input type="text" class="span3" placeholder="Enter next tag…">
+    <span class="help-inline">Last tag: {{ application.last_tag }}</span>
     <label>Commit Message:</label>
     <textarea class="commit input-xlarge" id="textarea" cols="50" rows="10"></textarea>
     
     <br />
     
-    <button id="cancel_comment" type="submit" class="btn btn-large">Cancel</button>
-    <button id="submit_comment" type="submit" class="btn btn-large btn-primary">Submit</button>
+    <button value="cancel" type="button" class="btn btn-large">Cancel</button>
+    <button value="submit" type="submit" class="btn btn-large btn-primary">Submit</button>
 </form>

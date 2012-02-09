@@ -8,7 +8,7 @@ var Doula = (function() {
 	    
 	    bindEvents: function() {
 	        $('#selectAll').on('click', this.toggleCheckboxes);
-	        $('#cancel_comment').on('click', this.cancelComment);
+	        $('button[value="cancel"]').on('click', this.cancelComment);
 	        $('#tag_selected').on('click', this.tagSelected);
 	    },
 	    
@@ -20,9 +20,9 @@ var Doula = (function() {
             });
 	    },
 	    
-	    cancelComment: function() {
-	        console.log(this);
+	    cancelComment: function(event) {
 	        $(this).closest('form').addClass('hide');
+	        
 	        return false;
 	    },
 	    
@@ -40,8 +40,6 @@ var Doula = (function() {
                 
                 $('#tag_form_' + id).removeClass('hide');
             }
-            
-            console.log(selectedCheckboxes);
 	    }
     };
     // This ends the main Doula module
