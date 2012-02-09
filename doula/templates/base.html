@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Doula Web</title>
+
+    <!-- styles -->
+    <link href="/css/bootstrap.css" rel="stylesheet">
+    <link href="/css/doula.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <div class="container">
+        {% include 'header.html' %}
+        
+        {% block header %}
+            {# header content #}
+        {% endblock %}
+        
+        <br />
+        
+        {% block container %}
+            {# main content goes here #}
+        {% endblock %}
+        
+        <br />
+        
+        {% include 'footer.html' %}
+    </div>
+    <!-- /container -->
+    
+    <!-- scripts -->
+    {% block scripts %}
+        {# javascript block goes here #}
+    {% endblock %}
+  </body>
+</html>

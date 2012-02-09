@@ -6,15 +6,33 @@ import json
 
 def includeme(config):
     config.scan(__name__)
-    config.add_route('show_doula', '/doula/', factory=App.root_factory)
+    config.add_route('show_sites', '/', factory=App.root_factory)
+    config.add_route('show_site_status', '/sites/{url}/', factory=App.root_factory)
 
-@view_config(route_name="show_doula", renderer='doula_home.html', context=App)
-def show_doula(context, request):
-    # make call to backend here
+@view_config(route_name="show_sites", renderer="sites.html", context=App)
+def show_sites(context, request):
+    sites = get_sites()
+    
+    return { 'sites': sites }
+
+def get_sites():
+    return get_json_from_file('sites.json')
+
+
+@view_config(route_name="show_site_status", renderer='site.html', context=App)
+def show_site_status(context, request):
+    sites = get_sites()
+    selected_site = [site for site in sites if site['url'] == request.matchdict['url']][0]
+    
     applications = get_applications()
     is_ready_for_release = get_is_ready_for_release(applications)
     
-    return { 'applications' : applications, 'is_ready_for_release' : is_ready_for_release }
+    return { 
+        'sites': sites,
+        'site': selected_site,
+        'applications' : applications, 
+        'is_ready_for_release' : is_ready_for_release 
+    }
 	
 def get_is_ready_for_release(applications):
     for application in applications:
@@ -24,11 +42,7 @@ def get_is_ready_for_release(applications):
     return True
 
 def get_applications():
-    data = open(os.getcwd() + '/data.json')
-    json_data = data.read()
-    data.close()
-    
-    applications = json.loads(json_data)
+    applications = get_json_from_file('applications.json')
     id_counter = 1
     
     # apply ids
@@ -37,3 +51,10 @@ def get_applications():
         id_counter +=1
     
     return applications
+
+def get_json_from_file(file_name):
+    data = open(os.getcwd() + '/dummy_data/' + file_name)
+    json_data = data.read()
+    data.close()
+    
+    return json.loads(json_data)
