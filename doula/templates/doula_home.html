@@ -12,29 +12,49 @@
   <body>
 
     <div class="container">
-      <h2>Services on Survey Monkey</h2>
+        <div class="header">
+            <h2>Applications on [MT1]</h2>
+        </div>
       <br />
 
-      {% for service in services %}
-      <div class="row">
+      {% for application in applications %}
+      <div id="applications" class="row application">
         <div class="span1 checkbox-actions">
-          <input type="checkbox" value="check" group="services">
+          <input type="checkbox" value="check" group="applications">
         </div>
-        <div class="span2 service-name {{ service.status }}">
-          <h3>{{ service.name }}</h3>
+        <div class="span2 application-name {{ application.status }}">
+          <h3>{{ application.name }}</h3>
         </div>
         <div class="span9">
-          <div class="row">
-            <div class="details">
-              {% for change in service.changes %}
+          <div class="row details">
+            <div class="">
+                {% if application.status == 'unchanged' %}
+                    {% set status = 'Unchanged' %}
+                {% elif application.status == 'uncommitted_changes' %}
+                    {% set status = 'Uncommitted Changes' %}
+                {% elif application.status == 'change_to_config' %}
+                    {% set status = 'Changes to Configuration' %}
+                {% elif application.status == 'change_to_app_env' %}
+                    {% set status = 'Change to Application Environment' %}
+                {% endif %}
+                <p>
+                    <strong>Status:</strong> {{ status }}
+                </p>
+              {% for change in application.changes %}
               <p>{{ change }}</p>
               {% endfor %}
             </div>
             <div class="actions">
-              {% if service.status == 'notreadyforrelease' %}
+              {% if application.status == 'uncommitted_changes' %}
               <button class="btn btn-large btn-danger" value="Revert">Revert</button>
               {% endif %}
             </div>
+          </div>
+          <!-- /row -->
+          <div class="row details">
+            {% if application.status == 'change_to_config' %}
+                {% include 'tag_form.html' %}
+            {% endif %}
           </div>
         </div>
       </div>
@@ -43,17 +63,18 @@
       {# Bottom grid #}
 
       <br />
-      <div class="row">
+      <div class="row application">
         <div class="span1 checkbox-actions">
-          <input id="selectAll" type="checkbox" value="check" group="services">
+            <label for="selectAll">Select All</label>
+            <input id="selectAll" type="checkbox" value="check" group="applications">
         </div>
-        <div class="span2 service-name">
+        <div class="span2 application-name">
           
         </div>
         <div class="span9">
             <div class="actions">
               <button class="btn btn-large btn-primary" value="">Tag Selected</button>
-              <button class="btn btn-large btn-primary" value="">Tag for Deployment</button>
+              <button class="btn btn-large btn-primary {% if not is_ready_for_release%}disabled{% endif %}" value="">Tag for Deployment</button>
             </div>
         </div>
       </div>

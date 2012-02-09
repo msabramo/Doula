@@ -3,7 +3,17 @@ var Doula = (function() {
 	var Doula = {
 	    
 	    init: function() {
-	        console.log('example');
+	        this.bindEvents();
+	    },
+	    
+	    bindEvents: function() {
+	        $('#selectAll').on('click', function() {
+	            var selectAllBox = this;
+	            
+	            $('#applications input[type="checkbox"]').each(function(index, checkbox) {
+	                checkbox.checked = $(selectAllBox).is(':checked');
+	            });
+	        });
 	    }
     };
     // This ends the main Doula module

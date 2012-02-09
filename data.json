@@ -1,0 +1,30 @@
+[
+  {
+    "name": "anonweb",
+    "status": "change_to_app_env",
+    "git_repo_url": "http://github.com/surveymonkey/HomePage",
+    "diff_link": "https://github.com/surveymonkey/HomePage/compare/v2.0a1...master",
+    "last_tag": "v2.0a1"
+  },
+  {
+    "name": "create web",
+    "status": "change_to_config",
+    "git_repo_url": "http://github.com/surveymonkey/createweb",
+    "diff_link": "https://github.com/surveymonkey/createweb/compare/v0.8.0a1...master",
+    "last_tag": "v0.8.0a1"
+  },
+  {
+    "name"    : "analyze",
+    "status"  : "uncommitted_changes",
+    "git_repo_url": "http://github.com/surveymonkey/analyze",
+    "diff_link": "https://github.com/surveymonkey/analyze/compare/v2.0a1...master",
+    "last_tag"    : "v2.0b2"
+  },
+  {
+    "name": "bambino",
+    "status": "unchanged",
+    "git_repo_url": "http://github.com/surveymonkey/bambino",
+    "diff_link": "https://github.com/surveymonkey/bambino/compare/v0.1.2...master",
+    "last_tag": "v0.1.2"
+  }
+]
