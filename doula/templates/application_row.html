@@ -1,0 +1,42 @@
+<div id="application_{{ application.id }}" class="row application">
+  <div class="span1 checkbox-actions">
+      <input id="checkbox_select_{{ application.id }}" type="checkbox" value="check" group="applications">
+  </div>
+  <div class="span2 application-name {{ application.status }}">
+    <h3>{{ application.name }}</h3>
+  </div>
+  <div class="span9">
+    <div class="row details">
+      <div class="">
+          {% if application.status == 'unchanged' %}
+              {% set status = 'Unchanged' %}
+          {% elif application.status == 'uncommitted_changes' %}
+              {% set status = 'Uncommitted Changes' %}
+          {% elif application.status == 'change_to_config' %}
+              {% set status = 'Changes to Configuration' %}
+          {% elif application.status == 'change_to_app_env' %}
+              {% set status = 'Change to Application Environment' %}
+          {% endif %}
+          <p>
+              <strong>Status:</strong> {{ status }}
+          </p>
+          <p>
+             Compare this release against last release tag <a href="{{application.diff_link}}">here</a>.
+          </p>
+        {% for change in application.changes %}
+        <p>{{ change }}</p>
+        {% endfor %}
+      </div>
+      <div class="actions app-actions">
+        {% if application.status == 'uncommitted_changes' %}
+        <button id="revert_{{ application.id }}" value="revert" 
+        class="btn btn-large btn-danger" value="Revert">Revert</button>
+        {% endif %}
+      </div>
+    </div>
+    <!-- /row -->
+    <div class="row details">
+      {% include 'tag_form.html' %}
+    </div>
+  </div>
+</div>
