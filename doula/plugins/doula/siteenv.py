@@ -1,6 +1,14 @@
 from bambino.resources import BaseResource
 from contextlib import contextmanager as cm
 
+def includeme(config):
+    pass
+
+
+def modify_resources(settings, app, name='sites'):
+    name = settings.get('doula.plugins.siteenvs', name)
+    SiteContainer.add_resource_to_tree(app, name, settings)
+    return app
 
 #/sites/nodes/node
 #/sites/apps/appenv
@@ -63,14 +71,10 @@ class SiteContainer(FactoryMapResource):
         
 
 
-def includeme(config):
-    pass
 
 
-def modify_resources(settings, app, name='sites'):
-    name = settings.get('doula.plugins.siteenvs', name)
-    SiteContainer.add_resource_to_tree(app, name, settings)
-    return app
+
+
 
         
 @cm
