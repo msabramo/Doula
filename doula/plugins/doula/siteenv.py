@@ -2,6 +2,11 @@ from bambino.resources import BaseResource
 from contextlib import contextmanager as cm
 
 
+#/sites/nodes/node
+#/sites/apps/appenv
+#/sites/nodes/node/apps
+
+
 class FactoryMapResource(BaseResource):
 
     def member_factory(self, **kw):
@@ -28,6 +33,7 @@ class NodeContainer(FactoryMapResource):
     member_factory = staticmethod(Node.add_resource_to_tree)
 
 
+
 class AppContainer(BaseResource):
     """
     An application on a node
@@ -38,17 +44,15 @@ class AppContainer(BaseResource):
             self.nodes = nodes
 
 
-@cm
-def superinit(obj, *args, **kw):
-    try:
-        yield
-    finally:
-        super(obj.__class__, obj).__init__(*args, **kw)
-
 
 class SiteContainer(FactoryMapResource):
     node_container_class = NodeContainer
     appenv_container_class = AppContainer
+
+    def __init__(self, parent=None, name=None, settings=None, **sites):
+        self.settings = settings
+        with superinit(self, parent, name, **sites):
+            self.settings=settings
     
     def member_factory(self, **site_data):
         nodes = self.node_container_class.add_resource_to_tree(self, 'nodes', **site_data)
@@ -56,6 +60,7 @@ class SiteContainer(FactoryMapResource):
         yield self.app_container_class.add_resource_to_tree(self, 'apps', nodes)
 
     populate = member_factory
+        
 
 
 def includeme(config):
@@ -64,6 +69,13 @@ def includeme(config):
 
 def modify_resources(settings, app, name='sites'):
     name = settings.get('doula.plugins.siteenvs', name)
-    app[name] = SiteContainer()
+    SiteContainer.add_resource_to_tree(app, name, settings)
     return app
+
         
+@cm
+def superinit(obj, *args, **kw):
+    try:
+        yield
+    finally:
+        super(obj.__class__, obj).__init__(*args, **kw)
