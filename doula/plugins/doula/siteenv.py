@@ -54,4 +54,15 @@ class SiteContainer(FactoryMapResource):
         yield nodes
         yield self.app_container_class.add_resource_to_tree(self, 'apps', nodes)
 
+    populate = member_factory
 
+
+def includeme(config):
+    pass
+
+
+def modify_resources(settings, app, name='sites'):
+    name = settings.get('doula.plugins.siteenvs', name)
+    app[name] = SiteContainer()
+    return app
+        
