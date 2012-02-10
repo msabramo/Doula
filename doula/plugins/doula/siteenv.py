@@ -37,6 +37,7 @@ class AppContainer(BaseResource):
         with superinit(name, parent, nodes, **kw):
             self.nodes = nodes
 
+
 @cm
 def superinit(obj, *args, **kw):
     try:
