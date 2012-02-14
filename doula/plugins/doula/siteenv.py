@@ -68,13 +68,6 @@ class SiteContainer(FactoryMapResource):
         yield self.app_container_class.add_resource_to_tree(self, 'apps', nodes)
 
     populate = member_factory
-        
-
-
-
-
-
-
 
         
 @cm
