@@ -3,9 +3,9 @@ from .interfaces import ISiteContainer
 from pyramid import threadlocal 
 from pyramid.events import ApplicationCreated
 from pyramid.events import subscriber
-from zig.config.ven import ActionRegistry
-from zig.config.ven import IActionRegistry
-from zig.config.ven import action
+from zig.dispatch import ActionRegistry
+from zig.dispatch import IActionRegistry
+from zig.dispatch import action
 from zig.server_client import RepServer
 from zope.interface import implementer
 import logging
@@ -29,7 +29,7 @@ class DoulaZMQServer(RepServer):
     @classmethod
     def create(cls, config):
         server_address = config.settings['doula.server_address']
-        handler = ActionRegistry(config.registry)
+        handler = cls.handler_class(config.registry)
         config.registry.registerUtility(handler, cls.handler_iface)
         server = cls(handler, server_address)
         return server
@@ -72,7 +72,7 @@ def get_dzs():
 
 @subscriber(ApplicationCreated)
 def launch_server(event):
-    dzs = get_dzs()
+    dzs = event.app.registry.getUtility(IDoulaZMQServer)
     logger.info("launch server: %s" %dzs.address)
     dzs.run()
 
