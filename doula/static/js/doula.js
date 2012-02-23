@@ -1,3 +1,5 @@
+var uncommitted_changes_error = 'You\'ll have to revert changes before you can tag this application for release.';
+
 var UI = (function() {
 	// UI module handles the UI actions on the page
 	
@@ -5,7 +7,7 @@ var UI = (function() {
 	    toggleCheckboxes: function() {
 	        var selectAllBox = this;
             
-            $('#applications input[type="checkbox"]').each(function(index, checkbox) {
+            $('.application input[type="checkbox"]').each(function(index, checkbox) {
                 checkbox.checked = $(selectAllBox).is(':checked');
             });
 	    },
@@ -20,7 +22,15 @@ var UI = (function() {
 	        var selectedCheckboxes = Array();
 	        
 	        $('.application input[type="checkbox"]').each(function(index, checkbox) {
-                if(checkbox.checked) {
+	            if(checkbox.value == 'uncommitted_changes') {
+	                // alextodo pull error msg from json, list of error
+	                // don't do error handling here?
+	                var id = checkbox.id.replace('checkbox_select_', '');
+	                
+	                $('#errors_' + id).removeClass('hide');
+	                $('#errors_' + id).html(uncommitted_changes_error);
+	            }
+                else if(checkbox.checked) {
                     selectedCheckboxes.push(checkbox);
                 }
             });
@@ -48,12 +58,20 @@ var Doula = (function() {
 	    bindEvents: function() {
 	        // UI events
 	        $('#selectAll').on('click', UI.toggleCheckboxes);
-	        $('#tag_selected').on('click', UI.showTagForms);
+	        $('#tag_selected').on('click', this.tagSelected);
 	        $('button[value="cancel"]').on('click', UI.hideTagForm);
 	        
 	        // Business logic events
 	        // alextodo figure out how to bind function to this context
 	        $('button[value="revert"]').on('click', Doula.revertApp);
+	        
+	        // alextodo, handle the actual submission code
+	        // after submission, the app turns to grey cause it's committable
+	    },
+	    
+	    tagSelected: function() {
+	        // alextodo show errro message for bad status forms
+	        UI.showTagForms();
 	    },
 	    
 	    revertApp: function() {
@@ -73,6 +91,10 @@ var Doula = (function() {
                     $('#application_' + app.id).replaceWith(result.html);
                     // alextodo need to make only remove if no other uncommitted changes
                     $('#tag_deployment').removeClass('disabled');
+                    $('#errors_' + app.id).addClass('hide');
+                    
+                    // Rebind events
+                    Doula.bindEvents();
                 }
             });
 	    }

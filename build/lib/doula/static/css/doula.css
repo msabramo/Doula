@@ -1,4 +1,8 @@
 /** alextodo, start using less **/
+.header {
+    margin: 15px 0px 5px 0px;
+}
+
 .show-grid [class*="span"] {
 	background-color: #EEE;
 	text-align: center;
@@ -9,7 +13,11 @@
 	line-height: 30px;
 }
 
-.service-name {
+.application {
+    margin: 5px 0px;
+}
+
+.application-name {
 	padding: 7px;
 	max-width: 100px;
 	text-align: center;
@@ -18,8 +26,11 @@
 
 .details {
 	float: left;
+	margin: 0px 5px;
 	padding: 10px 25px;
 	clear: both;
+	width: 100%;
+	background-color: #F0F0F0;
 }
 
 .checkbox-actions {
@@ -28,11 +39,27 @@
 
 .actions {
 	float: right;
-	padding: 10px;
+	padding: 5px;
+	margin: 10px;
 	clear: both;
 }
 
-/* Service states */
+.app-actions {
+    float: left;
+    padding: 5px 0px 2px 0px;
+	margin: 3px;
+	clear: both;
+}
+
+.error {
+    border-style: solid;
+	border-width: 1px;
+	border-color: red;
+	padding: 2px;
+    color: red;
+}
+
+/* Application states */
 
 .unchanged {
 	border-style: solid;
@@ -40,26 +67,33 @@
 	background-color: #D3D3D3 !important;
 }
 
-.appreadyforrelease {
+.change_to_app_env {
 	border-style: solid;
 	border-width: 1px;
-	background-color:: #82EFA9 !important;
+	background-color: #82EFA9 !important;
 }
 
-.configreadyforrelease {
+.change_to_config {
 	border-style: solid;
 	border-width: 1px;
-	background-color:: #EBED4E !important;
+	background-color: #EBED4E !important;
 }
 
-.appconfigreadyforrelease {
-	border-style: solid;
-	border-width: 1px;
-	background-color:: #FF0000 !important;
-}
-
-.notreadyforrelease {
+.uncommitted_changes {
 	border-style: solid;
 	border-width: 1px;
 	background-color: #FF0000 !important;
+}
+
+textarea.commit {
+    margin: 10px 0;
+    padding: 4px;
+    width: 100%;
+    height: 50px;
+    border: 1px solid #DDD;
+}
+
+/* common */
+.hide {
+    display: none !important;
 }

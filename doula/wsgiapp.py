@@ -1,5 +1,5 @@
 from doula.request import Request
-from bambino.resources import App
+from doula.resources import App
 from pyramid.config import Configurator
 from pyramid.session import UnencryptedCookieSessionFactoryConfig
 from pyramid_jinja2 import renderer_factory

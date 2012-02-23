@@ -1,6 +1,6 @@
 <div id="application_{{ application.id }}" class="row application">
   <div class="span1 checkbox-actions">
-      <input id="checkbox_select_{{ application.id }}" type="checkbox" value="check" group="applications">
+      <input id="checkbox_select_{{ application.id }}" type="checkbox" value="{{ application.status }}" group="applications">
   </div>
   <div class="span2 application-name {{ application.status }}">
     <h3>{{ application.name }}</h3>
@@ -21,11 +21,14 @@
               <strong>Status:</strong> {{ status }}
           </p>
           <p>
-             Compare this release against last release tag <a href="{{application.diff_link}}">here</a>.
+             Compare this release against last release tag <a href="{{application.diff_link}}" target="_blank">here</a>.
           </p>
         {% for change in application.changes %}
         <p>{{ change }}</p>
         {% endfor %}
+        <p id="errors_{{ application.id }}" class="hide error">
+           Error messages go here! 
+        </p>
       </div>
       <div class="actions app-actions">
         {% if application.status == 'uncommitted_changes' %}

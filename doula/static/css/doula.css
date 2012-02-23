@@ -51,6 +51,14 @@
 	clear: both;
 }
 
+.error {
+    border-style: solid;
+	border-width: 1px;
+	border-color: red;
+	padding: 2px;
+    color: red;
+}
+
 /* Application states */
 
 .unchanged {

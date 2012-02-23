@@ -29,6 +29,5 @@ def main(global_config, **settings):
     config.add_static_view('static', 'static')
 
     [config.include(plug) for plug in plugins if plug]
-        
     return config.make_wsgi_app()
 
