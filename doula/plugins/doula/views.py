@@ -10,6 +10,8 @@ def includeme(config):
     config.add_route('show_sites', '/', factory=App.root_factory)
     config.add_route('show_site_status', '/sites/{url}/', factory=App.root_factory)
     config.add_route('revert_app', '/sites/app/revert/', factory=App.root_factory)
+    
+    config.add_route('ex', '/ex')
 
 @view_config(route_name="show_sites", renderer="sites.html", context=App)
 def show_sites(context, request):
@@ -42,6 +44,11 @@ def revert_app(context, request):
     html = get_app_html(app)
     
     return { 'app': json.dumps(app), 'html': html }
+
+
+@view_config(route_name="ex", renderer='test_dir/ex.html', context=App)
+def revert_app(context, request):
+    return { 'html': 'test' }
 
 # Helper functions
 def revert_app_status(app):
