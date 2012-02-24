@@ -19,7 +19,7 @@
 </div>
 
 {% for application in applications %}
-    {% include 'application_row.html' %}
+    {% include 'site/application.html' %}
 {% endfor %}
 
 {# Bottom grid #}
@@ -35,12 +35,17 @@
   <div class="span9" style="float: right;">
       <div class="actions">
         <button id="tag_selected" class="btn btn-large btn-primary" value="">Tag Selected</button>
-        <button id="tag_deployment" class="btn btn-large btn-primary {% if not is_ready_for_release%}disabled{% endif %}" value="">Tag for Deployment</button>
+        <button id="tag_deployment" value=""
+            class="btn btn-large btn-primary {% if not is_ready_for_release%}disabled{% endif %}">Tag for Deployment</button>
       </div>
   </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-    {{ ['/js/jquery.js', '/js/bootstrap-dropdown.js', '/js/doula.js']|js_script|safe }}
+    <script>
+        var __apps = {{ applications_as_json|safe }};
+    </script>
+    
+    {{ ['/js/lib/jquery.js', '/js/lib/bootstrap-dropdown.js', '/js/site/ui.js', '/js/site/site.js']|js_script|safe }}
 {% endblock %}

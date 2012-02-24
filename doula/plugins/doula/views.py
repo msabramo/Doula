@@ -22,7 +22,7 @@ def show_sites(context, request):
 def get_sites():
     return get_json_from_file('sites.json')
 
-@view_config(route_name="show_site_status", renderer='site.html', context=App)
+@view_config(route_name="show_site_status", renderer='site/site.html', context=App)
 def show_site_status(context, request):
     sites = get_sites()
     selected_site = [site for site in sites if site['url'] == request.matchdict['url']][0]
@@ -33,7 +33,8 @@ def show_site_status(context, request):
     return { 
         'sites': sites,
         'site': selected_site,
-        'applications' : applications, 
+        'applications' : applications,
+        'applications_as_json' : json.dumps(applications),
         'is_ready_for_release' : is_ready_for_release 
     }
 
