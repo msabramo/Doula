@@ -9,47 +9,43 @@ var Site = (function() {
 	    },
 	    
 	    bindEvents: function() {
-	        // UI events
+	        // UI only events events
 	        $('#selectAll').on('click', UI.toggleCheckboxes);
-	        $('#tag_selected').on('click', this.tagSelected);
-	        $('button[value="cancel"]').on('click', UI.hideTagForm);
+	        $('#tag_selected').on('click', this.tagApplication);
+	        $('button[value="cancel"]').on('click', UI.hideTagApplicationForm);
 	        
-	        // Business logic events
-	        // alextodo figure out how to bind function to this context
-	        $('button[value="revert"]').on('click', Site.revertApp);
-	        
-	        // alextodo, handle the actual submission code
-	        // after submission, the app turns to grey cause it's committable
+	        // Data events
+	        $('button[value="revert"]').on('click', Site.revertApplication);
 	    },
 	    
-	    tagSelected: function() {
-	        // alextodo show errro message for bad status forms
-	        UI.showTagForms();
+	    tagApplication: function() {
+	        UI.showTagApplicationForm();
 	    },
 	    
-	    revertApp: function() {
+	    revertApplication: function() {
 	        var appID = this.id.replace('revert_', '')
+	        // alextodo make this url available on backend
+	        // alextodo, continue with this shinigan
 	        
-	        $.ajax({
+	        $.post({
                 url: "/sites/app/revert/",
-                type: 'POST',
-                data : { 
-                    'id': appID,
-                },
-                
-                success: function(result) {
-                    app = jQuery.parseJSON(result.app);
-                    
-                    $('#revert_' + app.id).addClass('hide');
-                    $('#application_' + app.id).replaceWith(result.html);
-                    // alextodo need to make only remove if no other uncommitted changes
-                    $('#tag_deployment').removeClass('disabled');
-                    $('#errors_' + app.id).addClass('hide');
-                    
-                    // Rebind events
-                    Site.bindEvents();
+                data : { 'id': appID },
+                success: function(data) {
+                    app = jQuery.parseJSON(data.app);
+                    Site.passRevertApplication(app);
                 }
             });
+	    },
+	    
+	    passRevertApplication: function(app) {
+	        $('#revert_' + app.id).addClass('hide');
+            $('#application_' + app.id).replaceWith(result.html);
+            // alextodo need to make only remove if no other uncommitted changes
+            $('#tag_deployment').removeClass('disabled');
+            $('#errors_' + app.id).addClass('hide');
+            
+            // Rebind events
+            Site.bindEvents();
 	    }
     };
     // This ends the main Site module
