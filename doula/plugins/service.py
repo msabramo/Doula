@@ -35,6 +35,9 @@ class DoulaZMQServer(RepServer):
         return server
 
 
+
+
+
 @action('doula.register')
 def register(payload, registry):
     """
