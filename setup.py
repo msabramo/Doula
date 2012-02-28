@@ -11,7 +11,8 @@ requires = [
     'pyramid_debugtoolbar',
     'waitress',
     'path.py',
-    'execnet',
+    'geventutil',
+    'prism',
     'pyramid-socketio'
     ]
 

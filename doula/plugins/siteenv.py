@@ -1,4 +1,6 @@
-from bambino.resources import BaseResource
+# had to change this below to that
+# from bambino.resources import BaseResource
+from prism.resource import BaseResource
 from contextlib import contextmanager as cm
 
 def includeme(config):
@@ -6,7 +8,7 @@ def includeme(config):
 
 
 def modify_resources(settings, app, name='sites'):
-    name = settings.get('doula.plugins.siteenvs', name)
+    name = settings.get('doula.plugins.siteenv', name)
     SiteContainer.add_resource_to_tree(app, name, settings)
     return app
 
@@ -68,13 +70,6 @@ class SiteContainer(FactoryMapResource):
         yield self.app_container_class.add_resource_to_tree(self, 'apps', nodes)
 
     populate = member_factory
-        
-
-
-
-
-
-
 
         
 @cm

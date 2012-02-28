@@ -1,9 +1,9 @@
 from pyramid.i18n import TranslationStringFactory
 from pyramid.view import view_config
-from doula import resources
+from prism.resource import IApp
 
 
-_ = TranslationStringFactory('Bambino')
+_ = TranslationStringFactory('Doula')
 
 
 class RootHandler(object):
@@ -11,7 +11,7 @@ class RootHandler(object):
         self.request = request
         self.context = context
 
-    @view_config(renderer='index.html', context=resources.App)
+    @view_config(renderer='index.html', context=IApp)
     def index(self):
         return {}
 

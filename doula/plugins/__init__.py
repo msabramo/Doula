@@ -1,5 +1,3 @@
 """
-A directory for included plugins
+The doula plugin dir.
 """
-
-

@@ -1,3 +1,0 @@
-"""
-The doula plugin dir.
-"""
