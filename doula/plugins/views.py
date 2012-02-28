@@ -24,11 +24,8 @@ def show_sites(context, request):
 def get_sites():
     return get_json_from_file('sites.json')
 
-<<<<<<< HEAD
-@view_config(route_name="show_site_status", renderer='site/site.html', context=App)
-=======
-@view_config(route_name="show_site_status", renderer='site.html', context=IApp)
->>>>>>> prism-up
+
+@view_config(route_name="show_site_status", renderer='site/site.html', context=IApp)
 def show_site_status(context, request):
     sites = get_sites()
     selected_site = [site for site in sites if site['url'] == request.matchdict['url']][0]
@@ -53,17 +50,13 @@ def revert_app(context, request):
     return { 'app': json.dumps(app), 'html': html }
 
 
-<<<<<<< HEAD
 @view_config(route_name="ex", renderer='test_dir/ex.html', context=App)
-def revert_app(context, request):
+def revert_app2(context, request):
     return { 'html': 'test' }
 
 # Helper functions
-=======
 #@@ consider putting your views and helper functions into a class
 
-#Helper functions
->>>>>>> prism-up
 def revert_app_status(app):
     app['status'] = 'unchanged'
     
