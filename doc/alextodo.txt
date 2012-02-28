@@ -1,0 +1,28 @@
+Define all the actions that a user could take
+=============================
+
+Tag Action:
+    if application has 'uncommitted changes'
+        Warn that user needs to take Revert Action:
+        
+    else
+        Show Tag form
+        Submit tag form
+        Validate tag form
+        If tag is empty warn, stop submission
+            ? will we enforce a pattern? we can
+        If comment is empty warn, stop submission
+        Update dbo
+        Update the UI to reflect the changes in the application
+        
+        
+Revert Action:
+    update dbo
+    update ui
+
+
+Digram them from front to end
+=============================
+
+Detail them here
+=============================
