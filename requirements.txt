@@ -9,4 +9,5 @@ gevent-websocket==0.2.3
 -e git+git@github.com:whitmo/pyramid_socketio.git#egg=pyramid_socketio-dev
 -e git+https://quezo@github.com/SurveyMonkey/Prism.git#egg=prism
 -e git+git@github.com:SurveyMonkey/gservice.git#egg=gservice
+-e git+git@github.com:SurveyMonkey/ziggurat.git#egg=zig
 -e ./
