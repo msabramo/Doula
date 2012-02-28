@@ -9,6 +9,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def includeme(config):
     pass
     
@@ -63,8 +64,10 @@ class SiteContainer(BaseResource):
         with superinit(self, parent, name):
             self.settings=settings
 
+
     def add_site(self, name, address):
         self.site_class.add_resource_to_tree(self, name, address)
+
 
 
 

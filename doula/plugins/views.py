@@ -15,7 +15,7 @@ def includeme(config):
     config.add_route('ex', '/ex')
 
 
-@view_config(route_name="show_sites", renderer="sites.html", context=IApp)
+@view_config(route_name="show_sites", renderer="templates/sites.html", context=IApp)
 def show_sites(context, request):
     sites = get_sites()
     
@@ -56,7 +56,6 @@ def revert_app2(context, request):
 
 # Helper functions
 #@@ consider putting your views and helper functions into a class
-
 def revert_app_status(app):
     app['status'] = 'unchanged'
     

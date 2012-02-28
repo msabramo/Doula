@@ -7,7 +7,9 @@ var SiteData = (function() {
 	    
 	    init: function() {
 	        this.apps = __apps;
-	    },
+	        
+	        console.log(this.apps);
+	    }
 	    
 	    
     };
