@@ -1,13 +1,9 @@
-# alextodo, why does pip pull the source but does not seem to python setup.py install on the pulled source?
-# I had to go to the ~/.virtualenvs/doula_env/src/gservice directory and run it's python setup.py install
-# for each of the packages pulled from git, why?
-
 -e git+https://github.com/schmir/gevent.git#egg=gevent-dev
 gevent-socketio==0.2.1
 gevent-websocket==0.2.3
 -e git+git@github.com:whitmo/GeventUtil.git#egg=GeventUtil
 -e git+git@github.com:whitmo/pyramid_socketio.git#egg=pyramid_socketio-dev
--e git+https://quezo@github.com/SurveyMonkey/Prism.git#egg=prism
+-e git+git@github.com:SurveyMonkey/Prism.git#egg=prism
 -e git+git@github.com:SurveyMonkey/gservice.git#egg=gservice
 -e git+git@github.com:SurveyMonkey/ziggurat.git#egg=zig
 -e ./

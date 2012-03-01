@@ -4,7 +4,9 @@ from pyramid.renderers import render
 from pyramid.view import view_config
 import json
 import os
+import logging
 
+logger = logging.getLogger(__name__)
 
 def includeme(config):
     config.scan(__name__)
@@ -15,7 +17,7 @@ def includeme(config):
     config.add_route('ex', '/ex')
 
 
-@view_config(route_name="show_sites", renderer="templates/sites.html", context=IApp)
+@view_config(route_name="show_sites", renderer="sites.html", context=IApp)
 def show_sites(context, request):
     sites = get_sites()
     
