@@ -13,8 +13,6 @@ root:/
 maps to the `bambino.resources.App` which is initialize on application initialization
 
 
-
-
 site containter: /sites
 -----------------------
 

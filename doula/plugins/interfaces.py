@@ -1,11 +1,16 @@
 from zope.interface import Interface
 from zope.interface import Attribute
+from zig.interfaces import IReceptionRegistry
 
-class IDoulaZMQServer(Interface):
+class IPuller(Interface):
     """
     Our server for talking to bambinos
     """
 
+class IPullActions(IReceptionRegistry):
+    """
+    A registry for dispatching on received pulls
+    """
 
 class ISiteContainer(Interface):
     """
