@@ -1,14 +1,16 @@
-from .interfaces import IDoulaZMQServer
+from .interfaces import IPullActions
+from .interfaces import IPuller
 from .interfaces import ISiteContainer
-from pyramid import threadlocal 
 from pyramid.events import ApplicationCreated
 from pyramid.events import subscriber
-from zig.dispatch import ActionRegistry
-from zig.dispatch import IActionRegistry
-from zig.dispatch import action
-from zig.server_client import RepServer
+from zig.dispatch import ReceptionRegistry
+from zig.interfaces import IReceptionRegistry
+from zig.dispatch import action as base_action
+from zig.recv import Receiver
 from zope.interface import implementer
 import logging
+import zig
+
 
 here = __name__
 
@@ -16,23 +18,30 @@ logger = logging.getLogger(here)
 
 
 def includeme(config):
-    dzs = DoulaZMQServer.create(config)
-    config.registry.registerUtility(dzs, IDoulaZMQServer)
+    config.include('zig.context')
+    puller = Puller.create(config)
+    config.registry.registerUtility(puller, IPuller)
     config.scan(here)
 
+class action(base_action):
+    iface = IReceptionRegistry
 
-@implementer(IDoulaZMQServer)
-class DoulaZMQServer(RepServer):
-    handler_iface = IActionRegistry
-    handler_class = ActionRegistry
+@implementer(IPuller)
+class Puller(Receiver):
+    handler_iface = IPullActions
+    handler_class = ReceptionRegistry
 
     @classmethod
     def create(cls, config):
-        server_address = config.settings['doula.server_address']
+        address = config.settings['doula.pull']
+        ctx = zig.cfr(config.registry)
+        sock = ctx.pull(bind=address)
         handler = cls.handler_class(config.registry)
         config.registry.registerUtility(handler, cls.handler_iface)
-        server = cls(handler, server_address)
-        return server
+        puller = cls(sock.recv_json, handler)
+        puller.sock = sock
+        puller.address = address
+        return puller
 
 
 @action('doula.register')
@@ -42,22 +51,25 @@ def register(payload, registry):
     """
     address = payload['address']
     sitename = payload['site']
+    node = payload['node']
     sc = registry.queryUtility(ISiteContainer)
     site = sc.get(sitename, None)
     if site is None:
-        sc.add_site(sitename, address)
+        sc.add_site(sitename, ((node, address),))
     else:
-        site.add_node(address)
+        # attempt match before write
+        site.add_node((node, address))
     return dict(status='added')
 
 
 @action('doula.sites')
 def sites(payload, registry):
     """
-    Register a bambino node with a doula
+    Return registered sites
     """
     sc = registry.queryUtility(ISiteContainer)
     return dict(status='ok', sites=sc.keys())
+
 
 
 @action('default')
@@ -65,14 +77,10 @@ def default(payload, registry):
     return dict(status='ok', pong=True)
 
 
-def get_dzs():
-    reg = threadlocal.get_current_registry()
-    return reg.queryUtility(IDoulaZMQServer)
-
 
 @subscriber(ApplicationCreated)
 def launch_server(event):
-    dzs = event.app.registry.getUtility(IDoulaZMQServer)
-    logger.info("launch server: %s" %dzs.address)
-    dzs.run()
+    sink = event.app.registry.getUtility(IPuller)
+    logger.info("launch pull server: %s\n" %sink.address)
+    sink.run()
 
