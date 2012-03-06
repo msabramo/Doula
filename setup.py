@@ -11,7 +11,10 @@ requires = [
     'pyramid_debugtoolbar',
     'waitress',
     'path.py',
-    'pyramid-socketio'
+    'pyramid-socketio',
+    'ziggurat',
+    'prism',
+    'geventutil'
     ]
 
 setup(name='Doula',

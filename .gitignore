@@ -7,7 +7,5 @@
 *_flymake.py
 *#*
 .DS_Store
-
-# Ignore the build directory
 /build
 /temp
