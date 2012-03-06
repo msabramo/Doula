@@ -10,3 +10,4 @@
 
 # Ignore the build directory
 /build
+/temp
