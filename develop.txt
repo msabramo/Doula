@@ -1,4 +1,5 @@
 -r testing.txt
 -e git+git@github.com:SurveyMonkey/Prism.git#egg=Prism
 -e git+git@github.com:SurveyMonkey/GeventUtil.git#egg=GeventUtil
--e git+@github.com:SurveyMonkey/ziggurat.git#egg=ziggurat
+-e git+git@github.com:SurveyMonkey/ziggurat.git#egg=ziggurat
+-e git+https://github.com/schmir/gevent.git#egg=gevent
