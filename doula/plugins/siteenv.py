@@ -50,7 +50,7 @@ class Site(BaseResource):
         results_g = [(node, pool.spawn(endpoint.request(q, timeout=self.timeout))) \
                      for node, endpoint in self.node_map.items()]
         pool.join()
-        return dict((x, y.get()) for x, y in results_g)
+        return dict((x, y.value) for x, y in results_g)
 
     @property
     def apps(self):
