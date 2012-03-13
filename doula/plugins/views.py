@@ -3,8 +3,8 @@ from prism.resource import IApp
 from pyramid.renderers import render
 from pyramid.view import view_config
 import json
-import os
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -13,15 +13,28 @@ def includeme(config):
     config.add_route('show_sites', '/', factory=App.root_factory)
     config.add_route('show_site_status', '/sites/{url}/', factory=App.root_factory)
     config.add_route('revert_app', '/sites/app/revert/', factory=App.root_factory)
-    
     config.add_route('ex', '/ex')
+
+
+@view_config(context='doula.plugins.interfaces.ISiteContainer', renderer="sites2.html")
+def all_sites(context, request):
+    return dict(sites=context)
+
+
+@view_config(context='doula.plugins.interfaces.ISite', renderer="site.html")
+def site_view(context, request):
+    return dict(site=context)
 
 
 @view_config(route_name="show_sites", renderer="sites.html", context=IApp)
 def show_sites(context, request):
     sites = get_sites()
-    
     return { 'sites': sites }
+
+
+@view_config(name='wtfc.json', context='doula.plugins.interfaces.ISite', renderer='json')
+def site_wtfc_json(context, request):
+    return context.query_nodes('node.wtfc')
 
 def get_sites():
     return get_json_from_file('sites.json')

@@ -25,12 +25,13 @@ def modify_resource_tree(config, app_root, name='sites'):
 class Site(BaseResource):
     logger = logger
     pool_size = 10
-    nodes_default_query = dict(action='node_status')
+    nodes_default_query = dict(action='node.wtfc')
     endpoint = json_endpoint
     timeout = 1*1000
+
     def __init__(self, parent=None, name=None, nodes=None):
         self.__parent__ = parent
-        self.__name__ = name
+        self.name = self.__name__ = name
         self.node_map = {}
         if not nodes is None:
             for node in nodes:
@@ -49,7 +50,7 @@ class Site(BaseResource):
         results_g = [(node, pool.spawn(endpoint.request(q, timeout=self.timeout))) \
                      for node, endpoint in self.node_map.items()]
         pool.join()
-        return dict((x, y.get()) for x, y in results_g)
+        return dict((x, y.value) for x, y in results_g)
 
     @property
     def apps(self):

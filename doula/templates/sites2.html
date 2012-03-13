@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block header %}
+<div class="header">
+    <h2>Doula, it's like a bagel without the hole.</h2>
+</div>
+{% endblock %}
+
+{% block container %}
+
+<h3>Registered Sites</h3>
+<hr />
+{% for name, site in sites.items() %}
+<p>
+  <b>{{ site.name }}</b> <code> {{site.node_map}} </code>
+</p>
+{% endfor %}
+
+{% endblock %}
+
+{% block scripts %}
+    {{ ['/js/jquery.js', '/js/bootstrap-dropdown.js']|js_script|safe }}
+{% endblock %}

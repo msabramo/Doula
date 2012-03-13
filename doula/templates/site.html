@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block header %}
+<div class="header">
+  <h2>Doula, it's like a bagel without the hole.</h2>
+</div>
+{% endblock %}
+
+{% block container %}
+
+
+<code>{{ context.node_map }}</code>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ ['/js/jquery.js', '/js/bootstrap-dropdown.js']|js_script|safe }}
+{% endblock %}
