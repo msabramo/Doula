@@ -28,9 +28,10 @@ class Site(BaseResource):
     nodes_default_query = dict(action='node_status')
     endpoint = json_endpoint
     timeout = 1*1000
+
     def __init__(self, parent=None, name=None, nodes=None):
         self.__parent__ = parent
-        self.__name__ = name
+        self.name = self.__name__ = name
         self.node_map = {}
         if not nodes is None:
             for node in nodes:

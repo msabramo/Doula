@@ -1,10 +1,12 @@
+#from doula.plugins.interfaces import ISite
+from doula.plugins.interfaces import ISiteContainer
 from prism.resource import App
 from prism.resource import IApp
 from pyramid.renderers import render
 from pyramid.view import view_config
 import json
-import os
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -13,8 +15,12 @@ def includeme(config):
     config.add_route('show_sites', '/', factory=App.root_factory)
     config.add_route('show_site_status', '/sites/{url}/', factory=App.root_factory)
     config.add_route('revert_app', '/sites/app/revert/', factory=App.root_factory)
-    
     config.add_route('ex', '/ex')
+
+
+@view_config(context=ISiteContainer, renderer="sites2.html")
+def all_sites(context, request):
+    return dict(sites=context)
 
 
 @view_config(route_name="show_sites", renderer="sites.html", context=IApp)
