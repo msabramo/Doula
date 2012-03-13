@@ -25,7 +25,7 @@ def modify_resource_tree(config, app_root, name='sites'):
 class Site(BaseResource):
     logger = logger
     pool_size = 10
-    nodes_default_query = dict(action='node_status')
+    nodes_default_query = dict(action='node.wtfc')
     endpoint = json_endpoint
     timeout = 1*1000
 

@@ -1,5 +1,3 @@
-#from doula.plugins.interfaces import ISite
-from doula.plugins.interfaces import ISiteContainer
 from prism.resource import App
 from prism.resource import IApp
 from pyramid.renderers import render
@@ -18,16 +16,25 @@ def includeme(config):
     config.add_route('ex', '/ex')
 
 
-@view_config(context=ISiteContainer, renderer="sites2.html")
+@view_config(context='doula.plugins.interfaces.ISiteContainer', renderer="sites2.html")
 def all_sites(context, request):
     return dict(sites=context)
+
+
+@view_config(context='doula.plugins.interfaces.ISite', renderer="site.html")
+def site_view(context, request):
+    return dict(site=context)
 
 
 @view_config(route_name="show_sites", renderer="sites.html", context=IApp)
 def show_sites(context, request):
     sites = get_sites()
-    
     return { 'sites': sites }
+
+
+@view_config(name='wtfc.json', context='doula.plugins.interfaces.ISite', renderer='json')
+def site_wtfc_json(context, request):
+    return context.query_nodes('node.wtfc')
 
 def get_sites():
     return get_json_from_file('sites.json')
