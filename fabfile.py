@@ -4,7 +4,6 @@ from path import path
 import os
 import subprocess
 
-pushd = fab.lcd
 
 GEVENT = 'git@github.com:whitmo/gevent.git'
 GEVENT_ZMQ = 'git@github.com:whitmo/gevent-zeromq.git'
@@ -12,6 +11,7 @@ DOULA = 'git@github.com:SurveyMonkey/Doula.git'
 BAMBINO = 'git@github.com:SurveyMonkey/Bambino.git'
 ZMQ = 'zeromq-2.1.11'
 venv = path(os.environ['VIRTUAL_ENV'])
+
 
 def ppid():
     print os.getpid()
@@ -25,7 +25,7 @@ def not_on_path(pkg):
         return True
 
 
-def check_and_install(pkg, cmd, test=not_on_path):
+def check_and_exec(pkg, cmd, test=not_on_path):
     if test(pkg):
         if isinstance(cmd, basestring):
             return fab.local(cmd)
@@ -62,7 +62,7 @@ def install_zmq(version=ZMQ):
     srcdir = venv / 'src'
     if not (srcdir / version).exists():
         with pushd(srcdir):
-            fab.local('wget -quiet -O - "http://download.zeromq.org/%s.tar.gz" | tar -xzf -' %version)
+            fab.local('wget -O - "http://download.zeromq.org/%s.tar.gz" | tar -xzf -' %version)
         
     with pushd(srcdir / version):
         if not path('config.status').exists():
@@ -78,10 +78,10 @@ def devinstall():
     with pushd(srcdir):
         fab.execute(install_zmq)
         fab.local('pip install distribute==0.6.14')
-        check_and_install('cython', 'pip install Cython')
-        check_and_install('gevent', 'pip install -e git+%s#egg=gevent' %GEVENT)
-        check_and_install('zmq', "pip install pyzmq --install-option='--zmq=%s'" %venv)
-        check_and_install('gevent_zmq', lambda :fab.execute('install_gz'))
+        check_and_exec('cython', 'pip install Cython')
+        check_and_exec('gevent', 'pip install -e git+%s#egg=gevent' %GEVENT)
+        check_and_exec('zmq', "pip install pyzmq --install-option='--zmq=%s'" %venv)
+        check_and_exec('gevent_zmq', lambda :fab.execute('install_gz'))
         fab.execute('install_doula')
         fab.execute('install_bambino')
 
