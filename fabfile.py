@@ -51,8 +51,8 @@ def install_zmq(version=ZMQ):
     with pushd(srcdir / version):
         if not path('config.status').exists():
             fab.local("./configure --prefix %s" %venv)
-        fab.local('make')
-        fab.local('make install')
+            fab.local('make')
+            fab.local('make install')
 
 
 @fab.task
@@ -74,7 +74,7 @@ def install_gz():
     srcdir = venv / 'src'
     with pushd(srcdir):
         with fab.settings(warn_only=True):
-            if not path('gevent=zeromq').exists():
+            if not path('gevent-zeromq').exists():
                 fab.local('git clone %s' %GEVENT_ZMQ)
         with pushd('gevent-zeromq'):
             print "<< distribute flail >>"
