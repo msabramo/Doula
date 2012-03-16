@@ -77,7 +77,8 @@ def install_gz():
             if not path('gevent=zeromq').exists():
                 fab.local('git clone %s' %GEVENT_ZMQ)
         with pushd('gevent-zeromq'):
-            fab.local("python setup.py build_ext -I$VIRTUAL_ENV/include develop")
+            print "<< distribute flail >>"
+            fab.local("python setup.py build_ext -I$VIRTUAL_ENV/include install")
 
 @contextmanager
 def pushd(dir):
