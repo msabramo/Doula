@@ -56,7 +56,7 @@ def install_zmq(version=ZMQ):
 
 
 @fab.task
-def install_deps():
+def devinstall():
     venv = path(os.environ['VIRTUAL_ENV'])
     srcdir = venv / 'src'
     with pushd(srcdir):
