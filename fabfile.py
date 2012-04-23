@@ -32,8 +32,9 @@ def update_doula():
         with cd('src/doula'):
             run('git submodule init')
             run('git submodule update')
-            run('git pull origin master')
         with cd('src/doula/etc'):
+            run('git checkout master')
+            run('git pull origin master')
             sudo('ln -s $(pwd)/supervisor.conf /etc/supervisor/conf.d/doula.conf')
         restart()
 
