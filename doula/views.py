@@ -4,7 +4,6 @@ import time
 from doula.util import pprint
 from doula.util import dumps
 from doula.models.sites_dao import SiteDAO
-from doula.util import encode
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPNotFound
 
