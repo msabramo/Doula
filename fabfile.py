@@ -7,6 +7,7 @@ env.hosts = ['doula.corp.surveymonkey.com']
 env.user = 'doula'
 env.key_filename = '~/.ssh/id_rsa'
 doula_dir = '/opt/webapp/doula'
+supervisor_file = '/etc/supervisor/conf.d/doula.conf'
 
 def hello(name='world'):
     print("Hello %s" % name)
@@ -35,7 +36,9 @@ def update_doula():
         with cd('src/doula/etc'):
             run('git checkout master')
             run('git pull origin master')
-            sudo('ln -s $(pwd)/supervisor.conf /etc/supervisor/conf.d/doula.conf')
+            if exists(supervisor_file):
+                sudo('rm %s' % supervisor_file)
+            sudo('ln -s $(pwd)/supervisor.conf %s' % supervisor_file)
         restart()
 
 def restart():
