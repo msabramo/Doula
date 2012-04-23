@@ -21,6 +21,7 @@ log = logging.getLogger('doula')
 import re
 from doula.util import dirify
 from doula.util import dumps
+from doula.cache import Cache
 
 class Site(object):
     def __init__(self, name, status='unknown', nodes={}, applications={}):
@@ -101,11 +102,10 @@ class Node(object):
             msg = 'Unable to contact node {0} at URL {1}'.format(self.name, self.url)
             log.error(msg)
             self.errors.append(msg)
-        # except Exception as e:
-        #     msg = 'Unable to load applications. Error: {0}'.format(e)
-        #     log.error(msg)
-        #     print e
-        #     self.errors.append(msg)
+        except Exception as e:
+            msg = 'Unable to load applications. Error: {0}'.format(e)
+            log.error(msg)
+            self.errors.append(msg)
         
         return self.applications
     
@@ -136,7 +136,7 @@ class Application(object):
         self.last_tag_config = last_tag_config
         self.last_tag_message = last_tag_message
         
-        self.__status = status
+        self.status = status
         self.remote = remote
         self.packages = packages
         self.changed_files = changed_files
@@ -186,24 +186,20 @@ class Application(object):
         rslt = json.loads(r.text)
         self.notes = rslt['notes']
     
-    @property
-    def status(self):
-        # alextodo, implement the 
-        return self.__status
+    def get_status(self):
+        # alextodo, implement the get status, why am i doing this again?
+        return self.status
     
-    @status.setter
-    def status(self, value):
-        self.__status = value
-    
-    def deploy_application(self, site):
+    def mark_as_deployed(self):
         """
         Mark an application as deployed
         """
         self.status = 'deployed'
-        
-        cache = Cache.cache()
-        key = self.get_cache_app_status_key(site)
-        cache.set(key, self.status)
+        # need to access the cache and store the status
+        # NEED A SEPARATE CLASS
+        # cache = Cache.cache()
+        #         key = self.get_cache_app_status_key(site)
+        #         cache.set(key, self.status)
     
     def get_cache_app_status_key(self, site):
         return site.name_url + self.name_url + '_status'
