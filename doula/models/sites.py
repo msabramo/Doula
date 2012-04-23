@@ -78,7 +78,7 @@ class Node(object):
             rslt = json.loads(r.text)
             
             for app in rslt['applications']:
-                a = Application(app['name'], self.name, self.url)
+                a = Application(app['name'], self.name, self.site_name, self.url)
                 a.current_branch_app = app['current_branch_app']
                 a.change_count_app = app['change_count_app']
                 a.change_count_config = app['change_count_config']
@@ -101,10 +101,11 @@ class Node(object):
             msg = 'Unable to contact node {0} at URL {1}'.format(self.name, self.url)
             log.error(msg)
             self.errors.append(msg)
-        except Exception as e:
-            msg = 'Unable to load applications. Error: {0}'.format(e)
-            log.error(msg)
-            self.error.append(msg)
+        # except Exception as e:
+        #     msg = 'Unable to load applications. Error: {0}'.format(e)
+        #     log.error(msg)
+        #     print e
+        #     self.errors.append(msg)
         
         return self.applications
     
@@ -135,7 +136,7 @@ class Application(object):
         self.last_tag_config = last_tag_config
         self.last_tag_message = last_tag_message
         
-        self.status = status
+        self.__status = status
         self.remote = remote
         self.packages = packages
         self.changed_files = changed_files
@@ -188,7 +189,11 @@ class Application(object):
     @property
     def status(self):
         # alextodo, implement the 
-        pass
+        return self.__status
+    
+    @status.setter
+    def status(self, value):
+        self.__status = value
     
     def deploy_application(self, site):
         """

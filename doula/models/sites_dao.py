@@ -78,6 +78,7 @@ class SiteDAO(object):
         return SiteFactory.build_site(simple_site)
     
 
+# alextodo, move this to a staticmethod on the Site object
 class SiteFactory(object):
     """
     Builds Site objects, with Node and Applications as well
