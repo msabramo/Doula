@@ -15,7 +15,8 @@ requires = [
     'waitress',
     'requests',
     'simplejson',
-    'redis'
+    'redis',
+    'fabric'
     ]
 
 setup(name='Doula',
