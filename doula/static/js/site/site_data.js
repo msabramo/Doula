@@ -35,7 +35,7 @@ var SiteData = {
     },
 
     deployApplication: function(app) {
-        var msg = 'Deploying application';
+        var msg = 'Marking application as deployed';
         var url = '/deploy.json';
         var params = {
             'site'        : SiteData.name_url,

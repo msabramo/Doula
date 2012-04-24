@@ -4,9 +4,6 @@ var AjaxUtil = {
         onPass = _bind(onPass, this);
         this._showProgressIndicator(msg);
         
-        // alextodo, see if we can bind to this _bind(onPass, this), then the previous call
-        // doesn't have to bind to this!
-        
         $.ajax({
               url: url,
               type: 'POST',
@@ -49,10 +46,10 @@ var AjaxUtil = {
 
         
         progressIndicator.css('margin-left', marginLeft);
-        progressIndicator.slideToggle(700).addClass('open');
+        progressIndicator.slideToggle(600).addClass('open');
     },
     
     _hideProgressIndicator: function() {
-        $('#progress-indicator').slideToggle(700).removeClass('open');
+        $('#progress-indicator').slideToggle(300).removeClass('open');
     }
 }

@@ -1,6 +1,7 @@
 var Site = (function() {
   // The main Site Module
   var Site = {
+      
     init: function() {
         SiteData.init();
         UI.init();
@@ -9,10 +10,10 @@ var Site = (function() {
     },
     
     bindEvents: function() {
-      $('input.tag').on('change', this.validateTag);
-      $('textarea.commit').on('change', this.validateMsg);
-      $('form').on('submit', this.tagApplication);
-      $('a.deploy').on('click', this.deployApplication);
+        $('input.tag').on('change', this.validateTag);
+        $('textarea.commit').on('change', this.validateMsg);
+        $('form').on('submit', this.tagApplication);
+        $('a.deploy').on('click', this.deployApplication);
     },
 
     deployApplication: function() {

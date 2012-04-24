@@ -17,54 +17,22 @@
         </tr>
         <tr>
             <td><strong>Status</strong></td>
-            <td>{{ app.status|get_pretty_status }}</td>
+            <td>{{ app.get_status()|get_pretty_status }}</td>
         </tr>
         <tr class="odd">
-            <td style="vertical-align: top;"><strong>Notes</strong></td>
-            <td>
-                <a id="add-note-link" href="#">Add a Note</a>
-                <div id="add-note-div" class="hide">
-                <form action="/sites/{{ site.name_url }}/{{ app.name_url }}" enctype="multipart/form-data" method="post">
-                <textarea name="note" class="commit" style="width: 100%" 
-                cols="20" rows="5" placeholder="He listens well who takes notes."></textarea>
-                <br /><br />
-                <input class="btn" type="submit" value="Add Note" />
-                </form>
-                </div>
-                <!-- alextodo style and get rid of <br/> -->
-                <br /><br />
-                <div>
-                    {% if app.notes|length > 0 %}
-                    <strong>Existing notes</strong>
-
-                    <table>
-                    {% for date, text in app.notes.iteritems()|sort(reverse=True) %}
-                    <tr>
-                      <td>{{ date|datetime }}</td>
-                      <td>{{ text }}</td>
-                    </tr>
-                    {% endfor %}
-                  </table>
-                  {% else %}
-                  <strong>No notes exist for {{ app.name }}</strong>
-                  {% endif %}
-                </div>
-            </td>
-        </tr>
-        <tr>
             <td><strong>Last Tag</strong></td>
             <td>{{ app.last_tag_app }}</td>
         </tr>
-        <tr class="odd">
+        <tr>
             <td><strong>Last Tag Message</strong></td>
             <td>{{ app.last_tag_message }}</td>
         </tr>
-        <tr>
+        <tr class="odd">
             <td><strong>Compare View</strong></td>
             <td><a href="{{ app.get_compare_url() }}" target="_blank">{{ app.get_compare_url() }}</a></td>
         </tr>
-        {% if app.changed_files|length > 0 and app.status == 'uncommitted_changes' %}
-        <tr class="odd">
+        {% if app.changed_files|length > 0 and app.get_status() == 'uncommitted_changes' %}
+        <tr>
             <th style="vertical-align: top;">
                 Changed Files
             </th>

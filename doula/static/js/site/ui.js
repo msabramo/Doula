@@ -24,6 +24,7 @@ var UI = {
     
     deployApp: function(app) {
         $('#deploy_' + app.name_url).hide();
+        $('#panel_' + app.name_url + ' strong').html('Deployed');
         this.updateStatus(app);
     },
 

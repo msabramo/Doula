@@ -7,11 +7,6 @@ var Application = {
 
     bindUIActions: function() {
     	$('.sm-side-tab').sideTab();
-
-    	$('#add-note-link').on('click', function() {
-    		$('#add-note-div').toggleClass('hide');
-    		return false;
-    	});
     },
 
     bindDataActions: function() {

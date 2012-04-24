@@ -37,45 +37,20 @@ def show_application(request):
         site = dao.get_site(request.matchdict['site'])
         app = site.applications[request.matchdict['application']]
 
-        if take_note(request, app):
-            app.add_note(request.POST['note'])
-
-    except:
-        if 'note' in request.POST:
-            msg = 'Unable to add note to "{0}"'
-            msg = msg.format(request.matchdict['application'])
-        else:
-            msg = 'Unable to find site and application under "{0}" and "{1}"'
-            msg = msg.format(request.matchdict['site'], request.matchdict['application'])
+    except Exception as e:
+        print e.message
+        msg = 'Unable to find site and application under "{0}" and "{1}"'
+        msg = msg.format(request.matchdict['site'], request.matchdict['application'])
 
         raise HTTPNotFound(msg)
     
 
     return { 'site': site, 'app': app }
 
-def take_note(request, app):
-    if 'note' in request.POST:
-        # ensure the user isn't reposting same last comment by accident
-        keys = sorted(app.notes.keys())
-        
-        if len(keys) > 0:
-            last_note = app.notes[keys.pop()]
-            
-            if request.POST['note'] == last_note:
-                # Stop users from resubmitting the last note twice
-                return False
-        
-        return True
-    else:
-        return False
-
-
 @view_config(route_name='tag', renderer="string")
 def tag_application(request):
     try:
-        dao = SiteDAO()
-        site = dao.get_site(request.POST['site'])
-        app = site.applications[request.POST['application']]
+        app = SiteDAO.get_application(request.POST['site'], request.POST['application'])
         app.tag(request.POST['tag'], request.POST['msg'])
         
         return dumps({ 'success': True, 'app': app })
