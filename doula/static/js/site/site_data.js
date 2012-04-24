@@ -7,7 +7,6 @@ var SiteData = {
     applications: { },
     status: '',
     
-    
     init: function() {
         _mixin(this, __site);
         _mixin(this, AjaxUtil);
