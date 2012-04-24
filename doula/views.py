@@ -4,7 +4,6 @@ import time
 from doula.util import pprint
 from doula.util import dumps
 from doula.models.sites_dao import SiteDAO
-from doula.models.util import encode
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPNotFound
 
@@ -90,11 +89,9 @@ def tag_application(request):
 @view_config(route_name='deploy', renderer="string")
 def deploy_application(request):
     try:
-        dao = SiteDAO()
-        site = dao.get_site(request.POST['site'])
-        app = site.applications[request.POST['application']]
-        app.deploy_application(site)
-
+        app = SiteDAO.get_application(request.POST['site'], request.POST['application'])
+        app.mark_as_deployed()
+        
         return dumps({ 'success': True, 'app': app })
     except KeyError as e:
         msg = 'Unable to deploy application under "{0}"'
@@ -116,7 +113,6 @@ def register(request):
     """
     node = json.loads(request.POST['node'])
     node['time'] = time.strftime("%m/%d/%Y %H:%M:%S", time.gmtime())
-    pprint(node)
 
     if(request.POST['action'] == 'register'):
         SiteDAO().register_node(node)

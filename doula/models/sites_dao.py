@@ -77,6 +77,11 @@ class SiteDAO(object):
         simple_site = self._get_site(site_name)
         return SiteFactory.build_site(simple_site)
     
+    @staticmethod
+    def get_application(site, app):
+        dao = SiteDAO()
+        site = dao.get_site(site)
+        return site.applications[app]
 
 # alextodo, move this to a staticmethod on the Site object
 class SiteFactory(object):

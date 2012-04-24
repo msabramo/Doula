@@ -3310,3 +3310,32 @@ table {
 /* line 246, ../sass/style.sass */
 .hide {
   display: none !important; }
+
+/* line 250, ../sass/style.sass */
+#progress-indicator {
+  -moz-border-radius-topleft: 25px;
+  -webkit-border-top-left-radius: 25px;
+  -ms-border-top-left-radius: 25px;
+  -o-border-top-left-radius: 25px;
+  border-top-left-radius: 25px;
+  -moz-border-radius-topright: 25px;
+  -webkit-border-top-right-radius: 25px;
+  -ms-border-top-right-radius: 25px;
+  -o-border-top-right-radius: 25px;
+  border-top-right-radius: 25px;
+  background-color: #56601d;
+  text-align: center;
+  margin: 0px auto;
+  display: none;
+  width: 500px;
+  height: 75px;
+  z-index: 99999; }
+  /* line 260, ../sass/style.sass */
+  #progress-indicator h4 {
+    text-align: center; }
+
+/* line 264, ../sass/style.sass */
+#footer {
+  margin: 50px 0px;
+  width: 100%;
+  text-align: center; }
