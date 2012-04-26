@@ -71,8 +71,6 @@ class SiteDAO(object):
         Get list of registered sites. Returns actual Site object.
         """
         all_sites = { }
-        print 'ALL CACHE KEYS'
-        print self._all_site_keys()
         
         for site_key in self._all_site_keys():
             site_name = site_key.replace(self.site_prefix, '')

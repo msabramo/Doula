@@ -81,7 +81,7 @@ def not_found(self, request):
 
 
 @view_config(route_name='nodes_ip_lookup', renderer="string")
-def deploy_application(request):
+def nodes_ip_lookup(request):
     try:
         app = SiteDAO.get_application(request.POST['site'], request.POST['application'])
         app.mark_as_deployed()
