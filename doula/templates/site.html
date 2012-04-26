@@ -13,25 +13,25 @@
 
  <div id="accordion" class="accordion">
     {% for name_url, app in site.applications.iteritems() %}
-    <div id="stat_{{ app.name_url }}" class="key {{ app.status|get_stat_class }}">
+    <div id="stat_{{ app.name_url }}" class="key {{ app.get_status()|get_stat_class }}">
 
       <header>
-         {% if app.status == 'tagged'%}
+         {% if app.get_status() == 'tagged'%}
          <a id="deploy_{{ app.name_url }}" app-id="{{ app.name_url }}" class="deploy" href="#"><span class="icon">&#8658;</span> Deploy</a>
          {% endif %}
          <span id="status_{{ app.name_url }}" app-id="{{ app.name_url }}" 
-         class="{{ app.status|get_status_class }}">&#x25BA;</span>
+         class="{{ app.get_status()|get_status_class }}">&#x25BA;</span>
          <a href="/sites/{{ site.name_url }}/{{ app.name_url }}"><span class="icon">⚙</span> Details</a>
          <h3>
            <a id="panel_{{ app.name_url }}" href="#panel{{ loop.index }}" 
-           class="{% if app.status != 'uncommitted_changes' %}keyOpener{% else %}keyCloser{% endif %}">
+           class="{% if app.get_status() != 'uncommitted_changes' %}keyOpener{% else %}keyCloser{% endif %}">
              {{ app.name }}
-             <strong>{{ app.status|get_pretty_status }}</strong>
-             {% if app.status != 'deployed' and app.status != 'tagged' and app.status != 'uncommitted_changes' %}<em><span class="icon">✍</span> Tag Changes</em>{% endif %}
+             <strong>{{ app.get_status()|get_pretty_status }}</strong>
+             {% if app.get_status() != 'deployed' and app.get_status() != 'tagged' and app.get_status() != 'uncommitted_changes' %}<em><span class="icon">✍</span> Tag Changes</em>{% endif %}
            </a>
          </h3>
       </header>
-      {% if app.status != 'deployed' and app.status != 'tagged' %}
+      {% if app.get_status() != 'deployed' and app.get_status() != 'tagged' %}
       <section id="panel{{ loop.index }}">
 
          <form id="form_{{ app.name_url }}" method="post" action="#">
@@ -76,6 +76,8 @@
 '/js/libs/global-pro-min.js', 
 '/js/libs/accordions.js',
 '/js/libs/site-tabs.js',
+'/js/common/util.js',
+'/js/common/ajax_util.js',
 '/js/common/progress_indicator.js',
 '/js/site/ui.js', 
 '/js/site/site_data.js', 

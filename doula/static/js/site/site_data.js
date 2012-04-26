@@ -7,86 +7,48 @@ var SiteData = {
     applications: { },
     status: '',
     
-    
     init: function() {
-        this.mixin();
-    },
-    
-    mixin: function() {
-        for(var x in __site) {
-            this[x] = __site[x];
-        }
+        _mixin(this, __site);
+        _mixin(this, AjaxUtil);
     },
     
     tagApp: function(app, tag, msg) {
-        params = {
+        var msg = 'Tagging application';
+        var url = '/tag';
+        var params = {
             'site'        : SiteData.name_url,
             'application' : app.name_url,
             'tag'         : tag,
             'msg'         : msg
         }
         
-        // alextodo, use a personal version of ajax
-        $.ajax({
-              url: '/tag',
-              type: 'POST',
-              data: this.getDataValues(params),
-              success: function(rslt) {
-                  var obj = $.parseJSON(rslt);
-                  
-                  if(obj.success) {
-                      app = SiteData.findAppByID(obj.app.name_url);
-                      app.tag = obj.app.last_tag_app;
-                      app.msg = obj.app.msg;
-                      app.status = obj.app.status;
-                      
-                      Site.successfulTagApp(app);
-                  }
-                  else {
-                      // alextodo, need to make call to UI.failed whatever
-                      alert(obj.msg);
-                  }
-              }
-        });
+        this.post(msg, url, params, this.successfulDeployApplication);
+    },
+    
+    successfulTagApp: function(rlst) {
+        app = SiteData.findAppByID(rlst.app.name_url);
+        app.tag = rlst.app.last_tag_app;
+        app.msg = rlst.app.msg;
+        app.status = rlst.app.status;
+        
+        Site.successfulTagApp(app);
     },
 
     deployApplication: function(app) {
-        params = {
+        var msg = 'Marking application as deployed';
+        var url = '/deploy.json';
+        var params = {
             'site'        : SiteData.name_url,
             'application' : app.name_url
         }
         
-        $.ajax({
-              url: '/deploy.json',
-              type: 'POST',
-              data: this.getDataValues(params),
-              success: function(rslt) {
-                  var obj = $.parseJSON(rslt);
-                  
-                  // should be implemented on index page
-                  if(obj.success) {
-                      app = SiteData.findAppByID(obj.app.name_url);
-                      app.status = obj.app.status;
-                      UI.deployApp(app);
-                  }
-                  else {
-                      // alextodo, need to make call to UI. failed whatever
-                      alert(obj.msg);
-                  }
-              }
-        });
+        this.post(msg, url, params, this.successfulDeployApplication);
     },
     
-    getDataValues: function(params) {
-        var dataValues = '';
-        var count = 0;
-        
-        for(var key in params) {
-            if(dataValues != '') dataValues += '&';
-            dataValues += key + '=' + encodeURIComponent(params[key]);
-        }
-        
-        return dataValues;
+    successfulDeployApplication: function(rslt) {
+        app = SiteData.findAppByID(rslt.app.name_url);
+        app.status = rslt.app.status;
+        UI.deployApp(app);
     },
     
     revertAppTag: function(app, tag, msg) {

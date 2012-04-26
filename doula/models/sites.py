@@ -2,8 +2,9 @@ import json
 import re
 import requests
 import logging
-
-log = logging.getLogger('doula')
+from doula.util import dirify
+from doula.util import dumps
+from doula.models.sites_dal import SiteDAL
 
 # Defines the Data Models for Doula and Bambino.
 #
@@ -18,10 +19,8 @@ log = logging.getLogger('doula')
 #       Application
 #         packages
 #           Package
-import re
-from doula.util import dirify
-from doula.util import dumps
-from doula.cache import Cache
+
+log = logging.getLogger('doula')
 
 class Site(object):
     def __init__(self, name, status='unknown', nodes={}, applications={}):
@@ -47,11 +46,11 @@ class Site(object):
         }
         
         for app_name, app in self.applications.iteritems():
-            app_status_value = status_values[app.status]
+            app_status_value = status_values[app.get_status()]
             
             if app_status_value > status_value:
                 status_value = app_status_value
-                self.status = app.status
+                self.status = app.get_status()
         
         return self.status
     
@@ -91,7 +90,6 @@ class Node(object):
                 a.last_tag_message = app['last_tag_message']
                 a.current_branch_config = app['current_branch_config']
                 a.changed_files = app['changed_files']
-                a.notes = app['notes']
                 a.packages = [ ]
                 
                 for name, version in app['packages'].iteritems():
@@ -116,7 +114,7 @@ class Application(object):
         change_count_app='', change_count_config='',
         is_dirty_app=False, is_dirty_config=False,
         last_tag_app='', last_tag_config='', last_tag_message='',
-        status='', remote='', repo='', packages=[], changed_files=[], notes={}):
+        status='', remote='', repo='', packages=[], changed_files=[]):
         self.name = name
         self.site_name = site_name
         self.node_name = node_name
@@ -140,7 +138,6 @@ class Application(object):
         self.remote = remote
         self.packages = packages
         self.changed_files = changed_files
-        self.notes = notes
     
     def get_compare_url(self):
         """
@@ -161,6 +158,7 @@ class Application(object):
         compare_url+= '/compare/' + self.last_tag_app + '...' + self.current_branch_app
         
         return compare_url
+    
     def tag(self, tag, msg):
         """
         Tag the current application
@@ -174,35 +172,19 @@ class Application(object):
         self.msg = msg
         self.status = 'tagged'
     
-    def add_note(self, note):
-        """
-        Add a note to the Bambino
-        """
-        payload = { 'note': note, 'app': self.name }
-        r = requests.post(self.url + '/note', data=payload)
-        # If the response is non 200, we raise an error
-        r.raise_for_status()
-
-        rslt = json.loads(r.text)
-        self.notes = rslt['notes']
-    
     def get_status(self):
-        # alextodo, implement the get status, why am i doing this again?
-        return self.status
+        if self.status == 'tagged' and SiteDAL().is_deployed(self):
+            return 'deployed'
+        else:
+            return self.status
     
     def mark_as_deployed(self):
         """
         Mark an application as deployed
         """
         self.status = 'deployed'
-        # need to access the cache and store the status
-        # NEED A SEPARATE CLASS
-        # cache = Cache.cache()
-        #         key = self.get_cache_app_status_key(site)
-        #         cache.set(key, self.status)
+        SiteDAL().save_application_as_deployed(self)
     
-    def get_cache_app_status_key(self, site):
-        return site.name_url + self.name_url + '_status'
 
 class Package(object):
     """

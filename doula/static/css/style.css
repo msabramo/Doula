@@ -3323,18 +3323,22 @@ table {
   -ms-border-top-right-radius: 25px;
   -o-border-top-right-radius: 25px;
   border-top-right-radius: 25px;
-  background-color: #56601d;
+  color: #2d2b2b;
+  background-color: #ffffdd;
   text-align: center;
   margin: 0px auto;
   display: none;
-  width: 500px;
-  height: 75px;
+  width: 80%;
+  height: 50px;
+  position: absolute;
+  bottom: 0;
   z-index: 99999; }
-  /* line 260, ../sass/style.sass */
+  /* line 262, ../sass/style.sass */
   #progress-indicator h4 {
-    text-align: center; }
+    text-align: center;
+    padding: 20px 0px; }
 
-/* line 264, ../sass/style.sass */
+/* line 266, ../sass/style.sass */
 #footer {
   margin: 50px 0px;
   width: 100%;
