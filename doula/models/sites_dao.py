@@ -59,13 +59,20 @@ class SiteDAO(object):
         return site['nodes']
     
     def _all_site_keys(self):
-        return self.cache.keys('site:*')
+        site_keys = self.cache.keys('site:*')
+        
+        if type(site_keys) == str:
+            return [site_keys]
+        else:
+            return site_keys
     
     def get_sites(self):
         """
         Get list of registered sites. Returns actual Site object.
         """
         all_sites = { }
+        print 'ALL CACHE KEYS'
+        print self._all_site_keys()
         
         for site_key in self._all_site_keys():
             site_name = site_key.replace(self.site_prefix, '')

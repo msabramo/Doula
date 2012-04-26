@@ -22,7 +22,7 @@ def show_sites(request):
 def show_site(request):
     dao = SiteDAO()
     site = dao.get_site(request.matchdict['site'])
-    pprint(site)
+    
     if not site:
         msg = 'Unable to find site "{0}"'.format(request.matchdict['site'])
         raise HTTPNotFound(msg)
@@ -36,7 +36,7 @@ def show_application(request):
         dao = SiteDAO()
         site = dao.get_site(request.matchdict['site'])
         app = site.applications[request.matchdict['application']]
-        pprint(app)
+        
     except Exception as e:
         msg = 'Unable to find site and application under "{0}" and "{1}"'
         msg = msg.format(request.matchdict['site'], request.matchdict['application'])
@@ -80,6 +80,20 @@ def not_found(self, request):
     return { 'msg': request.exception.message }
 
 
+@view_config(route_name='nodes_ip_lookup', renderer="string")
+def deploy_application(request):
+    try:
+        app = SiteDAO.get_application(request.POST['site'], request.POST['application'])
+        app.mark_as_deployed()
+        
+        return dumps({ 'success': True, 'app': app })
+    except KeyError as e:
+        msg = 'Unable to deploy application under "{0}"'
+        msg = msg.format(request.POST['site'], request.POST['application'])
+        
+        return dumps({ 'success': False, 'msg': msg })
+
+
 @view_config(route_name='register', renderer='json')
 def register(request):
     """
@@ -87,7 +101,7 @@ def register(request):
     """
     node = json.loads(request.POST['node'])
     node['time'] = time.strftime("%m/%d/%Y %H:%M:%S", time.gmtime())
-
+    
     if(request.POST['action'] == 'register'):
         SiteDAO().register_node(node)
     else:
