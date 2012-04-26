@@ -22,7 +22,7 @@ def show_sites(request):
 def show_site(request):
     dao = SiteDAO()
     site = dao.get_site(request.matchdict['site'])
-    
+    pprint(site)
     if not site:
         msg = 'Unable to find site "{0}"'.format(request.matchdict['site'])
         raise HTTPNotFound(msg)
@@ -36,9 +36,8 @@ def show_application(request):
         dao = SiteDAO()
         site = dao.get_site(request.matchdict['site'])
         app = site.applications[request.matchdict['application']]
-
+        pprint(app)
     except Exception as e:
-        print e.message
         msg = 'Unable to find site and application under "{0}" and "{1}"'
         msg = msg.format(request.matchdict['site'], request.matchdict['application'])
 
