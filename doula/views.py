@@ -80,13 +80,12 @@ def not_found(self, request):
     return { 'msg': request.exception.message }
 
 
-@view_config(route_name='nodes_ip_lookup', renderer="string")
+@view_config(route_name='nodes_ip_lookup', renderer="json")
 def nodes_ip_lookup(request):
     try:
-        app = SiteDAO.get_application(request.POST['site'], request.POST['application'])
-        app.mark_as_deployed()
+        ips = SiteDAO.get_node_ips()
         
-        return dumps({ 'success': True, 'app': app })
+        return { 'success': True, 'ip_addresses': ips }
     except KeyError as e:
         msg = 'Unable to deploy application under "{0}"'
         msg = msg.format(request.POST['site'], request.POST['application'])

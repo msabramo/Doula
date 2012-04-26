@@ -83,6 +83,20 @@ class SiteDAO(object):
         return SiteFactory.build_site(simple_site)
     
     @staticmethod
+    def get_node_ips():
+        dao = SiteDAO()
+        ips = [ ]
+        
+        for site in dao.get_sites():
+            key = dao._get_site_cache_key(site)
+            site_obj = json.loads(dao.cache.get(key))
+            
+            for name, node in site_obj['nodes'].iteritems():
+                ips.append(node['ip'])
+        
+        return ips
+    
+    @staticmethod
     def get_application(site, app):
         dao = SiteDAO()
         site = dao.get_site(site)
