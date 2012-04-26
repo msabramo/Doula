@@ -9,21 +9,7 @@ env.key_filename = '~/.ssh/id_rsa'
 doula_dir = '/opt/webapp/doula'
 supervisor_file = '/etc/supervisor/conf.d/doula.conf'
 
-def hello(name='world'):
-    print("Hello %s" % name)
-
-def ls():
-    local('pwd')
-
-def install():
-    with cd('.'):
-        local('. ../bin/activate')
-        pull()
-
-def pull():
-    local('git pull')
-
-def update_doula():
+def update():
     with cd(doula_dir):
         if not exists('bin'):
             run('mkvirtualenv .')
