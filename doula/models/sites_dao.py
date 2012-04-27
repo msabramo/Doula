@@ -21,6 +21,10 @@ class SiteDAO(object):
         site['nodes'][node['name']] = node
         
         key = self._get_site_cache_key(node['site'])
+        
+        log.info('Registering site')
+        log.info(json.dumps(site))
+        
         self.cache.set(key, json.dumps(site))
     
     def unregister_node(self, node):
@@ -60,6 +64,9 @@ class SiteDAO(object):
     
     def _all_site_keys(self):
         site_keys = self.cache.keys('site:*')
+        
+        log.info('Site Keys')
+        log.info(site_keys)
         
         if type(site_keys) == str:
             return [site_keys]

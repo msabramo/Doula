@@ -16,9 +16,11 @@
     <div id="stat_{{ app.name_url }}" class="key {{ app.get_status()|get_stat_class }}">
 
       <header>
-         {% if app.get_status() == 'tagged'%}
-         <a id="deploy_{{ app.name_url }}" app-id="{{ app.name_url }}" class="deploy" href="#"><span class="icon">&#8658;</span> Deploy</a>
-         {% endif %}
+         
+         <a id="deploy_{{ app.name_url }}" app-id="{{ app.name_url }}" 
+          class="deploy {% if app.get_status() != 'tagged'%}hide{% endif %}" href="#">
+          <span class="icon">&#8658;</span> Deploy
+         </a>
          <span id="status_{{ app.name_url }}" app-id="{{ app.name_url }}" 
          class="{{ app.get_status()|get_status_class }}">&#x25BA;</span>
          <a href="/sites/{{ site.name_url }}/{{ app.name_url }}"><span class="icon">⚙</span> Details</a>

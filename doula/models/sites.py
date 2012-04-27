@@ -90,6 +90,7 @@ class Node(object):
                 a.last_tag_message = app['last_tag_message']
                 a.current_branch_config = app['current_branch_config']
                 a.changed_files = app['changed_files']
+                a.tagged_history = app['tag_history']
                 a.packages = [ ]
                 
                 for name, version in app['packages'].iteritems():
@@ -101,7 +102,7 @@ class Node(object):
             log.error(msg)
             self.errors.append(msg)
         except Exception as e:
-            msg = 'Unable to load applications. Error: {0}'.format(e)
+            msg = 'Unable to load applications. Error: {0}'.format(e.message)
             log.error(msg)
             self.errors.append(msg)
         
@@ -114,7 +115,7 @@ class Application(object):
         change_count_app='', change_count_config='',
         is_dirty_app=False, is_dirty_config=False,
         last_tag_app='', last_tag_config='', last_tag_message='',
-        status='', remote='', repo='', packages=[], changed_files=[]):
+        status='', remote='', repo='', packages=[], changed_files=[], tagged_history={}):
         self.name = name
         self.site_name = site_name
         self.node_name = node_name
@@ -138,6 +139,7 @@ class Application(object):
         self.remote = remote
         self.packages = packages
         self.changed_files = changed_files
+        self.tagged_history = tagged_history
     
     def get_compare_url(self):
         """
@@ -154,8 +156,11 @@ class Application(object):
             # parses git@code.corp.surveymonkey.com:tbone/anweb-1.git type remote
             m = re.search(r'@([\w\.]+):([\w\d]+)\/([\w\d]+)', self.remote)
         
-        compare_url = 'http://' + m.group(1) + '/' + m.group(2) + '/' + self.name
-        compare_url+= '/compare/' + self.last_tag_app + '...' + self.current_branch_app
+        compare_url = ''
+        
+        if m:
+            compare_url = 'http://' + m.group(1) + '/' + m.group(2) + '/' + self.name
+            compare_url+= '/compare/' + self.last_tag_app + '...' + self.current_branch_app
         
         return compare_url
     
@@ -185,6 +190,13 @@ class Application(object):
         self.status = 'deployed'
         SiteDAL().save_application_as_deployed(self)
     
+    def freeze_requirements(self):
+        reqs = ''
+        
+        for pckg in self.packages:
+            reqs += pckg.name + '==' + pckg.version + "\n"
+        
+        return reqs
 
 class Package(object):
     """

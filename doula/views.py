@@ -4,6 +4,7 @@ import time
 from doula.util import pprint
 from doula.util import dumps
 from doula.models.sites_dao import SiteDAO
+from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPNotFound
 
@@ -84,14 +85,29 @@ def not_found(self, request):
 def nodes_ip_lookup(request):
     try:
         ips = SiteDAO.get_node_ips()
-        
         return { 'success': True, 'ip_addresses': ips }
     except KeyError as e:
+        # alextodo, take a look at error message
+        # todo clean this up
         msg = 'Unable to deploy application under "{0}"'
         msg = msg.format(request.POST['site'], request.POST['application'])
         
         return dumps({ 'success': False, 'msg': msg })
 
+@view_config(route_name="app_requirements_file")
+def app_requirements_file(request):
+    dao = SiteDAO()
+    site = dao.get_site(request.matchdict['site'])
+    app = site.applications[request.matchdict['application']]
+    
+    response = Response(content_type='application/octet-stream')
+    file_name = app.site_name + '_' + app.name_url + '_requirements.txt'
+    response.content_disposition = 'attachment; filename="' + file_name + '"'
+    response.charset = "UTF-8"
+    response.text = app.freeze_requirements()
+    
+    return response
+    
 
 @view_config(route_name='register', renderer='json')
 def register(request):

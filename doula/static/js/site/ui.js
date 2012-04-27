@@ -33,6 +33,7 @@ var UI = {
         // You can longer tag an app after it's been tagged
         $('#panel_' + app.name_url).on('click', function() { return false; });
         $('#panel_' + app.name_url + ' em').hide();
+        $('#deploy_' + app.name_url).removeClass('hide');
 
         this.updateStatus(app);
     },
@@ -52,18 +53,11 @@ var UI = {
     },
     
     getStatusClass: function(app) {
-      return 'status-' + this.statusClassHash[app.status];
+        return 'status-' + this.statusClassHash[app.status];
     },
     
     getStatClass: function(app) {
-      return 'stat-' + this.statusClassHash[app.status];
-    },
-    
-    updateDeploySiteBtn: function(isReadyForDeploy) {
-        if(isReadyForDeploy) {
-            $('#deploy_site_btn').removeClass('disabled').attr('disabled', '');
-            $('.deployment p').addClass('hide');
-        }
+        return 'stat-' + this.statusClassHash[app.status];
     }
     
 };
