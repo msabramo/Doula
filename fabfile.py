@@ -6,13 +6,13 @@ from fabric.contrib.files import exists
 env.hosts = ['doula.corp.surveymonkey.com']
 env.user = 'doula'
 env.key_filename = '~/.ssh/id_rsa'
-doula_dir = '/opt/webapp/doula'
+doula_dir = '/opt/doula'
 supervisor_file = '/etc/supervisor/conf.d/doula.conf'
 
 def update():
     with cd(doula_dir):
         if not exists('bin'):
-            run('mkvirtualenv .')
+            run('virtualenv .')
         with prefix('. bin/activate'):
             run('echo $VIRTUAL_ENV')
             run('pip install -e git+git@github.com:Doula/Doula.git#egg=doula')
@@ -28,4 +28,5 @@ def update():
         restart()
 
 def restart():
+    sudo('supervisorctl reread doula_6543')
     sudo('supervisorctl restart doula_6543')
