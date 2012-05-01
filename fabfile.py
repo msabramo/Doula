@@ -5,9 +5,11 @@ from fabric.contrib.files import exists
 
 env.hosts = ['doula.corp.surveymonkey.com']
 env.user = 'doula'
-env.key_filename = ['~/.ssh/id_rsa_doula']
+env.key_filename = ['~/.ssh/id_rsa_doula.pub']
 doula_dir = '/opt/doula'
 supervisor_file = '/etc/supervisor/conf.d/doula.conf'
+
+print env.key_filename
 
 def update():
     with cd(doula_dir):
