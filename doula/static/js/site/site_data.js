@@ -22,7 +22,7 @@ var SiteData = {
             'msg'         : msg
         }
         
-        this.post(msg, url, params, this.successfulDeployApplication);
+        this.post(msg, url, params, this.successfulTagApp);
     },
     
     successfulTagApp: function(rlst) {
@@ -31,7 +31,7 @@ var SiteData = {
         app.msg = rlst.app.msg;
         app.status = rlst.app.status;
         
-        Site.successfulTagApp(app);
+        UI.tagApp(app);
     },
 
     deployApplication: function(app) {

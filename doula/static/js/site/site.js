@@ -24,19 +24,15 @@ var Site = (function() {
     },
     
     tagApplication: function(event) {
-        var app = SiteData.findAppByID($(this).attr('app-id'));
+        var appID = this.id.replace('form_', '');
+        var app = SiteData.findAppByID(appID);
         var tag = $('#tag_' + app.name_url)[0].value;
         var msg = $('#msg_' + app.name_url)[0].value;
-        
+
         UI.onTagApp(app);
         SiteData.tagApp(app, tag, msg);
         
         return false;
-    },
-    
-    successfulTagApp: function(app) {
-        UI.tagApp(app);
-        UI.updateDeploySiteBtn(SiteData.isReadyForDeploy());
     },
     
     validateTag: function(event) {
