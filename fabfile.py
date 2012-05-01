@@ -5,7 +5,7 @@ from fabric.contrib.files import exists
 
 env.hosts = ['doula.corp.surveymonkey.com']
 env.user = 'doula'
-env.key_filename = ['~/.ssh/id_rsa_doula.pub']
+env.key_filename = ['~/.ssh/id_rsa_doula']
 doula_dir = '/opt/doula'
 supervisor_file = '/etc/supervisor/conf.d/doula.conf'
 
