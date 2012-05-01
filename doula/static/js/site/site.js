@@ -36,18 +36,18 @@ var Site = (function() {
     },
     
     validateTag: function(event) {
-      if(!this.value) {
-        var app = SiteData.findAppByID(this.id.replace('tag_', ''));
-        SiteData.revertAppTag(app, '', app.msg);
-        UI.tagApp(app);
-      }
+        if(!this.value) {
+            var app = SiteData.findAppByID(this.id.replace('tag_', ''));
+            SiteData.revertAppTag(app, '', app.msg);
+            UI.tagApp(app);
+        }
     },
     
     validateMsg: function() {
-      if(!this.value) {
-        var app = SiteData.findAppByID(this.id.replace('msg_', ''));
-        SiteData.revertAppTag(app, app.tag, '');
-        UI.tagApp(app);
+        if(!this.value) {
+            var app = SiteData.findAppByID(this.id.replace('msg_', ''));
+            SiteData.revertAppTag(app, app.tag, '');
+            UI.tagApp(app);
       }
     }
   };

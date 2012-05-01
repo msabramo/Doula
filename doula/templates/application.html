@@ -19,17 +19,39 @@
             <td><strong>Status</strong></td>
             <td>{{ app.get_status()|get_pretty_status }}</td>
         </tr>
+        {% set tag = app.get_last_tag() %}
         <tr class="odd">
             <td><strong>Last Tag</strong></td>
-            <td>{{ app.last_tag_app }}</td>
+            <td>{{ tag.name }}</td>
         </tr>
         <tr>
             <td><strong>Last Tag Message</strong></td>
-            <td>{{ app.last_tag_message }}</td>
+            <td>{{ tag.message }}</td>
         </tr>
         <tr class="odd">
             <td><strong>Compare View</strong></td>
-            <td><a href="{{ app.get_compare_url() }}" target="_blank">{{ app.get_compare_url() }}</a></td>
+            <td>
+              <div>
+                Compare the tag
+                <select id="compare_dropdown1">
+                  {% for tag in app.tags|sort(attribute='date',reverse=True) %}
+                    <option value="{{ tag.name }}" {% if loop.index == 2 %}selected="selected"{% endif %}>{{ tag.name }}</option>
+                  {% endfor %}
+                </select>
+                to the tag
+                <select id="compare_dropdown2">
+                  {% for tag in app.tags|sort(attribute='date', reverse=True) %}
+                    <option value="{{ tag.name }}" {% if loop.index == 1 %}selected="selected"{% endif %}>{{ tag.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div>
+                <br /><!-- fix styles here, they are wrong, don't do the br -->
+              <a id="compare_url" href="{{ app.get_compare_url() }}" target="_blank">
+                Compare {{ app.get_last_tag().name }} to {{ app.get_last_tag().name }}
+              </a>
+              </div>
+            </td>
         </tr>
         {% if app.changed_files|length > 0 and app.get_status() == 'uncommitted_changes' %}
         <tr>
@@ -82,9 +104,13 @@
         </tr>
     </table>
 </div>
+<script>
+  __compare_url = "{{ app.get_compare_url() }}";
+</script>
 {{ [
 '/js/libs/global-min.js',
 '/js/libs/global-pro-min.js',
+'/js/common/util.js',
 '/js/libs/site-tabs.js',
 '/js/application/application.js'
 ]|js_script|safe }}

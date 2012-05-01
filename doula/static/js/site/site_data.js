@@ -6,8 +6,10 @@ var SiteData = {
     nodes: { },
     applications: { },
     status: '',
+    token: '',
     
     init: function() {
+        this.token = __token;
         _mixin(this, __site);
         _mixin(this, AjaxUtil);
     },
@@ -36,10 +38,11 @@ var SiteData = {
 
     deployApplication: function(app) {
         var msg = 'Marking application as deployed';
-        var url = '/deploy.json';
+        var url = '/deploy';
         var params = {
             'site'        : SiteData.name_url,
-            'application' : app.name_url
+            'application' : app.name_url,
+            'token'       : SiteData.token
         }
         
         this.post(msg, url, params, this.successfulDeployApplication);

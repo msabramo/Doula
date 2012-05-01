@@ -23,12 +23,13 @@ def show_sites(request):
 def show_site(request):
     dao = SiteDAO()
     site = dao.get_site(request.matchdict['site'])
+    token = request.registry.settings['token']
     
     if not site:
         msg = 'Unable to find site "{0}"'.format(request.matchdict['site'])
         raise HTTPNotFound(msg)
 
-    return { 'site': site, 'site_json': dumps(site) }
+    return { 'site': site, 'site_json': dumps(site), 'token': token }
 
 
 @view_config(route_name='application', renderer="application.html")
@@ -44,7 +45,6 @@ def show_application(request):
 
         raise HTTPNotFound(msg)
     
-
     return { 'site': site, 'app': app }
 
 @view_config(route_name='tag', renderer="string")
@@ -64,13 +64,17 @@ def tag_application(request):
 @view_config(route_name='deploy', renderer="string")
 def deploy_application(request):
     try:
+        # validate the security token
+        if(request.POST['token'] != request.registry.settings['token']):
+            raise Exception("Invalid security token")
+        
         app = SiteDAO.get_application(request.POST['site'], request.POST['application'])
         app.mark_as_deployed()
         
         return dumps({ 'success': True, 'app': app })
-    except KeyError as e:
-        msg = 'Unable to deploy application under "{0}"'
-        msg = msg.format(request.POST['site'], request.POST['application'])
+    except Exception as e:
+        msg = 'Unable to deploy application. Error: "{0}"'
+        msg = msg.format(e.message)
         
         return dumps({ 'success': False, 'msg': msg })
     
@@ -87,9 +91,7 @@ def nodes_ip_lookup(request):
         ips = SiteDAO.get_node_ips()
         return { 'success': True, 'ip_addresses': ips }
     except KeyError as e:
-        # alextodo, take a look at error message
-        # todo clean this up
-        msg = 'Unable to deploy application under "{0}"'
+        msg = 'Unable to find Bambino IP addresses "{0}"'
         msg = msg.format(request.POST['site'], request.POST['application'])
         
         return dumps({ 'success': False, 'msg': msg })

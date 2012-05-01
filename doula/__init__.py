@@ -25,7 +25,7 @@ def main(global_config, **settings):
     config.add_route('site', '/sites/{site}')
     config.add_route('application', '/sites/{site}/{application}')
     config.add_route('register', '/register')
-    config.add_route('deploy', '/deploy.json')
+    config.add_route('deploy', '/deploy')
     config.add_route('nodes_ip_lookup', '/nodes/ip_addresses')
     config.add_route('app_requirements_file', '/sites/{site}/{application}/freeze')
     config.add_route('tag', '/tag')

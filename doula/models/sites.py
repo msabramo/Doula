@@ -2,6 +2,8 @@ import json
 import re
 import requests
 import logging
+import operator
+
 from doula.util import dirify
 from doula.util import dumps
 from doula.models.sites_dal import SiteDAL
@@ -90,8 +92,11 @@ class Node(object):
                 a.last_tag_message = app['last_tag_message']
                 a.current_branch_config = app['current_branch_config']
                 a.changed_files = app['changed_files']
-                a.tagged_history = app['tag_history']
+                a.tags = [ ]
                 a.packages = [ ]
+                 
+                for tag in app['tags']:
+                    a.tags.append(Tag(tag['name'], tag['date'], tag['message']))
                 
                 for name, version in app['packages'].iteritems():
                     a.packages.append(Package(name, version))
@@ -115,7 +120,7 @@ class Application(object):
         change_count_app='', change_count_config='',
         is_dirty_app=False, is_dirty_config=False,
         last_tag_app='', last_tag_config='', last_tag_message='',
-        status='', remote='', repo='', packages=[], changed_files=[], tagged_history={}):
+        status='', remote='', repo='', packages=[], changed_files=[], tags={}):
         self.name = name
         self.site_name = site_name
         self.node_name = node_name
@@ -139,7 +144,7 @@ class Application(object):
         self.remote = remote
         self.packages = packages
         self.changed_files = changed_files
-        self.tagged_history = tagged_history
+        self.tags = tags
     
     def get_compare_url(self):
         """
@@ -177,7 +182,19 @@ class Application(object):
         self.msg = msg
         self.status = 'tagged'
     
+    def get_last_tag(self):
+        latest_tag = None
+        latest_tag_date = 0
+        
+        for tag in self.tags:
+            if tag.date > latest_tag_date:
+                latest_tag = tag
+                latest_tag_date = tag.date
+        
+        return latest_tag
+    
     def get_status(self):
+        # alextodo, this logic for is deployed, needs to move in here
         if self.status == 'tagged' and SiteDAL().is_deployed(self):
             return 'deployed'
         else:
@@ -193,6 +210,8 @@ class Application(object):
     def freeze_requirements(self):
         reqs = ''
         
+        self.packages.sort(key = operator.attrgetter('name'))
+        
         for pckg in self.packages:
             reqs += pckg.name + '==' + pckg.version + "\n"
         
@@ -205,4 +224,13 @@ class Package(object):
     def __init__(self, name, version):
         self.name = name
         self.version = version
+
+class Tag(object):
+    """
+    Represents a git tag
+    """
+    def __init__(self, name, date, message):
+        self.name = name
+        self.date = date
+        self.message = message
     

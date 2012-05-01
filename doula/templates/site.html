@@ -12,7 +12,8 @@
 <h1>{{ site.name }}</h1>
 
  <div id="accordion" class="accordion">
-    {% for name_url, app in site.applications.iteritems() %}
+    {% for key_val_pair in site.applications|dictsort %}
+    {% set app = key_val_pair[1] %}
     <div id="stat_{{ app.name_url }}" class="key {{ app.get_status()|get_stat_class }}">
 
       <header>
@@ -42,7 +43,7 @@
              <label>Tag:</label>
 
              <input id="tag_{{ app.name_url }}" type="text" class="tag span3" required="required" placeholder="Valid tag format 0.1.1(a|b|c|rc)">
-             <span class="instruct">Last tag: <strong>{{ app.last_tag_app }}</strong></span>
+             <span class="instruct">Last tag: <strong>{{ app.get_last_tag().name }}</strong></span>
            </div>
 
            <div>
@@ -71,6 +72,7 @@
 </div>
 <script>
   var __site = {{ site_json|safe }};
+  var __token = "{{ token|safe }}";
 </script>
 
 {{ [
