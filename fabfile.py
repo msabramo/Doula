@@ -5,7 +5,7 @@ from fabric.contrib.files import exists
 
 env.hosts = ['doula.corp.surveymonkey.com']
 env.user = 'doula'
-env.key_filename = '~/.ssh/id_rsa'
+env.key_filename = ['~/.ssh/id_rsa_doula']
 doula_dir = '/opt/doula'
 supervisor_file = '/etc/supervisor/conf.d/doula.conf'
 
@@ -22,11 +22,8 @@ def update():
         with cd('src/doula/etc'):
             run('git checkout master')
             run('git pull origin master')
-            if exists(supervisor_file):
-                sudo('rm %s' % supervisor_file)
-            sudo('ln -s $(pwd)/supervisor.conf %s' % supervisor_file)
         restart()
 
 def restart():
-    sudo('supervisorctl reread doula_6543')
-    sudo('supervisorctl restart doula_6543')
+    run('supervisorctl reread doula_6543')
+    run('supervisorctl restart doula_6543')
