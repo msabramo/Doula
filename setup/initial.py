@@ -2,7 +2,7 @@ from fabric.api import *
 from fabric.contrib.files import exists
 
 env.user = 'doula'
-env.key_filename = '~/.ssh/id_rsa'
+env.key_filename = '~/.ssh/id_rsa_doula'
 
 def _validate(project):
     valid_projects = ['bambino', 'doula']
@@ -16,6 +16,10 @@ def do_setup(project):
         sudo('mkdir %s' % path)
         sudo('chown doula:root %s' % path)
         sudo('chmod 0775 %s' % path)
+    supervisor_file = '/etc/supervisor/conf.d/%s.conf' % project
+    if exists(supervisor_file):
+        sudo('rm %s' % supervisor_file)
+        run('ln -s $(pwd)/supervisor.conf %s' % supervisor_file)
 
 def setup(project):
     _validate(project)

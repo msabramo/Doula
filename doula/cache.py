@@ -20,6 +20,7 @@ class MockRedis(object):
         get the same object. Mimicks a single long running process.
         """
         if not cls._instance:
+            print 'using mock redis'
             cls._instance = super(MockRedis, cls).__new__(cls, *args, **kwargs)
         
         return cls._instance
