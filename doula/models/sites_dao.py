@@ -17,6 +17,7 @@ class SiteDAO(object):
         self.site_prefix = 'site:'
     
     def register_node(self, node):
+        node = self._lower_keys(node)
         site = self._get_site(node['site'])
         site['nodes'][node['name']] = node
         
@@ -26,6 +27,12 @@ class SiteDAO(object):
         log.info(json.dumps(site))
         
         self.cache.set(key, json.dumps(site))
+    
+    def _lower_keys(self, node):
+        lower_node = { }
+        for k, v in node.iteritems():
+            lower_node[k.lower()] = v.lower()
+        return lower_node
     
     def unregister_node(self, node):
         site = self._get_site(node['site'])
@@ -88,6 +95,22 @@ class SiteDAO(object):
     def get_site(self, site_name):
         simple_site = self._get_site(site_name)
         return SiteFactory.build_site(simple_site)
+    
+    def get_master_site(self):
+        """
+        Return the master site. In prod will be MT1 or MTPrime.
+        For Development the master site is mt1 if found or the first site found.
+        """
+        site_keys = self._all_site_keys()
+        
+        if len(site_keys) < 1:
+            raise Exception("No sites registered")
+        
+        if "mt1" in site_keys:
+            return "mt1"
+        else:
+            return site_keys[0].replace(self.site_prefix, '')
+        
     
     @staticmethod
     def get_node_ips():

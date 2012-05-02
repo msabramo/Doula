@@ -13,12 +13,12 @@ var Application = {
     */
     
     bindToUIActions: function() {
-    	$('.sm-side-tab').sideTab();
-    	
-    	$('#compare_dropdown1,#compare_dropdown2').
-    	    bind('click change blur keydown', _bind(this.updateCompareURL, this));
-    	
-    	this.updateCompareURL();
+        $('.sm-side-tab').sideTab();
+        
+        $('#compare_dropdown1,#compare_dropdown2').
+            bind('click change blur keydown', _bind(this.updateCompareURL, this));
+        
+        this.updateCompareURL();
     },
     
     updateCompareURL: function() {
@@ -27,13 +27,21 @@ var Application = {
         
         var urlArray = this.compareURL.split('/');
         var url = '';
-
+        
         for(var i = 0; i < urlArray.length - 1; i++) {
             url += urlArray[i] + '/';
         }
         
-        $('#compare_url').attr('href', url + tag1 + '...' + tag2);
-        $('#compare_url').html('View differences between "' + tag1 + '" and "' + tag2 + '".');
+        url += tag1 + '...' + tag2;
+        
+        if(this.compareURL) {
+            $('#compare_url').attr('href', url);
+            $('#compare_url').html('View differences between "' + tag1 + '" and "' + tag2 + '".');
+        }
+        else {
+            $('#compare_url').attr('href', "http://code.corp.surveymonkey.com/");
+            $('#compare_url').html('Comparison not available for this service.');
+        }
     },
     
     /*

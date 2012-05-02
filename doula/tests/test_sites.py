@@ -16,6 +16,9 @@ class ApplicationTests(unittest.TestCase):
         app.last_tag_app = '1.0.3'
         app.current_branch_app = 'master'
         
+        tags = [{'name': '1.0.3', 'message': 'last tag message', 'date': '8484848'}]
+        app.add_tags_from_dict(tags)
+        
         compare_url = 'http://code.corp.surveymonkey.com'
         compare_url+= '/DevOps/test_app/compare/1.0.3...master'
         

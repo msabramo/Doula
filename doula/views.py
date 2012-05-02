@@ -1,5 +1,6 @@
 import json
 import time
+import logging
 
 from doula.util import pprint
 from doula.util import dumps
@@ -8,6 +9,7 @@ from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPNotFound
 
+log = logging.getLogger('doula')
 
 @view_config(route_name='home', renderer='home.html')
 def show_home(request):
@@ -64,20 +66,24 @@ def tag_application(request):
 @view_config(route_name='deploy', renderer="string")
 def deploy_application(request):
     try:
-        # validate the security token
+        # Validate security token
         if(request.POST['token'] != request.registry.settings['token']):
             raise Exception("Invalid security token")
         
-        app = SiteDAO.get_application(request.POST['site'], request.POST['application'])
-        app.mark_as_deployed()
+        dao = SiteDAO()
+        app = SiteDAO.get_application(dao.get_master_site(), request.POST['application'])
+        tag = app.get_tag_by_name(request.POST['tag'])
+        app.mark_as_deployed(tag)
         
         return dumps({ 'success': True, 'app': app })
     except Exception as e:
         msg = 'Unable to deploy application. Error: "{0}"'
         msg = msg.format(e.message)
+        log.error(msg)
         
         return dumps({ 'success': False, 'msg': msg })
     
+
 @view_config(context=HTTPNotFound, renderer='404.html')
 def not_found(self, request):
     request.response.status = 404

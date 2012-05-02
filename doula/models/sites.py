@@ -94,12 +94,8 @@ class Node(object):
                 a.changed_files = app['changed_files']
                 a.tags = [ ]
                 a.packages = [ ]
-                 
-                for tag in app['tags']:
-                    a.tags.append(Tag(tag['name'], tag['date'], tag['message']))
-                
-                for name, version in app['packages'].iteritems():
-                    a.packages.append(Package(name, version))
+                a.add_packages(app['packages'])
+                a.add_tags_from_dict(app['tags'])
                 
                 self.applications[a.name_url] = a
         except requests.exceptions.ConnectionError as e:
@@ -120,7 +116,7 @@ class Application(object):
         change_count_app='', change_count_config='',
         is_dirty_app=False, is_dirty_config=False,
         last_tag_app='', last_tag_config='', last_tag_message='',
-        status='', remote='', repo='', packages=[], changed_files=[], tags={}):
+        status='', remote='', repo='', packages=[], changed_files=[], tags=[]):
         self.name = name
         self.site_name = site_name
         self.node_name = node_name
@@ -146,6 +142,16 @@ class Application(object):
         self.changed_files = changed_files
         self.tags = tags
     
+    def add_packages(self, pckgs):
+        for name, version in pckgs.iteritems():
+            self.packages.append(Package(name, version))
+    
+    def add_tags_from_dict(self, tags_as_dicts):
+        for tag in tags_as_dicts:
+            self.tags.append(Tag(tag['name'], tag['date'], tag['message']))
+        
+        self._update_last_tag()
+    
     def get_compare_url(self):
         """
         Use the remote url to return the Github Comapre view URL.
@@ -165,7 +171,7 @@ class Application(object):
         
         if m:
             compare_url = 'http://' + m.group(1) + '/' + m.group(2) + '/' + self.name
-            compare_url+= '/compare/' + self.last_tag_app + '...' + self.current_branch_app
+            compare_url+= '/compare/' + self.last_tag.name + '...' + self.current_branch_app
         
         return compare_url
     
@@ -182,7 +188,12 @@ class Application(object):
         self.msg = msg
         self.status = 'tagged'
     
-    def get_last_tag(self):
+    def _update_last_tag(self):
+        self.last_tag_app = self.last_tag
+        self.last_tag_config = self.last_tag
+    
+    @property
+    def last_tag(self):
         latest_tag = None
         latest_tag_date = 0
         
@@ -195,17 +206,24 @@ class Application(object):
     
     def get_status(self):
         # alextodo, this logic for is deployed, needs to move in here
-        if self.status == 'tagged' and SiteDAL().is_deployed(self):
+        if self.status == 'tagged' and SiteDAL().is_deployed(self, self.last_tag):
             return 'deployed'
         else:
             return self.status
     
-    def mark_as_deployed(self):
+    def mark_as_deployed(self, tag):
         """
         Mark an application as deployed
         """
         self.status = 'deployed'
-        SiteDAL().save_application_as_deployed(self)
+        SiteDAL().save_application_as_deployed(self, tag)
+    
+    def get_tag_by_name(self, name):
+        for tag in self.tags:
+            if tag.name == name:
+                return tag
+        
+        return False
     
     def freeze_requirements(self):
         reqs = ''

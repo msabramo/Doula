@@ -43,7 +43,7 @@
              <label>Tag:</label>
 
              <input id="tag_{{ app.name_url }}" type="text" class="tag span3" required="required" placeholder="Valid tag format 0.1.1(a|b|c|rc)">
-             <span class="instruct">Last tag: <strong>{{ app.get_last_tag().name }}</strong></span>
+             <span class="instruct">Last tag: <strong>{{ app.last_tag.name }}</strong></span>
            </div>
 
            <div>

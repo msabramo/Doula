@@ -29,6 +29,7 @@ var SiteData = {
     
     successfulTagApp: function(rlst) {
         app = SiteData.findAppByID(rlst.app.name_url);
+        // alextodo, issue with this, w don't have last tag anymore
         app.tag = rlst.app.last_tag_app;
         app.msg = rlst.app.msg;
         app.status = rlst.app.status;
@@ -39,10 +40,12 @@ var SiteData = {
     deployApplication: function(app) {
         var msg = 'Marking application as deployed';
         var url = '/deploy';
+        
         var params = {
             'site'        : SiteData.name_url,
             'application' : app.name_url,
-            'token'       : SiteData.token
+            'token'       : SiteData.token,
+            'tag'         : app.last_tag_app.name
         }
         
         this.post(msg, url, params, this.successfulDeployApplication);

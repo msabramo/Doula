@@ -1,10 +1,14 @@
 import redis
 import types
+import logging
+from sets import Set
 
 # Right now this is hard coded. Would be nice to have a util class that reads
 # the ini file
 HOST = 'localhost'
 PORT = 6379
+
+log = logging.getLogger('doula')
 
 class MockRedis(object):
     """
@@ -20,7 +24,7 @@ class MockRedis(object):
         get the same object. Mimicks a single long running process.
         """
         if not cls._instance:
-            print 'using mock redis'
+            log.info("Using MockRedis")
             cls._instance = super(MockRedis, cls).__new__(cls, *args, **kwargs)
         
         return cls._instance
@@ -52,6 +56,17 @@ class MockRedis(object):
     
     def flushdb(self):
         self.cache.clear()
+    
+    def flushall(self):
+        self.cache.clear()
+    
+    def sadd(self, key, value):
+        found_set = Set([])
+        
+        if key in self.cache:
+            found_set = self.cache[key]
+        
+        found_set.add(value)
     
     def get(self, key):
         return self.cache.get(key, '')
