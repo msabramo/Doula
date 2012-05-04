@@ -194,7 +194,8 @@ class Application(object):
     
     @property
     def last_tag(self):
-        latest_tag = None
+        # Initialize an empty tag if no tag exist
+        latest_tag = Tag('', '', '')
         latest_tag_date = 0
         
         for tag in self.tags:
