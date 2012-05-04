@@ -6,6 +6,7 @@ import operator
 
 from doula.util import dirify
 from doula.util import dumps
+from doula.models.audit import Audit
 from doula.models.sites_dal import SiteDAL
 
 # Defines the Data Models for Doula and Bambino.
@@ -55,7 +56,51 @@ class Site(object):
                 self.status = app.get_status()
         
         return self.status
+
+    @staticmethod
+    def build_site(simple_site):
+        """
+        Take the simple dictionary version of a site object, i.e.
+            {name:value, nodes[{'name':value, 'site':value, 'url':value}]}
+        and return an actual Site object with all the nodes and applications
+        built as well.
+        """
+        site = Site(simple_site['name'])
+        site.nodes = Site._build_nodes(simple_site['nodes'])
+        site.applications = Site._get_combined_applications(site.nodes)
+        
+        return site
     
+    @staticmethod
+    def _build_nodes(simple_nodes):
+        """
+        Takes the nodes with format:
+            nodes[{'name':value, 'site':value, 'url':value}]
+        And builds Node objects
+        """
+        nodes = { }
+        
+        for name,n in simple_nodes.iteritems():
+            node = Node(name, n['site'], n['url'])
+            node.load_applications()
+            nodes[name] = node
+        
+        return nodes
+    
+    @staticmethod
+    def _get_combined_applications(nodes):
+        """
+        Takes the nodes (contains actual Node objects) and 
+        builds the applications as a combined list of their 
+        applications for the entire site.
+        """
+        combined_applications = { }
+        
+        for k, node in nodes.iteritems():
+            for app_name, app in node.applications.iteritems():
+                combined_applications[app_name] = app
+        
+        return combined_applications
 
 class Node(object):
     def __init__(self, name, site_name, url, applications={}):
@@ -151,7 +196,7 @@ class Application(object):
             self.tags.append(Tag(tag['name'], tag['date'], tag['message']))
         
         self._update_last_tag()
-    
+
     def get_compare_url(self):
         """
         Use the remote url to return the Github Comapre view URL.
@@ -175,7 +220,7 @@ class Application(object):
         
         return compare_url
     
-    def tag(self, tag, msg):
+    def tag(self, tag, msg, user):
         """
         Tag the current application
         """
@@ -187,6 +232,9 @@ class Application(object):
         self.tag = tag
         self.msg = msg
         self.status = 'tagged'
+        
+        audit = Audit()
+        audit.log_action(self.site_name, self.name, 'tag', user)
     
     def _update_last_tag(self):
         self.last_tag_app = self.last_tag
@@ -194,7 +242,7 @@ class Application(object):
     
     @property
     def last_tag(self):
-        # Initialize an empty tag if no tag exist
+        # Initialize an empty tag if it doesn't tag exist
         latest_tag = Tag('', '', '')
         latest_tag_date = 0
         
@@ -206,18 +254,20 @@ class Application(object):
         return latest_tag
     
     def get_status(self):
-        # alextodo, this logic for is deployed, needs to move in here
-        if self.status == 'tagged' and SiteDAL().is_deployed(self, self.last_tag):
+        if self.status == 'tagged' and SiteDAL.is_deployed(self, self.last_tag):
             return 'deployed'
         else:
             return self.status
     
-    def mark_as_deployed(self, tag):
+    def mark_as_deployed(self, tag, user):
         """
         Mark an application as deployed
         """
         self.status = 'deployed'
-        SiteDAL().save_application_as_deployed(self, tag)
+        SiteDAL.save_application_as_deployed(self, tag)
+        
+        audit = Audit()
+        audit.log_action(self.site_name, self.name, 'deploy', user)
     
     def get_tag_by_name(self, name):
         for tag in self.tags:

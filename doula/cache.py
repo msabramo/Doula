@@ -1,7 +1,6 @@
 import redis
 import types
 import logging
-from sets import Set
 
 # Right now this is hard coded. Would be nice to have a util class that reads
 # the ini file
@@ -61,12 +60,17 @@ class MockRedis(object):
         self.cache.clear()
     
     def sadd(self, key, value):
-        found_set = Set([])
+        found_set = ([])
         
         if key in self.cache:
             found_set = self.cache[key]
         
         found_set.add(value)
+    
+    def smembers(self, key):
+        if key in self.cache:
+            return self.cache[key]
+        return ([])
     
     def get(self, key):
         return self.cache.get(key, '')

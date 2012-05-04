@@ -18,15 +18,14 @@ class TestSitesDAL(unittest.TestCase):
         app.add_tags_from_dict(tags)
         
         tag = app.get_tag_by_name('last tag')
-        app.mark_as_deployed(tag)
+        app.mark_as_deployed(tag, 'anonymous')
         
         self.assertEqual(app.get_status(), 'deployed')
         
-        sd = SiteDAL()
-        key = sd._get_deployed_app_key(app)
+        key = SiteDAL._get_deployed_app_key(app)
         self.assertEqual(key, 'site_name_app_name_deployed')
         
-        self.assertTrue(sd.is_deployed(app, tag))
+        self.assertTrue(SiteDAL.is_deployed(app, tag))
     
 
 if __name__ == '__main__':

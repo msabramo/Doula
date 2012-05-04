@@ -1,9 +1,9 @@
 import unittest
 from doula.util import pprint
 from doula.cache import Cache
-from doula.models.sites_dao import SiteDAO
+from doula.models.sites_dal import SiteDAL
 
-class TestSitesDAO(unittest.TestCase):
+class TestSitesDAL(unittest.TestCase):
     
     def setUp(self):
         Cache.env = 'dev'
@@ -30,11 +30,10 @@ class TestSitesDAO(unittest.TestCase):
             'url' : 'http://node2'
         }
         
-        dao = SiteDAO()
-        dao.register_node(node1)
-        dao.register_node(node2)
+        SiteDAL.register_node(node1)
+        SiteDAL.register_node(node2)
         
-        self.assertEqual(len(dao.nodes(site).keys()), 2)
+        self.assertEqual(len(SiteDAL.nodes(site).keys()), 2)
         
         node3 = {
             'name': 'node3',
@@ -42,14 +41,13 @@ class TestSitesDAO(unittest.TestCase):
             'url' : 'http://node3'
         }
         
-        dao.register_node(node3)
+        SiteDAL.register_node(node3)
         
-        self.assertEqual(len(dao.nodes(site).keys()), 3)
+        self.assertEqual(len(SiteDAL.nodes(site).keys()), 3)
     
     def test_register_node_two(self):
         # Make sure we don't return an unknown site
-        dao = SiteDAO()
-        nodes = dao.nodes('unknown site')
+        nodes = SiteDAL.nodes('unknown site')
         self.assertEqual(len(nodes), 0)
     
     def test_unregister_node(self):
@@ -59,47 +57,43 @@ class TestSitesDAO(unittest.TestCase):
             'url' : 'http://node1'
         }
 
-        dao = SiteDAO()
-        dao.register_node(node1)
+        SiteDAL.register_node(node1)
 
-        self.assertEqual(len(dao.nodes('site1').keys()), 1)
+        self.assertEqual(len(SiteDAL.nodes('site1').keys()), 1)
 
-        dao.unregister_node(node1)
-        self.assertEqual(len(dao.nodes('site1').keys()), 0)
+        SiteDAL.unregister_node(node1)
+        self.assertEqual(len(SiteDAL.nodes('site1').keys()), 0)
 
-        sites = dao.get_sites()
+        sites = SiteDAL.get_sites()
         self.assertEqual(len(sites.keys()), 0)
     def test_all_site_keys(self):
-        dao = SiteDAO()
-        
         node = {
             'name': 'node1',
             'site': 'site1',
             'url' : 'http://node1'
         }
         
-        dao.register_node(node)
-        keys = dao._all_site_keys()
+        SiteDAL.register_node(node)
+        keys = SiteDAL._all_site_keys()
         
         self.assertEqual(keys[0], 'site:site1')
     
     def test_get_sites(self):
         # Get Site objects array, [Site, Site, Site...]
-        dao = SiteDAO()
-        self._register_node(dao)
+        self._register_node()
         
-        sites = dao.get_sites()
+        sites = SiteDAL.get_sites()
         self.assertEqual(len(sites), 1)
         self.assertEqual(len(sites['site1'].nodes.keys()), 1)
     
-    def _register_node(self, dao):
+    def _register_node(self):
         node = {
             'name': 'node1',
             'site': 'site1',
             'url' : 'http://node1'
         }
         
-        dao.register_node(node)
+        SiteDAL.register_node(node)
 
 if __name__ == '__main__':
     unittest.main()

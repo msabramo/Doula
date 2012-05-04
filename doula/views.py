@@ -4,7 +4,7 @@ import logging
 
 from doula.util import pprint
 from doula.util import dumps
-from doula.models.sites_dao import SiteDAO
+from doula.models.sites_dal import SiteDAL
 from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPNotFound
@@ -17,14 +17,11 @@ def show_home(request):
 
 @view_config(route_name='sites', renderer='home.html')
 def show_sites(request):
-    dao = SiteDAO()
-    
-    return { 'sites': dao.get_sites() }
+    return { 'sites': SiteDAL.get_sites() }
 
 @view_config(route_name='site', renderer="site.html")
 def show_site(request):
-    dao = SiteDAO()
-    site = dao.get_site(request.matchdict['site'])
+    site = SiteDAL.get_site(request.matchdict['site'])
     token = request.registry.settings['token']
     
     if not site:
@@ -37,8 +34,7 @@ def show_site(request):
 @view_config(route_name='application', renderer="application.html")
 def show_application(request):
     try:
-        dao = SiteDAO()
-        site = dao.get_site(request.matchdict['site'])
+        site = SiteDAL.get_site(request.matchdict['site'])
         app = site.applications[request.matchdict['application']]
         
     except Exception as e:
@@ -52,8 +48,9 @@ def show_application(request):
 @view_config(route_name='tag', renderer="string")
 def tag_application(request):
     try:
-        app = SiteDAO.get_application(request.POST['site'], request.POST['application'])
-        app.tag(request.POST['tag'], request.POST['msg'])
+        app = SiteDAL.get_application(request.POST['site'], request.POST['application'])
+        # todo, once we have a user logged in we'll pass in the user too
+        app.tag(request.POST['tag'], request.POST['msg'], 'anonymous')
         
         return dumps({ 'success': True, 'app': app })
     except KeyError as e:
@@ -70,10 +67,10 @@ def deploy_application(request):
         if(request.POST['token'] != request.registry.settings['token']):
             raise Exception("Invalid security token")
         
-        dao = SiteDAO()
-        app = SiteDAO.get_application(dao.get_master_site(), request.POST['application'])
+        app = SiteDAL.get_application(SiteDAL.get_master_site(), request.POST['application'])
         tag = app.get_tag_by_name(request.POST['tag'])
-        app.mark_as_deployed(tag)
+        # todo, for now pass in the anonymous user until we start authenticating
+        app.mark_as_deployed(tag, 'anonymous')
         
         return dumps({ 'success': True, 'app': app })
     except Exception as e:
@@ -94,7 +91,7 @@ def not_found(self, request):
 @view_config(route_name='nodes_ip_lookup', renderer="json")
 def nodes_ip_lookup(request):
     try:
-        ips = SiteDAO.get_node_ips()
+        ips = SiteDAL.get_node_ips()
         return { 'success': True, 'ip_addresses': ips }
     except KeyError as e:
         msg = 'Unable to find Bambino IP addresses "{0}"'
@@ -104,8 +101,7 @@ def nodes_ip_lookup(request):
 
 @view_config(route_name="app_requirements_file")
 def app_requirements_file(request):
-    dao = SiteDAO()
-    site = dao.get_site(request.matchdict['site'])
+    site = SiteDAL.get_site(request.matchdict['site'])
     app = site.applications[request.matchdict['application']]
     
     response = Response(content_type='application/octet-stream')
@@ -126,9 +122,9 @@ def register(request):
     node['time'] = time.strftime("%m/%d/%Y %H:%M:%S", time.gmtime())
     
     if(request.POST['action'] == 'register'):
-        SiteDAO().register_node(node)
+        SiteDAL.register_node(node)
     else:
-        SiteDAO().unregister_node(node)
+        SiteDAL.unregister_node(node)
     
     return {'success': 'true'}
 
