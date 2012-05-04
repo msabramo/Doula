@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>helper_filters.py</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id="background"></div>
+<div id='container'>
+  <div class='section'>
+    <div class='docs'><h1>helper_filters.py</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="kn">import</span> <span class="nn">datetime</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">get_status_class</span><span class="p">(</span><span class="n">status</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">get_class</span><span class="p">(</span><span class="s">&#39;status&#39;</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">get_stat_class</span><span class="p">(</span><span class="n">status</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">get_class</span><span class="p">(</span><span class="s">&#39;stat&#39;</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">get_class</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s">&#39;deployed&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s">&#39;-deployed&#39;</span>
+    <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s">&#39;tagged&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s">&#39;-tagged&#39;</span>
+    <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s">&#39;uncommitted_changes&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s">&#39;-error&#39;</span>
+    <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s">&#39;unknown&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s">&#39;-unknown&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s">&#39;-changed&#39;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">format_datetime</span><span class="p">(</span><span class="n">date</span><span class="p">):</span>
+    <span class="n">year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">date</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+    <span class="n">month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">date</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">])</span>
+    <span class="n">day</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">date</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">8</span><span class="p">])</span>
+    <span class="n">hour</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">date</span><span class="p">[</span><span class="mi">8</span><span class="p">:</span><span class="mi">10</span><span class="p">])</span>
+    <span class="n">minute</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">date</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">12</span><span class="p">])</span>
+    <span class="n">second</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">date</span><span class="p">[</span><span class="mi">12</span><span class="p">:</span><span class="mi">14</span><span class="p">])</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">day</span><span class="p">,</span> <span class="n">hour</span><span class="p">,</span> <span class="n">minute</span><span class="p">,</span> <span class="n">second</span><span class="p">)</span>
+    <span class="n">format</span> <span class="o">=</span> <span class="s">&#39;%m/</span><span class="si">%d</span><span class="s">/%Y %I:%M %p&#39;</span>
+    <span class="k">return</span> <span class="n">d</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">format</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-5'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-5'>#</a>
+      </div>
+      <p>Return a print friendly status</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">get_pretty_status</span><span class="p">(</span><span class="n">status</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-6'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-6'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">statuses</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;tagged&#39;</span><span class="p">:</span> <span class="s">&#39;Tagged&#39;</span><span class="p">,</span>
+        <span class="s">&#39;deployed&#39;</span><span class="p">:</span> <span class="s">&#39;Deployed&#39;</span><span class="p">,</span>
+        <span class="s">&#39;change_to_config&#39;</span><span class="p">:</span> <span class="s">&#39;Changes to Configuration&#39;</span><span class="p">,</span>
+        <span class="s">&#39;change_to_app&#39;</span><span class="p">:</span> <span class="s">&#39;Changes to Application Environment&#39;</span><span class="p">,</span>
+        <span class="s">&#39;change_to_app_and_config&#39;</span><span class="p">:</span> <span class="s">&#39;Changes to Configuration and Application Environment&#39;</span><span class="p">,</span>
+        <span class="s">&#39;uncommitted_changes&#39;</span><span class="p">:</span> <span class="s">&#39;Uncommitted Changes&#39;</span>
+    <span class="p">}</span>
+    
+    <span class="k">if</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">statuses</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">statuses</span><span class="p">[</span><span class="n">status</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;Unknown&#39;</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

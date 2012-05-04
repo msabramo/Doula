@@ -17,9 +17,22 @@ var AjaxUtil = {
                       onPass(obj);
                   }
                   else {
-                      // alextodo, need to make call to UI. failed whatever
-                      // need a common way to show the error
-                      alert(obj.msg);
+                      $.colorbox({
+                          width: '650px',
+                          height: '400px',
+                          html: function() {
+                              $('#dialog-error-msg').html(obj.msg);
+                              return $('#dialog-html').html();
+                          },
+                          close: '<a id="error-dialog-close" style="color: black;" href="#" class="pow-btn btn error-dialog-close">Close</a>',
+                          onOpen: function() {
+                              $('#dialog-html').show();
+                          },
+                          onClosed: function() {
+                              $('#dialog-html').hide();
+                              return false;
+                          }
+                      });
                   }
               }
         });

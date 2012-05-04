@@ -70,6 +70,7 @@
 </div>
 
 </div>
+{% include 'error_dialog.html' %}
 <script>
   var __site = {{ site_json|safe }};
   var __token = "{{ token|safe }}";
@@ -80,9 +81,9 @@
 '/js/libs/global-pro-min.js', 
 '/js/libs/accordions.js',
 '/js/libs/site-tabs.js',
+'/js/libs/jquery.colorbox.js',
 '/js/common/util.js',
 '/js/common/ajax_util.js',
-'/js/common/progress_indicator.js',
 '/js/site/ui.js', 
 '/js/site/site_data.js', 
 '/js/site/site.js'
