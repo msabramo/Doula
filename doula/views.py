@@ -21,20 +21,22 @@ def show_sites(request):
 
 @view_config(route_name='site', renderer="site.html")
 def show_site(request):
-    site = SiteDAL.get_site(request.matchdict['site'])
+    site = get_site(request.matchdict['site'])
     token = request.registry.settings['token']
-    
-    if not site:
-        msg = 'Unable to find site "{0}"'.format(request.matchdict['site'])
-        raise HTTPNotFound(msg)
 
     return { 'site': site, 'site_json': dumps(site), 'token': token }
 
+@view_config(route_name='site_log', renderer="site_logs.html")
+def show_site_logs(request):
+    site = get_site(request.matchdict['site'])
+    logs = site.get_logs()
+
+    return { 'site': site, 'logs': logs }
 
 @view_config(route_name='application', renderer="application.html")
 def show_application(request):
     try:
-        site = SiteDAL.get_site(request.matchdict['site'])
+        site = get_site(request.matchdict['site'])
         app = site.applications[request.matchdict['application']]
         
     except Exception as e:
@@ -63,9 +65,7 @@ def tag_application(request):
 @view_config(route_name='deploy', renderer="string")
 def deploy_application(request):
     try:
-        # Validate security token
-        if(request.POST['token'] != request.registry.settings['token']):
-            raise Exception("Invalid security token")
+        validate_token(request)
         
         app = SiteDAL.get_application(SiteDAL.get_master_site(), request.POST['application'])
         tag = app.get_tag_by_name(request.POST['tag'])
@@ -80,6 +80,13 @@ def deploy_application(request):
         
         return dumps({ 'success': False, 'msg': msg })
     
+def validate_token(request):
+    # Validate security token
+    print 'Token: '
+    print request.POST['token']
+    print request.registry.settings['token']
+    if(request.POST['token'] != request.registry.settings['token']):
+        raise Exception("Invalid security token")
 
 @view_config(context=HTTPNotFound, renderer='404.html')
 def not_found(self, request):
@@ -101,7 +108,7 @@ def nodes_ip_lookup(request):
 
 @view_config(route_name="app_requirements_file")
 def app_requirements_file(request):
-    site = SiteDAL.get_site(request.matchdict['site'])
+    site = get_site(request.matchdict['site'])
     app = site.applications[request.matchdict['application']]
     
     response = Response(content_type='application/octet-stream')
@@ -127,4 +134,14 @@ def register(request):
         SiteDAL.unregister_node(node)
     
     return {'success': 'true'}
+
+
+def get_site(site_name):
+    site = SiteDAL.get_site(site_name)
+
+    if not site:
+        msg = 'Unable to find site "{0}"'.format(site_name)
+        raise HTTPNotFound(msg)
+
+    return site
 
