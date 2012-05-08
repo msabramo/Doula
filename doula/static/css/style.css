@@ -3351,19 +3351,24 @@ table {
   color: black;
   background-color: white;
   padding: 15px; }
+  /* line 275, ../sass/style.sass */
+  .error-dialog div {
+    font-size: 18px;
+    height: 100px; }
 
-/* line 276, ../sass/style.sass */
+/* line 279, ../sass/style.sass */
 .error-dialog-close {
   width: 100px;
   padding: 5px;
   margin: 0px 0px 45px 0px;
+  text-align: center;
   float: right; }
 
-/* line 282, ../sass/style.sass */
+/* line 286, ../sass/style.sass */
 .dialog-error-msg {
   font-size: 22px; }
 
-/* line 286, ../sass/style.sass */
+/* line 290, ../sass/style.sass */
 #progress-indicator {
   -moz-border-radius-topleft: 25px;
   -webkit-border-top-left-radius: 25px;
@@ -3385,12 +3390,12 @@ table {
   position: absolute;
   bottom: 0;
   z-index: 99999; }
-  /* line 298, ../sass/style.sass */
+  /* line 302, ../sass/style.sass */
   #progress-indicator h4 {
     text-align: center;
     padding: 20px 0px; }
 
-/* line 302, ../sass/style.sass */
+/* line 306, ../sass/style.sass */
 #footer {
   margin: 50px 0px;
   width: 100%;

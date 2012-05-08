@@ -61,7 +61,6 @@ def tag_application(request):
         
         return dumps({ 'success': False, 'msg': msg })
     
-
 @view_config(route_name='deploy', renderer="string")
 def deploy_application(request):
     try:
@@ -82,9 +81,6 @@ def deploy_application(request):
     
 def validate_token(request):
     # Validate security token
-    print 'Token: '
-    print request.POST['token']
-    print request.registry.settings['token']
     if(request.POST['token'] != request.registry.settings['token']):
         raise Exception("Invalid security token")
 

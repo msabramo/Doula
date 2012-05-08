@@ -19,14 +19,20 @@ var AjaxUtil = {
                   else {
                       $.colorbox({
                           width: '650px',
-                          height: '400px',
+                          height: '300px',
                           html: function() {
-                              $('#dialog-error-msg').html(obj.msg);
+                              $('.error-dialog div').html(obj.msg);
                               return $('#dialog-html').html();
                           },
-                          close: '<a id="error-dialog-close" style="color: black;" href="#" class="pow-btn btn error-dialog-close">Close</a>',
+                          close: '<a href="#" class="pow-btn btn error-dialog-close">Close</a>',
                           onOpen: function() {
                               $('#dialog-html').show();
+                          },
+                          onComplete: function() {
+                              $('#cboxClose a').on('click', function() {
+                                $.colorbox.close();
+                                return false;
+                              });
                           },
                           onClosed: function() {
                               $('#dialog-html').hide();
