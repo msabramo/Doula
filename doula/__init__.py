@@ -53,7 +53,7 @@ def main(global_config, **settings):
     config.ldap_setup(
         'ldap://corp.surveymonkey.com',
         bind='CN=sonicwallvpn,OU=SurveyMonkey,DC=corp,DC=surveymonkey,DC=com',
-        passwd='Oak.Primate'
+        passwd='duder'
         )
 
     config.ldap_set_login_query(
