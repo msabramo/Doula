@@ -1,6 +1,7 @@
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPNotFound
 import ldap
+from pyramid.response import Response
 
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
@@ -39,6 +40,7 @@ def login(request):
         data = connector.authenticate(login, password)
         if data is not None:
             dn = data[0]
+            groups = connector.user_groups(dn)
             headers = remember(request, dn)
             return HTTPFound('/', headers=headers)
         else:
@@ -53,4 +55,9 @@ def login(request):
 
 @view_config(route_name='forbidden', permission='view')
 def logged_in(request):
-    return {'i am forbidden!':'yes'}
+    return Response('OK')
+
+@view_config(route_name='logout')
+def logout(request):
+    headers = forget(request)
+    return Response('Logged out', headers=headers)

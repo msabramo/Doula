@@ -1,6 +1,7 @@
 import json
 import time
 import logging
+import pyramid.security as security
 
 from doula.util import pprint
 from doula.util import dumps
@@ -116,7 +117,7 @@ def app_requirements_file(request):
     return response
     
 
-@view_config(route_name='register', renderer='json')
+@view_config(route_name='register', renderer='json', permission=security.NO_PERMISSION_REQUIRED)
 def register(request):
     """
     Register a Bambino node with Doula.

@@ -16,7 +16,8 @@ requires = [
     'simplejson',
     'redis',
     'fabric',
-    'pyramid_ldap'
+    'pyramid_ldap',
+    'pyyaml'
     ]
 
 setup(name='Doula',

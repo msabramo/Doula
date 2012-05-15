@@ -1,8 +1,12 @@
 from pyramid.config import Configurator
+from pyramid.response import Response
 from pyramid_jinja2 import renderer_factory
 import ldap
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
+import yaml
+import os
+import pkg_resources
 
 from pyramid.view import (
     view_config,
@@ -30,14 +34,21 @@ class RootFactory(object):
 
 def main(global_config, **settings):
     """
-    Serve Doula.
+    Serve Doula
     """
     config = Configurator(settings=settings, root_factory=RootFactory)
+    ldap_settings = {}
+
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'../etc/ldap.yaml')) as f:
+        ldap_settings = yaml.load(f)
+
+    config.set_default_permission('view')
 
     config.set_authentication_policy(
-        AuthTktAuthenticationPolicy('seekr1t',
+        AuthTktAuthenticationPolicy(ldap_settings['auth_pw'],
                                     callback=groupfinder)
         )
+
     config.set_authorization_policy(
         ACLAuthorizationPolicy()
         )
@@ -51,21 +62,21 @@ def main(global_config, **settings):
 
     #possibly remove the s in ldaps
     config.ldap_setup(
-        'ldap://corp.surveymonkey.com',
-        bind='CN=sonicwallvpn,OU=SurveyMonkey,DC=corp,DC=surveymonkey,DC=com',
-        passwd='duder'
+        'ldap://%s' % ldap_settings['ldap_ip'],
+        bind = ldap_settings['setup_dn'],
+        passwd = ldap_settings['ldap_pw'],
         )
 
     config.ldap_set_login_query(
-        base_dn='OU=SurveyMonkey,DC=corp,DC=surveymonkey,DC=com',
+        base_dn=ldap_settings['login_dn'],
         filter_tmpl='(sAMAccountName=%(login)s)',
-        scope = ldap.SCOPE_ONELEVEL,
+        scope=ldap.SCOPE_ONELEVEL,
         )
 
     config.ldap_set_groups_query(
-        base_dn='CN=Users,DC=corp,DC=surveymonkey,DC=com',
+        base_dn=ldap_settings['group_dn'],
         filter_tmpl='(&(objectCategory=group)(member=%(userdn)s))',
-        scope = ldap.SCOPE_SUBTREE,
+        scope=ldap.SCOPE_SUBTREE,
         cache_period = 600,
         )
 
@@ -91,9 +102,8 @@ def main(global_config, **settings):
     config.add_route('tag', '/tag')
     config.add_route('nodes_ip_lookup', '/nodes/ip_addresses')
 
-    #TODO: add this to the security/include_me function, as well as the views
-    #config.add_route('root', '/')
     config.add_route('login', '/login')
     config.add_route('forbidden', '/forbidden')
+    config.add_route('logout', '/logout')
 
     return config.make_wsgi_app()
