@@ -6,8 +6,44 @@
   <link rel="stylesheet" href="pycco.css">
 </head>
 <body>
-<div id="background"></div>
+<!-- fly bar -->
+<div id="flybar">
+<a id="nav-logo" href="index.html">Doula Documentation</a>
+
+<div class="flybar-language">
+  <div class="dropdown">
+    <a id="pages-dropdown" class="flybar-button">Files
+      <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu">
+      <li><a href="doula___init__.html">doula/__init__.py</a></li>
+      <li><a href="doula_cache.html">doula/cache.py</a></li>
+      <li><a href="doula_helper_filters.html">doula/helper_filters.py</a></li>
+      <li><a href="doula_models_audit.html">doula/models/audit.py</a></li>
+      <li><a href="doula_models_site_tag_history.html">doula/models/site_tag_history.py</a></li>
+      <li><a href="doula_models_sites.html">doula/models/sites.py</a></li>
+      <li><a href="doula_models_sites_dal.html">doula/models/sites_dal.py</a></li>
+      <li><a href="doula_static_minify_js_script.html">doula/static/minify/js_script.py</a></li>
+      <li><a href="doula_static_minify_jsmin.html">doula/static/minify/jsmin.py</a></li>
+      <li><a href="doula_tests_test_audit.html">doula/tests/test_audit.py</a></li>
+      <li><a href="doula_tests_test_helper_filters.html">doula/tests/test_helper_filters.py</a></li>
+      <li><a href="doula_tests_test_sites.html">doula/tests/test_sites.py</a></li>
+      <li><a href="doula_tests_test_sites_dal.html">doula/tests/test_sites_dal.py</a></li>
+      <li><a href="doula_tests_test_sites_dao.html">doula/tests/test_sites_dao.py</a></li>
+      <li><a href="doula_tests_tests.html">doula/tests/tests.py</a></li>
+      <li><a href="doula_util.html">doula/util.py</a></li>
+      <li><a href="doula_views.html">doula/views.py</a></li>
+      <li><a href="fabfile.html">fabfile.py</a></li>
+      <li><a href="setup.html">setup.py</a></li>
+      <li><a href="setup_initial.html">setup/initial.py</a></li>
+    </ul>
+  </div>
+</div>
+</div>
+<!-- end of fly bar -->
+
 <div id='container'>
+  <div id="background"></div>
   <div class='section'>
     <div class='docs'><h1>__init__.py</h1></div>
   </div>
@@ -90,12 +126,13 @@
       <div class="highlight"><pre>    <span class="n">config</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="s">&#39;home&#39;</span><span class="p">,</span> <span class="s">&#39;/&#39;</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="s">&#39;sites&#39;</span><span class="p">,</span> <span class="s">&#39;/sites&#39;</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="s">&#39;site&#39;</span><span class="p">,</span> <span class="s">&#39;/sites/{site}&#39;</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="s">&#39;site_log&#39;</span><span class="p">,</span> <span class="s">&#39;/sites/{site}/logs&#39;</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="s">&#39;application&#39;</span><span class="p">,</span> <span class="s">&#39;/sites/{site}/{application}&#39;</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="s">&#39;app_requirements_file&#39;</span><span class="p">,</span> <span class="s">&#39;/sites/{site}/{application}/freeze&#39;</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="s">&#39;register&#39;</span><span class="p">,</span> <span class="s">&#39;/register&#39;</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="s">&#39;deploy&#39;</span><span class="p">,</span> <span class="s">&#39;/deploy&#39;</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="s">&#39;nodes_ip_lookup&#39;</span><span class="p">,</span> <span class="s">&#39;/nodes/ip_addresses&#39;</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="s">&#39;app_requirements_file&#39;</span><span class="p">,</span> <span class="s">&#39;/sites/{site}/{application}/freeze&#39;</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="s">&#39;tag&#39;</span><span class="p">,</span> <span class="s">&#39;/tag&#39;</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="s">&#39;nodes_ip_lookup&#39;</span><span class="p">,</span> <span class="s">&#39;/nodes/ip_addresses&#39;</span><span class="p">)</span>
     
     <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">make_wsgi_app</span><span class="p">()</span>
 
@@ -104,4 +141,5 @@
   </div>
   <div class='clearall'></div>
 </div>
+<script src="pycco.js"></script>
 </body>

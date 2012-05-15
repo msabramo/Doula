@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>site_tag_history.py</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<!-- fly bar -->
+<div id="flybar">
+<a id="nav-logo" href="index.html">Doula Documentation</a>
+
+<div class="flybar-language">
+  <div class="dropdown">
+    <a id="pages-dropdown" class="flybar-button">Files
+      <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu">
+      <li><a href="doula___init__.html">doula/__init__.py</a></li>
+      <li><a href="doula_cache.html">doula/cache.py</a></li>
+      <li><a href="doula_helper_filters.html">doula/helper_filters.py</a></li>
+      <li><a href="doula_models_audit.html">doula/models/audit.py</a></li>
+      <li><a href="doula_models_site_tag_history.html">doula/models/site_tag_history.py</a></li>
+      <li><a href="doula_models_sites.html">doula/models/sites.py</a></li>
+      <li><a href="doula_models_sites_dal.html">doula/models/sites_dal.py</a></li>
+      <li><a href="doula_static_minify_js_script.html">doula/static/minify/js_script.py</a></li>
+      <li><a href="doula_static_minify_jsmin.html">doula/static/minify/jsmin.py</a></li>
+      <li><a href="doula_tests_test_audit.html">doula/tests/test_audit.py</a></li>
+      <li><a href="doula_tests_test_helper_filters.html">doula/tests/test_helper_filters.py</a></li>
+      <li><a href="doula_tests_test_sites.html">doula/tests/test_sites.py</a></li>
+      <li><a href="doula_tests_test_sites_dal.html">doula/tests/test_sites_dal.py</a></li>
+      <li><a href="doula_tests_test_sites_dao.html">doula/tests/test_sites_dao.py</a></li>
+      <li><a href="doula_tests_tests.html">doula/tests/tests.py</a></li>
+      <li><a href="doula_util.html">doula/util.py</a></li>
+      <li><a href="doula_views.html">doula/views.py</a></li>
+      <li><a href="fabfile.html">fabfile.py</a></li>
+      <li><a href="setup.html">setup.py</a></li>
+      <li><a href="setup_initial.html">setup/initial.py</a></li>
+    </ul>
+  </div>
+</div>
+</div>
+<!-- end of fly bar -->
+
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>site_tag_history.py</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">git</span> <span class="kn">import</span> <span class="n">Git</span>
+<span class="kn">from</span> <span class="nn">git</span> <span class="kn">import</span> <span class="n">Repo</span>
+
+<span class="n">remote_git</span> <span class="o">=</span> <span class="s">&#39;git@code.corp.surveymonkey.com:alexv/sitetaghistory.git&#39;</span>
+<span class="n">path</span> <span class="o">=</span> <span class="s">&#39;/Users/alexvazquezOLD/boxes/Doula/temp/sitetaghistory&#39;</span>
+<span class="n">site</span> <span class="o">=</span> <span class="s">&#39;alexv_laptop&#39;</span>
+<span class="n">root_path</span> <span class="o">=</span> <span class="s">&#39;/opt/webapp&#39;</span>
+<span class="n">repo_name</span> <span class="o">=</span> <span class="s">&#39;sitetaghistory&#39;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      <p>Need to add submodule to these applications, at a specific tag 
+git@code.corp.surveymonkey.com:alexv/createweb.git - testing_tag.1.0.4
+git@code.corp.surveymonkey.com:alexv/papi.git      - tag 1.0.0.111
+git@code.corp.surveymonkey.com:alexv/billweb.git   - tag 1.0.1</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <p>during development clear everything out from /opt/webapp</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      <p>Tag applications with changed states
+Make sure the application is on the same branch as as the site. so there u go.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      <p>Hold onto the tags and refs to repos</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-5'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-5'>#</a>
+      </div>
+      <p>If repo does not exist at the /opt/webapp/ level create it
+If the branch for this site does not exist, create it.
+Add applications as submodules. submodules point to a specific tag
+commit main module
+push main module</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-6'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-6'>#</a>
+      </div>
+      <p>see http://packages.python.org/GitPython/0.3.2/tutorial.html#initialize-a-repo-object</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-7'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-7'>#</a>
+      </div>
+      <p>Site tag manages the Site Tag History Repo that keeps track of
+the applications tagged together for deployment.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">class</span> <span class="nc">SiteTagHistory</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-8'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-8'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">get_main_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-9'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-9'>#</a>
+      </div>
+      <p>determine if the repo already exist</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">repo_path</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">repo_name</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">repo_path</span><span class="p">):</span>
+            <span class="n">repo</span> <span class="o">=</span> <span class="n">Repo</span><span class="p">(</span><span class="n">repo_path</span><span class="p">)</span>
+            <span class="k">print</span> <span class="n">repo</span>
+            <span class="k">print</span> <span class="n">repo</span><span class="o">.</span><span class="n">bare</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">repo</span> <span class="o">=</span> <span class="n">Repo</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="s">&quot;/var/git/git-python.git&quot;</span><span class="p">,</span> <span class="n">bare</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">repo_path</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-10'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-10'>#</a>
+      </div>
+      <p>if it does not exist create it
+return a reference to main repo</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">sth</span> <span class="o">=</span> <span class="n">SiteTagHistory</span><span class="p">()</span>
+    <span class="n">sth</span><span class="o">.</span><span class="n">get_main_repo</span><span class="p">()</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+<script src="pycco.js"></script>
+</body>
