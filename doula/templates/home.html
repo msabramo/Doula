@@ -7,7 +7,7 @@
 {% block content %}
 <div class="page-wrap">
 <div class="main-mod">
-  <h2>Sites</h2>
+  <h2 class="cap">Sites</h2>
   
   <ul>
   {% if sites|length > 0 %}
@@ -16,6 +16,9 @@
         <a href="/sites/{{ site.name_url }}">
         <span class="{{ site.get_status()|get_status_class }}"></span>
         <strong>{{ site.name }}</strong>
+        </a>
+        <a class="site-links" href="/sites/{{ site.name_url }}/logs">
+          <span class="icon">⚙</span> Audit Log
         </a>
     </li>
   {% endfor %}

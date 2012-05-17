@@ -30,6 +30,36 @@ def format_datetime(date):
     format = '%m/%d/%Y %I:%M %p'
     return d.strftime(format)
 
+def format_isodate(isodate):
+    """
+    Formats an iso date like 2012-05-04T16:30:20.140762
+    into a date like May 05, 2012 04:30 PM
+    """
+    dt, _, us = isodate.partition(".")
+    dt = datetime.datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
+    
+    return dt.strftime('%B %d, %Y %I:%M %p')
+
+def format_isodate_date(isodate):
+    """
+    Formats an iso date like 2012-05-04T16:30:20.140762
+    into a date like May 05, 2012
+    """
+    dt, _, us = isodate.partition(".")
+    dt = datetime.datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
+    
+    return dt.strftime('%B %d, %Y')
+
+def format_isodate_time(isodate):
+    """
+    Formats an iso date like 2012-05-04T16:30:20.140762
+    into a date like 04:30 PM
+    """
+    dt, _, us = isodate.partition(".")
+    dt = datetime.datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
+    
+    return dt.strftime('%I:%M %p')
+
 def get_pretty_status(status):
     """
     Return a print friendly status

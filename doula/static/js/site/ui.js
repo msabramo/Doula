@@ -28,10 +28,11 @@ var UI = {
         this.updateStatus(app);
     },
 
-    tagApp: function(app) {
+    doneTagApp: function(app) {
         $('#panel_' + app.name_url).click();
-        // You can longer tag an app after it's been tagged
+        // You can no longer tag an app after it's been tagged
         $('#panel_' + app.name_url).on('click', function() { return false; });
+        $('#panel_' + app.name_url + ' strong').html('Tagged');
         $('#panel_' + app.name_url + ' em').hide();
         $('#deploy_' + app.name_url).removeClass('hide');
 

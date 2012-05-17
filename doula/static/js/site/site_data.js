@@ -15,26 +15,26 @@ var SiteData = {
     },
     
     tagApp: function(app, tag, msg) {
-        var msg = 'Tagging application';
+        var msg = 'Tagging ' + app.name;
+        var tag_msg = $('#msg_' + app.name_url).val();
         var url = '/tag';
         var params = {
             'site'        : SiteData.name_url,
             'application' : app.name_url,
             'tag'         : tag,
-            'msg'         : msg
+            'msg'         : tag_msg
         }
         
-        this.post(msg, url, params, this.successfulTagApp);
+        this.post(msg, url, params, this.doneTagApp);
     },
     
-    successfulTagApp: function(rlst) {
+    doneTagApp: function(rlst) {
         app = SiteData.findAppByID(rlst.app.name_url);
-        // alextodo, issue with this, w don't have last tag anymore
         app.tag = rlst.app.last_tag_app;
         app.msg = rlst.app.msg;
         app.status = rlst.app.status;
         
-        UI.tagApp(app);
+        UI.doneTagApp(app);
     },
 
     deployApplication: function(app) {

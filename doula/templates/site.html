@@ -9,7 +9,7 @@
 {% block content %}
 <div class="page-wrap">
   
-<h1>{{ site.name }}</h1>
+<h1 class="cap">{{ site.name }}</h1>
 
  <div id="accordion" class="accordion">
     {% for key_val_pair in site.applications|dictsort %}
@@ -17,7 +17,6 @@
     <div id="stat_{{ app.name_url }}" class="key {{ app.get_status()|get_stat_class }}">
 
       <header>
-         
          <a id="deploy_{{ app.name_url }}" app-id="{{ app.name_url }}" 
           class="deploy {% if app.get_status() != 'tagged'%}hide{% endif %}" href="#">
           <span class="icon">&#8658;</span> Deploy

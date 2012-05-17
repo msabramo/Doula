@@ -56,6 +56,13 @@ class Site(object):
                 self.status = app.get_status()
         
         return self.status
+    def get_logs(self):
+        all_logs = [ ]
+
+        for app_name, app in self.applications.iteritems():
+            all_logs.extend(app.get_logs())
+        
+        return all_logs
 
     @staticmethod
     def build_site(simple_site):
@@ -269,6 +276,15 @@ class Application(object):
         audit = Audit()
         audit.log_action(self.site_name, self.name, 'deploy', user)
     
+    def get_logs(self):
+        audit = Audit()
+        app_logs = audit.get_app_logs(self.site_name, self.name)
+
+        for log in app_logs:
+            log['application'] = self.name
+
+        return app_logs
+
     def get_tag_by_name(self, name):
         for tag in self.tags:
             if tag.name == name:

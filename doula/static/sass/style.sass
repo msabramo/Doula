@@ -56,15 +56,31 @@ a
   &:hover
     text-decoration: none
 
-
-
+/* Logs */
+ul.log-lists
+  background-color: #EEEEEE
+  color: #060606
+  @include border-radius(10px)
+  padding: 10px 10px
+  margin: 10px 0 px
+  li
+    font-size: 120%
+    line-height: 1.5
+    padding: 5px
+    list-style-type: none
+    span
+      color: #A9BE38
+      font-weight: bold
 
 h1, h2, h3, h4, h5, h6
-  text-transform: uppercase
   margin: 0 0 10px 0
   line-height: 1.1
 
+h1 span.title
+  color: #A9BE38
 
+.cap
+  text-transform: uppercase
 
 .main-mod 
   ul
@@ -74,15 +90,18 @@ h1, h2, h3, h4, h5, h6
     li
       margin: 0 0 10px 0
       list-style: none
+      padding: 10px
+      display: block
+      +box-shadow(inset 0 -1px 0 rgba(255,255,255,0.2))
+      background: rgba(0,0,0,0.4)
+      @include border-radius(10px)
+      &:hover
+        background: rgba(0,0,0,0.75)
       a
         color: white
-        padding: 10px
-        display: block
-        +box-shadow(inset 0 -1px 0 rgba(255,255,255,0.2))
-        background: rgba(0,0,0,0.4)
-        @include border-radius(10px)
-        &:hover
-          background: rgba(0,0,0,0.75)
+      a.site-links
+        padding: 0px 5px
+        float: right
       strong 
         position: relative
         top: 1px
@@ -253,11 +272,15 @@ table
   color: black
   background-color: white
   padding: 15px
+  div
+    font-size: 18px
+    height: 100px
 
 .error-dialog-close
   width: 100px
   padding: 5px
   margin: 0px 0px 45px 0px
+  text-align: center
   float: right
   
 .dialog-error-msg
