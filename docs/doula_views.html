@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>views.py</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<!-- fly bar -->
+<div id="flybar">
+<a id="nav-logo" href="index.html">Doula Documentation</a>
+
+<div class="flybar-language">
+  <div class="dropdown">
+    <a id="pages-dropdown" class="flybar-button">Files
+      <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu">
+      <li><a href="doula___init__.html">doula/__init__.py</a></li>
+      <li><a href="doula_cache.html">doula/cache.py</a></li>
+      <li><a href="doula_helper_filters.html">doula/helper_filters.py</a></li>
+      <li><a href="doula_models_audit.html">doula/models/audit.py</a></li>
+      <li><a href="doula_models_site_tag_history.html">doula/models/site_tag_history.py</a></li>
+      <li><a href="doula_models_sites.html">doula/models/sites.py</a></li>
+      <li><a href="doula_models_sites_dal.html">doula/models/sites_dal.py</a></li>
+      <li><a href="doula_static_minify_js_script.html">doula/static/minify/js_script.py</a></li>
+      <li><a href="doula_static_minify_jsmin.html">doula/static/minify/jsmin.py</a></li>
+      <li><a href="doula_tests_test_audit.html">doula/tests/test_audit.py</a></li>
+      <li><a href="doula_tests_test_helper_filters.html">doula/tests/test_helper_filters.py</a></li>
+      <li><a href="doula_tests_test_sites.html">doula/tests/test_sites.py</a></li>
+      <li><a href="doula_tests_test_sites_dal.html">doula/tests/test_sites_dal.py</a></li>
+      <li><a href="doula_tests_test_sites_dao.html">doula/tests/test_sites_dao.py</a></li>
+      <li><a href="doula_tests_tests.html">doula/tests/tests.py</a></li>
+      <li><a href="doula_util.html">doula/util.py</a></li>
+      <li><a href="doula_views.html">doula/views.py</a></li>
+      <li><a href="fabfile.html">fabfile.py</a></li>
+      <li><a href="setup.html">setup.py</a></li>
+      <li><a href="setup_initial.html">setup/initial.py</a></li>
+    </ul>
+  </div>
+</div>
+</div>
+<!-- end of fly bar -->
+
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>views.py</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">doula.util</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="kn">from</span> <span class="nn">doula.util</span> <span class="kn">import</span> <span class="n">dumps</span>
+<span class="kn">from</span> <span class="nn">doula.models.sites_dal</span> <span class="kn">import</span> <span class="n">SiteDAL</span>
+<span class="kn">from</span> <span class="nn">pyramid.response</span> <span class="kn">import</span> <span class="n">Response</span>
+<span class="kn">from</span> <span class="nn">pyramid.view</span> <span class="kn">import</span> <span class="n">view_config</span>
+<span class="kn">from</span> <span class="nn">pyramid.httpexceptions</span> <span class="kn">import</span> <span class="n">HTTPNotFound</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&#39;doula&#39;</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="nd">@view_config</span><span class="p">(</span><span class="n">route_name</span><span class="o">=</span><span class="s">&#39;home&#39;</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="s">&#39;home.html&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">show_home</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">show_sites</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+<span class="nd">@view_config</span><span class="p">(</span><span class="n">route_name</span><span class="o">=</span><span class="s">&#39;sites&#39;</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="s">&#39;home.html&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">show_sites</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span> <span class="s">&#39;sites&#39;</span><span class="p">:</span> <span class="n">SiteDAL</span><span class="o">.</span><span class="n">get_sites</span><span class="p">()</span> <span class="p">}</span>
+
+<span class="nd">@view_config</span><span class="p">(</span><span class="n">route_name</span><span class="o">=</span><span class="s">&#39;site&#39;</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="s">&quot;site.html&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">show_site</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">site</span> <span class="o">=</span> <span class="n">get_site</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s">&#39;site&#39;</span><span class="p">])</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">{</span> <span class="s">&#39;site&#39;</span><span class="p">:</span> <span class="n">site</span><span class="p">,</span> <span class="s">&#39;site_json&#39;</span><span class="p">:</span> <span class="n">dumps</span><span class="p">(</span><span class="n">site</span><span class="p">),</span> <span class="s">&#39;token&#39;</span><span class="p">:</span> <span class="n">token</span> <span class="p">}</span>
+
+<span class="nd">@view_config</span><span class="p">(</span><span class="n">route_name</span><span class="o">=</span><span class="s">&#39;site_log&#39;</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="s">&quot;site_logs.html&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">show_site_logs</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">site</span> <span class="o">=</span> <span class="n">get_site</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s">&#39;site&#39;</span><span class="p">])</span>
+    <span class="n">logs</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">get_logs</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="p">{</span> <span class="s">&#39;site&#39;</span><span class="p">:</span> <span class="n">site</span><span class="p">,</span> <span class="s">&#39;logs&#39;</span><span class="p">:</span> <span class="n">logs</span> <span class="p">}</span>
+
+<span class="nd">@view_config</span><span class="p">(</span><span class="n">route_name</span><span class="o">=</span><span class="s">&#39;application&#39;</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="s">&quot;application.html&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">show_application</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">site</span> <span class="o">=</span> <span class="n">get_site</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s">&#39;site&#39;</span><span class="p">])</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">applications</span><span class="p">[</span><span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s">&#39;application&#39;</span><span class="p">]]</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s">&#39;Unable to find site and application under &quot;{0}&quot; and &quot;{1}&quot;&#39;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s">&#39;site&#39;</span><span class="p">],</span> <span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s">&#39;application&#39;</span><span class="p">])</span>
+
+        <span class="k">raise</span> <span class="n">HTTPNotFound</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="p">{</span> <span class="s">&#39;site&#39;</span><span class="p">:</span> <span class="n">site</span><span class="p">,</span> <span class="s">&#39;app&#39;</span><span class="p">:</span> <span class="n">app</span> <span class="p">}</span>
+
+<span class="nd">@view_config</span><span class="p">(</span><span class="n">route_name</span><span class="o">=</span><span class="s">&#39;tag&#39;</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="s">&quot;string&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">tag_application</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">SiteDAL</span><span class="o">.</span><span class="n">get_application</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s">&#39;site&#39;</span><span class="p">],</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s">&#39;application&#39;</span><span class="p">])</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <p>todo, once we have a user logged in we'll pass in the user too</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">app</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">],</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s">&#39;msg&#39;</span><span class="p">],</span> <span class="s">&#39;anonymous&#39;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">dumps</span><span class="p">({</span> <span class="s">&#39;success&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;app&#39;</span><span class="p">:</span> <span class="n">app</span> <span class="p">})</span>
+    <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s">&#39;Unable to tag site and application under &quot;{0}&quot; and &quot;{1}&quot;&#39;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s">&#39;site&#39;</span><span class="p">],</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s">&#39;application&#39;</span><span class="p">])</span>
+        
+        <span class="k">return</span> <span class="n">dumps</span><span class="p">({</span> <span class="s">&#39;success&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;msg&#39;</span><span class="p">:</span> <span class="n">msg</span> <span class="p">})</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="nd">@view_config</span><span class="p">(</span><span class="n">route_name</span><span class="o">=</span><span class="s">&#39;deploy&#39;</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="s">&quot;string&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">deploy_application</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">validate_token</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        
+        <span class="n">app</span> <span class="o">=</span> <span class="n">SiteDAL</span><span class="o">.</span><span class="n">get_application</span><span class="p">(</span><span class="n">SiteDAL</span><span class="o">.</span><span class="n">get_master_site</span><span class="p">(),</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s">&#39;application&#39;</span><span class="p">])</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">get_tag_by_name</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">])</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      <p>todo, for now pass in the anonymous user until we start authenticating</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">app</span><span class="o">.</span><span class="n">mark_as_deployed</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="s">&#39;anonymous&#39;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">dumps</span><span class="p">({</span> <span class="s">&#39;success&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;app&#39;</span><span class="p">:</span> <span class="n">app</span> <span class="p">})</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s">&#39;Unable to deploy application. Error: &quot;{0}&quot;&#39;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">dumps</span><span class="p">({</span> <span class="s">&#39;success&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;msg&#39;</span><span class="p">:</span> <span class="n">msg</span> <span class="p">})</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-5'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-5'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">validate_token</span><span class="p">(</span><span class="n">request</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-6'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-6'>#</a>
+      </div>
+      <p>Validate security token</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">if</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">]):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Invalid security token&quot;</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-7'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-7'>#</a>
+      </div>
+      <p>Register a Bambino node with Doula.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="nd">@view_config</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">HTTPNotFound</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="s">&#39;404.html&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">404</span>
+    
+    <span class="k">return</span> <span class="p">{</span> <span class="s">&#39;msg&#39;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span> <span class="p">}</span>
+
+
+<span class="nd">@view_config</span><span class="p">(</span><span class="n">route_name</span><span class="o">=</span><span class="s">&#39;nodes_ip_lookup&#39;</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="s">&quot;json&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">nodes_ip_lookup</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ips</span> <span class="o">=</span> <span class="n">SiteDAL</span><span class="o">.</span><span class="n">get_node_ips</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">{</span> <span class="s">&#39;success&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;ip_addresses&#39;</span><span class="p">:</span> <span class="n">ips</span> <span class="p">}</span>
+    <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s">&#39;Unable to find Bambino IP addresses &quot;{0}&quot;&#39;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s">&#39;site&#39;</span><span class="p">],</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s">&#39;application&#39;</span><span class="p">])</span>
+        
+        <span class="k">return</span> <span class="n">dumps</span><span class="p">({</span> <span class="s">&#39;success&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;msg&#39;</span><span class="p">:</span> <span class="n">msg</span> <span class="p">})</span>
+
+<span class="nd">@view_config</span><span class="p">(</span><span class="n">route_name</span><span class="o">=</span><span class="s">&quot;app_requirements_file&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">app_requirements_file</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">site</span> <span class="o">=</span> <span class="n">get_site</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s">&#39;site&#39;</span><span class="p">])</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">applications</span><span class="p">[</span><span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s">&#39;application&#39;</span><span class="p">]]</span>
+    
+    <span class="n">response</span> <span class="o">=</span> <span class="n">Response</span><span class="p">(</span><span class="n">content_type</span><span class="o">=</span><span class="s">&#39;application/octet-stream&#39;</span><span class="p">)</span>
+    <span class="n">file_name</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">site_name</span> <span class="o">+</span> <span class="s">&#39;_&#39;</span> <span class="o">+</span> <span class="n">app</span><span class="o">.</span><span class="n">name_url</span> <span class="o">+</span> <span class="s">&#39;_requirements.txt&#39;</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">content_disposition</span> <span class="o">=</span> <span class="s">&#39;attachment; filename=&quot;&#39;</span> <span class="o">+</span> <span class="n">file_name</span> <span class="o">+</span> <span class="s">&#39;&quot;&#39;</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">charset</span> <span class="o">=</span> <span class="s">&quot;UTF-8&quot;</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">freeze_requirements</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">response</span>
+    
+
+<span class="nd">@view_config</span><span class="p">(</span><span class="n">route_name</span><span class="o">=</span><span class="s">&#39;register&#39;</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="s">&#39;json&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="n">request</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-8'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-8'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">node</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s">&#39;node&#39;</span><span class="p">])</span>
+    <span class="n">node</span><span class="p">[</span><span class="s">&#39;time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%m/</span><span class="si">%d</span><span class="s">/%Y %H:%M:%S&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">())</span>
+    
+    <span class="k">if</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;register&#39;</span><span class="p">):</span>
+        <span class="n">SiteDAL</span><span class="o">.</span><span class="n">register_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">SiteDAL</span><span class="o">.</span><span class="n">unregister_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="p">{</span><span class="s">&#39;success&#39;</span><span class="p">:</span> <span class="s">&#39;true&#39;</span><span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-9'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-9'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">get_site</span><span class="p">(</span><span class="n">site_name</span><span class="p">):</span>
+    <span class="n">site</span> <span class="o">=</span> <span class="n">SiteDAL</span><span class="o">.</span><span class="n">get_site</span><span class="p">(</span><span class="n">site_name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">site</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s">&#39;Unable to find site &quot;{0}&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">site_name</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">HTTPNotFound</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">site</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+<script src="pycco.js"></script>
+</body>

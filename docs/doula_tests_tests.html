@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>tests.py</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<!-- fly bar -->
+<div id="flybar">
+<a id="nav-logo" href="index.html">Doula Documentation</a>
+
+<div class="flybar-language">
+  <div class="dropdown">
+    <a id="pages-dropdown" class="flybar-button">Files
+      <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu">
+      <li><a href="doula___init__.html">doula/__init__.py</a></li>
+      <li><a href="doula_cache.html">doula/cache.py</a></li>
+      <li><a href="doula_helper_filters.html">doula/helper_filters.py</a></li>
+      <li><a href="doula_models_audit.html">doula/models/audit.py</a></li>
+      <li><a href="doula_models_site_tag_history.html">doula/models/site_tag_history.py</a></li>
+      <li><a href="doula_models_sites.html">doula/models/sites.py</a></li>
+      <li><a href="doula_models_sites_dal.html">doula/models/sites_dal.py</a></li>
+      <li><a href="doula_static_minify_js_script.html">doula/static/minify/js_script.py</a></li>
+      <li><a href="doula_static_minify_jsmin.html">doula/static/minify/jsmin.py</a></li>
+      <li><a href="doula_tests_test_audit.html">doula/tests/test_audit.py</a></li>
+      <li><a href="doula_tests_test_helper_filters.html">doula/tests/test_helper_filters.py</a></li>
+      <li><a href="doula_tests_test_sites.html">doula/tests/test_sites.py</a></li>
+      <li><a href="doula_tests_test_sites_dal.html">doula/tests/test_sites_dal.py</a></li>
+      <li><a href="doula_tests_test_sites_dao.html">doula/tests/test_sites_dao.py</a></li>
+      <li><a href="doula_tests_tests.html">doula/tests/tests.py</a></li>
+      <li><a href="doula_util.html">doula/util.py</a></li>
+      <li><a href="doula_views.html">doula/views.py</a></li>
+      <li><a href="fabfile.html">fabfile.py</a></li>
+      <li><a href="setup.html">setup.py</a></li>
+      <li><a href="setup_initial.html">setup/initial.py</a></li>
+    </ul>
+  </div>
+</div>
+</div>
+<!-- end of fly bar -->
+
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>tests.py</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">unittest</span>
+
+<span class="kn">from</span> <span class="nn">pyramid</span> <span class="kn">import</span> <span class="n">testing</span>
+<span class="kn">from</span> <span class="nn">doula.views</span> <span class="kn">import</span> <span class="n">register</span>
+<span class="kn">from</span> <span class="nn">doula.cache</span> <span class="kn">import</span> <span class="n">Cache</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">class</span> <span class="nc">ViewTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">Cache</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="s">&#39;dev&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">testing</span><span class="o">.</span><span class="n">setUp</span><span class="p">()</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">testing</span><span class="o">.</span><span class="n">tearDown</span><span class="p">()</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">test_register</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">testing</span><span class="o">.</span><span class="n">DummyRequest</span><span class="p">()</span>
+        
+        <span class="n">node</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;Bambino 1&#39;</span><span class="p">,</span>
+            <span class="s">&#39;site&#39;</span><span class="p">:</span> <span class="s">&#39;Monkey Test One&#39;</span><span class="p">,</span>
+            <span class="s">&#39;url&#39;</span> <span class="p">:</span> <span class="s">&#39;http://127.0.0.1:6542&#39;</span>
+        <span class="p">}</span>
+        
+        <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s">&#39;action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;register&#39;</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s">&#39;node&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">register</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s">&#39;success&#39;</span><span class="p">],</span> <span class="s">&#39;true&#39;</span><span class="p">)</span>
+    
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+<script src="pycco.js"></script>
+</body>
