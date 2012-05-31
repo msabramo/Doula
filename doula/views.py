@@ -4,6 +4,7 @@ import logging
 
 from doula.util import pprint
 from doula.util import dumps
+from doula.util import git_dirify
 from doula.models.sites_dal import SiteDAL
 from pyramid.response import Response
 from pyramid.view import view_config
@@ -52,7 +53,8 @@ def tag_application(request):
     try:
         app = SiteDAL.get_application(request.POST['site'], request.POST['application'])
         # todo, once we have a user logged in we'll pass in the user too
-        app.tag(request.POST['tag'], request.POST['msg'], 'anonymous')
+        tag = git_dirify(request.POST['tag'])
+        app.tag(tag, request.POST['msg'], 'anonymous')
         
         return dumps({ 'success': True, 'app': app })
     except KeyError as e:

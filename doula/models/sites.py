@@ -132,24 +132,9 @@ class Node(object):
             rslt = json.loads(r.text)
             
             for app in rslt['applications']:
-                a = Application(app['name'], self.name, self.site_name, self.url)
-                a.current_branch_app = app['current_branch_app']
-                a.change_count_app = app['change_count_app']
-                a.change_count_config = app['change_count_config']
-                a.is_dirty_config = app['is_dirty_config']
-                a.last_tag_config = app['last_tag_config']
-                a.status = app['status']
-                a.remote = app['remote']
-                a.last_tag_app = app['last_tag_app']
-                a.last_tag_message = app['last_tag_message']
-                a.current_branch_config = app['current_branch_config']
-                a.changed_files = app['changed_files']
-                a.tags = [ ]
-                a.packages = [ ]
-                a.add_packages(app['packages'])
-                a.add_tags_from_dict(app['tags'])
-                
+                a = Application.build_app(self.site_name, self.name, self.url)
                 self.applications[a.name_url] = a
+            
         except requests.exceptions.ConnectionError as e:
             msg = 'Unable to contact node {0} at URL {1}'.format(self.name, self.url)
             log.error(msg)
@@ -193,7 +178,29 @@ class Application(object):
         self.packages = packages
         self.changed_files = changed_files
         self.tags = tags
-    
+    @staticmethod
+    def build_app(site_name, node_name, url, app):
+        """Build an application object from the app dictionary"""
+
+        a = Application(app['name'], site_name, node_name, url)
+        a.current_branch_app = app['current_branch_app']
+        a.change_count_app = app['change_count_app']
+        a.change_count_config = app['change_count_config']
+        a.is_dirty_config = app['is_dirty_config']
+        a.last_tag_config = app['last_tag_config']
+        a.status = app['status']
+        a.remote = app['remote']
+        a.last_tag_app = app['last_tag_app']
+        a.last_tag_message = app['last_tag_message']
+        a.current_branch_config = app['current_branch_config']
+        a.changed_files = app['changed_files']
+        a.tags = [ ]
+        a.packages = [ ]
+        a.add_packages(app['packages'])
+        a.add_tags_from_dict(app['tags'])
+
+        return a
+
     def add_packages(self, pckgs):
         for name, version in pckgs.iteritems():
             self.packages.append(Package(name, version))
