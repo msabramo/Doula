@@ -1,5 +1,7 @@
 import json
 import os
+import logging
+import sys
 
 from git import Git
 from git import Repo
@@ -7,6 +9,10 @@ from git import Submodule
 from doula.models.sites import Application
 from doula.util import git_dirify
 
+log = logging.getLogger('doula')
+log.setLevel(logging.INFO)
+std_out = logging.StreamHandler(sys.__stdout__)
+log.addHandler(std_out)
 
 class SiteTagHistory(object):
     """
@@ -31,6 +37,8 @@ class SiteTagHistory(object):
         """
         tag = git_dirify(tag)
 
+        log.info("Adding new tag '%s'." % tag)
+
         self._tag_applications(tag, apps)
         self._add_apps_as_submodules(apps, tag)
         self._add_and_commit_submodules(apps)
@@ -50,13 +58,10 @@ class SiteTagHistory(object):
     def _add_apps_as_submodules(self, apps, tag):
         for name, app in apps.iteritems():
             path_to_app = self.path + '/' + app.name
-            # remove dir if it exist. we'll check it out again.
-            os.system('rm -rf ' + path_to_app)
+            log.info("Adding apps as submodules")
 
             # Gitpython was corrupting tree. Going with old school command line.
             self._git_cmd('git submodule add ' + app.remote + ' ' + app.name)
-            self._git_cmd('git submodule init')
-            self._git_cmd('git submodule update')
             # Checkout the submodule to a specific tag
             self._git_cmd('cd ' + app.name + '; git checkout ' + tag)
 
@@ -65,8 +70,15 @@ class SiteTagHistory(object):
         Add all the files and submodules to the master repo.
         """
         # Gitpython was corrupting tree. Going with old school command line.
-        self._git_cmd('git add .')
-        self._git_cmd('git commit -m "Commiting submodules from Doula"')
+        # rebase prior to changes
+        log.info('Adding and committing submodules')
+
+        self._git_cmd('git pull origin ' + self.branch)
+        self._git_cmd('git checkout ' + self.branch)
+        self._git_cmd('git commit -a -m "Commiting submodules from Doula"')
+        
+        log.info('Adding a commit')
+        
         self._git_cmd('git push origin ' + self.branch)
 
     def _git_cmd(self, cmd):
@@ -75,6 +87,8 @@ class SiteTagHistory(object):
 
     def _tag_site_tag_history(self, tag):
         """Tag the site tag history repo."""
+        log.info('Tagging site tag history with tag %s' % tag)
+
         self._tag_repo(self.repo, tag)
 
     def _tag_repo(self, repo, tag):
