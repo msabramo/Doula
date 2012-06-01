@@ -1,6 +1,7 @@
 import json
 import os
 import logging
+import subprocess
 import sys
 
 from git import Git
@@ -19,10 +20,11 @@ class SiteTagHistory(object):
     Site tag manages the Site Tag History Repo that keeps track of
     the applications tagged together for deployment.
     """
-    def __init__(self, path, remote, branch):
+    def __init__(self, path, remote, branch, log_path):
         self.path = path
         self.remote = remote
         self.branch = git_dirify(branch)
+        self.log_path = log_path
         self.repo = self._checkout_repo(path, remote)
 
     def tag_site(self, tag, apps):
@@ -35,14 +37,19 @@ class SiteTagHistory(object):
         The branch is the name of the site
         The apps is a dictionary of Application objects. {'app name': application object}
         """
-        tag = git_dirify(tag)
+        try:
+            self.log_file = open(self.log_path, 'a')
+            tag = git_dirify(tag)
 
-        log.info("Adding new tag '%s'." % tag)
+            log.info("Adding new tag '%s'." % tag)
 
-        self._tag_applications(tag, apps)
-        self._add_apps_as_submodules(apps, tag)
-        self._add_and_commit_submodules(apps)
-        self._tag_site_tag_history(tag)
+            self._tag_applications(tag, apps)
+            self._add_apps_as_submodules(apps, tag)
+            self._add_and_commit_submodules(apps)
+            self._tag_site_tag_history(tag)
+        finally:
+            self.log_file.write('END')
+            self.log_file.close()
 
     def _tag_applications(self, tag, apps):
         """Tag every application. Push those changes now."""
@@ -60,10 +67,9 @@ class SiteTagHistory(object):
             path_to_app = self.path + '/' + app.name
             log.info("Adding apps as submodules")
 
-            # Gitpython was corrupting tree. Going with old school command line.
-            self._git_cmd('git submodule add ' + app.remote + ' ' + app.name)
+            self._cmd('git submodule add ' + app.remote + ' ' + app.name)
             # Checkout the submodule to a specific tag
-            self._git_cmd('cd ' + app.name + '; git checkout ' + tag)
+            self._cmd('git checkout ' + tag, path_to_app)
 
     def _add_and_commit_submodules(self, apps):
         """
@@ -73,17 +79,24 @@ class SiteTagHistory(object):
         # rebase prior to changes
         log.info('Adding and committing submodules')
 
-        self._git_cmd('git pull origin ' + self.branch)
-        self._git_cmd('git checkout ' + self.branch)
-        self._git_cmd('git commit -a -m "Commiting submodules from Doula"')
-        
-        log.info('Adding a commit')
-        
-        self._git_cmd('git push origin ' + self.branch)
+        self._cmd('git pull origin ' + self.branch)
+        self._cmd('git checkout ' + self.branch)
+        self._cmd('git commit -a -m "Commiting submodules from Doula"')
+        self._cmd('git push origin ' + self.branch)
 
-    def _git_cmd(self, cmd):
+    def _cmd(self, cmd, path=None):
         """Run a git command from the correct dir."""
-        os.system('cd ' + self.path + '; ' + cmd)
+        if not path:
+            path = self.path
+        
+        g = Git(path)
+        g.execute(
+            ['cd', path, cmd], 
+            istream=self.log_file, 
+            with_extended_output=True, 
+            with_exceptions=True, 
+            output_stream=self.log_file)
+
 
     def _tag_site_tag_history(self, tag):
         """Tag the site tag history repo."""
@@ -163,7 +176,7 @@ tag_history_remote = 'git@code.corp.surveymonkey.com:alexv/site_tag_history.git'
 
 if __name__ == '__main__':
     os.system('rm -rf ' + tag_history_path)
-    sth = SiteTagHistory(tag_history_path, tag_history_remote, 'mttest')
+    sth = SiteTagHistory(tag_history_path, tag_history_remote, 'mttest', 'output.log')
 
     tag = get_random_tag()
     branch = 'mt1'
