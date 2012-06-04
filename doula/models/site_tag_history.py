@@ -84,6 +84,7 @@ class SiteTagHistory(object):
 
         self._cmd('git pull origin ' + self.branch)
         self._cmd('git checkout ' + self.branch)
+        self._cmd('git add .')
         self._cmd('git commit -a -m "Commit_from_Doula"')
         self._cmd('git push origin ' + self.branch)
 
@@ -92,19 +93,17 @@ class SiteTagHistory(object):
         if not path:
             path = self.path
         
-        f = open(self.log_path, 'a+', 0)
+        f = open(self.log_path, 'a', 0)
         f.write('Running command: ' + cmd + "\n")
-        # cmd_list = ['cd', path + ';']
-        # cmd_list.extend(cmd.split())
+        cmd_list = ['cd', path + ';']
+        cmd_list.extend(cmd.split())
 
-        cmd = 'cd' + path + ';' + cmd + ' >> ' + self.log_path
-
-        print cmd
+        cmd = 'cd ' + path + ' && ' + cmd + ' >> ' + self.log_path
+        
         os.system(cmd)
         #p = subprocess.Popen(cmd, stdout=f, shell=True)
         #rslt = subprocess.check_output(cmd_list)
         #rslt = subprocess.call(cmd_list, stdout=f, stderr=f)
-
         f.close()
 
 
