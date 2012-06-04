@@ -26,6 +26,9 @@ class SiteTagHistory(object):
         self.branch = git_dirify(branch)
         self.log_path = log_path
         self.repo = self._checkout_repo(path, remote)
+    def tags(self):
+        # need to return a list of tags here for the site tag history
+        pass
 
     def tag_site(self, tag, apps):
         """ 
@@ -38,7 +41,6 @@ class SiteTagHistory(object):
         The apps is a dictionary of Application objects. {'app name': application object}
         """
         try:
-            self.log_file = open(self.log_path, 'a')
             tag = git_dirify(tag)
 
             log.info("Adding new tag '%s'." % tag)
@@ -48,8 +50,7 @@ class SiteTagHistory(object):
             self._add_and_commit_submodules(apps)
             self._tag_site_tag_history(tag)
         finally:
-            self.log_file.write('END')
-            self.log_file.close()
+            pass
 
     def _tag_applications(self, tag, apps):
         """Tag every application. Push those changes now."""
@@ -68,6 +69,8 @@ class SiteTagHistory(object):
             log.info("Adding apps as submodules")
 
             self._cmd('git submodule add ' + app.remote + ' ' + app.name)
+            self._cmd('git submodule init')
+            self._cmd('git submodule update')
             # Checkout the submodule to a specific tag
             self._cmd('git checkout ' + tag, path_to_app)
 
@@ -81,7 +84,7 @@ class SiteTagHistory(object):
 
         self._cmd('git pull origin ' + self.branch)
         self._cmd('git checkout ' + self.branch)
-        self._cmd('git commit -a -m "Commiting submodules from Doula"')
+        self._cmd('git commit -a -m "Commit_from_Doula"')
         self._cmd('git push origin ' + self.branch)
 
     def _cmd(self, cmd, path=None):
@@ -89,13 +92,20 @@ class SiteTagHistory(object):
         if not path:
             path = self.path
         
-        g = Git(path)
-        g.execute(
-            ['cd', path, cmd], 
-            istream=self.log_file, 
-            with_extended_output=True, 
-            with_exceptions=True, 
-            output_stream=self.log_file)
+        f = open(self.log_path, 'a+', 0)
+        f.write('Running command: ' + cmd + "\n")
+        # cmd_list = ['cd', path + ';']
+        # cmd_list.extend(cmd.split())
+
+        cmd = 'cd' + path + ';' + cmd + ' >> ' + self.log_path
+
+        print cmd
+        os.system(cmd)
+        #p = subprocess.Popen(cmd, stdout=f, shell=True)
+        #rslt = subprocess.check_output(cmd_list)
+        #rslt = subprocess.call(cmd_list, stdout=f, stderr=f)
+
+        f.close()
 
 
     def _tag_site_tag_history(self, tag):

@@ -132,7 +132,7 @@ class Node(object):
             rslt = json.loads(r.text)
             
             for app in rslt['applications']:
-                a = Application.build_app(self.site_name, self.name, self.url)
+                a = Application.build_app(self.site_name, self.name, self.url, app)
                 self.applications[a.name_url] = a
             
         except requests.exceptions.ConnectionError as e:

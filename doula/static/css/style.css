@@ -3303,14 +3303,18 @@ table.center-cells td, table.center-cells th {
     .accordion > div > section > form textarea {
       width: 60%; }
 
-/* line 234, ../sass/style.sass */
+/* line 233, ../sass/style.sass */
+.site_accord {
+  margin: 15px 0px 0px 0px; }
+
+/* line 237, ../sass/style.sass */
 .deployment input {
   margin: 0 0 5px 0; }
-/* line 236, ../sass/style.sass */
+/* line 239, ../sass/style.sass */
 .deployment input:disabled {
   opacity: 0.3; }
 
-/* line 239, ../sass/style.sass */
+/* line 242, ../sass/style.sass */
 .icon {
   font-size: 21px;
   vertical-align: middle;
@@ -3318,45 +3322,45 @@ table.center-cells td, table.center-cells th {
   top: -2px;
   position: relative;
   margin-right: 2px; }
-  /* line 246, ../sass/style.sass */
+  /* line 249, ../sass/style.sass */
   .icon.icon-warning {
     color: yellow; }
 
-/* line 250, ../sass/style.sass */
+/* line 253, ../sass/style.sass */
 .stat-tagged > header h3 strong {
   color: #eef589; }
 
-/* line 253, ../sass/style.sass */
+/* line 256, ../sass/style.sass */
 .stat-unknown > header h3 strong {
   color: #ccc0c5; }
 
-/* line 256, ../sass/style.sass */
+/* line 259, ../sass/style.sass */
 .stat-changed > header h3 strong {
   color: #ffa21c; }
 
-/* line 260, ../sass/style.sass */
+/* line 263, ../sass/style.sass */
 .stat-error > header h3 strong {
   color: #ff4646; }
 
-/* line 263, ../sass/style.sass */
+/* line 266, ../sass/style.sass */
 table {
   color: black; }
 
-/* line 266, ../sass/style.sass */
+/* line 269, ../sass/style.sass */
 .hide {
   display: none !important; }
 
-/* line 271, ../sass/style.sass */
+/* line 274, ../sass/style.sass */
 .error-dialog {
   color: black;
   background-color: white;
   padding: 15px; }
-  /* line 275, ../sass/style.sass */
+  /* line 278, ../sass/style.sass */
   .error-dialog div {
     font-size: 18px;
     height: 100px; }
 
-/* line 279, ../sass/style.sass */
+/* line 282, ../sass/style.sass */
 .error-dialog-close {
   width: 100px;
   padding: 5px;
@@ -3364,11 +3368,11 @@ table {
   text-align: center;
   float: right; }
 
-/* line 286, ../sass/style.sass */
+/* line 289, ../sass/style.sass */
 .dialog-error-msg {
   font-size: 22px; }
 
-/* line 290, ../sass/style.sass */
+/* line 293, ../sass/style.sass */
 #progress-indicator {
   -moz-border-radius-topleft: 25px;
   -webkit-border-top-left-radius: 25px;
@@ -3390,12 +3394,12 @@ table {
   position: absolute;
   bottom: 0;
   z-index: 99999; }
-  /* line 302, ../sass/style.sass */
+  /* line 305, ../sass/style.sass */
   #progress-indicator h4 {
     text-align: center;
     padding: 20px 0px; }
 
-/* line 306, ../sass/style.sass */
+/* line 309, ../sass/style.sass */
 #footer {
   margin: 50px 0px;
   width: 100%;
