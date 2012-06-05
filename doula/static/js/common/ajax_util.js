@@ -61,16 +61,24 @@ var AjaxUtil = {
     _showProgressIndicator: function(msg) {
         $('#progress-indicator-message').html(msg);
         
-        var progressIndicator = $('#progress-indicator');
-        // Center the element by setting the margin-left
-        var marginLeft = ($(window).width() - progressIndicator.width()) / 2;
+        AjaxUtil._positionProgressIndicator();
+        $(window).resize(AjaxUtil._positionProgressIndicator);
 
-        
-        progressIndicator.css('margin-left', marginLeft);
-        progressIndicator.slideToggle(600).addClass('open');
+        $('#progress-indicator').slideToggle(600).addClass('open');
+    },
+
+    _positionProgressIndicator: function() {
+        var pi = $('#progress-indicator');
+        pi.css('width', $('#content').width());
+
+        // Center the element by setting the margin-left
+        var marginLeft = ($(window).outerWidth(true) - pi.outerWidth(true)) / 2;
+
+        pi.css('right', marginLeft + 'px');
     },
     
     _hideProgressIndicator: function() {
+        $(window).unbind('resize');
         $('#progress-indicator').slideToggle(300).removeClass('open');
     }
 }

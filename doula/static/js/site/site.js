@@ -35,7 +35,7 @@ var Site = (function() {
     tagSite: function() {
         var tag = $('#tag_site').val();
         var msg = $('#msg_site').val();
-
+        
         UI.onTag();
         SiteData.tagSite(tag, msg);
     },
