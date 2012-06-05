@@ -1,33 +1,16 @@
 {% extends 'base.html' %}
 {% block nav %}
 <nav>
-    <a href="/sites">Home</a>
+    <a href="/">Home</a>
 </nav>
 {% endblock %}
 {% block content %}
 <div class="page-wrap">
 <div class="main-mod">
-  <h2 class="cap">Sites</h2>
-  
-  <ul>
-  {% if sites|length > 0 %}
-  {% for name, site in sites.iteritems() %}
-    <li>
-        <a href="/sites/{{ site.name_url }}">
-        <span class="{{ site.get_status()|get_status_class }}"></span>
-        <strong>{{ site.name }}</strong>
-        </a>
-        <a class="site-links" href="/sites/{{ site.name_url }}/logs">
-          <span class="icon">⚙</span> Audit Log
-        </a>
-    </li>
-  {% endfor %}
-  {% else %}
-    <li>
-      <h3>No sites registered</h3>
-    </li>
-  {% endif %}
-  </ul>
+  <h2 class="title-links"><a href="#">Package Management</a></h1>
+  <p>Manage the packages on cheese prism and releases to monkey test environments.</p>
+  <h2 class="title-links"><a href="/sites">Deployment Management</a></h1>
+  <p>Manage deployments to production.</p>
 </div>
 
 </div>

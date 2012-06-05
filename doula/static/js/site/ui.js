@@ -18,39 +18,43 @@ var UI = {
     },
     
     // Execute before the ajax call to server
-    onTagApp: function(app) {
-        $('#form_' + app.name_url + ' input.btn').attr('disabled', 'disabled');
+    onTag: function() {
+        $('form input.btn')
+            .attr('disabled', true)
+            .addClass('disabled');
     },
     
     deployApp: function(app) {
         $('#deploy_' + app.name_url).hide();
         $('#panel_' + app.name_url + ' strong').html('Deployed');
-        this.updateStatus(app);
+        this.updateStatus(app.name_url);
     },
 
-    doneTagApp: function(app) {
-        $('#panel_' + app.name_url).click();
+    doneTagApp: function(elID) {
+        $('#panel_' + elID).click();
         // You can no longer tag an app after it's been tagged
-        $('#panel_' + app.name_url).on('click', function() { return false; });
-        $('#panel_' + app.name_url + ' strong').html('Tagged');
-        $('#panel_' + app.name_url + ' em').hide();
-        $('#deploy_' + app.name_url).removeClass('hide');
+        $('#panel_' + elID).on('click', function() { return false; });
+        $('#panel_' + elID + ' strong').html('Tagged');
+        $('#panel_' + elID + ' em').hide();
+        $('#deploy_' + elID).removeClass('hide');
 
-        this.updateStatus(app);
+        this.updateStatus(elID);
     },
 
-    failedTag: function(app) {
-        $('#form_' + app.name_url + ' input.btn').attr('disabled', '');
+    failedTag: function() {
+        $('form input.btn')
+            .attr('disabled', false)
+            .removeClass('disabled');
     },
     
-    updateStatus: function(app) {
-        $('#stat_' + app.name_url).
-          removeClass('stat-changed stat-error stat-tagged').
-          addClass(this.getStatClass(app));
+    updateStatus: function(elID) {
+        $('#stat_' + elID)
+            .removeClass('stat-changed stat-error stat-tagged')
+            .addClass(this.getStatClass(app));
         
-        $('#status_' + app.name_url).
-          removeClass('status-changed status-error status-tagged').
-          addClass(this.getStatusClass(app));
+        $('#status_' + elID)
+            .removeClass('status-changed status-error status-tagged')
+            .addClass(this.getStatusClass(app));
     },
     
     getStatusClass: function(app) {
@@ -58,6 +62,7 @@ var UI = {
     },
     
     getStatClass: function(app) {
+        // need to find app by name url
         return 'stat-' + this.statusClassHash[app.status];
     }
     

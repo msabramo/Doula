@@ -10,9 +10,9 @@ var Site = (function() {
     },
     
     bindEvents: function() {
+        $('form').on('submit', this.tag);
         $('input.tag').on('change', this.validateTag);
         $('textarea.commit').on('change', this.validateMsg);
-        $('form').on('submit', this.tagApplication);
         $('a.deploy').on('click', this.deployApplication);
     },
 
@@ -23,16 +23,30 @@ var Site = (function() {
         return false;
     },
     
-    tagApplication: function(event) {
+    tag: function(event) {
         var appID = this.id.replace('form_', '');
-        var app = SiteData.findAppByID(appID);
-        var tag = $('#tag_' + app.name_url)[0].value;
-        var msg = $('#msg_' + app.name_url)[0].value;
 
-        UI.onTagApp(app);
-        SiteData.tagApp(app, tag, msg);
+        if(appID == 'site') Site.tagSite(appID);
+        else Site.tagApplication(appID);
         
         return false;
+    },
+
+    tagSite: function() {
+        var tag = $('#tag_site').val();
+        var msg = $('#msg_site').val();
+
+        UI.onTag();
+        SiteData.tagSite(tag, msg);
+    },
+
+    tagApplication: function(appID) {
+        var app = SiteData.findAppByID(appID);
+        var tag = $('#tag_' + app.name_url).val();
+        var msg = $('#msg_' + app.name_url).val();
+
+        UI.onTagApp();
+        SiteData.tagApp(app, tag, msg);
     },
     
     validateTag: function(event) {

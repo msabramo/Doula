@@ -2693,60 +2693,69 @@ html {
 
 /* line 15, ../sass/style.sass */
 body {
-  color: white; }
-  /* line 18, ../sass/style.sass */
-  body nav {
+  color: white;
+  text-align: center; }
+
+/* line 19, ../sass/style.sass */
+#content {
+  width: 960px;
+  margin: 0px auto;
+  padding: 15px; }
+  /* line 25, ../sass/style.sass */
+  #content nav {
     background: rgba(0, 0, 0, 0.2);
     -webkit-box-shadow: 0 5px 5px rgba(0, 0, 0, 0.3);
     -moz-box-shadow: 0 5px 5px rgba(0, 0, 0, 0.3);
     box-shadow: 0 5px 5px rgba(0, 0, 0, 0.3);
-    padding: 0 10%; }
-    /* line 22, ../sass/style.sass */
-    body nav a {
+    padding: 0 10px;
+    text-align: left; }
+    /* line 31, ../sass/style.sass */
+    #content nav a {
       color: white;
       text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
       font-weight: 700;
       display: inline-block;
       padding: 15px 8px 10px 0; }
-      /* line 28, ../sass/style.sass */
-      body nav a:after {
+      /* line 37, ../sass/style.sass */
+      #content nav a:after {
         content: " → ";
         margin: 0 0 0 4px;
         position: relative;
         top: 1px; }
-      /* line 33, ../sass/style.sass */
-      body nav a:last-child:after {
+      /* line 42, ../sass/style.sass */
+      #content nav a:last-child:after {
         display: none; }
-  /* line 36, ../sass/style.sass */
-  body > header {
+  /* line 45, ../sass/style.sass */
+  #content > header {
     background: rgba(0, 0, 0, 0.5);
     position: relative;
     z-index: 1;
-    padding: 20px 10%;
+    padding: 20px 10px;
     -webkit-box-shadow: 0 3px 3px rgba(0, 0, 0, 0.5);
     -moz-box-shadow: 0 3px 3px rgba(0, 0, 0, 0.5);
     box-shadow: 0 3px 3px rgba(0, 0, 0, 0.5); }
-    /* line 42, ../sass/style.sass */
-    body > header h1 {
+    /* line 51, ../sass/style.sass */
+    #content > header h1 {
       font: 0/0 a;
       margin: 0;
       width: 274px;
       height: 51px;
       background: url(../images/logo.png); }
 
-/* line 51, ../sass/style.sass */
+/* line 58, ../sass/style.sass */
 .page-wrap {
-  padding: 40px 10%; }
+  padding: 40px 5px;
+  text-align: left; }
 
-/* line 54, ../sass/style.sass */
+/* line 62, ../sass/style.sass */
 a {
   text-decoration: none; }
-  /* line 56, ../sass/style.sass */
+  /* line 64, ../sass/style.sass */
   a:hover {
     text-decoration: none; }
 
 /* Logs */
-/* line 60, ../sass/style.sass */
+/* line 68, ../sass/style.sass */
 ul.log-lists {
   background-color: #eeeeee;
   color: #060606;
@@ -2758,36 +2767,36 @@ ul.log-lists {
   background-clip: padding-box;
   padding: 10px 10px;
   margin: 10px 0 px; }
-  /* line 66, ../sass/style.sass */
+  /* line 74, ../sass/style.sass */
   ul.log-lists li {
     font-size: 120%;
     line-height: 1.5;
     padding: 5px;
     list-style-type: none; }
-    /* line 71, ../sass/style.sass */
+    /* line 79, ../sass/style.sass */
     ul.log-lists li span {
       color: #a9be38;
       font-weight: bold; }
 
-/* line 75, ../sass/style.sass */
+/* line 83, ../sass/style.sass */
 h1, h2, h3, h4, h5, h6 {
   margin: 0 0 10px 0;
   line-height: 1.1; }
 
-/* line 79, ../sass/style.sass */
+/* line 87, ../sass/style.sass */
 h1 span.title {
   color: #a9be38; }
 
-/* line 82, ../sass/style.sass */
+/* line 90, ../sass/style.sass */
 .cap {
   text-transform: uppercase; }
 
-/* line 86, ../sass/style.sass */
+/* line 94, ../sass/style.sass */
 .main-mod ul {
   list-style: none;
   margin: 0;
   padding: 0; }
-  /* line 90, ../sass/style.sass */
+  /* line 98, ../sass/style.sass */
   .main-mod ul li {
     margin: 0 0 10px 0;
     list-style: none;
@@ -2803,37 +2812,37 @@ h1 span.title {
     -moz-background-clip: padding;
     -webkit-background-clip: padding-box;
     background-clip: padding-box; }
-    /* line 98, ../sass/style.sass */
+    /* line 106, ../sass/style.sass */
     .main-mod ul li:hover {
       background: rgba(0, 0, 0, 0.75); }
-    /* line 100, ../sass/style.sass */
+    /* line 108, ../sass/style.sass */
     .main-mod ul li a {
       color: white; }
-    /* line 102, ../sass/style.sass */
+    /* line 110, ../sass/style.sass */
     .main-mod ul li a.site-links {
       padding: 0px 5px;
       float: right; }
-    /* line 105, ../sass/style.sass */
+    /* line 113, ../sass/style.sass */
     .main-mod ul li strong {
       position: relative;
       top: 1px; }
-/* line 109, ../sass/style.sass */
+/* line 117, ../sass/style.sass */
 .main-mod h2 {
   color: #bada55; }
 
-/* line 112, ../sass/style.sass */
+/* line 120, ../sass/style.sass */
 .odd {
   background: #f2f2f2; }
 
-/* line 114, ../sass/style.sass */
+/* line 122, ../sass/style.sass */
 tr:hover {
   background: #eeeeee; }
 
-/* line 116, ../sass/style.sass */
+/* line 124, ../sass/style.sass */
 tr.odd:hover {
   background: #cccccc; }
 
-/* line 119, ../sass/style.sass */
+/* line 127, ../sass/style.sass */
 [class^=status] {
   display: inline-block;
   width: 20px;
@@ -2843,27 +2852,27 @@ tr.odd:hover {
   margin: 0 7px 0 0;
   font: 0/0 a; }
 
-/* line 127, ../sass/style.sass */
+/* line 135, ../sass/style.sass */
 .status-tagged {
   background: #d8eb00;
   box-shadow: inset 0 5px 5px #adf000, 0 0 20px 2px #adf000, 0 0 2px 1px black; }
 
-/* line 130, ../sass/style.sass */
+/* line 138, ../sass/style.sass */
 .status-unknown {
   background: #b0a5aa;
   box-shadow: inset 0 5px 5px #b0a5aa, 0 0 20px 2px #b0a5aa, 0 0 2px 1px black; }
 
-/* line 133, ../sass/style.sass */
+/* line 141, ../sass/style.sass */
 .status-deployed {
   background: #00a5eb;
   box-shadow: inset 0 5px 5px #00d0eb, 0 0 20px 2px #00d0eb, 0 0 2px 1px black; }
 
-/* line 136, ../sass/style.sass */
+/* line 144, ../sass/style.sass */
 .status-changed {
   background: #ff6000;
   box-shadow: inset 0 5px 5px #ffb85b, 0 0 20px 2px #ffb85b, 0 0 2px 1px black; }
 
-/* line 139, ../sass/style.sass */
+/* line 147, ../sass/style.sass */
 .status-error {
   background: red;
   box-shadow: inset 0 5px 5px #ff7878, 0 0 20px 2px #ff7878, 0 0 2px 1px black;
@@ -2871,23 +2880,23 @@ tr.odd:hover {
   -moz-animation: pulse 0.7s infinite alternate; }
 
 @-webkit-keyframes pulse {
-  /* line 146, ../sass/style.sass */
-  0% {
-    background: #ff3232;
-    box-shadow: inset 0 5px 5px #ff7878, 0 0 20px 2px #ff7878, 0 0 2px 1px black; }
-
-  /* line 149, ../sass/style.sass */
-  100% {
-    background: #ba0000;
-    box-shadow: inset 0 10px 10px #ff7878, 0 0 30px 5px #ff7878, 0 0 2px 1px black; } }
-
-@-moz-keyframes pulse {
   /* line 154, ../sass/style.sass */
   0% {
     background: #ff3232;
     box-shadow: inset 0 5px 5px #ff7878, 0 0 20px 2px #ff7878, 0 0 2px 1px black; }
 
   /* line 157, ../sass/style.sass */
+  100% {
+    background: #ba0000;
+    box-shadow: inset 0 10px 10px #ff7878, 0 0 30px 5px #ff7878, 0 0 2px 1px black; } }
+
+@-moz-keyframes pulse {
+  /* line 162, ../sass/style.sass */
+  0% {
+    background: #ff3232;
+    box-shadow: inset 0 5px 5px #ff7878, 0 0 20px 2px #ff7878, 0 0 2px 1px black; }
+
+  /* line 165, ../sass/style.sass */
   100% {
     background: #ba0000;
     box-shadow: inset 0 10px 10px #ff7878, 0 0 30px 5px #ff7878, 0 0 2px 1px black; } }
@@ -3190,10 +3199,10 @@ table.center-cells td, table.center-cells th {
   .accordion.light > div.key > section {
     color: #333; }
 
-/* line 166, ../sass/style.sass */
+/* line 174, ../sass/style.sass */
 .accordion {
   margin: 0 0 25px 0; }
-  /* line 168, ../sass/style.sass */
+  /* line 176, ../sass/style.sass */
   .accordion > div.key, .accordion > div.key:first-child, .accordion > div.key:last-child, .accordion div.key.open {
     background: rgba(0, 0, 0, 0.4);
     border: 0;
@@ -3220,56 +3229,56 @@ table.center-cells td, table.center-cells th {
     -moz-background-clip: padding;
     -webkit-background-clip: padding-box;
     background-clip: padding-box; }
-    /* line 176, ../sass/style.sass */
+    /* line 184, ../sass/style.sass */
     .accordion > div.key:not(.open):hover, .accordion > div.key:first-child:not(.open):hover, .accordion > div.key:last-child:not(.open):hover, .accordion div.key.open:not(.open):hover {
       background: rgba(0, 0, 0, 0.8); }
-    /* line 179, ../sass/style.sass */
+    /* line 187, ../sass/style.sass */
     .accordion > div.key > header > a, .accordion > div.key:first-child > header > a, .accordion > div.key:last-child > header > a, .accordion div.key.open > header > a {
       position: absolute;
       right: 10px;
       top: 7px; }
-      /* line 183, ../sass/style.sass */
+      /* line 191, ../sass/style.sass */
       .accordion > div.key > header > a:hover, .accordion > div.key:first-child > header > a:hover, .accordion > div.key:last-child > header > a:hover, .accordion div.key.open > header > a:hover {
         color: white; }
-    /* line 185, ../sass/style.sass */
+    /* line 193, ../sass/style.sass */
     .accordion > div.key > header > a.deploy, .accordion > div.key:first-child > header > a.deploy, .accordion > div.key:last-child > header > a.deploy, .accordion div.key.open > header > a.deploy {
       position: absolute;
       right: 80px;
       top: 7px; }
-      /* line 189, ../sass/style.sass */
+      /* line 197, ../sass/style.sass */
       .accordion > div.key > header > a.deploy:hover, .accordion > div.key:first-child > header > a.deploy:hover, .accordion > div.key:last-child > header > a.deploy:hover, .accordion div.key.open > header > a.deploy:hover {
         color: white; }
-    /* line 191, ../sass/style.sass */
+    /* line 199, ../sass/style.sass */
     .accordion > div.key > header h3 strong, .accordion > div.key:first-child > header h3 strong, .accordion > div.key:last-child > header h3 strong, .accordion div.key.open > header h3 strong {
       text-transform: none;
       font-weight: 400;
       font-size: 12px;
       margin-left: 10px; }
-    /* line 196, ../sass/style.sass */
+    /* line 204, ../sass/style.sass */
     .accordion > div.key > header h3 a, .accordion > div.key:first-child > header h3 a, .accordion > div.key:last-child > header h3 a, .accordion div.key.open > header h3 a {
       padding-left: 40px; }
-    /* line 198, ../sass/style.sass */
+    /* line 206, ../sass/style.sass */
     .accordion > div.key > header h3 em, .accordion > div.key:first-child > header h3 em, .accordion > div.key:last-child > header h3 em, .accordion div.key.open > header h3 em {
       position: absolute;
       top: 12px;
       right: 80px; }
-    /* line 202, ../sass/style.sass */
+    /* line 210, ../sass/style.sass */
     .accordion > div.key > header:hover h3 em, .accordion > div.key:first-child > header:hover h3 em, .accordion > div.key:last-child > header:hover h3 em, .accordion div.key.open > header:hover h3 em {
       color: white; }
-    /* line 204, ../sass/style.sass */
+    /* line 212, ../sass/style.sass */
     .accordion > div.key > header > a, .accordion > div.key > header h3 em, .accordion > div.key:first-child > header > a, .accordion > div.key:first-child > header h3 em, .accordion > div.key:last-child > header > a, .accordion > div.key:last-child > header h3 em, .accordion div.key.open > header > a, .accordion div.key.open > header h3 em {
       font-weight: 400;
       font-size: 12px;
       text-transform: none;
       font-style: normal;
       color: #999999; }
-    /* line 210, ../sass/style.sass */
+    /* line 218, ../sass/style.sass */
     .accordion > div.key > header > span, .accordion > div.key:first-child > header > span, .accordion > div.key:last-child > header > span, .accordion div.key.open > header > span {
       width: 20px;
       height: 20px;
       top: 9px;
       left: 9px; }
-  /* line 215, ../sass/style.sass */
+  /* line 223, ../sass/style.sass */
   .accordion > div > section > form {
     background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, rgba(0, 0, 0, 0)), color-stop(100%, rgba(0, 0, 0, 0.3)));
     background: -webkit-linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.3));
@@ -3285,36 +3294,46 @@ table.center-cells td, table.center-cells th {
     background-clip: padding-box;
     padding: 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-    /* line 220, ../sass/style.sass */
+    /* line 228, ../sass/style.sass */
     .accordion > div > section > form > div {
       margin: 0 0 10px 0;
       clear: both; }
-      /* line 223, ../sass/style.sass */
+      /* line 231, ../sass/style.sass */
       .accordion > div > section > form > div:last-child {
         margin-bottom: 0; }
-    /* line 225, ../sass/style.sass */
+    /* line 233, ../sass/style.sass */
     .accordion > div > section > form label {
-      float: left;
+      font-size: 14px;
+      font-weight: bold;
+      font-family: "Lucida Grande", "Lucida Sans Unicode", Tahoma, sans-serif;
+      clear: both;
+      display: block;
+      margin: 5px 0px;
+      line-height: 150%;
       width: 17%; }
-    /* line 228, ../sass/style.sass */
+    /* line 242, ../sass/style.sass */
     .accordion > div > section > form input[type=text] {
-      width: 240px; }
-    /* line 230, ../sass/style.sass */
+      float: none;
+      clear: both;
+      display: block;
+      width: 60%; }
+    /* line 247, ../sass/style.sass */
     .accordion > div > section > form textarea {
+      clear: both;
       width: 60%; }
 
-/* line 233, ../sass/style.sass */
+/* line 251, ../sass/style.sass */
 .site_accord {
   margin: 15px 0px 0px 0px; }
 
-/* line 237, ../sass/style.sass */
+/* line 255, ../sass/style.sass */
 .deployment input {
   margin: 0 0 5px 0; }
-/* line 239, ../sass/style.sass */
+/* line 257, ../sass/style.sass */
 .deployment input:disabled {
   opacity: 0.3; }
 
-/* line 242, ../sass/style.sass */
+/* line 260, ../sass/style.sass */
 .icon {
   font-size: 21px;
   vertical-align: middle;
@@ -3322,45 +3341,71 @@ table.center-cells td, table.center-cells th {
   top: -2px;
   position: relative;
   margin-right: 2px; }
-  /* line 249, ../sass/style.sass */
+  /* line 267, ../sass/style.sass */
   .icon.icon-warning {
     color: yellow; }
 
-/* line 253, ../sass/style.sass */
+/* line 271, ../sass/style.sass */
 .stat-tagged > header h3 strong {
   color: #eef589; }
 
-/* line 256, ../sass/style.sass */
+/* line 274, ../sass/style.sass */
 .stat-unknown > header h3 strong {
   color: #ccc0c5; }
 
-/* line 259, ../sass/style.sass */
+/* line 277, ../sass/style.sass */
 .stat-changed > header h3 strong {
   color: #ffa21c; }
 
-/* line 263, ../sass/style.sass */
+/* line 281, ../sass/style.sass */
 .stat-error > header h3 strong {
   color: #ff4646; }
 
-/* line 266, ../sass/style.sass */
+/* line 284, ../sass/style.sass */
 table {
   color: black; }
 
-/* line 269, ../sass/style.sass */
+/* line 287, ../sass/style.sass */
+.instruct {
+  font-size: 12px; }
+
+/* line 290, ../sass/style.sass */
+.title-instruct {
+  margin: 25px 0px 5px 0px; }
+
+/* line 293, ../sass/style.sass */
+.title-links {
+  margin: 5px 0px 0px 0px; }
+  /* line 295, ../sass/style.sass */
+  .title-links > a {
+    color: white; }
+
+/* line 298, ../sass/style.sass */
 .hide {
   display: none !important; }
 
-/* line 274, ../sass/style.sass */
+/* line 301, ../sass/style.sass */
+.btn.disabled, .btn[disabled] {
+  cursor: default;
+  background-color: #e6e6e6;
+  background-image: none;
+  opacity: 0.65;
+  filter: alpha(opacity=65);
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none; }
+
+/* line 311, ../sass/style.sass */
 .error-dialog {
   color: black;
   background-color: white;
   padding: 15px; }
-  /* line 278, ../sass/style.sass */
+  /* line 315, ../sass/style.sass */
   .error-dialog div {
     font-size: 18px;
     height: 100px; }
 
-/* line 282, ../sass/style.sass */
+/* line 319, ../sass/style.sass */
 .error-dialog-close {
   width: 100px;
   padding: 5px;
@@ -3368,11 +3413,11 @@ table {
   text-align: center;
   float: right; }
 
-/* line 289, ../sass/style.sass */
+/* line 326, ../sass/style.sass */
 .dialog-error-msg {
   font-size: 22px; }
 
-/* line 293, ../sass/style.sass */
+/* line 330, ../sass/style.sass */
 #progress-indicator {
   -moz-border-radius-topleft: 25px;
   -webkit-border-top-left-radius: 25px;
@@ -3394,12 +3439,12 @@ table {
   position: absolute;
   bottom: 0;
   z-index: 99999; }
-  /* line 305, ../sass/style.sass */
+  /* line 342, ../sass/style.sass */
   #progress-indicator h4 {
     text-align: center;
     padding: 20px 0px; }
 
-/* line 309, ../sass/style.sass */
+/* line 346, ../sass/style.sass */
 #footer {
   margin: 50px 0px;
   width: 100%;

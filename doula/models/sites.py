@@ -8,6 +8,7 @@ from doula.util import dirify
 from doula.util import dumps
 from doula.models.audit import Audit
 from doula.models.sites_dal import SiteDAL
+from doula.models.site_tag_history import SiteTagHistory
 
 # Defines the Data Models for Doula and Bambino.
 #
@@ -63,6 +64,14 @@ class Site(object):
             all_logs.extend(app.get_logs())
         
         return all_logs
+
+    def tag(self, tag_history_path, tag_history_remote, tag, msg, user):
+        # alextodo, need to move this logic into the site object
+        # alextodo, figure out the output.log file, where should 
+        # it actually go? will you read it?
+        # create a global config object. this will also allow me to test. config[]
+        sth = SiteTagHistory(tag_history_path, tag_history_remote, self.name_url, 'output.log')
+        sth.tag_site(tag, msg, self.applications)
 
     @staticmethod
     def build_site(simple_site):

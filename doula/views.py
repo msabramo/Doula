@@ -1,6 +1,7 @@
 import json
 import time
 import logging
+import traceback
 
 from doula.util import pprint
 from doula.util import dumps
@@ -16,11 +17,11 @@ log = logging.getLogger('doula')
 def show_home(request):
     return show_sites(request)
 
-@view_config(route_name='sites', renderer='home.html')
+@view_config(route_name='sites', renderer='sites.html')
 def show_sites(request):
     return { 'sites': SiteDAL.get_sites() }
 
-@view_config(route_name='site', renderer="site.html")
+@view_config(route_name='site', renderer="site_applications.html")
 def show_site(request):
     site = get_site(request.matchdict['site'])
     token = request.registry.settings['token']
@@ -34,7 +35,7 @@ def show_site_logs(request):
 
     return { 'site': site, 'logs': logs }
 
-@view_config(route_name='application', renderer="application.html")
+@view_config(route_name='application', renderer="application_details.html")
 def show_application(request):
     try:
         site = get_site(request.matchdict['site'])
@@ -60,6 +61,30 @@ def tag_application(request):
     except KeyError as e:
         msg = 'Unable to tag site and application under "{0}" and "{1}"'
         msg = msg.format(request.POST['site'], request.POST['application'])
+        
+        return dumps({ 'success': False, 'msg': msg })
+
+@view_config(route_name='tag_site', renderer="string")
+def tag_site(request):
+    try:
+        # alextodo, should I simply create a config global object and access that
+        # instead of reading all the time from registry? that would be testable too
+        # better than this. talk to whit.
+        tag_history_path = request.registry.settings['tag_history_path']
+        tag_history_remote = request.registry.settings['tag_history_remote']
+        tag = git_dirify(request.POST['tag'])
+        msg = request.POST['msg']
+
+        site = get_site(request.POST['site'])
+        # once we have user from ldap, pass that in
+        site.tag(tag_history_path, tag_history_remote, tag, msg, 'anonymous')
+
+        return dumps({ 'success': True, 'site': site })
+    except Exception as e:
+        tb = traceback.format_exc()
+        print 'TRACEBACK'
+        print tb
+        msg = 'Unable to tag site "{0}"'.format(request.POST['site'])
         
         return dumps({ 'success': False, 'msg': msg })
     

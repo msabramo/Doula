@@ -39,6 +39,8 @@ var AjaxUtil = {
                               return false;
                           }
                       });
+
+                      if(onFail) onFail(rslt);
                   }
               }
         });

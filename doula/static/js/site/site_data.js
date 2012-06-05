@@ -2,6 +2,7 @@
 var SiteData = {
     
     name: '',
+    last_tag: '',
     name_url: '',
     nodes: { },
     applications: { },
@@ -14,9 +15,8 @@ var SiteData = {
         _mixin(this, AjaxUtil);
     },
     
-    tagApp: function(app, tag, msg) {
+    tagApp: function(app, tag, tag_msg) {
         var msg = 'Tagging ' + app.name;
-        var tag_msg = $('#msg_' + app.name_url).val();
         var url = '/tag';
         var params = {
             'site'        : SiteData.name_url,
@@ -27,14 +27,41 @@ var SiteData = {
         
         this.post(msg, url, params, this.doneTagApp);
     },
-    
+
     doneTagApp: function(rlst) {
         app = SiteData.findAppByID(rlst.app.name_url);
         app.tag = rlst.app.last_tag_app;
         app.msg = rlst.app.msg;
         app.status = rlst.app.status;
         
-        UI.doneTagApp(app);
+        UI.doneTagApp(app.name_url);
+    },
+
+    tagSite: function(tag, tag_msg) {
+        var msg = 'Tagging Site';
+        var url = '/tagsite';
+        
+        var params = {
+            'site'        : SiteData.name_url,
+            'tag'         : tag,
+            'msg'         : tag_msg
+        }
+        
+        this.post(msg, url, params, this.doneTagSite, this.failedTagSite);
+    },
+
+    doneTagSite: function(rslt) {
+        console.log('done tagging site');
+        console.log(rslt);
+
+        SiteData.status = rslt.site.status;
+        SiteData.last_tag = rslt.site.last_tag;
+        
+        UI.doneTagApp('site');
+    },
+
+    failedTagSite: function() {
+        UI.failedTag();
     },
 
     deployApplication: function(app) {

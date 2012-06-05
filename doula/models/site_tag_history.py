@@ -7,8 +7,8 @@ import sys
 from git import Git
 from git import Repo
 from git import Submodule
-from doula.models.sites import Application
 from doula.util import git_dirify
+from doula.util import dumps
 
 log = logging.getLogger('doula')
 log.setLevel(logging.INFO)
@@ -30,7 +30,7 @@ class SiteTagHistory(object):
         # need to return a list of tags here for the site tag history
         pass
 
-    def tag_site(self, tag, apps):
+    def tag_site(self, tag, msg, apps):
         """ 
         Tag every app with the new tag. Then tag the sitetaghistory repo
         with the tag and every repo as a submodule for that branch. The branch
@@ -40,19 +40,19 @@ class SiteTagHistory(object):
         The branch is the name of the site
         The apps is a dictionary of Application objects. {'app name': application object}
         """
-        try:
-            tag = git_dirify(tag)
+        # alextodo, need to check for duplicate tags
+        # need to be able to autogenerate a tag.
+        tag = git_dirify(tag)
+        log.info("Adding new tag '%s'." % tag)
 
-            log.info("Adding new tag '%s'." % tag)
+        self._tag_applications(tag, msg, apps)
+        self._add_apps_as_submodules(apps, tag)
+        self._add_and_commit_submodules(apps)
+        self._tag_site_tag_history(tag, msg)
 
-            self._tag_applications(tag, apps)
-            self._add_apps_as_submodules(apps, tag)
-            self._add_and_commit_submodules(apps)
-            self._tag_site_tag_history(tag)
-        finally:
-            pass
+        # after moving this logic to site. make the status tagged.
 
-    def _tag_applications(self, tag, apps):
+    def _tag_applications(self, tag, msg, apps):
         """Tag every application. Push those changes now."""
         # check if the directory exist for each app below the path dir
         # if it does not check it out at the branch
@@ -61,7 +61,7 @@ class SiteTagHistory(object):
         for app_name, app in apps.iteritems():
             path_to_app = self.path + '/' + app.name
             app.repo = self._checkout_repo(path_to_app, app.remote)
-            self._tag_repo(app.repo, tag)
+            self._tag_repo(app.repo, tag, msg)
 
     def _add_apps_as_submodules(self, apps, tag):
         for name, app in apps.iteritems():
@@ -98,8 +98,9 @@ class SiteTagHistory(object):
         cmd_list = ['cd', path + ';']
         cmd_list.extend(cmd.split())
 
+        # Just need to do specify the name of the log file
         cmd = 'cd ' + path + ' && ' + cmd + ' >> ' + self.log_path
-        
+
         os.system(cmd)
         #p = subprocess.Popen(cmd, stdout=f, shell=True)
         #rslt = subprocess.check_output(cmd_list)
@@ -107,15 +108,18 @@ class SiteTagHistory(object):
         f.close()
 
 
-    def _tag_site_tag_history(self, tag):
+    def _tag_site_tag_history(self, tag, msg):
         """Tag the site tag history repo."""
         log.info('Tagging site tag history with tag %s' % tag)
 
-        self._tag_repo(self.repo, tag)
+        self._tag_repo(self.repo, tag, msg)
 
-    def _tag_repo(self, repo, tag):
+    def _tag_repo(self, repo, tag, msg):
         """Tag the repo on the active branch. As is today."""
-        repo.create_tag(tag, message="Tag created by Doula")
+        # alextodo, need to be able to handle this error
+        # GitCommandError: 'git tag -mtest 123 test_0.0.0.1 HEAD' 
+        # returned exit status 128: fatal: tag 'test_0.0.0.1' already exists
+        repo.create_tag(tag, message=msg)
         repo.remotes.origin.push(self.get_refspec('tags', tag))
 
     def _checkout_repo(self, path, remote):
@@ -135,12 +139,17 @@ class SiteTagHistory(object):
 
         repo.remotes.origin.update()
 
+        print self.branch
+
+        print 'active branch'
+        # print repo.active_branch
+
         # Checkout the branch because the 
-        if not repo.active_branch == self.branch:
-            new_branch = repo.create_head(self.branch)
-            repo.head.reference = new_branch
-            repo.head.reset(index=True, working_tree=True)
-            repo.remotes.origin.push(self.get_refspec('heads', self.branch))
+        # if not repo.active_branch == self.branch:
+        new_branch = repo.create_head(self.branch)
+        repo.head.reference = new_branch
+        repo.head.reset(index=True, working_tree=True)
+        repo.remotes.origin.push(self.get_refspec('heads', self.branch))
 
         return repo
 
@@ -156,6 +165,7 @@ class SiteTagHistory(object):
 # For development
 import random
 
+# alextodo, put into a unit test
 def get_random_tag():
     num = random.randrange(0, 1000000)
     return 'test_tag ' + str(num)
@@ -172,11 +182,6 @@ def get_applications():
 
     return applications
 
-# Need to add submodule to these applications, at a specific tag 
-# git@code.corp.surveymonkey.com:alexv/createweb.git - testing_tag.1.0.4
-# git@code.corp.surveymonkey.com:alexv/papi.git      - tag 1.0.0.111
-# git@code.corp.surveymonkey.com:alexv/billweb.git   - tag 1.0.1
-
 # see http://packages.python.org/GitPython/0.3.2/tutorial.html#initialize-a-repo-object
 
 # Logic https://github.com/Doula/Doula/wiki/Tag-of-Tags-Logic
@@ -191,5 +196,5 @@ if __name__ == '__main__':
     branch = 'mt1'
     apps = get_applications()
     
-    sth.tag_site(tag, apps)
+    sth.tag_site(tag, 'tagging site test', apps)
 

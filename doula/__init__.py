@@ -28,6 +28,7 @@ def main(global_config, **settings):
     config.add_route('app_requirements_file', '/sites/{site}/{application}/freeze')
     config.add_route('register', '/register')
     config.add_route('deploy', '/deploy')
+    config.add_route('tag_site', '/tagsite')
     config.add_route('tag', '/tag')
     config.add_route('nodes_ip_lookup', '/nodes/ip_addresses')
     

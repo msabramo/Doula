@@ -36,7 +36,7 @@ def git_dirify(name):
 class ObjectEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, object):
-            return obj.__dict__
+            return getattr(obj, '__dict__', { })
         
         raise TypeError(repr(obj) + " is not JSON serializable")
     
