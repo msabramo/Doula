@@ -12,10 +12,8 @@
 <h1 class="cap">{{ site.name }}</h1>
 
  <div id="accordion" class="accordion">
-    {% set last_index = 0 %}
     {% for key_val_pair in site.applications|dictsort %}
     {% set app = key_val_pair[1] %}
-    {% set last_index = loop.index %}
     <div id="stat_{{ app.name_url }}" class="key {{ app.get_status()|get_stat_class }}">
 
       <header>
@@ -63,6 +61,8 @@
     </div>
     {% endfor %}
 
+    {% set last_index = site.applications|length + 1 %}
+    
     <!-- details for tag of tags -->
     <div id="stat_site" class="site_accord key {{ site.get_status()|get_stat_class }}">
 
@@ -72,7 +72,7 @@
          <h3>
            <a id="panel_site" href="#panel{{ last_index + 1 }}" 
            class="keyOpener">
-             {{ site.name }}
+             {{ site.name }} {{ last_index }}
              <strong>{{ site.get_status()|get_pretty_status }}</strong>
              {% if site.get_status() != 'uncommitted_changes' %}<em><span class="icon">✍</span> Tag Site</em>{% endif %}
            </a>

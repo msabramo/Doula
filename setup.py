@@ -37,6 +37,9 @@ setup(name='Doula',
       include_package_data=True,
       zip_safe=False,
       install_requires=requires,
+      setup_requires=[
+        'egggitinfo'
+      ],
       tests_require=requires,
       test_suite="doula",
       entry_points = """\

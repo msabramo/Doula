@@ -10,6 +10,7 @@ from doula.models.sites_dal import SiteDAL
 from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPNotFound
+from git import GitCommandError
 
 log = logging.getLogger('doula')
 
@@ -80,6 +81,9 @@ def tag_site(request):
         site.tag(tag_history_path, tag_history_remote, tag, msg, 'anonymous')
 
         return dumps({ 'success': True, 'site': site })
+    except GitCommandError as e:
+        msg = "Git error: {0}." .format(str(e.stderr))        
+        return dumps({ 'success': False, 'msg': msg })
     except Exception as e:
         tb = traceback.format_exc()
         print 'TRACEBACK'
@@ -158,6 +162,10 @@ def register(request):
     
     return {'success': 'true'}
 
+
+# return error 
+def return_error():
+    pass
 
 def get_site(site_name):
     site = SiteDAL.get_site(site_name)
