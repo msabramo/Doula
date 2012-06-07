@@ -95,16 +95,15 @@ class SiteTagHistory(object):
         
         f = open(self.log_path, 'a', 0)
         f.write('Running command: ' + cmd + "\n")
-        cmd_list = ['cd', path + ';']
+        cmd_list = ['cd', path]
         cmd_list.extend(cmd.split())
 
         # Just need to do specify the name of the log file
         cmd = 'cd ' + path + ' && ' + cmd + ' >> ' + self.log_path
-
-        os.system(cmd)
-        #p = subprocess.Popen(cmd, stdout=f, shell=True)
-        #rslt = subprocess.check_output(cmd_list)
-        #rslt = subprocess.call(cmd_list, stdout=f, stderr=f)
+        # alextodo, still need to figure out how to putput result, this works
+        g = Git()
+        rslt = g.execute(cmd_list, output_stream=f)
+        print 'RSLT: ' + str(rslt)
         f.close()
 
 
@@ -116,9 +115,6 @@ class SiteTagHistory(object):
 
     def _tag_repo(self, repo, tag, msg):
         """Tag the repo on the active branch. As is today."""
-        # alextodo, need to be able to handle this error
-        # GitCommandError: 'git tag -mtest 123 test_0.0.0.1 HEAD' 
-        # returned exit status 128: fatal: tag 'test_0.0.0.1' already exists
         repo.create_tag(tag, message=msg)
         repo.remotes.origin.push(self.get_refspec('tags', tag))
 
@@ -138,14 +134,8 @@ class SiteTagHistory(object):
             repo = Repo.clone_from(remote, path)
 
         repo.remotes.origin.update()
-
-        print self.branch
-
-        print 'active branch'
-        # print repo.active_branch
-
-        # Checkout the branch because the 
-        # if not repo.active_branch == self.branch:
+        # Checkout the branch that the site is currently on. All the repos
+        # including submodules must be on the same branch.
         new_branch = repo.create_head(self.branch)
         repo.head.reference = new_branch
         repo.head.reset(index=True, working_tree=True)
