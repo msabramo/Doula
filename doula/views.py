@@ -88,8 +88,8 @@ def tag_site(request):
         tb = traceback.format_exc()
         print 'TRACEBACK'
         print tb
-        msg = 'Unable to tag site "{0}"'.format(request.POST['site'])
-        
+        msg = 'Error: {0}'.format(e.message)
+
         return dumps({ 'success': False, 'msg': msg })
     
 @view_config(route_name='deploy', renderer="string")
@@ -146,7 +146,6 @@ def app_requirements_file(request):
     
     return response
     
-
 @view_config(route_name='register', renderer='json')
 def register(request):
     """
@@ -163,7 +162,7 @@ def register(request):
     return {'success': 'true'}
 
 
-# return error 
+# alextodo, handle error uniformly. return error 
 def return_error():
     pass
 

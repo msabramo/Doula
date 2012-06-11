@@ -23,7 +23,7 @@ var SiteData = {
             'application' : app.name_url,
             'tag'         : tag,
             'msg'         : tag_msg
-        }
+        };
         
         this.post(msg, url, params, this.doneTagApp);
     },
@@ -45,7 +45,7 @@ var SiteData = {
             'site'        : SiteData.name_url,
             'tag'         : tag,
             'msg'         : tag_msg
-        }
+        };
         
         this.post(msg, url, params, this.doneTagSite, this.failedTagSite);
     },

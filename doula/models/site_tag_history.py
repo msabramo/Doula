@@ -68,6 +68,10 @@ class SiteTagHistory(object):
             path_to_app = self.path + '/' + app.name
             log.info("Adding apps as submodules")
 
+            if app.remote == '':
+                msg = "Application '%s' does not have a valid Git remote." % (app.name)
+                raise Exception(msg)
+
             self._cmd('git submodule add ' + app.remote + ' ' + app.name)
             self._cmd('git submodule init')
             self._cmd('git submodule update')
@@ -92,7 +96,7 @@ class SiteTagHistory(object):
         """Run a git command from the correct dir."""
         if not path:
             path = self.path
-        
+
         f = open(self.log_path, 'a', 0)
         f.write('Running command: ' + cmd + "\n")
         cmd_list = ['cd', path]
