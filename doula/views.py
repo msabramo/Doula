@@ -162,6 +162,10 @@ def register(request):
     return {'success': 'true'}
 
 # wireframes
+@view_config(route_name='wfhome', renderer='wireframes/templates/home.html')
+def show_wfhome(request):
+    return { }
+
 @view_config(route_name='appenvs', renderer='wireframes/templates/appenvs/index.html')
 def show_appenvs(request):
     return { }

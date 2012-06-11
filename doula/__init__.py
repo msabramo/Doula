@@ -34,6 +34,7 @@ def main(global_config, **settings):
     config.add_route('tag', '/tag')
     config.add_route('nodes_ip_lookup', '/nodes/ip_addresses')
 
+    config.add_route('wfhome', '/wfhome')
     config.add_route('appenvs', '/appenvs')
     config.add_route('deploy', '/deploy')
     config.add_route('packages', '/packages')
