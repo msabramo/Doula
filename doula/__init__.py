@@ -18,6 +18,8 @@ def main(global_config, **settings):
     config.add_static_view(name='prodjs', path='static/prodjs')
     config.add_static_view(name='css', path='static/css')
     config.add_static_view(name='images', path='static/images')
+
+    config.add_static_view(name='wf', path='templates/wireframes/static')
     
     # routes for application
     config.add_route('home', '/')
@@ -27,9 +29,14 @@ def main(global_config, **settings):
     config.add_route('application', '/sites/{site}/{application}')
     config.add_route('app_requirements_file', '/sites/{site}/{application}/freeze')
     config.add_route('register', '/register')
-    config.add_route('deploy', '/deploy')
+    config.add_route('deploy_old', '/deploy')
     config.add_route('tag_site', '/tagsite')
     config.add_route('tag', '/tag')
     config.add_route('nodes_ip_lookup', '/nodes/ip_addresses')
+
+    config.add_route('appenvs', '/appenvs')
+    config.add_route('deploy', '/deploy')
+    config.add_route('packages', '/packages')
+    config.add_route('queue', '/queue')
     
     return config.make_wsgi_app()

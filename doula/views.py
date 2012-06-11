@@ -92,7 +92,7 @@ def tag_site(request):
 
         return dumps({ 'success': False, 'msg': msg })
     
-@view_config(route_name='deploy', renderer="string")
+@view_config(route_name='deploy_old', renderer="string")
 def deploy_application(request):
     try:
         validate_token(request)
@@ -161,6 +161,22 @@ def register(request):
     
     return {'success': 'true'}
 
+# wireframes
+@view_config(route_name='appenvs', renderer='wireframes/templates/appenvs/index.html')
+def show_appenvs(request):
+    return { }
+
+@view_config(route_name='deploy', renderer='wireframes/templates/deploy/index.html')
+def show_deploy(request):
+    return { }
+
+@view_config(route_name='packages', renderer='wireframes/templates/packages/index.html')
+def show_packages(request):
+    return { }
+
+@view_config(route_name='queue', renderer='wireframes/templates/queue/index.html')
+def show_queue(request):
+    return { }
 
 # alextodo, handle error uniformly. return error 
 def return_error():
