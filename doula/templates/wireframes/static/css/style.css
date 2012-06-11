@@ -9,3 +9,46 @@ body {
   padding: 0px;
   margin: 0px 2px 0px 0px;
 }
+.box-shadow {
+  -webkit-box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 8px;
+  -moz-box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 8px;
+  -o-box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 8px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 8px;
+}
+.container {
+  -webkit-box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 8px;
+  -moz-box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 8px;
+  -o-box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 8px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 8px;
+  height: auto !important;
+  /* real browsers */
+
+  height: 100%;
+  /* IE6: treaded as min-height*/
+
+  min-height: 100%;
+  /* real browsers */
+
+}
+.content {
+  padding: 5px 10px;
+  height: 100%;
+  /* IE6: treaded as min-height*/
+
+  min-height: 400px;
+  /* real browsers */
+
+}
+.title h1,
+.title h2,
+.title h3,
+.title h4,
+.title h5 {
+  margin: 0px 0px 10px 0px;
+}
+ul.title-links li a {
+  margin: 5px 0px;
+  line-height: 115%;
+  font-size: 18px;
+  cursor: pointer;
+}
