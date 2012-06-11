@@ -1,3 +1,11 @@
 body {
   margin: 25px 0px;
 }
+.notify_me_form {
+  display: inline;
+  padding-left: 0px;
+}
+.notify_me_form input[type='radio'] {
+  padding: 0px;
+  margin: 0px 2px 0px 0px;
+}

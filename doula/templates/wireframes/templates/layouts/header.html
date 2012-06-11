@@ -1,18 +1,24 @@
 <header class="jumbotron subhead" id="overview">
-  <div class="navbar">
-    <div class="navbar-inner">
-      <div class="container">
-        <a class="brand" href="#">Doula</a>
-        <ul class="nav">
-          <li><a href="#">Packages</a></li>
-          <li class="active">
-            <a href="#">App Envs</a>
-          </li>
-          <li><a href="#">Deploy</a></li>
-          
-          <li><a href="#">Queue</a></li>
-        </ul>
-      </div>
+    <div class="navbar">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="brand" href="#">Doula</a>
+                <ul class="nav">
+                    {% set path = request.path %}
+                    <li {% if path.startswith('/packages') %} class="active" {% endif %}>
+                        <a href="/packages">Packages</a>
+                    </li>
+                    <li {% if path.startswith('/appenvs') %} class="active" {% endif %}>
+                        <a href="/appenvs">App Envs</a>
+                    </li>
+                    <li {% if path.startswith('/deploy') %} class="active" {% endif %}>
+                        <a href="/deploys">Deploy</a>
+                    </li>
+                    <li {% if path.startswith('/queue') %} class="active" {% endif %}>
+                        <a href="/queues">Queue</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
-  </div>
 </header>
