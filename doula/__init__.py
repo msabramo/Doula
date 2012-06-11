@@ -6,21 +6,21 @@ def main(global_config, **settings):
     Serve Doula.
     """
     config = Configurator(settings=settings)
-    
+
     # Jinja2 config
     config.add_renderer('.html', renderer_factory)
     config.include('pyramid_jinja2')
-    
+
     # Scan this module
     config.scan('doula.views')
-    
+
     config.add_static_view(name='js', path='static/js')
     config.add_static_view(name='prodjs', path='static/prodjs')
     config.add_static_view(name='css', path='static/css')
     config.add_static_view(name='images', path='static/images')
 
     config.add_static_view(name='wf', path='templates/wireframes/static')
-    
+
     # routes for application
     config.add_route('home', '/')
     config.add_route('sites', '/sites')
@@ -38,5 +38,5 @@ def main(global_config, **settings):
     config.add_route('deploy', '/deploy')
     config.add_route('packages', '/packages')
     config.add_route('queue', '/queue')
-    
+
     return config.make_wsgi_app()

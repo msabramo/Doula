@@ -1,43 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Doula Web</title>
-
-  <!-- styles -->
-  <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
-  
-  <link rel="stylesheet" href="style.css">
-</head>
-
-<body>
-  <!-- all our content goes inside of here -->
-  <div class="container">
-    <header class="jumbotron subhead" id="overview">
-      <div class="navbar">
-        <div class="navbar-inner">
-          <div class="container">
-            <a class="brand" href="#">Doula</a>
-            <ul class="nav">
-              <li><a href="#">Packages</a></li>
-              <li class="active">
-                <a href="#">App Envs</a>
-              </li>
-              <li><a href="#">Deploy</a></li>
-              
-              <li><a href="#">Queue</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <div>
-      Description of what Doula does.
-    </div>
-
-  </div>
-  <!-- end of container -->
-</body>
-
-</html>
+{% extends 'wireframes/templates/layouts/base.html' %}
+{% block content %}
+<div>
+    Description of what Doula does.
+</div>
+{% endblock %}
