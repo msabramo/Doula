@@ -39,6 +39,7 @@ def main(global_config, **settings):
     config.add_route('appenvs', '/appenvs')
     config.add_route('deploy', '/deploy')
     config.add_route('packages', '/packages')
+    config.add_route('package', '/packages/{id}')
     config.add_route('queue', '/queue')
     config.add_route('settings', '/settings')
 

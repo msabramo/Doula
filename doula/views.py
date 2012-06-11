@@ -194,6 +194,11 @@ def show_packages(request):
     return {}
 
 
+@view_config(route_name='package', renderer='wireframes/templates/packages/view.html')
+def show_package(request):
+    return {}
+
+
 @view_config(route_name='queue', renderer='wireframes/templates/queue/index.html')
 def show_queue(request):
     return {}
