@@ -1,0 +1,116 @@
+{% extends 'wireframes/templates/layouts/base.html' %}
+{% block content %}
+<div class="title">
+	<h2>Billweb</h2>
+</div>
+<div>
+<form class="well">
+  <h3 style="margin: 0px 0px 10px 0px">Monkey Test Environments</h3>
+
+  <label class="checkbox">
+    <input type="checkbox"> Monkey Test Prime
+  </label>
+  <label class="checkbox">
+    <input type="checkbox"> Monkey Test One
+  </label>
+  <label class="checkbox">
+    <input type="checkbox"> Monkey Test Two
+  </label>
+  <label class="checkbox">
+    <input type="checkbox"> Monkey Test Three
+  </label>
+  <span class="help-block">
+  	Select the Monkey Test Environments you want to cycle or update.
+ 	</span>
+
+  <button type="submit" class="btn">Cycle Test Environments</button>
+  <button type="submit" class="btn">Push to Test Environments</button>
+</form>
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Package <a id="add-pckg" style="float: right" class="btn btn-success" href="#"><i class="icon-plus icon-white"></i> Add</a></th>
+      <th>MT Prime</th>
+      <th>MT3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Pyramid</td>
+      <td>
+      	<select id="select01">
+          <option>remove</option>
+          <option selected="selected">3.2.3</option>
+          <option>3.1.6</option>
+        </select>
+      </td>
+      <td>
+      	<select id="select01">
+          <option>remove</option>
+          <option>3.2.3</option>
+          <option selected="selected">3.1.6</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td>Jinja2</td>
+      <td>
+      	<select id="select01">
+          <option>remove</option>
+          <option>1.9.2</option>
+          <option selected="selected">1.9.3</option>
+        </select>
+      </td>
+      <td>
+      	<select id="select01">
+          <option>remove</option>
+          <option>1.9.2</option>
+          <option selected="selected">1.9.3</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td>Validictory</td>
+      <td>
+      	<select id="select01">
+          <option>remove</option>
+          <option selected="selected">0.0.6</option>
+        </select>
+      </td>
+      <td>
+      	<select id="select01">
+          <option>remove</option>
+          <option selected="selected">0.0.6</option>
+        </select>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="add-packages" class="modal hide">
+  <div class="modal-header">
+    <h3>Packages on Cheese Prism</h3>
+  </div>
+  <div class="modal-body">
+    <form class="well">
+    <select id="select01">
+      <option selected="selected">Select a package</option>
+      <option>Mako</option>
+      <option>Python-Excel</option>
+    </select>
+    <span class="help-block">
+      Select the package you want to add to this Application Environment
+    </span>
+  </form>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Close</a>
+    <a href="#" class="btn btn-primary">Add to Application Environment</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script language="javascript" type="text/javascript" src="/wf/js/appenvs/appenvs.js"></script>
+{% endblock %}
