@@ -6,7 +6,7 @@ var AppEnv = {
 	},
 
 	bindToUIActions: function() {
-		
+
 	},
 
 	bindToDataActions: function() {
@@ -16,7 +16,7 @@ var AppEnv = {
 			$('#add-packages').modal();
 		});
 	}
-}
+};
 
 $(document).ready(function() {
 	AppEnv.init();

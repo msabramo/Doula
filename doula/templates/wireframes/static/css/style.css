@@ -51,7 +51,7 @@ body {
   -khtml-border-radius: 4px;
   /* for old Konqueror browsers */
 
-  padding: 5px 20px;
+  padding: 10px 20px;
   height: 100%;
   /* IE6: treaded as min-height*/
 
@@ -86,9 +86,15 @@ ul.sm-list li {
   font-size: 16px;
   cursor: pointer;
 }
+.dropdown-menu .unstyled {
+  margin-bottom: 0px;
+}
 .navbar a.brand {
   color: #A9BD38;
   font-weight: bold;
+}
+.section {
+  margin: 10px 0px;
 }
 .smwell {
   min-height: 20px;
