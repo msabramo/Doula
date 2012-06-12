@@ -1,0 +1,77 @@
+{% extends 'wireframes/templates/layouts/base.html' %}
+{% block content %}
+<div class="title">
+	<h2>Monkey Test Prime</h2>
+</div>
+<div class="accordion" id="accordion2">
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
+      	<span class="status-tagged"></span>
+        Billweb
+      </a>
+    </div>
+    <div id="collapseOne" class="accordion-body in collapse" style="height: auto; ">
+      <div class="accordion-inner">
+        <form class="well">
+				  <h3 style="margin: 0px 0px 10px 0px">Billweb Application</h3>
+
+				  <label>Tag</label>
+				  <input type="text" />
+				  <span class="help-block">
+				  	Select the Monkey Test Environments you want to cycle or update.
+				 	</span>
+
+				  <button type="submit" class="btn">Tag App</button>
+				</form>
+      </div>
+    </div>
+  </div>
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
+      	<span class="status-changed"></span>
+        Createweb
+      </a>
+    </div>
+    <div id="collapseTwo" class="accordion-body collapse" style="height: 0px; ">
+      <div class="accordion-inner">
+        <form class="well">
+				  <h3 style="margin: 0px 0px 10px 0px">CreateWeb Application</h3>
+
+				  <label>Tag</label>
+				  <input type="text" />
+				  <span class="help-block">
+				  	Select the Monkey Test Environments you want to cycle or update.
+				 	</span>
+
+				  <button type="submit" class="btn">Tag App</button>
+				</form>
+      </div>
+    </div>
+  </div>
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseThree">
+      	<span class="status-error"></span>
+        Papi
+      </a>
+    </div>
+    <div id="collapseThree" class="accordion-body collapse">
+      <div class="accordion-inner">
+        <form class="well">
+				  <h3 style="margin: 0px 0px 10px 0px">Papi</h3>
+
+				  <label>Tag</label>
+				  <input type="text" />
+				  <span class="help-block">
+				  	Select the Monkey Test Environments you want to cycle or update.
+				 	</span>
+
+				  <button type="submit" class="btn">Tag App</button>
+				</form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

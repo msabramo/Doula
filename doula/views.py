@@ -191,7 +191,7 @@ def show_appenv(request):
 def show_deploy(request):
     return {}
 
-@view_config(route_name='deploy_site', renderer='wireframes/templates/deploy/index.html')
+@view_config(route_name='deploy_site', renderer='wireframes/templates/deploy/deploy_site.html')
 def show_site(request):
     return {}
 
