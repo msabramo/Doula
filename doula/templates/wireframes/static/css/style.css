@@ -110,3 +110,6 @@ ul.sm-list li {
 .sm-accordion-inner {
   margin-top: 10px;
 }
+.dropdown-menu {
+  padding: 5px;
+}
