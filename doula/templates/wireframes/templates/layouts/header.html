@@ -6,7 +6,7 @@
                 <ul class="nav">
                     {% set path = request.path %}
                     <li {% if path.startswith('/deploy') %} class="active" {% endif %}>
-                        <a href="/deploy">Monkey Test Environments</a>
+                        <a href="/deploy">Environments</a>
                     </li>
                     <li {% if path.startswith('/queue') %} class="active" {% endif %}>
                         <a href="/queue">Queue</a>

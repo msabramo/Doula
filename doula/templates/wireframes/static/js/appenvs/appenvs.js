@@ -6,7 +6,7 @@ var AppEnv = {
 	},
 
 	bindToUIActions: function() {
-
+		$(".collapse").collapse({'parent': '#accordion2'});
 	},
 
 	bindToDataActions: function() {
