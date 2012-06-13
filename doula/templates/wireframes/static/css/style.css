@@ -3,14 +3,6 @@ body {
   background: url(/images/noise.jpg);
   overflow-y: scroll;
 }
-.notify_me_form {
-  display: inline;
-  padding-left: 0px;
-}
-.notify_me_form input[type='radio'] {
-  padding: 0px;
-  margin: 0px 2px 0px 0px;
-}
 .box-shadow {
   -webkit-box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 8px;
   -moz-box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 8px;

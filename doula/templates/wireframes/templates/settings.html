@@ -2,26 +2,21 @@
 {% block content %}
 <div>
     <h2>Jayd3e's Settings</h2>
-    <ul class="unstyled">
-        <li>
-            <strong>Email:</strong> jd.dallago@gmail.com</span>
-        </li>
-        <li>
-            <strong>Notify Me:</strong>
-            <form class="form-inline notify_me_form">
-                <label>
-                    <input type="radio" name="notify_me">
-                    Always
-                </label>
-                <label>
-                    <input type="radio" name="notify_me">
-                    On Failure
-                </label>
-            </form>
-        <li>
-        <li>
-        <strong>Also notify on IRC. Input box for dm name. </strong>
-        <li>
-    </ul>
+    <p>Email: jd.dallago@gmail.com</p>
+    <form class="well">
+        Notify Me:
+        <label for="notify_me">
+            <input type="radio" name="notify_me">
+            Always
+        </label>
+        <label for="notify_me">
+            <input type="radio" name="notify_me">
+            On Failure
+        </label>
+        <label for="irc">
+            <input type="checkbox" name="irc"/>
+            Notify me on IRC
+        </label>
+    </form>
 </div>
 {% endblock %}
