@@ -31,7 +31,7 @@ class SiteTagHistory(object):
         pass
 
     def tag_site(self, tag, msg, apps):
-        """ 
+        """
         Tag every app with the new tag. Then tag the sitetaghistory repo
         with the tag and every repo as a submodule for that branch. The branch
         will always be equal to the site.
@@ -189,6 +189,6 @@ if __name__ == '__main__':
     tag = get_random_tag()
     branch = 'mt1'
     apps = get_applications()
-    
+
     sth.tag_site(tag, 'tagging site test', apps)
 

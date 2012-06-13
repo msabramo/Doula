@@ -1,23 +1,9 @@
-{% extends 'base.html' %}
-{% block nav %}
-<nav>
-    <a href="/">Home</a>
-</nav>
-{% endblock %}
+{% extends 'wireframes/templates/layouts/base.html' %}
 {% block content %}
-<div class="page-wrap">
-<div class="main-mod main-content">
-  <h2 class="title-links"><a href="#">Application Environment Management</a></h1>
-  <p class="instruct">Manage the packages on cheese prism and releases to monkey test environments.</p>
-  <h2 class="title-links"><a href="/sites">Deployment Management</a></h1>
-  <p class="instruct">Manage deployments to production.</p>
+<div class="title">
+	<h2>About Doula</h2>
 </div>
-
+<div>
+    <p>Doula is Survey Monkey's deployment management tool.</p>
 </div>
-{{ [
-'/js/libs/global-min.js', 
-'/js/libs/global-pro-min.js', 
-'/js/libs/site-tabs.js',
-'/js/home/home.js'
-]|js_script|safe }}
 {% endblock %}
