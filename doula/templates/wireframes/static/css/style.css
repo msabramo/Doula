@@ -27,6 +27,13 @@ body {
   /* for old Konqueror browsers */
 
 }
+.group:after {
+  visibility: hidden;
+  display: block;
+  content: "";
+  clear: both;
+  height: 0;
+}
 .container {
   height: auto !important;
   /* real browsers */
@@ -63,7 +70,11 @@ body {
 .content a {
   color: #00898B;
 }
+.content .sm-btn {
+  color: #333;
+}
 .content .sm-btn-success {
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   color: white;
   background-color: #a9bd38;
   background-image: -ms-linear-gradient(top, #b1c639, #a9bd38);
@@ -72,6 +83,17 @@ body {
   background-image: -o-linear-gradient(top, #b1c639, #a9bd38);
   background-image: -moz-linear-gradient(top, #b1c639, #a9bd38);
   background-image: linear-gradient(top, #b1c639, #a9bd38);
+}
+.content .sm-btn-primary {
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  color: white;
+  background-color: #85c3c6;
+  background-image: -ms-linear-gradient(top, #85c3c6, #79b5b7);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#85c3c6), to(#79b5b7));
+  background-image: -webkit-linear-gradient(top, #85c3c6, #79b5b7);
+  background-image: -o-linear-gradient(top, #85c3c6, #79b5b7);
+  background-image: -moz-linear-gradient(top, #85c3c6, #79b5b7);
+  background-image: linear-gradient(top, #85c3c6, #79b5b7);
 }
 .title h1,
 .title h2,
@@ -85,6 +107,9 @@ ul.sm-list li {
   line-height: 100%;
   font-size: 16px;
   cursor: pointer;
+}
+.dropdown-menu .unstyled {
+  margin-bottom: 0px;
 }
 .navbar a.brand {
   color: #A9BD38;
@@ -117,6 +142,13 @@ div.section {
   padding: 5px;
 }
 /* STATUS STATES */
+.accord-title {
+  float: left;
+}
+.accord-link {
+  float: right;
+  margin: 10px 20px 0px 0px;
+}
 [class^="status"] {
   display: inline-block;
   width: 20px;

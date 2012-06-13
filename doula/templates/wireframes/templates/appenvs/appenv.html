@@ -1,38 +1,25 @@
 {% extends 'wireframes/templates/layouts/base.html' %}
 {% block content %}
 <div class="title">
-	<h2>Billweb</h2>
+	<h2>Billweb on Monkey Test Prime</h2>
 </div>
 <div>
 <form class="well">
-  <h3 style="margin: 0px 0px 10px 0px">Monkey Test Environments</h3>
-
-  <label class="checkbox">
-    <input type="checkbox"> Monkey Test Prime
-  </label>
-  <label class="checkbox">
-    <input type="checkbox"> Monkey Test One
-  </label>
-  <label class="checkbox">
-    <input type="checkbox"> Monkey Test Two
-  </label>
-  <label class="checkbox">
-    <input type="checkbox"> Monkey Test Three
-  </label>
-  <span class="help-block">
-  	Select the Monkey Test Environments you want to cycle or update.
- 	</span>
-
-  <button type="submit" class="btn">Cycle Test Environments</button>
-  <button type="submit" class="btn">Push to Test Environments</button>
+  
+  <a id="cycle" class="btn sm-btn" href="#">
+  <i class="icon-repeat icon-black"></i> Cycle Service</a>
+  <a id="push-to-test-env" class="btn sm-btn" href="#">
+  <i class="icon-chevron-right icon-black"></i> Push to Test Environment</a>
+  <a id="add-pckg" class="btn sm-btn-success" href="#">
+  <i class="icon-plus icon-white"></i> Add New Package</a>
 </form>
 
 <table class="table table-striped">
   <thead>
     <tr>
       <th>Package</th>
-      <th>MT Prime</th>
-      <th>MT3</th>
+      <th>Version</th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
@@ -46,11 +33,8 @@
         </select>
       </td>
       <td>
-      	<select id="select01">
-          <option>remove</option>
-          <option>3.2.3</option>
-          <option selected="selected">3.1.6</option>
-        </select>
+      	<a id="push-to-cheese" class="btn sm-btn-primary" href="#">
+  <i class="icon-chevron-right icon-white"></i> Push New Package To Cheese Prism</a>
       </td>
     </tr>
     <tr>
@@ -63,11 +47,8 @@
         </select>
       </td>
       <td>
-      	<select id="select01">
-          <option>remove</option>
-          <option>1.9.2</option>
-          <option selected="selected">1.9.3</option>
-        </select>
+        <a class="btn sm-btn-primary" href="#">
+  <i class="icon-chevron-right icon-white"></i> Push New Package To Cheese Prism</a>
       </td>
     </tr>
     <tr>
@@ -79,18 +60,12 @@
         </select>
       </td>
       <td>
-      	<select id="select01">
-          <option>remove</option>
-          <option selected="selected">0.0.6</option>
-        </select>
+        <a class="btn sm-btn-primary" href="#">
+  <i class="icon-chevron-right icon-white"></i> Push New Package To Cheese Prism</a>
       </td>
     </tr>
   </tbody>
 </table>
-<div class="section">
-<a id="add-pckg" class="btn sm-btn-success" href="#">
-  <i class="icon-plus icon-white"></i> Add New Package</a>
-</div>
 </div>
 <div id="add-packages" class="modal hide">
   <div class="modal-header">
@@ -110,7 +85,29 @@
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">Close</a>
-    <a href="#" class="btn btn-primary">Add to Application Environment</a>
+    <a href="#" class="btn sm-btn">Add to Application Environment</a>
+  </div>
+</div>
+<div id="push-to-cheese-modal" class="modal hide">
+  <div class="modal-header">
+    <h3>Push New Package to Cheese Prism</h3>
+  </div>
+  <div class="modal-body">
+    <form class="well">
+    <select id="select01">
+      <option selected="selected">Select a branch</option>
+      <option>master</option>
+      <option>test-feature</option>
+    </select>
+    <span class="help-block">
+      Select the branch you want to package and send to Cheese Prism. The head of the Git Repo will be packaged.
+    </span>
+  </form>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Close</a>
+    <a id="add-to-cheeseprism" class="btn sm-btn-success" href="#">
+  <i class="icon-plus icon-white"></i> Add to Cheese Prism</a>
   </div>
 </div>
 {% endblock %}

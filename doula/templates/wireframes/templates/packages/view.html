@@ -1,6 +1,6 @@
 {% extends 'wireframes/templates/layouts/base.html' %}
 {% block content %}
-    <h2>Package</h2>
+    <h2>BillWeb</h2>
     <table class="table table-striped">
         <tbody>
             <tr>
@@ -20,12 +20,12 @@
                 <span class="caret"></span>
             </button>
             <div class="dropdown-menu">
-                <ul class="nav nav-pills">
+                <ul class="unstyled">
                     <li class="active">
-                        <a href="#">Branches</a>
+                        <a href="#">doula</a>
                     </li>
                     <li>
-                        <a href="#">Tags</a>
+                        <a href="#">wireframes</a>
                     </li>
                 </ul>
             </div>
@@ -34,4 +34,9 @@
             <button class="btn btn-primary">Publish</button>
         </div>
     </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script language="javascript" type="text/javascript" src="/wf/js/package/package.js"></script>
 {% endblock %}

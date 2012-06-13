@@ -29,6 +29,14 @@ body {
 	-khtml-border-radius: 4px; /* for old Konqueror browsers */
 }
 
+.group:after {
+	visibility: hidden;
+	display: block;
+	content: "";
+	clear: both;
+	height: 0;
+}
+
 .container {
 	height:auto !important; /* real browsers */
 	height:100%; /* IE6: treaded as min-height*/
@@ -37,6 +45,8 @@ body {
 
 @sm-green: #A9BD38;
 @sm-light-green: #b1c639;
+@sm-light-blue: #85C3C6;
+@sm-blue: #79b5b7;
 
 .content {
 	.box-shadow;
@@ -50,7 +60,12 @@ body {
 		color: #00898B;
 	}
 
+	.sm-btn {
+		color: #333;
+	}
+
 	.sm-btn-success {
+		text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
 		color: white;
 		background-color: @sm-green;
 		background-image: -ms-linear-gradient(top, @sm-light-green, @sm-green);
@@ -59,6 +74,18 @@ body {
 		background-image: -o-linear-gradient(top, @sm-light-green, @sm-green);
 		background-image: -moz-linear-gradient(top, @sm-light-green, @sm-green);
 		background-image: linear-gradient(top, @sm-light-green, @sm-green);
+	}
+
+	.sm-btn-primary {
+		text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+		color: white;
+		background-color: @sm-light-blue;
+		background-image: -ms-linear-gradient(top, @sm-light-blue, @sm-blue);
+		background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@sm-light-blue), to(@sm-blue));
+		background-image: -webkit-linear-gradient(top, @sm-light-blue, @sm-blue);
+		background-image: -o-linear-gradient(top, @sm-light-blue, @sm-blue);
+		background-image: -moz-linear-gradient(top, @sm-light-blue, @sm-blue);
+		background-image: linear-gradient(top, @sm-light-blue, @sm-blue);
 	}
 }
 
@@ -76,6 +103,12 @@ ul.sm-list {
 		font-size: 16px;
 		cursor: pointer;
 	}
+}
+
+.dropdown-menu {
+    .unstyled {
+        margin-bottom: 0px;
+    }
 }
 
 .navbar a.brand {
@@ -117,6 +150,15 @@ div.section {
 }
 
 /* STATUS STATES */
+
+.accord-title {
+	float: left;
+}
+
+.accord-link {
+	float: right;
+	margin: 10px 20px 0px 0px;
+}
 
 @black-soft: #232323;
 
