@@ -183,17 +183,21 @@ def show_wfhome(request):
 def show_appenvs(request):
     return {}
 
+
 @view_config(route_name='appenv', renderer='wireframes/templates/appenvs/appenv.html')
 def show_appenv(request):
     return {}
+
 
 @view_config(route_name='deploy', renderer='wireframes/templates/deploy/index.html')
 def show_deploy(request):
     return {}
 
+
 @view_config(route_name='deploy_site', renderer='wireframes/templates/deploy/deploy_site.html')
 def show_site(request):
     return {}
+
 
 @view_config(route_name='packages', renderer='wireframes/templates/packages/index.html')
 def show_packages(request):
