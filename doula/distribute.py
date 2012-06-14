@@ -1,6 +1,7 @@
 import os
 import os.path
 import shutil
+from fabric.api import *
 from tempfile import TemporaryFile
 from git import *
 
@@ -41,8 +42,12 @@ def distribute(service, branch, new_version):
     origin.pull()
     origin.push()
 
+    # Call `python setup.py sdist upload` to put upload to cheeseprism
+    with lcd(repo.working_dir):
+        local('python setup.py sdist upload')
+
     # Clean up repo directory
-    #shutil.rmtree(repo.working_dir)
+    shutil.rmtree(repo.working_dir)
 
 
 if __name__ == "__main__":
