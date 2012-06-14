@@ -32,9 +32,17 @@ def distribute(service, branch, new_version):
         f.write(tmp.read())
 
     # Commit change to repo
+    index = repo.index
+    index.add(['setup.py'])
+    index.commit("DOULA: Updated Version Number")
+
+    # Push changes
+    origin = repo.remotes.origin
+    origin.pull()
+    origin.push()
 
     # Clean up repo directory
-    shutil.rmtree(repo.working_dir)
+    #shutil.rmtree(repo.working_dir)
 
 
 if __name__ == "__main__":
