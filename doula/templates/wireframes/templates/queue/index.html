@@ -1,31 +1,41 @@
 {% extends 'wireframes/templates/layouts/base.html' %}
 {% block content %}
-    <h2>Running</h2>
-    <ul class="sm-list unstyled">
-        <li data-toggle="collapse" data-target="#deployment_1">
-            <a href="#">BillWeb</a>
-            <div id="deployment_1" class="collapse">
-                <div class="sm-accordion-inner">
-                    <h4>Logs</h4>
-                    <pre>
+
+<div class="sortby">
+<p>Sort By: 
+<span class="label">Environment</span>
+<span class="label label-info">Packages</span>
+<span class="label">Sites</span>
+<span class="label"><a href="">Status</a></span>
+</p>
+</div>
+
+<!-- each one should have it's own well and look -->
+<ul class="sm-list unstyled well">
+    <li data-toggle="collapse" data-target="#deployment_1">
+        <a href="#">BillWeb</a>
+        <div id="deployment_1" class="collapse">
+            <div class="sm-accordion-inner">
+                <h4>Logs</h4>
+                <pre>
 logs
-                    </pre>
-                </div>
+                </pre>
             </div>
-        </li>
-    </ul>
-    <h2>Queued</h2>
-    <ul class="sm-list unstyled">
-        <li data-toggle="collapse" data-target="#deployment_2">
-            <a href="#">CollectWeb</a>
-            <div id="deployment_2" class="collapse">
-                <div class="sm-accordion-inner">
-                    <h4>Logs</h4>
-                    <pre>
+        </div>
+    </li>
+</ul>
+
+<ul class="sm-list unstyled well">
+    <li data-toggle="collapse" data-target="#deployment_2">
+        <a href="#">CollectWeb</a>
+        <div id="deployment_2" class="collapse">
+            <div class="sm-accordion-inner">
+                <h4>Logs</h4>
+                <pre>
 logs
-                    </pre>
-                </div>
+                </pre>
             </div>
-        </li>
-    </ul>
+        </div>
+    </li>
+</ul>
 {% endblock %}
