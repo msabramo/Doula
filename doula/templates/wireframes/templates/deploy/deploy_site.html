@@ -3,74 +3,24 @@
 <div class="title">
 	<h2>Monkey Test Prime</h2>
 </div>
-<div class="accordion group" id="accordion2">
+<div class="accordion group" id="site-accordion">
   <div class="accordion-group">
     <div class="accordion-heading group">
-      <a class="accordion-toggle accord-title" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
+      <a id="billWebLink" class="accordion-toggle accord-title" data-target="#collapse_billweb" data-toggle="collapse" data-parent="#site-accordion" href="#">
       	<span class="status-tagged"></span>
         Billweb
       </a>
 
       <a href="/appenvs/papi" class="accord-link">
-        Details
+        <i class="icon-chevron-right icon-black"></i>
+        Release Actions
       </a>
     </div>
-    <div id="collapseOne" class="accordion-body in collapse" style="height: auto; ">
+    <!-- form that actually gets collapsed -->
+    <div id="collapse_billweb" class="accordion-body collapse" style="height: auto; ">
       <div class="accordion-inner">
         <form class="well">
-				  <h3 style="margin: 0px 0px 10px 0px">Billweb Application</h3>
-
-				  <label>Tag</label>
-				  <input type="text" />
-				  <span class="help-block">
-				  	Select the Monkey Test Environments you want to cycle or update.
-				 	</span>
-
-				  <button type="submit" class="btn">Tag App</button>
-				</form>
-      </div>
-    </div>
-  </div>
-  <div class="accordion-group">
-    <div class="accordion-heading group">
-      <a class="accordion-toggle accord-title" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
-      	<span class="status-changed"></span>
-        Createweb
-      </a>
-      <a href="/appenvs/papi" class="accord-link">
-        Details
-      </a>
-    </div>
-    <div id="collapseTwo" class="accordion-body collapse" style="height: 0px; ">
-      <div class="accordion-inner">
-        <form class="well">
-				  <h3 style="margin: 0px 0px 10px 0px">CreateWeb Application</h3>
-
-				  <label>Tag</label>
-				  <input type="text" />
-				  <span class="help-block">
-				  	Select the Monkey Test Environments you want to cycle or update.
-				 	</span>
-
-				  <button type="submit" class="btn">Tag App</button>
-				</form>
-      </div>
-    </div>
-  </div>
-  <div class="accordion-group">
-    <div class="accordion-heading group">
-      <a class="accordion-toggle accord-title" data-toggle="collapse" data-parent="#accordion2" href="#collapseThree">
-      	<span class="status-error"></span>
-        Papi
-      </a>
-      <a href="/appenvs/papi" class="accord-link">
-        Details
-      </a>
-    </div>
-    <div id="collapseThree" class="accordion-body collapse">
-      <div class="accordion-inner">
-        <form class="well">
-				  <h3 style="margin: 0px 0px 10px 0px">Papi</h3>
+				  <h3 class="tag-app-form-title">Billweb Application</h3>
 
 				  <label>Tag</label>
 				  <input type="text" />
@@ -84,4 +34,10 @@
     </div>
   </div>
 </div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+  $('.collapse').collapse("hide");
+</script>
 {% endblock %}

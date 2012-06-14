@@ -17,7 +17,6 @@
     <tr>
       <th>Package</th>
       <th>Version</th>
-      <th></th>
     </tr>
   </thead>
   <tbody>
@@ -29,9 +28,8 @@
           <option selected="selected">3.2.3</option>
           <option>3.1.6</option>
         </select>
-      </td>
-      <td>
-      	<a id="push-to-cheese" class="btn sm-btn-primary" href="#">
+
+        <a id="push-to-cheese" class="btn sm-btn-success" href="#">
   <i class="icon-chevron-right icon-white"></i> New Version</a>
       </td>
     </tr>
@@ -43,9 +41,7 @@
           <option>1.9.2</option>
           <option selected="selected">1.9.3</option>
         </select>
-      </td>
-      <td>
-        <a class="btn sm-btn-primary" href="#">
+        <a class="btn sm-btn-success" href="#">
   <i class="icon-chevron-right icon-white"></i> New Version</a>
       </td>
     </tr>
@@ -56,9 +52,7 @@
           <option>remove</option>
           <option selected="selected">0.0.6</option>
         </select>
-      </td>
-      <td>
-        <a class="btn sm-btn-primary" href="#">
+        <a class="btn sm-btn-success" href="#">
   <i class="icon-chevron-right icon-white"></i> New Version</a>
       </td>
     </tr>
@@ -92,11 +86,15 @@
   </div>
   <div class="modal-body">
     <form class="well">
+    <label>Branch</label>
     <select id="select01">
       <option selected="selected">Select a branch</option>
       <option>master</option>
       <option>test-feature</option>
     </select>
+    <label>Next Version</label>
+    <!-- specify the next version -->
+    <input type="text" class="span3" value="0.0.3">
     <span class="help-block">
       Select the branch you want to package and send to Cheese Prism. The head of the Git Repo will be packaged.
     </span>
@@ -105,7 +103,7 @@
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">Close</a>
     <a id="add-to-cheeseprism" class="btn sm-btn-success" href="#">
-  <i class="icon-plus icon-white"></i> Add to Cheese Prism</a>
+  <i class="icon-plus icon-white"></i> Publish New Version</a>
   </div>
 </div>
 {% endblock %}

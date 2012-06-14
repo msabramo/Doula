@@ -58,6 +58,8 @@ body {
   /* real browsers */
 
   background-color: white;
+  /* BUTTONS */
+
 }
 .content a {
   color: #00898B;
@@ -94,6 +96,9 @@ body {
 .title h5 {
   margin: 0px 0px 10px 0px;
 }
+.tag-app-form-title {
+  margin: 0px 0px 10px 0px;
+}
 ul.sm-list li {
   margin: 10px 0px;
   line-height: 100%;
@@ -123,6 +128,10 @@ div.section {
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
   -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+/* TABLE */
+td a.btn {
+  margin: 0px 0px 9px 15px;
 }
 .logs {
   margin-top: 10px;
