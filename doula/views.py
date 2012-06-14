@@ -178,6 +178,7 @@ def register(request):
 def show_appenvs(request):
     return {}
 
+
 @view_config(route_name='appenv', renderer='wireframes/templates/appenvs/appenv.html')
 def show_appenv(request):
     return {}
