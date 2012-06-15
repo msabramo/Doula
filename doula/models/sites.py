@@ -1,11 +1,18 @@
+import os
+import os.path
 import json
 import re
 import requests
 import logging
 import operator
+import shutil
+
+from fabric.api import *
+from tempfile import TemporaryFile
+from git import *
+from contextlib import contextmanager
 
 from doula.util import dirify
-from doula.util import dumps
 from doula.models.audit import Audit
 from doula.models.sites_dal import SiteDAL
 from doula.models.site_tag_history import SiteTagHistory
@@ -26,6 +33,7 @@ from doula.models.site_tag_history import SiteTagHistory
 
 log = logging.getLogger('doula')
 
+
 class Site(object):
     def __init__(self, name, status='unknown', nodes={}, applications={}):
         self.name = name
@@ -33,6 +41,7 @@ class Site(object):
         self.status = status
         self.nodes = nodes
         self.applications = applications
+
     def get_status(self):
         """
         The status of the site is the most serious status of all it's applications.
@@ -40,13 +49,13 @@ class Site(object):
         """
         status_value = 0
         status_values = {
-            'unknown'                 : 0,
-            'deployed'                : 1,
-            'tagged'                  : 2,
-            'change_to_config'        : 3,
-            'change_to_app'           : 3,
+            'unknown': 0,
+            'deployed': 1,
+            'tagged': 2,
+            'change_to_config': 3,
+            'change_to_app': 3,
             'change_to_app_and_config': 3,
-            'uncommitted_changes'     : 4
+            'uncommitted_changes': 4
         }
 
         for app_name, app in self.applications.iteritems():
@@ -57,8 +66,9 @@ class Site(object):
                 self.status = app.get_status()
 
         return self.status
+
     def get_logs(self):
-        all_logs = [ ]
+        all_logs = []
 
         for app_name, app in self.applications.iteritems():
             all_logs.extend(app.get_logs())
@@ -94,9 +104,9 @@ class Site(object):
             nodes[{'name':value, 'site':value, 'url':value}]
         And builds Node objects
         """
-        nodes = { }
+        nodes = {}
 
-        for name,n in simple_nodes.iteritems():
+        for name, n in simple_nodes.iteritems():
             node = Node(name, n['site'], n['url'])
             node.load_applications()
             nodes[name] = node
@@ -110,13 +120,14 @@ class Site(object):
         builds the applications as a combined list of their
         applications for the entire site.
         """
-        combined_applications = { }
+        combined_applications = {}
 
         for k, node in nodes.iteritems():
             for app_name, app in node.applications.iteritems():
                 combined_applications[app_name] = app
 
         return combined_applications
+
 
 class Node(object):
     def __init__(self, name, site_name, url, applications={}):
@@ -125,15 +136,15 @@ class Node(object):
         self.site_name = site_name
         self.url = url
         self.applications = applications
-        self.errors = [ ]
+        self.errors = []
 
     def load_applications(self):
         """
         Update the applications
         """
         try:
-            self.errors = [ ]
-            self.applications = { }
+            self.errors = []
+            self.applications = {}
 
             r = requests.get(self.url + '/applications')
             # If the response is non 200, we raise an error
@@ -187,6 +198,7 @@ class Application(object):
         self.packages = packages
         self.changed_files = changed_files
         self.tags = tags
+
     @staticmethod
     def build_app(site_name, node_name, url, app):
         """Build an application object from the app dictionary"""
@@ -203,8 +215,8 @@ class Application(object):
         a.last_tag_message = app['last_tag_message']
         a.current_branch_config = app['current_branch_config']
         a.changed_files = app['changed_files']
-        a.tags = [ ]
-        a.packages = [ ]
+        a.tags = []
+        a.packages = []
         a.add_packages(app['packages'])
         a.add_tags_from_dict(app['tags'])
 
@@ -239,7 +251,7 @@ class Application(object):
 
         if m:
             compare_url = 'http://' + m.group(1) + '/' + m.group(2) + '/' + self.name
-            compare_url+= '/compare/' + self.last_tag.name + '...' + self.current_branch_app
+            compare_url += '/compare/' + self.last_tag.name + '...' + self.current_branch_app
 
         return compare_url
 
@@ -311,12 +323,13 @@ class Application(object):
     def freeze_requirements(self):
         reqs = ''
 
-        self.packages.sort(key = operator.attrgetter('name'))
+        self.packages.sort(key=operator.attrgetter('name'))
 
         for pckg in self.packages:
             reqs += pckg.name + '==' + pckg.version + "\n"
 
         return reqs
+
 
 class Package(object):
     """
@@ -326,6 +339,64 @@ class Package(object):
         self.name = name
         self.version = version
 
+    def distribute(self, branch, new_version):
+        with self.repo() as repo:
+            self.update_version(repo, new_version)
+            self.commit(repo, ['setup.py'], 'DOULA: Updating Version.')
+            self.push(repo, "origin")
+            self.upload(repo)
+
+    @contextmanager
+    def repo(self):
+        try:
+            # Where all of the cloned repos are placed
+            if not os.path.exists('repos'):
+                os.mkdir('repos')
+            repo_path = os.path.join('repos', self.name)
+
+            # Clone specified service's repo
+            repo = Repo.clone_from("git@code.corp.surveymonkey.com:joed/%s.git" % self.name,
+                                   repo_path)
+            yield repo
+        finally:
+            # Clean up repo directory
+            shutil.rmtree(repo.working_dir)
+
+    def update_version(self, repo, new_version):
+        # Alter setup.py to match the new version
+        setup_py_path = os.path.join(repo.working_dir, 'setup.py')
+        with open(setup_py_path, 'r+') as f:
+            tmp = TemporaryFile()
+
+            for line in f.readlines():
+                if line.startswith("version"):
+                    line = "version = '%s'\n" % new_version
+                tmp.write(line)
+
+            # Go back to the beginning of each file
+            tmp.seek(0)
+            f.seek(0)
+
+            f.write(tmp.read())
+
+    def commit(self, repo, files, msg):
+        # Commit change to repo
+        index = repo.index
+        index.add(files)
+        index.commit(msg)
+
+    def push(self, repo, remote):
+        # Push changes
+        origin = repo.remotes["origin"]
+        origin.pull()
+        origin.push()
+
+    def upload(self, repo):
+        # Call `python setup.py sdist upload` to put upload to cheeseprism
+        with lcd(repo.working_dir):
+            local('python setup.py sdist upload')
+
+
 class Tag(object):
     """
     Represents a git tag
@@ -334,4 +405,3 @@ class Tag(object):
         self.name = name
         self.date = date
         self.message = message
-
