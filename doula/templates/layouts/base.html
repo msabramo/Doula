@@ -5,14 +5,14 @@
   <title>Doula Web</title>
 
   <!-- styles -->
-  <link rel="stylesheet" href="/wf/bootstrap/css/bootstrap.css">
-  <link rel="stylesheet" href="/wf/css/style.css">
+  <link rel="stylesheet" href="/css/bootstrap.css">
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
   <!-- all our content goes inside of here -->
   <div class="container">
-    {% include 'wireframes/templates/layouts/header.html' %}
+    {% include 'layouts/header.html' %}
 
     <div class="content">
     {% block content %}
@@ -22,8 +22,8 @@
   </div>
   <!-- end of container -->
 
-  <script language="javascript" type="text/javascript" src="/wf/js/jquery-1.7.2.js"></script>
-  <script language="javascript" type="text/javascript" src="/wf/bootstrap/js/bootstrap.js"></script>
+  <script language="javascript" type="text/javascript" src="/js/libs/jquery.js"></script>
+  <script language="javascript" type="text/javascript" src="/js/libs/bootstrap.js"></script>
 
   {% block scripts %}
   {% endblock %}

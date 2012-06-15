@@ -27,14 +27,12 @@ def show_envs(request):
     return { 'envs': SiteDAL.get_environments() }
 
 
-# BELOW THIS LINE NEEDS PORTING OVER TO NEW ISH
-
 @view_config(route_name='environment', renderer="envs/environment.html")
 def environment(request):
-    site = get_site(request.matchdict['site'])
+    env = get_env(request.matchdict['env_id'])
     token = request.registry.settings['token']
 
-    return {'site': site, 'site_json': dumps(site), 'token': token}
+    return {'env': env, 'env_json': dumps(env), 'token': token}
 
 @view_config(route_name='environment_tag', renderer="string")
 def environment_tag(request):
@@ -47,11 +45,11 @@ def environment_tag(request):
         tag = git_dirify(request.POST['tag'])
         msg = request.POST['msg']
 
-        site = get_site(request.POST['site'])
+        site = get_env(request.POST['env_id'])
         # once we have user from ldap, pass that in
         site.tag(tag_history_path, tag_history_remote, tag, msg, 'anonymous')
 
-        return dumps({'success': True, 'site': site})
+        return dumps({'success': True, 'env_id': site})
     except GitCommandError as e:
         msg = "Git error: {0}." .format(str(e.stderr))
         return dumps({'success': False, 'msg': msg})
@@ -65,33 +63,33 @@ def environment_tag(request):
 
 # SERVICE VIEWS
 
-@view_config(route_name='service', renderer="service/index.html")
+@view_config(route_name='service', renderer="services/index.html")
 def service(request):
     try:
-        site = get_site(request.matchdict['site'])
-        app = site.applications[request.matchdict['application']]
-
+        env = get_env(request.matchdict['env_id'])
+        service = env.services[request.matchdict['serv_id']]
+        
     except Exception:
-        msg = 'Unable to find site and application under "{0}" and "{1}"'
-        msg = msg.format(request.matchdict['site'], request.matchdict['application'])
+        msg = 'Unable to find site and service under "{0}" and "{1}"'
+        msg = msg.format(request.matchdict['env_id'], request.matchdict['serv_id'])
 
         raise HTTPNotFound(msg)
 
-    return {'site': site, 'app': app}
+    return { 'env': env, 'service': service }
 
 
 @view_config(route_name='service_tag', renderer="string")
 def service_tag(request):
     try:
-        app = SiteDAL.get_application(request.POST['site'], request.POST['application'])
+        app = SiteDAL.get_service(request.POST['env_id'], request.POST['serv_id'])
         # todo, once we have a user logged in we'll pass in the user too
         tag = git_dirify(request.POST['tag'])
         app.tag(tag, request.POST['msg'], 'anonymous')
 
         return dumps({'success': True, 'app': app})
     except KeyError:
-        msg = 'Unable to tag site and application under "{0}" and "{1}"'
-        msg = msg.format(request.POST['site'], request.POST['application'])
+        msg = 'Unable to tag site and service under "{0}" and "{1}"'
+        msg = msg.format(request.POST['env_id'], request.POST['serv_id'])
 
         return dumps({'success': False, 'msg': msg})
 
@@ -101,14 +99,14 @@ def service_deploy(request):
     try:
         validate_token(request)
 
-        app = SiteDAL.get_application(SiteDAL.get_master_site(), request.POST['application'])
+        app = SiteDAL.get_service(SiteDAL.get_master_site(), request.POST['serv_id'])
         tag = app.get_tag_by_name(request.POST['tag'])
         # todo, for now pass in the anonymous user until we start authenticating
         app.mark_as_deployed(tag, 'anonymous')
 
         return dumps({'success': True, 'app': app})
     except Exception as e:
-        msg = 'Unable to deploy application. Error: "{0}"'
+        msg = 'Unable to deploy service. Error: "{0}"'
         msg = msg.format(e.message)
         log.error(msg)
 
@@ -119,21 +117,21 @@ def validate_token(request):
     if(request.POST['token'] != request.registry.settings['token']):
         raise Exception("Invalid security token")
 
-def get_site(site_name):
-    site = SiteDAL.get_site(site_name)
+def get_env(env_name):
+    env = SiteDAL.get_env(env_name)
 
-    if not site:
-        msg = 'Unable to find site "{0}"'.format(site_name)
+    if not env:
+        msg = 'Unable to find env "{0}"'.format(env_name)
         raise HTTPNotFound(msg)
 
-    return site
+    return env
 
 @view_config(route_name="service_freeze")
 def service_freeze(request):
-    site = get_site(request.matchdict['site'])
-    app = site.applications[request.matchdict['application']]
+    site = get_env(request.matchdict['env_id'])
+    app = site.services[request.matchdict['serv_id']]
 
-    response = Response(content_type='application/octet-stream')
+    response = Response(content_type='service/octet-stream')
     file_name = app.site_name + '_' + app.name_url + '_requirements.txt'
     response.content_disposition = 'attachment; filename="' + file_name + '"'
     response.charset = "UTF-8"
@@ -178,7 +176,7 @@ def bambino_ips(request):
         return {'success': True, 'ip_addresses': ips}
     except KeyError:
         msg = 'Unable to find Bambino IP addresses "{0}"'
-        msg = msg.format(request.POST['site'], request.POST['application'])
+        msg = msg.format(request.POST['env_id'], request.POST['serv_id'])
 
         return dumps({'success': False, 'msg': msg})
 

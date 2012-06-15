@@ -16,7 +16,7 @@ var AppEnv = {
 			$('#add-packages').modal();
 		});
 
-		$('#push-to-cheese').on('click', function() {
+		$('.new-version-btn').on('click', function() {
 			$('#push-to-cheese-modal').modal();
 		});
 	}

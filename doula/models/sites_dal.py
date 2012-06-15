@@ -15,7 +15,7 @@ class SiteDAL(object):
         pass
 
     @staticmethod
-    def save_application_as_deployed(app, tag):
+    def save_service_as_deployed(app, tag):
         SiteDAL._add_to_deploy_set(app, tag)
         SiteDAL._set_app_tag_as_deployed(app, tag)
     
@@ -63,7 +63,7 @@ class SiteDAL(object):
     @staticmethod
     def register_node(node):
         node = SiteDAL._lower_keys(node)
-        site = SiteDAL._get_site(node['site'])
+        site = SiteDAL._get_env(node['site'])
         site['nodes'][node['name']] = node
         
         key = SiteDAL._get_site_cache_key(node['site'])
@@ -82,7 +82,7 @@ class SiteDAL(object):
     
     @staticmethod
     def unregister_node(node):
-        site = SiteDAL._get_site(node['site'])
+        site = SiteDAL._get_env(node['site'])
         del site['nodes'][node['name']]
 
         key = SiteDAL._get_site_cache_key(node['site'])
@@ -96,7 +96,7 @@ class SiteDAL(object):
         return SiteDAL.site_prefix + dirify(name)
     
     @staticmethod
-    def _get_site(name):
+    def _get_env(name):
         """
         Get the site jsonified object from cache. If the site
         doesn't exist create one.
@@ -113,7 +113,7 @@ class SiteDAL(object):
             return { 'name' : name, 'nodes' : { } }
     @staticmethod
     def nodes(name):
-        site = SiteDAL._get_site(name)
+        site = SiteDAL._get_env(name)
         
         return site['nodes']
     
@@ -138,14 +138,14 @@ class SiteDAL(object):
         
         for site_key in SiteDAL._all_site_keys():
             site_name = site_key.replace(SiteDAL.site_prefix, '')
-            all_sites[site_name] = SiteDAL.get_site(site_name)
+            all_sites[site_name] = SiteDAL.get_env(site_name)
         
         return all_sites
     
     @staticmethod
-    def get_site(site_name):
+    def get_env(site_name):
         from doula.models.sites import Site
-        simple_site = SiteDAL._get_site(site_name)
+        simple_site = SiteDAL._get_env(site_name)
         return Site.build_site(simple_site)
     
     @staticmethod
@@ -179,6 +179,6 @@ class SiteDAL(object):
         return ips
     
     @staticmethod
-    def get_application(site, app):
-        site = SiteDAL.get_site(site)
-        return site.applications[app]
+    def get_service(site, app):
+        site = SiteDAL.get_env(site)
+        return site.services[app]

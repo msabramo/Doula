@@ -11,7 +11,7 @@ class TestSitesDAL(unittest.TestCase):
         self.cache = Cache.cache()
         self.cache.flushall()
     
-    def test_save_application_as_deployed(self):
+    def test_save_service_as_deployed(self):
         app = Application('app_name', 'site_name', 'node_name', 'http://0.0.0.0.6542')
         app.status = 'tagged'
         tags = [{'name': 'last tag', 'message': 'last tag message', 'date': '8484848'}]

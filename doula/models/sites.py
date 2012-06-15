@@ -15,11 +15,11 @@ from doula.models.site_tag_history import SiteTagHistory
 # sites
 #   Site
 #     nodes
-#       applications
+#       services
 #         Application
 #           packages
 #             Package
-#     applications
+#     services
 #       Application
 #         packages
 #           Package
@@ -27,15 +27,15 @@ from doula.models.site_tag_history import SiteTagHistory
 log = logging.getLogger('doula')
 
 class Site(object):
-    def __init__(self, name, status='unknown', nodes={}, applications={}):
+    def __init__(self, name, status='unknown', nodes={}, services={}):
         self.name = name
         self.name_url = dirify(name)
         self.status = status
         self.nodes = nodes
-        self.applications = applications
+        self.services = services
     def get_status(self):
         """
-        The status of the site is the most serious status of all it's applications.
+        The status of the site is the most serious status of all it's services.
         The more serious the status, the higher the status value number.
         """
         status_value = 0
@@ -49,7 +49,7 @@ class Site(object):
             'uncommitted_changes'     : 4
         }
         
-        for app_name, app in self.applications.iteritems():
+        for app_name, app in self.services.iteritems():
             app_status_value = status_values[app.get_status()]
             
             if app_status_value > status_value:
@@ -60,7 +60,7 @@ class Site(object):
     def get_logs(self):
         all_logs = [ ]
 
-        for app_name, app in self.applications.iteritems():
+        for app_name, app in self.services.iteritems():
             all_logs.extend(app.get_logs())
         
         return all_logs
@@ -71,19 +71,19 @@ class Site(object):
         # it actually go? will you read it?
         # create a global config object. this will also allow me to test. config[]
         sth = SiteTagHistory(tag_history_path, tag_history_remote, self.name_url, 'output.log')
-        sth.tag_site(tag, msg, self.applications)
+        sth.tag_site(tag, msg, self.services)
 
     @staticmethod
     def build_site(simple_site):
         """
         Take the simple dictionary version of a site object, i.e.
             {name:value, nodes[{'name':value, 'site':value, 'url':value}]}
-        and return an actual Site object with all the nodes and applications
+        and return an actual Site object with all the nodes and services
         built as well.
         """
         site = Site(simple_site['name'])
         site.nodes = Site._build_nodes(simple_site['nodes'])
-        site.applications = Site._get_combined_applications(site.nodes)
+        site.services = Site._get_combined_services(site.nodes)
         
         return site
     
@@ -98,62 +98,62 @@ class Site(object):
         
         for name,n in simple_nodes.iteritems():
             node = Node(name, n['site'], n['url'])
-            node.load_applications()
+            node.load_services()
             nodes[name] = node
         
         return nodes
     
     @staticmethod
-    def _get_combined_applications(nodes):
+    def _get_combined_services(nodes):
         """
         Takes the nodes (contains actual Node objects) and 
-        builds the applications as a combined list of their 
-        applications for the entire site.
+        builds the services as a combined list of their 
+        services for the entire site.
         """
-        combined_applications = { }
+        combined_services = { }
         
         for k, node in nodes.iteritems():
-            for app_name, app in node.applications.iteritems():
-                combined_applications[app_name] = app
+            for app_name, app in node.services.iteritems():
+                combined_services[app_name] = app
         
-        return combined_applications
+        return combined_services
 
 class Node(object):
-    def __init__(self, name, site_name, url, applications={}):
+    def __init__(self, name, site_name, url, services={}):
         self.name = name
         self.name_url = dirify(name)
         self.site_name = site_name
         self.url = url
-        self.applications = applications
+        self.services = services
         self.errors = [ ]
     
-    def load_applications(self):
+    def load_services(self):
         """
-        Update the applications
+        Update the services
         """
         try:
             self.errors = [ ]
-            self.applications = { }
+            self.services = { }
             
-            r = requests.get(self.url + '/applications')
+            r = requests.get(self.url + '/services')
             # If the response is non 200, we raise an error
             r.raise_for_status()
             rslt = json.loads(r.text)
             
-            for app in rslt['applications']:
+            for app in rslt['services']:
                 a = Application.build_app(self.site_name, self.name, self.url, app)
-                self.applications[a.name_url] = a
+                self.services[a.name_url] = a
             
         except requests.exceptions.ConnectionError as e:
             msg = 'Unable to contact node {0} at URL {1}'.format(self.name, self.url)
             log.error(msg)
             self.errors.append(msg)
         except Exception as e:
-            msg = 'Unable to load applications. Error: {0}'.format(e.message)
+            msg = 'Unable to load services. Error: {0}'.format(e.message)
             log.error(msg)
             self.errors.append(msg)
         
-        return self.applications
+        return self.services
     
 
 class Application(object):
@@ -189,7 +189,7 @@ class Application(object):
         self.tags = tags
     @staticmethod
     def build_app(site_name, node_name, url, app):
-        """Build an application object from the app dictionary"""
+        """Build an service object from the app dictionary"""
 
         a = Application(app['name'], site_name, node_name, url)
         a.current_branch_app = app['current_branch_app']
@@ -211,8 +211,8 @@ class Application(object):
         return a
 
     def add_packages(self, pckgs):
-        for name, version in pckgs.iteritems():
-            self.packages.append(Package(name, version))
+        for name, pckg in pckgs.iteritems():
+            self.packages.append(Package(pckg['name'], pckg['version']))
     
     def add_tags_from_dict(self, tags_as_dicts):
         for tag in tags_as_dicts:
@@ -245,7 +245,7 @@ class Application(object):
     
     def tag(self, tag, msg, user):
         """
-        Tag the current application
+        Tag the current service
         """
         payload = {'tag': tag, 'description': msg, 'apps': self.name}
         r = requests.post(self.url + '/tag', data=payload)
@@ -284,10 +284,10 @@ class Application(object):
     
     def mark_as_deployed(self, tag, user):
         """
-        Mark an application as deployed
+        Mark an service as deployed
         """
         self.status = 'deployed'
-        SiteDAL.save_application_as_deployed(self, tag)
+        SiteDAL.save_service_as_deployed(self, tag)
         
         audit = Audit()
         audit.log_action(self.site_name, self.name, 'deploy', user)
@@ -297,7 +297,7 @@ class Application(object):
         app_logs = audit.get_app_logs(self.site_name, self.name)
 
         for log in app_logs:
-            log['application'] = self.name
+            log['service'] = self.name
 
         return app_logs
 

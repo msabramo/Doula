@@ -5,7 +5,7 @@ var SiteData = {
     last_tag: '',
     name_url: '',
     nodes: { },
-    applications: { },
+    services: { },
     status: '',
     token: '',
     
@@ -20,7 +20,7 @@ var SiteData = {
         var url = '/tag';
         var params = {
             'site'        : SiteData.name_url,
-            'application' : app.name_url,
+            'service' : app.name_url,
             'tag'         : tag,
             'msg'         : tag_msg
         };
@@ -65,12 +65,12 @@ var SiteData = {
     },
 
     deployApplication: function(app) {
-        var msg = 'Marking application as deployed';
+        var msg = 'Marking service as deployed';
         var url = '/deploy';
         
         var params = {
             'site'        : SiteData.name_url,
-            'application' : app.name_url,
+            'service' : app.name_url,
             'token'       : SiteData.token,
             'tag'         : app.last_tag_app.name
         }
@@ -91,15 +91,15 @@ var SiteData = {
     },
     
     findAppByID: function(name_url) {
-        return this.applications[name_url];
+        return this.services[name_url];
     },
     
     isReadyForDeploy: function() {
         var isReadyForDeploy = true;
         
-        for (var i=0; i < this.applications.length; i++) {
-            if( this.applications[i].status != 'deployed' &&
-                this.applications[i].status != 'tagged' ) {
+        for (var i=0; i < this.services.length; i++) {
+            if( this.services[i].status != 'deployed' &&
+                this.services[i].status != 'tagged' ) {
                 isReadyForDeploy = false;
                 break;
             }

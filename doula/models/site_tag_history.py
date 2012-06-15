@@ -18,7 +18,7 @@ log.addHandler(std_out)
 class SiteTagHistory(object):
     """
     Site tag manages the Site Tag History Repo that keeps track of
-    the applications tagged together for deployment.
+    the services tagged together for deployment.
     """
     def __init__(self, path, remote, branch, log_path):
         self.path = path
@@ -38,22 +38,22 @@ class SiteTagHistory(object):
 
         The tag is a simple string
         The branch is the name of the site
-        The apps is a dictionary of Application objects. {'app name': application object}
+        The apps is a dictionary of Application objects. {'app name': service object}
         """
         # alextodo, need to check for duplicate tags
         # need to be able to autogenerate a tag.
         tag = git_dirify(tag)
         log.info("Adding new tag '%s'." % tag)
 
-        self._tag_applications(tag, msg, apps)
+        self._tag_services(tag, msg, apps)
         self._add_apps_as_submodules(apps, tag)
         self._add_and_commit_submodules(apps)
         self._tag_site_tag_history(tag, msg)
 
         # after moving this logic to site. make the status tagged.
 
-    def _tag_applications(self, tag, msg, apps):
-        """Tag every application. Push those changes now."""
+    def _tag_services(self, tag, msg, apps):
+        """Tag every service. Push those changes now."""
         # check if the directory exist for each app below the path dir
         # if it does not check it out at the branch
         # then check if the tag exist if it does not tag it
@@ -164,17 +164,17 @@ def get_random_tag():
     num = random.randrange(0, 1000000)
     return 'test_tag ' + str(num)
 
-def get_applications():
-    applications = { }
+def get_services():
+    services = { }
 
-    with open('temp/applications.json') as app_file:
+    with open('temp/services.json') as app_file:
         rslt = json.loads(app_file.read())
 
-        for app in rslt['applications']:
+        for app in rslt['services']:
             a = Application.build_app('test site name', 'test node name', 'http://url', app)
-            applications[a.name_url] = a
+            services[a.name_url] = a
 
-    return applications
+    return services
 
 # see http://packages.python.org/GitPython/0.3.2/tutorial.html#initialize-a-repo-object
 
@@ -188,7 +188,7 @@ if __name__ == '__main__':
 
     tag = get_random_tag()
     branch = 'mt1'
-    apps = get_applications()
+    apps = get_services()
     
     sth.tag_site(tag, 'tagging site test', apps)
 

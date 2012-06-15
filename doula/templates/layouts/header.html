@@ -5,8 +5,8 @@
                 <a class="brand" href="/wfhome">Doula</a>
                 <ul class="nav">
                     {% set path = request.path %}
-                    <li {% if path.startswith('/deploy') %} class="active" {% endif %}>
-                        <a href="/deploy">Environments</a>
+                    <li {% if path.startswith('/envs') %} class="active" {% endif %}>
+                        <a href="/envs">Environments</a>
                     </li>
                     <li {% if path.startswith('/queue') %} class="active" {% endif %}>
                         <a href="/queue">Queue</a>
