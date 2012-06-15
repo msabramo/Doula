@@ -1,13 +1,13 @@
-{% extends 'wireframes/templates/layouts/base.html' %}
+{% extends 'layouts/base.html' %}
 {% block content %}
 <div class="title">
-	<h2>Monkey Test Prime</h2>
+  <h2>Monkey Test Prime</h2>
 </div>
 <div class="accordion group" id="site-accordion">
   <div class="accordion-group">
     <div class="accordion-heading group">
       <a id="billWebLink" class="accordion-toggle accord-title" data-target="#collapse_billweb" data-toggle="collapse" data-parent="#site-accordion" href="#">
-      	<span class="status-tagged"></span>
+        <span class="status-tagged"></span>
         Billweb
       </a>
 
@@ -19,16 +19,16 @@
     <div id="collapse_billweb" class="accordion-body collapse" style="height: auto; ">
       <div class="accordion-inner">
         <form class="well">
-				  <h3 class="tag-app-form-title">Billweb Application</h3>
+          <h3 class="tag-app-form-title">Billweb Application</h3>
 
-				  <label>Tag</label>
-				  <input type="text" />
-				  <span class="help-block">
-				  	Select the Monkey Test Environments you want to cycle or update.
-				 	</span>
+          <label>Tag</label>
+          <input type="text" />
+          <span class="help-block">
+            Select the Monkey Test Environments you want to cycle or update.
+          </span>
 
-				  <button type="submit" class="btn">Tag App</button>
-				</form>
+          <button type="submit" class="btn">Tag App</button>
+        </form>
       </div>
     </div>
   </div>

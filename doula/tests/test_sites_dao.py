@@ -64,7 +64,7 @@ class TestSitesDAL(unittest.TestCase):
         SiteDAL.unregister_node(node1)
         self.assertEqual(len(SiteDAL.nodes('site1').keys()), 0)
 
-        sites = SiteDAL.get_sites()
+        sites = SiteDAL.get_environments()
         self.assertEqual(len(sites.keys()), 0)
     def test_all_site_keys(self):
         node = {
@@ -78,11 +78,11 @@ class TestSitesDAL(unittest.TestCase):
         
         self.assertEqual(keys[0], 'site:site1')
     
-    def test_get_sites(self):
+    def test_get_environments(self):
         # Get Site objects array, [Site, Site, Site...]
         self._register_node()
         
-        sites = SiteDAL.get_sites()
+        sites = SiteDAL.get_environments()
         self.assertEqual(len(sites), 1)
         self.assertEqual(len(sites['site1'].nodes.keys()), 1)
     

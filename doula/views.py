@@ -10,72 +10,34 @@ from doula.models.sites_dal import SiteDAL
 from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPNotFound
-from pyramid.events import ApplicationCreated
-from pyramid.events import subscriber
 from git import GitCommandError
 
 log = logging.getLogger('doula')
 
-
-@view_config(route_name='home', renderer='home.html')
+# ENVIRONMENT VIEWS
+@view_config(route_name='home', renderer='envs/index.html')
 def show_home(request):
-    return show_sites(request)
+    return show_envs(request)
+
+@view_config(route_name='envs', renderer='envs/index.html')
+def show_envs(request):
+    """
+    Show the testing environments in SM environment
+    """
+    return { 'envs': SiteDAL.get_environments() }
 
 
-@view_config(route_name='sites', renderer='sites.html')
-def show_sites(request):
-    return {'sites': SiteDAL.get_sites()}
+# BELOW THIS LINE NEEDS PORTING OVER TO NEW ISH
 
-
-@view_config(route_name='site', renderer="site_applications.html")
-def show_site(request):
+@view_config(route_name='environment', renderer="envs/environment.html")
+def environment(request):
     site = get_site(request.matchdict['site'])
     token = request.registry.settings['token']
 
     return {'site': site, 'site_json': dumps(site), 'token': token}
 
-
-@view_config(route_name='site_log', renderer="site_logs.html")
-def show_site_logs(request):
-    site = get_site(request.matchdict['site'])
-    logs = site.get_logs()
-
-    return {'site': site, 'logs': logs}
-
-
-@view_config(route_name='application', renderer="application_details.html")
-def show_application(request):
-    try:
-        site = get_site(request.matchdict['site'])
-        app = site.applications[request.matchdict['application']]
-
-    except Exception:
-        msg = 'Unable to find site and application under "{0}" and "{1}"'
-        msg = msg.format(request.matchdict['site'], request.matchdict['application'])
-
-        raise HTTPNotFound(msg)
-
-    return {'site': site, 'app': app}
-
-
-@view_config(route_name='tag', renderer="string")
-def tag_application(request):
-    try:
-        app = SiteDAL.get_application(request.POST['site'], request.POST['application'])
-        # todo, once we have a user logged in we'll pass in the user too
-        tag = git_dirify(request.POST['tag'])
-        app.tag(tag, request.POST['msg'], 'anonymous')
-
-        return dumps({'success': True, 'app': app})
-    except KeyError:
-        msg = 'Unable to tag site and application under "{0}" and "{1}"'
-        msg = msg.format(request.POST['site'], request.POST['application'])
-
-        return dumps({'success': False, 'msg': msg})
-
-
-@view_config(route_name='tag_site', renderer="string")
-def tag_site(request):
+@view_config(route_name='environment_tag', renderer="string")
+def environment_tag(request):
     try:
         # alextodo, should I simply create a config global object and access that
         # instead of reading all the time from registry? that would be testable too
@@ -101,9 +63,41 @@ def tag_site(request):
 
         return dumps({'success': False, 'msg': msg})
 
+# SERVICE VIEWS
 
-@view_config(route_name='deploy_old', renderer="string")
-def deploy_application(request):
+@view_config(route_name='service', renderer="service/index.html")
+def service(request):
+    try:
+        site = get_site(request.matchdict['site'])
+        app = site.applications[request.matchdict['application']]
+
+    except Exception:
+        msg = 'Unable to find site and application under "{0}" and "{1}"'
+        msg = msg.format(request.matchdict['site'], request.matchdict['application'])
+
+        raise HTTPNotFound(msg)
+
+    return {'site': site, 'app': app}
+
+
+@view_config(route_name='service_tag', renderer="string")
+def service_tag(request):
+    try:
+        app = SiteDAL.get_application(request.POST['site'], request.POST['application'])
+        # todo, once we have a user logged in we'll pass in the user too
+        tag = git_dirify(request.POST['tag'])
+        app.tag(tag, request.POST['msg'], 'anonymous')
+
+        return dumps({'success': True, 'app': app})
+    except KeyError:
+        msg = 'Unable to tag site and application under "{0}" and "{1}"'
+        msg = msg.format(request.POST['site'], request.POST['application'])
+
+        return dumps({'success': False, 'msg': msg})
+
+
+@view_config(route_name='service_deploy', renderer="string")
+def service_deploy(request):
     try:
         validate_token(request)
 
@@ -120,34 +114,22 @@ def deploy_application(request):
 
         return dumps({'success': False, 'msg': msg})
 
-
 def validate_token(request):
     # Validate security token
     if(request.POST['token'] != request.registry.settings['token']):
         raise Exception("Invalid security token")
 
+def get_site(site_name):
+    site = SiteDAL.get_site(site_name)
 
-@view_config(context=HTTPNotFound, renderer='404.html')
-def not_found(self, request):
-    request.response.status = 404
+    if not site:
+        msg = 'Unable to find site "{0}"'.format(site_name)
+        raise HTTPNotFound(msg)
 
-    return {'msg': request.exception.message}
+    return site
 
-
-@view_config(route_name='nodes_ip_lookup', renderer="json")
-def nodes_ip_lookup(request):
-    try:
-        ips = SiteDAL.get_node_ips()
-        return {'success': True, 'ip_addresses': ips}
-    except KeyError:
-        msg = 'Unable to find Bambino IP addresses "{0}"'
-        msg = msg.format(request.POST['site'], request.POST['application'])
-
-        return dumps({'success': False, 'msg': msg})
-
-
-@view_config(route_name="app_requirements_file")
-def app_requirements_file(request):
+@view_config(route_name="service_freeze")
+def service_freeze(request):
     site = get_site(request.matchdict['site'])
     app = site.applications[request.matchdict['application']]
 
@@ -159,9 +141,19 @@ def app_requirements_file(request):
 
     return response
 
+# QUEUE VIEWS
+@view_config(route_name='queue', renderer='queue/index.html')
+def show_queue(request):
+    return {}
 
-@view_config(route_name='register', renderer='json')
-def register(request):
+# SETTINGS VIEWS
+@view_config(route_name='settings', renderer='settings/index.html')
+def show_settings(request):
+    return {}
+
+# BAMBINO VIEWS
+@view_config(route_name='bambino_register', renderer='json')
+def bambino_register(request):
     """
     Register a Bambino node with Doula.
     """
@@ -175,63 +167,24 @@ def register(request):
 
     return {'success': 'true'}
 
-
-# wireframes
-@view_config(route_name='appenvs', renderer='wireframes/templates/appenvs/index.html')
-def show_appenvs(request):
-    return {}
-
-
-@view_config(route_name='appenv', renderer='wireframes/templates/appenvs/appenv.html')
-def show_appenv(request):
-    return {}
-
-@view_config(route_name='deploy', renderer='wireframes/templates/deploy/index.html')
-def show_deploy(request):
-    return {}
-
-@view_config(route_name='deploy_site', renderer='wireframes/templates/deploy/deploy_site.html')
-def show_site(request):
-    return {}
-
-@view_config(route_name='packages', renderer='wireframes/templates/packages/index.html')
-def show_packages(request):
-    return {}
-
-
-@view_config(route_name='package', renderer='wireframes/templates/packages/view.html')
-def show_package(request):
-    return {}
-
-
-@view_config(route_name='queue', renderer='wireframes/templates/queue/index.html')
-def show_queue(request):
-    return {}
-
-
-@view_config(route_name='settings', renderer='wireframes/templates/settings.html')
-def show_settings(request):
-    return {}
-
-
-# alextodo, handle error uniformly. return error
-def return_error():
-    pass
-
-
-def get_site(site_name):
-    site = SiteDAL.get_site(site_name)
-
-    if not site:
-        msg = 'Unable to find site "{0}"'.format(site_name)
-        raise HTTPNotFound(msg)
-
-    return site
-
-@subscriber(ApplicationCreated)
-def register_me(event):
+@view_config(route_name='bambino_ips', renderer="json")
+def bambino_ips(request):
     """
-    Start the release queue
+    Return all the IP addresses for the Bambinos.
+    Used for deployment to update every Bambino registered with Doula.
     """
-    print 'start app'
-    start_release_queue()
+    try:
+        ips = SiteDAL.get_node_ips()
+        return {'success': True, 'ip_addresses': ips}
+    except KeyError:
+        msg = 'Unable to find Bambino IP addresses "{0}"'
+        msg = msg.format(request.POST['site'], request.POST['application'])
+
+        return dumps({'success': False, 'msg': msg})
+
+# ERROR HANDLING
+@view_config(context=HTTPNotFound, renderer='error/404.html')
+def not_found(self, request):
+    request.response.status = 404
+
+    return {'msg': request.exception.message}

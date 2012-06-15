@@ -130,7 +130,7 @@ class SiteDAL(object):
             return site_keys
     
     @staticmethod
-    def get_sites():
+    def get_environments():
         """
         Get list of registered sites. Returns actual Site object.
         """
@@ -169,7 +169,7 @@ class SiteDAL(object):
     def get_node_ips():
         ips = [ ]
         
-        for site in SiteDAL.get_sites():
+        for site in SiteDAL.get_environments():
             key = SiteDAL._get_site_cache_key(site)
             site_obj = json.loads(SiteDAL.cache.get(key))
             
