@@ -3,12 +3,15 @@ import time
 import logging
 import traceback
 
+from doula.queue.release_queue import start_release_queue
 from doula.util import dumps
 from doula.util import git_dirify
 from doula.models.sites_dal import SiteDAL
 from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPNotFound
+from pyramid.events import ApplicationCreated
+from pyramid.events import subscriber
 from git import GitCommandError
 
 log = logging.getLogger('doula')
@@ -224,3 +227,11 @@ def get_site(site_name):
         raise HTTPNotFound(msg)
 
     return site
+
+@subscriber(ApplicationCreated)
+def register_me(event):
+    """
+    Start the release queue
+    """
+    print 'start app'
+    start_release_queue()
