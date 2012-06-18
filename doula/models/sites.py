@@ -394,7 +394,7 @@ class Package(object):
     def upload(self, repo):
         # Call `python setup.py sdist upload` to put upload to cheeseprism
         with lcd(repo.working_dir):
-            local('python setup.py sdist upload')
+            local('python setup.py sdist upload -r local')
 
 
 class Tag(object):
