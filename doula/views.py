@@ -7,9 +7,13 @@ from doula.queue.release_queue import start_release_queue
 from doula.util import dumps
 from doula.util import git_dirify
 from doula.models.sites_dal import SiteDAL
+from doula.config import Config
+
 from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPNotFound
+from pyramid.events import ApplicationCreated
+from pyramid.events import subscriber
 from git import GitCommandError
 
 log = logging.getLogger('doula')
@@ -30,18 +34,18 @@ def show_envs(request):
 @view_config(route_name='environment', renderer="envs/environment.html")
 def environment(request):
     env = get_env(request.matchdict['env_id'])
-    token = request.registry.settings['token']
 
-    return {'env': env, 'env_json': dumps(env), 'token': token}
+    return {
+        'env': env, 
+        'env_json': dumps(env), 
+        'token': Config.get('token') 
+        }
 
 @view_config(route_name='environment_tag', renderer="string")
 def environment_tag(request):
     try:
-        # alextodo, should I simply create a config global object and access that
-        # instead of reading all the time from registry? that would be testable too
-        # better than this. talk to whit.
-        tag_history_path = request.registry.settings['tag_history_path']
-        tag_history_remote = request.registry.settings['tag_history_remote']
+        tag_history_path = Config.get('tag_history_path')
+        tag_history_remote = Config.get('tag_history_remote')
         tag = git_dirify(request.POST['tag'])
         msg = request.POST['msg']
 
@@ -77,6 +81,20 @@ def service(request):
 
     return { 'env': env, 'service': service }
 
+
+@view_config(route_name='service_details', renderer="services/service_details.html")
+def service_details(request):
+    try:
+        env = get_env(request.matchdict['env_id'])
+        service = env.services[request.matchdict['serv_id']]
+        
+    except Exception:
+        msg = 'Unable to find site and service under "{0}" and "{1}"'
+        msg = msg.format(request.matchdict['env_id'], request.matchdict['serv_id'])
+
+        raise HTTPNotFound(msg)
+
+    return { 'env': env, 'service': service }
 
 @view_config(route_name='service_tag', renderer="string")
 def service_tag(request):
@@ -114,7 +132,7 @@ def service_deploy(request):
 
 def validate_token(request):
     # Validate security token
-    if(request.POST['token'] != request.registry.settings['token']):
+    if(request.POST['token'] != Config.get('token')):
         raise Exception("Invalid security token")
 
 def get_env(env_name):
@@ -128,14 +146,14 @@ def get_env(env_name):
 
 @view_config(route_name="service_freeze")
 def service_freeze(request):
-    site = get_env(request.matchdict['env_id'])
-    app = site.services[request.matchdict['serv_id']]
+    env = get_env(request.matchdict['env_id'])
+    service = env.services[request.matchdict['serv_id']]
 
     response = Response(content_type='service/octet-stream')
-    file_name = app.site_name + '_' + app.name_url + '_requirements.txt'
+    file_name = service.env_name + '_' + service.name_url + '_requirements.txt'
     response.content_disposition = 'attachment; filename="' + file_name + '"'
     response.charset = "UTF-8"
-    response.text = app.freeze_requirements()
+    response.text = service.freeze_requirements()
 
     return response
 
@@ -185,4 +203,11 @@ def bambino_ips(request):
 def not_found(self, request):
     request.response.status = 404
 
-    return {'msg': request.exception.message}
+    return { 'msg': request.exception.message }
+
+@subscriber(ApplicationCreated)
+def load_config(event):
+    """
+    Load the Application config settings
+    """
+    Config.load_config(event.app.registry.settings)

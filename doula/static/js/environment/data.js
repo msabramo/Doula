@@ -1,5 +1,5 @@
-// The SiteData Module
-var SiteData = {
+// The Data Module
+var Data = {
     
     name: '',
     last_tag: '',
@@ -11,16 +11,16 @@ var SiteData = {
     
     init: function() {
         this.token = __token;
-        _mixin(this, __site);
-        _mixin(this, AjaxUtil);
+        _mixin(this, __env);
+        _mixin(this, AJAXUtil);
     },
     
-    tagApp: function(app, tag, tag_msg) {
-        var msg = 'Tagging ' + app.name;
+    tagApp: function(service, tag, tag_msg) {
+        var msg = 'Tagging ' + service.name;
         var url = '/tag';
         var params = {
-            'site'        : SiteData.name_url,
-            'service' : app.name_url,
+            'site'        : Data.name_url,
+            'service' : service.name_url,
             'tag'         : tag,
             'msg'         : tag_msg
         };
@@ -29,68 +29,68 @@ var SiteData = {
     },
 
     doneTagApp: function(rlst) {
-        app = SiteData.findAppByID(rlst.app.name_url);
-        app.tag = rlst.app.last_tag_app;
-        app.msg = rlst.app.msg;
-        app.status = rlst.app.status;
+        service = Data.findServiceByID(rlst.service.name_url);
+        service.tag = rlst.service.last_tag_service;
+        service.msg = rlst.service.msg;
+        service.status = rlst.service.status;
         
-        UI.doneTagApp(app.name_url);
+        UI.doneTagApp(service.name_url);
     },
 
-    tagSite: function(tag, tag_msg) {
-        var msg = 'Tagging Site';
+    tagEnv: function(tag, tag_msg) {
+        var msg = 'Tagging Env';
         var url = '/tagsite';
         
         var params = {
-            'site'        : SiteData.name_url,
+            'site'        : Data.name_url,
             'tag'         : tag,
             'msg'         : tag_msg
         };
         
-        this.post(msg, url, params, this.doneTagSite, this.failedTagSite);
+        this.post(msg, url, params, this.doneTagEnv, this.failedTagEnv);
     },
 
-    doneTagSite: function(rslt) {
+    doneTagEnv: function(rslt) {
         console.log('done tagging site');
         console.log(rslt);
 
-        SiteData.status = rslt.site.status;
-        SiteData.last_tag = rslt.site.last_tag;
+        Data.status = rslt.site.status;
+        Data.last_tag = rslt.site.last_tag;
         
         UI.doneTagApp('site');
     },
 
-    failedTagSite: function() {
+    failedTagEnv: function() {
         UI.failedTag();
     },
 
-    deployApplication: function(app) {
+    deployApplication: function(service) {
         var msg = 'Marking service as deployed';
         var url = '/deploy';
         
         var params = {
-            'site'        : SiteData.name_url,
-            'service' : app.name_url,
-            'token'       : SiteData.token,
-            'tag'         : app.last_tag_app.name
+            'site'        : Data.name_url,
+            'service' : service.name_url,
+            'token'       : Data.token,
+            'tag'         : service.last_tag_service.name
         }
         
         this.post(msg, url, params, this.successfulDeployApplication);
     },
     
     successfulDeployApplication: function(rslt) {
-        app = SiteData.findAppByID(rslt.app.name_url);
-        app.status = rslt.app.status;
-        UI.deployApp(app);
+        service = Data.findServiceByID(rslt.service.name_url);
+        service.status = rslt.service.status;
+        UI.deployApp(service);
     },
     
-    revertAppTag: function(app, tag, msg) {
-      app.tag = tag;
-      app.msg = msg;
-      app.status = app.originalStatus;
+    revertAppTag: function(service, tag, msg) {
+      service.tag = tag;
+      service.msg = msg;
+      service.status = service.originalStatus;
     },
     
-    findAppByID: function(name_url) {
+    findServiceByID: function(name_url) {
         return this.services[name_url];
     },
     

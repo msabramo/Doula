@@ -11,7 +11,7 @@ class ApplicationTests(unittest.TestCase):
         pass
 
     def test_get_compare_url(self):
-        app = Application('test_app', 'site_name', 'test_node', 'http://test.com')
+        app = Application('test_app', 'env_name', 'test_node', 'http://test.com')
         app.remote = 'git@code.corp.surveymonkey.com:DevOps/WebApp1.git'
         app.last_tag_app = '1.0.3'
         app.current_branch_app = 'master'
@@ -25,7 +25,7 @@ class ApplicationTests(unittest.TestCase):
         self.assertEqual(app.get_compare_url(), compare_url)
     
     def test_freeze_requirements(self):
-        app = Application('test_app', 'site_name', 'test_node', 'http://test.com')
+        app = Application('test_app', 'env_name', 'test_node', 'http://test.com')
         packages = [ ]
         
         packages.append(Package('mnn', '1'))

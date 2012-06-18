@@ -18,6 +18,10 @@
       <a href="/envs/{{ env.name_url }}/{{ service.name_url }}" class="accord-link">
         Release Actions
       </a>
+
+      <a href="/envs/{{ env.name_url }}/{{ service.name_url }}/details" class="accord-link">
+        Service Details
+      </a>
     </div>
     <!-- form that actually gets collapsed -->
     <div id="collapse_{{ service.name_url }}" 
@@ -40,15 +44,16 @@
   <!-- end of individual  env -->
   {% endfor %}
 </div>
-{% endblock %}
-
-{% block scripts %}
 <script>
   var __env = {{ env_json|safe }};
   var __token = "{{ token|safe }}";
 </script>
-
-<script>
-  $('.collapse').collapse("hide");
-</script>
+{% endblock %}
+{% block scripts %}
+{{ [
+'/js/common/util.js',
+'/js/environment/data.js',
+'/js/environment/ui.js',
+'/js/environment/environment.js'
+]|js_script|safe }}
 {% endblock %}

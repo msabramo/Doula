@@ -1,4 +1,4 @@
-var Application = {
+var Service = {
     
     compareURL: '',
 
@@ -12,9 +12,7 @@ var Application = {
     * UI ACTIONS
     */
     
-    bindToUIActions: function() {
-        $('.sm-side-tab').sideTab();
-        
+    bindToUIActions: function() {        
         $('#compare_dropdown1,#compare_dropdown2').
             bind('click change blur keydown', _bind(this.updateCompareURL, this));
         
@@ -54,5 +52,5 @@ var Application = {
 };
 
 $(document).ready(function() {
-  Application.init();
+  Service.init();
 });

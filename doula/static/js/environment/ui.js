@@ -10,11 +10,11 @@ var UI = {
     },
 
     init: function() {
-        $("#accordion").accordion();
+        $('.collapse').collapse("hide");
+        
         // If you cannot tag because of uncommitted changes
         // bind a function that will nullify the link click
         $('a.keyCloser').on('click', function() { return false; });
-        $('.sm-side-tab').sideTab();
     },
     
     // Execute before the ajax call to server

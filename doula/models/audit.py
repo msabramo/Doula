@@ -11,10 +11,10 @@ class Audit(object):
     def __init__(self):
         self.cache = Cache.cache()
     
-    def log_action(self, site_name, app_name, action, user):
+    def log_action(self, env_name, app_name, action, user):
         timestamp = self._timestamp()
-        key = '_'.join([site_name, app_name, 'log', timestamp])
-        set_key = self._get_set_key(site_name, app_name)
+        key = '_'.join([env_name, app_name, 'log', timestamp])
+        set_key = self._get_set_key(env_name, app_name)
         
         self.cache.sadd(set_key, key)
         self.cache.set(key, json.dumps(self._action_hash(action, user, timestamp)))
@@ -29,9 +29,9 @@ class Audit(object):
     def _timestamp(self):
         return datetime.now().isoformat()
     
-    def get_app_logs(self, site_name, app_name):
+    def get_app_logs(self, env_name, app_name):
         logs = []
-        set_key = self._get_set_key(site_name, app_name)
+        set_key = self._get_set_key(env_name, app_name)
         set_of_logs = self.cache.smembers(set_key)
         
         for log_key in set_of_logs:
@@ -40,6 +40,6 @@ class Audit(object):
         
         return logs
     
-    def _get_set_key(self, site_name, app_name):
-        return '_'.join([site_name, app_name, 'logs'])
+    def _get_set_key(self, env_name, app_name):
+        return '_'.join([env_name, app_name, 'logs'])
     

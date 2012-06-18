@@ -32,12 +32,12 @@ def main(global_config, **settings):
     config.add_route('service_tag', '/envs/{env_id}/{serv_id}/tag')
     config.add_route('service_freeze', '/envs/{env_id}/{serv_id}/freeze')
     config.add_route('service_deploy', '/envs/{env_id}/{serv_id}/deploy')
+    config.add_route('service_details', '/envs/{env_id}/{serv_id}/details')
 
     config.add_route('queue', '/queue')
     config.add_route('settings', '/settings')
 
     config.add_route('bambino_register', '/bambino/register')
-    # alextodo, I'd like to change this to be cleaner, tell tim to update his file
     config.add_route('bambino_ips', '/bambino/ip_addresses')
 
     return config.make_wsgi_app()

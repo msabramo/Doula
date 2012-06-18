@@ -54,11 +54,11 @@ class SiteDAL(object):
     
     @staticmethod
     def _get_deployed_app_set_key(app):
-        return '_'.join([app.site_name, app.name_url, 'deploy_tags'])
+        return '_'.join([app.env_name, app.name_url, 'deploy_tags'])
     
     @staticmethod
     def _get_deployed_app_key(app):
-        return '_'.join([app.site_name, app.name_url, 'deployed'])
+        return '_'.join([app.env_name, app.name_url, 'deployed'])
     
     @staticmethod
     def register_node(node):
@@ -137,15 +137,15 @@ class SiteDAL(object):
         all_sites = { }
         
         for site_key in SiteDAL._all_site_keys():
-            site_name = site_key.replace(SiteDAL.site_prefix, '')
-            all_sites[site_name] = SiteDAL.get_env(site_name)
+            env_name = site_key.replace(SiteDAL.site_prefix, '')
+            all_sites[env_name] = SiteDAL.get_env(env_name)
         
         return all_sites
     
     @staticmethod
-    def get_env(site_name):
+    def get_env(env_name):
         from doula.models.sites import Site
-        simple_site = SiteDAL._get_env(site_name)
+        simple_site = SiteDAL._get_env(env_name)
         return Site.build_site(simple_site)
     
     @staticmethod
