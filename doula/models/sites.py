@@ -387,7 +387,7 @@ class Package(object):
 
     def push(self, repo, remote):
         # Push changes
-        origin = repo.remotes["origin"]
+        origin = repo.remotes[remote]
         origin.pull()
         origin.push()
 
