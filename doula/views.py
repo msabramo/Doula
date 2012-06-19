@@ -3,7 +3,6 @@ import time
 import logging
 import traceback
 
-from doula.queue.release_queue import start_release_queue
 from doula.util import dumps
 from doula.util import git_dirify
 from doula.models.sites_dal import SiteDAL
