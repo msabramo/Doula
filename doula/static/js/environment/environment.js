@@ -15,19 +15,12 @@ var Env = (function() {
         $('textarea.commit').on('change', this.validateMsg);
         $('a.deploy').on('click', this.deployApplication);
     },
-
-    deployApplication: function() {
-        var service = Data.findServiceByID($(this).attr('service-id'));
-        Data.deployApplication(service);
-        
-        return false;
-    },
     
     tag: function(event) {
         var serviceID = this.id.replace('form_', '');
 
         if(serviceID == 'site') Env.tagEnv(serviceID);
-        else Env.tagApplication(serviceID);
+        else Env.tagService(serviceID);
         
         return false;
     },
@@ -40,28 +33,28 @@ var Env = (function() {
         Data.tagEnv(tag, msg);
     },
 
-    tagApplication: function(serviceID) {
+    tagService: function(serviceID) {
         var service = Data.findServiceByID(serviceID);
         var tag = $('#tag_' + service.name_url).val();
         var msg = $('#msg_' + service.name_url).val();
-
-        UI.onTagApp();
-        Data.tagApp(service, tag, msg);
+        
+        UI.onTagService(service.name_url);
+        Data.tagService(service, tag, msg);
     },
     
     validateTag: function(event) {
         if(!this.value) {
             var service = Data.findServiceByID(this.id.replace('tag_', ''));
-            Data.revertAppTag(service, '', service.msg);
-            UI.tagApp(service);
+            Data.revertServiceTag(service, '', service.msg);
+            UI.tagService(service);
         }
     },
     
     validateMsg: function() {
         if(!this.value) {
             var service = Data.findServiceByID(this.id.replace('msg_', ''));
-            Data.revertAppTag(service, service.tag, '');
-            UI.tagApp(service);
+            Data.revertServiceTag(service, service.tag, '');
+            UI.tagService(service);
       }
     }
   };

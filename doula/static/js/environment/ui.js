@@ -10,51 +10,46 @@ var UI = {
     },
 
     init: function() {
-        $('.collapse').collapse("hide");
-        
-        // If you cannot tag because of uncommitted changes
-        // bind a function that will nullify the link click
-        $('a.keyCloser').on('click', function() { return false; });
+        // If a service should be tagged, return false
+        $('a[data-toggle="do_not_collapse"]').click(
+            function() { 
+                return false; 
+        });
+
+        $('.collapse').collapse({
+            parent: '#envs-accordion',
+            toggle: false
+        });
+    },
+
+    updateTooltips: function() {
+        // Show a tooltip so that user understands that the
+        // app cannot be tagged
+        $('a[data-toggle="do_not_collapse"]').tooltip({
+            'placement': 'right'
+        });
     },
     
     // Execute before the ajax call to server
-    onTag: function() {
-        $('form input.btn')
+    onTagService: function(elID) {
+        $('#form_' + elID + ' button')
             .attr('disabled', true)
             .addClass('disabled');
     },
-    
-    deployApp: function(app) {
-        $('#deploy_' + app.name_url).hide();
-        $('#panel_' + app.name_url + ' strong').html('Deployed');
-        this.updateStatus(app.name_url);
-    },
 
-    doneTagApp: function(elID) {
-        $('#panel_' + elID).click();
-        // You can no longer tag an app after it's been tagged
-        $('#panel_' + elID).on('click', function() { return false; });
-        $('#panel_' + elID + ' strong').html('Tagged');
-        $('#panel_' + elID + ' em').hide();
-        $('#deploy_' + elID).removeClass('hide');
+    doneTagService: function(elID) {
+        $('#collapse_' + elID).collapse('hide');
+        $('#link_' + elID + ' span').attr('class', 'status-tagged');
+        $('#link_' + elID).click(UI.rtf);
+        $('#link_' + elID).attr('data-toggle', 'do_not_collapse');
 
-        this.updateStatus(elID);
+        UI.updateTooltips();
     },
 
     failedTag: function() {
-        $('form input.btn')
+        $('form button')
             .attr('disabled', false)
             .removeClass('disabled');
-    },
-    
-    updateStatus: function(elID) {
-        $('#stat_' + elID)
-            .removeClass('stat-changed stat-error stat-tagged')
-            .addClass(this.getStatClass(app));
-        
-        $('#status_' + elID)
-            .removeClass('status-changed status-error status-tagged')
-            .addClass(this.getStatusClass(app));
     },
     
     getStatusClass: function(app) {
@@ -64,6 +59,10 @@ var UI = {
     getStatClass: function(app) {
         // need to find app by name url
         return 'stat-' + this.statusClassHash[app.status];
+    },
+
+    rtf: function() {
+        return false;
     }
     
 };

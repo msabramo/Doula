@@ -3,14 +3,24 @@
 <div class="title">
   <h2>{{ env.name }}</h2>
 </div>
-<div class="accordion group" id="site-accordion">
+<div class="accordion group" id="envs-accordion">
 
   {% for key_val_pair in env.services|dictsort %}
   {% set service = key_val_pair[1] %}
 
   <div class="accordion-group">
     <div class="accordion-heading group">
-      <a id="link_{{ service.name_url }}" class="accordion-toggle accord-title" data-target="#collapse_{{ service.name_url }}" data-toggle="collapse" data-parent="#site-accordion" href="#">
+      <a id="link_{{ service.name_url }}" class="accordion-toggle accord-title" 
+      
+      {% if service.status.startswith('change_to') %}
+        title="This service cannot be tagged."
+        data-toggle="collapse" data-parent="#envs-accordion"
+      {% else %}
+        data-toggle="do_not_collapse"
+        rel="tooltip" title="This service cannot be tagged."
+      {% endif %}
+
+      href="#collapse_{{ service.name_url }}">
         <span class="{{ service.get_status()|get_status_class }}"></span>
         {{ service.name }}
       </a>
@@ -19,15 +29,15 @@
         Release Actions
       </a>
 
-      <a href="/envs/{{ env.name_url }}/{{ service.name_url }}/details" class="accord-link">
+      <a href="/envs/{{ env.name_url }}/{{ service.name_url }}/details" 
+      class="accord-link">
         Service Details
       </a>
     </div>
-    <!-- form that actually gets collapsed -->
-    <div id="collapse_{{ service.name_url }}" 
-    class="accordion-body collapse" style="height: auto; ">
+
+    <div id="collapse_{{ service.name_url }}" class="accordion-body collapse">
       <div class="accordion-inner">
-        <form class="well">
+        <form id="form_{{ service.name_url }}" class="well">
           <label>Tag</label>
           <input id="tag_{{ service.name_url }}" class="input-xlarge" type="text" />
           <span class="instruct">Last tag: <strong>{{ service.last_tag.name }}</strong></span>

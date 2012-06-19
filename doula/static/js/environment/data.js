@@ -15,26 +15,21 @@ var Data = {
         _mixin(this, AJAXUtil);
     },
     
-    tagApp: function(service, tag, tag_msg) {
+    tagService: function(service, tag, tag_msg) {
         var msg = 'Tagging ' + service.name;
-        var url = '/tag';
-        var params = {
-            'site'        : Data.name_url,
-            'service' : service.name_url,
-            'tag'         : tag,
-            'msg'         : tag_msg
-        };
+        var url = ['/envs', Data.name_url, service.name_url, 'tag'].join('/');
+        var params = { 'tag' : tag, 'msg' : tag_msg };
         
-        this.post(msg, url, params, this.doneTagApp);
+        this.post(msg, url, params, this.doneTagService);
     },
 
-    doneTagApp: function(rlst) {
+    doneTagService: function(rlst) {
         service = Data.findServiceByID(rlst.service.name_url);
         service.tag = rlst.service.last_tag_service;
         service.msg = rlst.service.msg;
         service.status = rlst.service.status;
-        
-        UI.doneTagApp(service.name_url);
+
+        UI.doneTagService(service.name_url);
     },
 
     tagEnv: function(tag, tag_msg) {
@@ -51,40 +46,17 @@ var Data = {
     },
 
     doneTagEnv: function(rslt) {
-        console.log('done tagging site');
-        console.log(rslt);
-
         Data.status = rslt.site.status;
         Data.last_tag = rslt.site.last_tag;
         
-        UI.doneTagApp('site');
+        UI.doneTagService('site');
     },
 
     failedTagEnv: function() {
         UI.failedTag();
     },
-
-    deployApplication: function(service) {
-        var msg = 'Marking service as deployed';
-        var url = '/deploy';
-        
-        var params = {
-            'site'        : Data.name_url,
-            'service' : service.name_url,
-            'token'       : Data.token,
-            'tag'         : service.last_tag_service.name
-        }
-        
-        this.post(msg, url, params, this.successfulDeployApplication);
-    },
     
-    successfulDeployApplication: function(rslt) {
-        service = Data.findServiceByID(rslt.service.name_url);
-        service.status = rslt.service.status;
-        UI.deployApp(service);
-    },
-    
-    revertAppTag: function(service, tag, msg) {
+    revertServiceTag: function(service, tag, msg) {
       service.tag = tag;
       service.msg = msg;
       service.status = service.originalStatus;

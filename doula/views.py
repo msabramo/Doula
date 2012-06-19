@@ -99,12 +99,12 @@ def service_details(request):
 @view_config(route_name='service_tag', renderer="string")
 def service_tag(request):
     try:
-        app = SiteDAL.get_service(request.POST['env_id'], request.POST['serv_id'])
+        service = SiteDAL.get_service(request.matchdict['env_id'], request.matchdict['serv_id'])
         # todo, once we have a user logged in we'll pass in the user too
         tag = git_dirify(request.POST['tag'])
-        app.tag(tag, request.POST['msg'], 'anonymous')
-
-        return dumps({'success': True, 'app': app})
+        service.tag(tag, request.POST['msg'], 'anonymous')
+        
+        return dumps({ 'success': True, 'service': service })
     except KeyError:
         msg = 'Unable to tag site and service under "{0}" and "{1}"'
         msg = msg.format(request.POST['env_id'], request.POST['serv_id'])
@@ -117,12 +117,12 @@ def service_deploy(request):
     try:
         validate_token(request)
 
-        app = SiteDAL.get_service(SiteDAL.get_master_site(), request.POST['serv_id'])
-        tag = app.get_tag_by_name(request.POST['tag'])
+        service = SiteDAL.get_service(SiteDAL.get_master_site(), request.POST['serv_id'])
+        tag = service.get_tag_by_name(request.POST['tag'])
         # todo, for now pass in the anonymous user until we start authenticating
-        app.mark_as_deployed(tag, 'anonymous')
+        service.mark_as_deployed(tag, 'anonymous')
 
-        return dumps({'success': True, 'app': app})
+        return dumps({'success': True, 'service': service})
     except Exception as e:
         msg = 'Unable to deploy service. Error: "{0}"'
         msg = msg.format(e.message)

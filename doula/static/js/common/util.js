@@ -65,30 +65,24 @@ var DataEventManager = {
 // get or post for this application
 var AJAXUtil = {
     
-    post: function(url, params, onDone, onFail) {
-        this._send('POST', url, params, onDone, onFail);
+    post: function(msg, url, params, onDone, onFail) {
+        this._send(msg, 'POST', url, params, onDone, onFail);
     },
     
-    get: function(url, params, onDone, onFail) {
-        this._send('GET', url, params, onDone, onFail);
+    get: function(msg, url, params, onDone, onFail) {
+        this._send(msg, 'GET', url, params, onDone, onFail);
     },
     
-    delete: function(url, params, onDone, onFail) {
-        this._send('DELETE', url, params, onDone, onFail);
-    },
-    
-    _send: function(type, url, params, onDone, onFail) {
+    _send: function(msg, type, url, params, onDone, onFail) {
+        $('#progress_bar').show();
         onDone = _bind(onDone, this);
-        token = $('meta[name="csrf-token"]').attr('content');
         
         $.ajax({
               url: url,
               type: type,
               data: this._getDataValues(params),
-              headers: {
-                  'X-CSRF-Token': token
-              },
               success: function(rslt) {
+                $('#progress_bar').hide();
                   var rslt = (typeof(rslt) == 'string') ? $.parseJSON(rslt) : rslt;
                   
                   if(rslt.success) {
@@ -119,14 +113,8 @@ var AJAXUtil = {
     },
     
     _showStandardErrorMessage: function(rslt) {
-        var msg = "Errors \n\n";
-        
-        for(var type in rslt.errors) {
-            for(var i = 0; i < rslt.errors[type].length; i++) {
-                msg += rslt.errors[type][i] + "\n";
-            }
-        }
-        
-        alert(msg);
+        // alextodo, show standard error message too
+        // no modals
+        alert(rslt.msg);
     }
 }
