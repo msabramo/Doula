@@ -48,26 +48,26 @@ class Site(object):
             'change_to_app_and_config': 3,
             'uncommitted_changes'     : 4
         }
-        
+
         for app_name, app in self.services.iteritems():
             app_status_value = status_values[app.get_status()]
-            
+
             if app_status_value > status_value:
                 status_value = app_status_value
                 self.status = app.get_status()
-        
+
         return self.status
     def get_logs(self):
         all_logs = [ ]
 
         for app_name, app in self.services.iteritems():
             all_logs.extend(app.get_logs())
-        
+
         return all_logs
 
     def tag(self, tag_history_path, tag_history_remote, tag, msg, user):
         # alextodo, need to move this logic into the site object
-        # alextodo, figure out the output.log file, where should 
+        # alextodo, figure out the output.log file, where should
         # it actually go? will you read it?
         # create a global config object. this will also allow me to test. config[]
         sth = SiteTagHistory(tag_history_path, tag_history_remote, self.name_url, 'output.log')
@@ -84,9 +84,9 @@ class Site(object):
         site = Site(simple_site['name'])
         site.nodes = Site._build_nodes(simple_site['nodes'])
         site.services = Site._get_combined_services(site.nodes)
-        
+
         return site
-    
+
     @staticmethod
     def _build_nodes(simple_nodes):
         """
@@ -95,27 +95,27 @@ class Site(object):
         And builds Node objects
         """
         nodes = { }
-        
+
         for name,n in simple_nodes.iteritems():
             node = Node(name, n['site'], n['url'])
             node.load_services()
             nodes[name] = node
-        
+
         return nodes
-    
+
     @staticmethod
     def _get_combined_services(nodes):
         """
-        Takes the nodes (contains actual Node objects) and 
-        builds the services as a combined list of their 
+        Takes the nodes (contains actual Node objects) and
+        builds the services as a combined list of their
         services for the entire site.
         """
         combined_services = { }
-        
+
         for k, node in nodes.iteritems():
             for app_name, app in node.services.iteritems():
                 combined_services[app_name] = app
-        
+
         return combined_services
 
 class Node(object):
@@ -126,7 +126,7 @@ class Node(object):
         self.url = url
         self.services = services
         self.errors = [ ]
-    
+
     def load_services(self):
         """
         Update the services
@@ -134,16 +134,16 @@ class Node(object):
         try:
             self.errors = [ ]
             self.services = { }
-            
+
             r = requests.get(self.url + '/services')
             # If the response is non 200, we raise an error
             r.raise_for_status()
             rslt = json.loads(r.text)
-            
+
             for app in rslt['services']:
                 a = Application.build_app(self.env_name, self.name, self.url, app)
                 self.services[a.name_url] = a
-            
+
         except requests.exceptions.ConnectionError as e:
             msg = 'Unable to contact node {0} at URL {1}'.format(self.name, self.url)
             log.error(msg)
@@ -152,9 +152,9 @@ class Node(object):
             msg = 'Unable to load services. Error: {0}'.format(e.message)
             log.error(msg)
             self.errors.append(msg)
-        
+
         return self.services
-    
+
 
 class Application(object):
     def __init__(self, name, env_name, node_name, url,
@@ -168,20 +168,20 @@ class Application(object):
         self.node_name = node_name
         self.name_url = dirify(name)
         self.url = url
-        
+
         self.current_branch_app = current_branch_app
         self.current_branch_config = current_branch_config
-        
+
         self.change_count_app = change_count_app
         self.change_count_config = change_count_config
-        
+
         self.is_dirty_app = is_dirty_app
         self.is_dirty_config = is_dirty_config
-        
+
         self.last_tag_app = last_tag_app
         self.last_tag_config = last_tag_config
         self.last_tag_message = last_tag_message
-        
+
         self.status = status
         self.remote = remote
         self.packages = packages
@@ -213,11 +213,11 @@ class Application(object):
     def add_packages(self, pckgs):
         for name, pckg in pckgs.iteritems():
             self.packages.append(Package(pckg['name'], pckg['version']))
-    
+
     def add_tags_from_dict(self, tags_as_dicts):
         for tag in tags_as_dicts:
             self.tags.append(Tag(tag['name'], tag['date'], tag['message']))
-        
+
         self._update_last_tag()
 
     def get_compare_url(self):
@@ -234,15 +234,15 @@ class Application(object):
         else:
             # parses git@code.corp.surveymonkey.com:tbone/anweb-1.git type remote
             m = re.search(r'@([\w\.]+):([\w\d]+)\/([\w\d]+)', self.remote)
-        
+
         compare_url = ''
-        
+
         if m:
             compare_url = 'http://' + m.group(1) + '/' + m.group(2) + '/' + self.name
             compare_url+= '/compare/' + self.last_tag.name + '...' + self.current_branch_app
-        
+
         return compare_url
-    
+
     def tag(self, tag, msg, user):
         """
         Tag the current service
@@ -255,43 +255,43 @@ class Application(object):
         self.tag = tag
         self.msg = msg
         self.status = 'tagged'
-        
+
         audit = Audit()
         audit.log_action(self.env_name, self.name, 'tag', user)
-    
+
     def _update_last_tag(self):
         self.last_tag_app = self.last_tag
         self.last_tag_config = self.last_tag
-    
+
     @property
     def last_tag(self):
         # Initialize an empty tag if it doesn't tag exist
         latest_tag = Tag('', '', '')
         latest_tag_date = 0
-        
+
         for tag in self.tags:
             if tag.date > latest_tag_date:
                 latest_tag = tag
                 latest_tag_date = tag.date
-        
+
         return latest_tag
-    
+
     def get_status(self):
         if self.status == 'tagged' and SiteDAL.is_deployed(self, self.last_tag):
             return 'deployed'
         else:
             return self.status
-    
+
     def mark_as_deployed(self, tag, user):
         """
         Mark an service as deployed
         """
         self.status = 'deployed'
         SiteDAL.save_service_as_deployed(self, tag)
-        
+
         audit = Audit()
         audit.log_action(self.env_name, self.name, 'deploy', user)
-    
+
     def get_logs(self):
         audit = Audit()
         app_logs = audit.get_app_logs(self.env_name, self.name)
@@ -305,17 +305,17 @@ class Application(object):
         for tag in self.tags:
             if tag.name == name:
                 return tag
-        
+
         return False
-    
+
     def freeze_requirements(self):
         reqs = ''
-        
+
         self.packages.sort(key = operator.attrgetter('name'))
-        
+
         for pckg in self.packages:
             reqs += pckg.name + '==' + pckg.version + "\n"
-        
+
         return reqs
 
 class Package(object):
@@ -334,4 +334,4 @@ class Tag(object):
         self.name = name
         self.date = date
         self.message = message
-    
+
