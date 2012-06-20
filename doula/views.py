@@ -66,7 +66,7 @@ def environment_tag(request):
 
 # SERVICE VIEWS
 
-@view_config(route_name='service', renderer="services/index.html")
+@view_config(route_name='service', renderer="services/release_actions.html")
 def service(request):
     try:
         env = get_env(request.matchdict['env_id'])

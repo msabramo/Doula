@@ -1,7 +1,7 @@
 {% extends 'layouts/base.html' %}
 {% block content %}
 <div class="title">
-	<h2>{{ service.name.capitalize() }} on {{ env.name.capitalize() }}</h2>
+	<h2>{{ service.name }} on {{ env.name|upper }}</h2>
 </div>
 <div>
 <div class="well">
@@ -99,5 +99,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script language="javascript" type="text/javascript" src="/js/appenvs/appenvs.js"></script>
+<script language="javascript" type="text/javascript" src="/js/services/appenvs.js"></script>
 {% endblock %}

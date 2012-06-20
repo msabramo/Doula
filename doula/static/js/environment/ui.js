@@ -20,6 +20,8 @@ var UI = {
             parent: '#envs-accordion',
             toggle: false
         });
+
+        this.updateTooltips();
     },
 
     updateTooltips: function() {

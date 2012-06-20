@@ -9,7 +9,7 @@
 	  <li>
 			<a href="/envs/{{ env.name_url }}">
 	    	<span class="{{ env.get_status()|get_status_class }}"></span>
-	    	<strong>{{ env.name }}</strong>
+	    	<strong>{{ env.name|upper }}</strong>
 	  	</a>
 		</li>
 	  {% endfor %}
