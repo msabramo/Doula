@@ -22,4 +22,8 @@ class QueueTests(unittest.TestCase):
 
     def test_this(self):
         q = Queue()
-        q.this('doula.tests.test_queue:slow_function', num=100000000)
+        q.this('add',
+               'MT1',
+               'DummyCode',
+               'doula.tests.test_queue:slow_function',
+               num=100000000)
