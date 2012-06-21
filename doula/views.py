@@ -27,7 +27,10 @@ def show_envs(request):
     """
     Show the testing environments in SM environment
     """
-    return { 'envs': SiteDAL.get_environments() }
+    return { 
+        'envs': SiteDAL.get_environments(),
+        'config': Config
+        }
 
 
 @view_config(route_name='environment', renderer="envs/environment.html")
@@ -37,7 +40,8 @@ def environment(request):
     return {
         'env': env, 
         'env_json': dumps(env), 
-        'token': Config.get('token') 
+        'token': Config.get('token'),
+        'config': Config
         }
 
 @view_config(route_name='environment_tag', renderer="string")
@@ -78,7 +82,7 @@ def service(request):
 
         raise HTTPNotFound(msg)
 
-    return { 'env': env, 'service': service }
+    return { 'env': env, 'service': service, 'config': Config }
 
 
 @view_config(route_name='service_details', renderer="services/service_details.html")
@@ -93,7 +97,7 @@ def service_details(request):
 
         raise HTTPNotFound(msg)
 
-    return { 'env': env, 'service': service }
+    return { 'env': env, 'service': service, 'config': Config }
 
 @view_config(route_name='service_tag', renderer="string")
 def service_tag(request):
@@ -159,12 +163,12 @@ def service_freeze(request):
 # QUEUE VIEWS
 @view_config(route_name='queue', renderer='queue/index.html')
 def show_queue(request):
-    return {}
+    return { 'config': Config }
 
 # SETTINGS VIEWS
 @view_config(route_name='settings', renderer='settings/index.html')
 def show_settings(request):
-    return {}
+    return { 'config': Config }
 
 # BAMBINO VIEWS
 @view_config(route_name='bambino_register', renderer='json')
@@ -202,7 +206,7 @@ def bambino_ips(request):
 def not_found(self, request):
     request.response.status = 404
 
-    return { 'msg': request.exception.message }
+    return { 'msg': request.exception.message, 'config': Config }
 
 @subscriber(ApplicationCreated)
 def load_config(event):

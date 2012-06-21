@@ -4,15 +4,18 @@
             <div class="container">
                 <a class="brand" href="/">Doula</a>
                 <ul class="nav">
-                    {% set path = request.path %}
+                    {% set path = req.path %}
                     <li {% if path.startswith('/envs') or path == "/" %} 
                     class="active" {% endif %}>
                         <a href="/envs">Environments</a>
                     </li>
+                    {% if config.get('dev_env') != 'prod' %}
                     <li {% if path.startswith('/queue') %} class="active" {% endif %}>
                         <a href="/queue">Queue</a>
                     </li>
+                    {% endif %}
                 </ul>
+                {% if config.get('dev_env') != 'prod' %}
                 <ul class="nav pull-right">
                     <li>
                         <a href="/settings" class="dropdown-toggle" data-toggle="dropdown">
@@ -21,6 +24,7 @@
                         </a>
                     </li>
                 </ul>
+                {% endif %}
             </div>
         </div>
     </div>

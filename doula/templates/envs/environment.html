@@ -25,10 +25,11 @@
         {{ service.name }}
       </a>
 
+      {% if config.get('dev_env') != 'prod' %}
       <a href="/envs/{{ env.name_url }}/{{ service.name_url }}" class="accord-link">
         Release Actions
       </a>
-
+      {% endif %}
       <a href="/envs/{{ env.name_url }}/{{ service.name_url }}/details" 
       class="accord-link">
         Service Details
