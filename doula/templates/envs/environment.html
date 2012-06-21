@@ -13,11 +13,15 @@
       <a id="link_{{ service.name_url }}" class="accordion-toggle accord-title" 
       
       {% if service.status.startswith('change_to') %}
-        title="This service cannot be tagged."
+        title="{{ service.name }} has already been tagged ({{ service.last_tag.name }})"
         data-toggle="collapse" data-parent="#envs-accordion"
       {% else %}
-        data-toggle="do_not_collapse"
-        rel="tooltip" title="This service cannot be tagged."
+        data-toggle="do_not_collapse" rel="tooltip" 
+        {% if service.status == 'tagged' %}
+          title="{{ service.name }} has already been tagged ({{ service.last_tag.name }})"
+        {% elif service.status == 'uncommitted_changes' %}
+          title="{{ service.name }} has uncommitted changes. See the details for what's been changed."
+        {% endif %}
       {% endif %}
 
       href="#collapse_{{ service.name_url }}">
@@ -40,7 +44,7 @@
       <div class="accordion-inner">
         <form id="form_{{ service.name_url }}" class="well">
           <label>Tag</label>
-          <input id="tag_{{ service.name_url }}" class="input-xlarge" type="text" />
+          <input id="tag_{{ service.name_url }}" value="{{ service.next_version() }}" class="input-xlarge" type="text" />
           <span class="instruct">Last tag: <strong>{{ service.last_tag.name }}</strong></span>
           <label>Commit Message:</label>
           <textarea class="input-xlarge" id="msg_{{ service.name_url }}" cols="40" rows="5" required placeholder="Don’t make something unless it is both necessary and useful; but if it is both necessary and useful, don’t hesitate to make it beautiful."></textarea>

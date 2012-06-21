@@ -3,9 +3,11 @@ import re
 import requests
 import logging
 import operator
+import traceback
 
 from doula.util import dirify
 from doula.util import dumps
+from doula.util import is_number
 from doula.models.audit import Audit
 from doula.models.sites_dal import SiteDAL
 from doula.models.site_tag_history import SiteTagHistory
@@ -151,6 +153,10 @@ class Node(object):
         except Exception as e:
             msg = 'Unable to load services. Error: {0}'.format(e.message)
             log.error(msg)
+            tb = traceback.format_exc()
+            print 'TRACEBACK'
+            print tb
+
             self.errors.append(msg)
         
         return self.services
@@ -187,6 +193,7 @@ class Application(object):
         self.packages = packages
         self.changed_files = changed_files
         self.tags = tags
+
     @staticmethod
     def build_app(env_name, node_name, url, app):
         """Build an service object from the app dictionary"""
@@ -207,6 +214,7 @@ class Application(object):
         a.packages = [ ]
         a.add_packages(app['packages'])
         a.add_tags_from_dict(app['tags'])
+        a.last_tag = a.get_last_tag()
 
         return a
 
@@ -260,11 +268,10 @@ class Application(object):
         audit.log_action(self.env_name, self.name, 'tag', user)
     
     def _update_last_tag(self):
-        self.last_tag_app = self.last_tag
-        self.last_tag_config = self.last_tag
+        self.last_tag_app = self.get_last_tag()
+        self.last_tag_config = self.get_last_tag()
     
-    @property
-    def last_tag(self):
+    def get_last_tag(self):
         # Initialize an empty tag if it doesn't tag exist
         latest_tag = Tag('', '', '')
         latest_tag_date = 0
@@ -274,6 +281,9 @@ class Application(object):
                 latest_tag = tag
                 latest_tag_date = tag.date
         
+        print 'LATEST TAG'
+        print latest_tag
+
         return latest_tag
     
     def get_status(self):
@@ -300,6 +310,27 @@ class Application(object):
             log['service'] = self.name
 
         return app_logs
+
+    def next_version(self):
+        """
+        Get the next logical version. 
+        i.e. 0.2.4 -> 0.2.5
+        """
+        next_version = ''
+        rslts = re.split(r'(\d+)', self.last_tag.name)
+        rslts.reverse()
+        found_digit = False
+
+        for rslt in rslts:
+            if found_digit is False and is_number(rslt):
+                found_digit = True
+                part = int(rslt) + 1
+            else:
+                part = rslt
+            
+            next_version = str(part) + next_version
+
+        return next_version
 
     def get_tag_by_name(self, name):
         for tag in self.tags:

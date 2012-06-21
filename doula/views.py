@@ -27,14 +27,21 @@ def show_envs(request):
     """
     Show the testing environments in SM environment
     """
-    return { 
-        'envs': SiteDAL.get_environments(),
-        'config': Config
-        }
+    try:
+        env = SiteDAL.get_environments()
+    except Exception as e:
+        # alextodo, centralize this ish, clean up our fucking code. look at
+        # create web so that we can learn how to handle error messages
+        # correctly. fuck me.
+        tb = traceback.format_exc()
+        msg = 'Error: {0}'.format(e.message)
+
+    return { 'envs': env, 'config': Config }
 
 
 @view_config(route_name='environment', renderer="envs/environment.html")
 def environment(request):
+    # alextodo, make it work for everything and report errors properly
     env = get_env(request.matchdict['env_id'])
 
     return {
@@ -66,6 +73,7 @@ def environment_tag(request):
         print tb
         msg = 'Error: {0}'.format(e.message)
 
+        # alextodo, common json rendering, set mime type
         return dumps({'success': False, 'msg': msg})
 
 # SERVICE VIEWS
@@ -106,8 +114,11 @@ def service_tag(request):
         # todo, once we have a user logged in we'll pass in the user too
         tag = git_dirify(request.POST['tag'])
         service.tag(tag, request.POST['msg'], 'anonymous')
-        
-        return dumps({ 'success': True, 'service': service })
+
+        # pull the updated service
+        updated_service = SiteDAL.get_service(request.matchdict['env_id'], request.matchdict['serv_id'])
+
+        return dumps({ 'success': True, 'service': updated_service })
     except KeyError:
         msg = 'Unable to tag site and service under "{0}" and "{1}"'
         msg = msg.format(request.POST['env_id'], request.POST['serv_id'])

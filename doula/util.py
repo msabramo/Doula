@@ -46,3 +46,10 @@ def dumps(obj):
 
 def pprint(obj):
     pretty_print(dumps(obj))
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False

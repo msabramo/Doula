@@ -24,12 +24,8 @@ var Data = {
     },
 
     doneTagService: function(rlst) {
-        service = Data.findServiceByID(rlst.service.name_url);
-        service.tag = rlst.service.last_tag_service;
-        service.msg = rlst.service.msg;
-        service.status = rlst.service.status;
-
-        UI.doneTagService(service.name_url);
+        this.services[rlst.service.name_url] = rlst.service;
+        UI.doneTagService(rlst.service);
     },
 
     tagEnv: function(tag, tag_msg) {
