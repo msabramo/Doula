@@ -2,74 +2,113 @@ import json
 from retools.queue import QueueManager
 
 
-def get_queue_name(job):
-    queue_name_parts = job.queue_name.split(":")
-    return queue_name_parts[0]
+common_dict = {
+    'id': 0,
+    'status': '',
+    'job_type': '',
+    'site': '',
+    'service': '',
+    'time_started': 0,
+    'log_file': ''
+}
+
+push_to_cheeseprism_dict = dict({
+    'remote': '',
+    'branch': '',
+    'version': ''
+}.items() + common_dict.items())
+
+cycle_services_dict = dict({}.items() + common_dict.items())
 
 
-def pop_job(r, key, job_id):
-    for job in r.smembers(key):
-        job = json.loads(job)
-        if job['id'] == job_id:
-            r.srem(key, json.dumps(job))
-            return job
-    return None
+class Queue(object):
+    """
+    This class represents all of Doula's interaction with the queueing
+    engine.  The common link between Doula and this class is the
+    "Job" dict.  This "Job" dict is of the following format:
 
-
-def add_job(job=None):
-    p = job.redis.pipeline()
-    queue_name = get_queue_name(job)
-    key = "doula:" + queue_name + ":jobs"
-
-    value = {
-        'id': job.job_id,
-        'status': 'queued',
-        'job_type': job.kwargs['_type'],
-        'site': job.kwargs['site'],
-        'service': job.kwargs['service']
+    Common for every job:
+    {
+        id: "",
+        status: (queued, completed, failed),
+        job_type: (push_package|cycle_service)
+        site: '',
+        service: '',
+        time_started: '',
+        log_file: 'path to log file to write to'
     }
 
-    p.sadd(key, json.dumps(value))
-    p.execute()
+    Push to Cheese Prism
+    {
+        remote: '', (origin to pull from)
+        branch: '', (the branch to pull from)
+        version: '', (the version of the package we want to create on cheeseprism)
+    }
+
+    Cycle Services
+    {
+
+    }
+
+    API:
+    ----
+    Queue.this(dict)
+    - Accepts a "Job" dict, determines the correct job function, and enqueues the job
+      function
+
+    Queue.get(dict)
+    - Accepts a "Job" dict, queries redis to obtain all of the related jobs, and always
+      returns an array of jobs.
+
+    """
+    def __init__(self):
+        self.qm = QueueManager()
+        self.qm.subscriber('job_postrun', handler='doula.queue:add_result')
+        self.qm.subscriber('job_failure', handler='doula.queue:add_failure')
+
+    def this(self, job_dict):
+        self.qm.enqueue('doula.jobs:push_to_cheeseprism', job_dict=job_dict)
+
+    def get(self, job_dict):
+        pass
 
 
-def add_status(status, job=None, result=None, exc=None):
+def keys(job=None):
+    """
+    Returns the standard keys for interacting with redis.
+    """
+    queue_name_parts = job.queue_name.split(":")
+    queue_name = queue_name_parts[0]
+
+    return {
+        'jobs': 'doula:jobs:' + queue_name
+    }
+
+
+def attrs(job, attrs):
+    """
+    Given a job and the attributes to change on it, saves our "Job" dict
+    """
+    k = keys(job)
     p = job.redis.pipeline()
-    queue_name = get_queue_name(job)
-    key = "doula:" + queue_name + ":jobs"
 
-    job = pop_job(job.redis, key, job.job_id)
-    job['status'] = status
+    job_dict = job.kwargs['job_dict']
+    for k, v in attrs:
+        job_dict[k] = v
 
-    p.lpush(key, json.dumps(job))
+    p.sadd(k['jobs'], json.dumps(job_dict))
     p.execute()
 
 
 def add_result(job=None, result=None):
-    add_status('completed', job=job, result=None)
+    """
+    Subscriber that gets called right after the job gets run, and is successful.
+    """
+    attrs(job, {'status': 'complete'})
 
 
 def add_failure(job=None, exc=None):
-    add_status('failed', job=job, exc=None)
-
-
-class Queue(object):
-
-    def __init__(self):
-        self.qm = QueueManager()
-        self.qm.subscriber('job_prerun', handler='doula.queue:add_job')
-        self.qm.subscriber('job_postrun', handler='doula.queue:add_result')
-        self.qm.subscriber('job_failure', handler='doula.queue:add_failure')
-
-    def this(self, _type, site, service, job, **kwargs):
-        if _type and site and service:
-            self.qm.enqueue(job,
-                            _type=_type,
-                            site=site,
-                            service=service,
-                            **kwargs)
-        else:
-            raise Exception
-
-    def get(self, site, service):
-        pass
+    """
+    Subscriber that gets called when a job fails.
+    """
+    attrs(job, {'status': 'failed'})
