@@ -25,7 +25,7 @@ def add_job(job=None):
         'id': job.job_id,
         'status': 'queued',
         'job_type': job.kwargs['_type'],
-        'env': job.kwargs['env'],
+        'site': job.kwargs['site'],
         'service': job.kwargs['service']
     }
 
@@ -61,15 +61,15 @@ class Queue(object):
         self.qm.subscriber('job_postrun', handler='doula.queue:add_result')
         self.qm.subscriber('job_failure', handler='doula.queue:add_failure')
 
-    def this(self, _type, env, service, job, **kwargs):
-        if _type and env and service:
+    def this(self, _type, site, service, job, **kwargs):
+        if _type and site and service:
             self.qm.enqueue(job,
                             _type=_type,
-                            env=env,
+                            site=site,
                             service=service,
                             **kwargs)
         else:
             raise Exception
 
-    def get(self, env, service):
+    def get(self, site, service):
         pass
