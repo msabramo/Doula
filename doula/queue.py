@@ -8,11 +8,12 @@ def get_queue_name(job):
 
 
 def pop_job(r, key, job_id):
-    for j in r.smembers(key):
-        j = json.loads(j)
-        if r.id == job_id:
-            r.srem(key, json.dumps(r))
-            return r
+    for job in r.smembers(key):
+        job = json.loads(job)
+        if job['id'] == job_id:
+            r.srem(key, json.dumps(job))
+            return job
+    return None
 
 
 def add_job(job=None):
@@ -29,6 +30,7 @@ def add_job(job=None):
     }
 
     p.sadd(key, json.dumps(value))
+    p.execute()
 
 
 def add_status(status, job=None, result=None, exc=None):
@@ -37,9 +39,10 @@ def add_status(status, job=None, result=None, exc=None):
     key = "doula:" + queue_name + ":jobs"
 
     job = pop_job(job.redis, key, job.job_id)
-    job.status = status
+    job['status'] = status
 
     p.lpush(key, json.dumps(job))
+    p.execute()
 
 
 def add_result(job=None, result=None):
