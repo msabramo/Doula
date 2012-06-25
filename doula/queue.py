@@ -149,17 +149,16 @@ class Queue(object):
         self.qm.subscriber('job_failure', handler='doula.queue:add_failure')
 
     def this(self, job_dict):
-        id = None
         job_type = job_dict['job_type']
 
         if job_type is 'push_to_cheeseprism':
-            id = self.qm.enqueue('doula.jobs:push_to_cheeseprism')
+            func = 'doula.jobs:push_to_cheeseprism'
         elif job_type is 'cycle_services':
-            id = self.qm.enqueue('doula.jobs:cycle_services')
+            func = 'doula.jobs:cycle_services'
 
-        job_dict['id'] = id
+        job_dict['id'] = self.qm.enqueue(func)
         save(job_dict)
-        return id
+        return job_dict['id']
 
     def get(self, job_dict):
         jobs = get_jobs(default_queue_name)
