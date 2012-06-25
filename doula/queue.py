@@ -102,20 +102,6 @@ def update(attrs):
     p.execute()
 
 
-def add_result(job=None, result=None):
-    """
-    Subscriber that gets called right after the job gets run, and is successful.
-    """
-    update({'id': job.job_id, 'status': 'complete'})
-
-
-def add_failure(job=None, exc=None):
-    """
-    Subscriber that gets called when a job fails.
-    """
-    update({'id': job.job_id, 'status': 'failed'})
-
-
 class Queue(object):
     """
     This class represents all of Doula's interaction with the queueing
@@ -179,14 +165,29 @@ class Queue(object):
         jobs = get_jobs(default_queue_name)
 
         # Loop through each criteria, throw out the jobs that don't meet
-        for k, v in job_dict.items():
-            i = 0
-            for job in jobs:
+        for job in jobs:
+            for k, v in job_dict.items():
                 try:
                     if job[k] != v:
-                        jobs.pop(i)
+                        jobs.remove(job)
                 except KeyError:
                     continue
-                i += 1
 
         return jobs
+
+
+#
+# Retools Subscribers
+#
+def add_result(job=None, result=None):
+    """
+    Subscriber that gets called right after the job gets run, and is successful.
+    """
+    update({'id': job.job_id, 'status': 'complete'})
+
+
+def add_failure(job=None, exc=None):
+    """
+    Subscriber that gets called when a job fails.
+    """
+    update({'id': job.job_id, 'status': 'failed'})
