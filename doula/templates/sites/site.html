@@ -1,21 +1,19 @@
 {% extends 'layouts/base.html' %}
 {% block content %}
 <div class="title">
-  <h2>{{ env.name|upper }}</h2>
+  <h2>{{ site.name|upper }}</h2>
 </div>
-<div class="accordion group" id="envs-accordion">
+<div class="accordion group" id="sites-accordion">
 
-  {% for key_val_pair in env.services|dictsort %}
+  {% for key_val_pair in site.services|dictsort %}
   {% set service = key_val_pair[1] %}
 
   <div class="accordion-group">
     <div class="accordion-heading group">
-      <!-- -->
-      <a id="link_{{ service.name_url }}" class="accordion-toggle accord-title" 
-      
+      <a id="link_{{ service.name_url }}" class="accordion-toggle accord-title"
       {% if service.status.startswith('change_to') %}
         title="{{ service.name }} has already been tagged ({{ service.last_tag.name }})"
-        data-toggle="collapse" data-parent="#envs-accordion"
+        data-toggle="collapse" data-parent="#sites-accordion"
       {% else %}
         data-toggle="do_not_collapse" rel="tooltip" 
         {% if service.status == 'tagged' %}
@@ -30,12 +28,12 @@
         {{ service.name }}
       </a>
 
-      {% if config.get('dev_env') != 'prod' %}
-      <a href="/envs/{{ env.name_url }}/{{ service.name_url }}" class="accord-link">
+      {% if config.get('env') != 'prod' %}
+      <a href="/sites/{{ site.name_url }}/{{ service.name_url }}" class="accord-link">
         Release Actions
       </a>
       {% endif %}
-      <a href="/envs/{{ env.name_url }}/{{ service.name_url }}/details" 
+      <a href="/sites/{{ site.name_url }}/{{ service.name_url }}/details" 
       class="accord-link">
         Service Details
       </a>
@@ -57,19 +55,19 @@
       </div>
     </div>
   </div>
-  <!-- end of individual  env -->
+  <!-- end of individual site -->
   {% endfor %}
 </div>
 <script>
-  var __env = {{ env_json|safe }};
+  var __site = {{ site_json|safe }};
   var __token = "{{ token|safe }}";
 </script>
 {% endblock %}
 {% block scripts %}
 {{ [
 '/js/common/util.js',
-'/js/environment/data.js',
-'/js/environment/ui.js',
-'/js/environment/environment.js'
+'/js/site/data.js',
+'/js/site/ui.js',
+'/js/site/site.js'
 ]|js_script|safe }}
 {% endblock %}

@@ -17,7 +17,7 @@ var UI = {
         });
 
         $('.collapse').collapse({
-            parent: '#envs-accordion',
+            parent: '#sites-accordion',
             toggle: false
         });
 

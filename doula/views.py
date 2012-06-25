@@ -1,3 +1,4 @@
+import os
 import json
 import time
 import logging
@@ -9,6 +10,7 @@ from doula.util import to_log_msg
 from doula.models.sites_dal import SiteDAL
 from doula.config import Config
 
+from pyramid.response import FileResponse
 from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPNotFound
@@ -19,50 +21,50 @@ from git import GitCommandError
 
 log = logging.getLogger('doula')
 
-# ENVIRONMENT VIEWS
-@view_config(route_name='home', renderer='envs/index.html')
+# SITE VIEWS
+@view_config(route_name='home', renderer='sites/index.html')
 def show_home(request):
-    return show_envs(request)
+    return show_sites(request)
 
-@view_config(route_name='envs', renderer='envs/index.html')
-def show_envs(request):
+@view_config(route_name='sites', renderer='sites/index.html')
+def show_sites(request):
     """
-    Show the testing environments in SM environment
+    Show the testing sites
     """
     try:
-        env = SiteDAL.get_environments()
+        sites = SiteDAL.get_sites()
     except Exception as e:
         return handle_exception(e, request)
 
-    return { 'envs': env, 'config': Config }
+    return { 'sites': sites, 'config': Config }
 
-@view_config(route_name='environment', renderer="envs/environment.html")
-def environment(request):
+@view_config(route_name='site', renderer="sites/site.html")
+def site(request):
     try:
-        env = get_env(request.matchdict['env_id'])
+        site = get_site(request.matchdict['site_id'])
     except Exception as e:
         return handle_exception(e, request)
 
     return {
-        'env': env, 
-        'env_json': dumps(env), 
+        'site': site, 
+        'site_json': dumps(site), 
         'token': Config.get('token'),
         'config': Config
         }
 
-@view_config(route_name='environment_tag', renderer="string")
-def environment_tag(request):
+@view_config(route_name='site_tag', renderer="string")
+def site_tag(request):
     try:
         tag_history_path = Config.get('tag_history_path')
         tag_history_remote = Config.get('tag_history_remote')
         tag = git_dirify(request.POST['tag'])
         msg = request.POST['msg']
 
-        site = get_env(request.POST['env_id'])
+        site = get_site(request.POST['site_id'])
         # once we have user from ldap, pass that in
         site.tag(tag_history_path, tag_history_remote, tag, msg, 'anonymous')
 
-        return dumps({'success': True, 'env_id': site})
+        return dumps({'success': True, 'site_id': site})
     except GitCommandError as e:
         msg = "Git error: {0}." .format(str(e.stderr))
         return handle_json_exception(e, msg, request)
@@ -76,46 +78,46 @@ def environment_tag(request):
 @view_config(route_name='service', renderer="services/release_actions.html")
 def service(request):
     try:
-        env = get_env(request.matchdict['env_id'])
-        service = env.services[request.matchdict['serv_id']]
+        site = get_site(request.matchdict['site_id'])
+        service = site.services[request.matchdict['serv_id']]
     except Exception:
         msg = 'Unable to find site and service under "{0}" and "{1}"'
-        msg = msg.format(request.matchdict['env_id'], request.matchdict['serv_id'])
+        msg = msg.format(request.matchdict['site_id'], request.matchdict['serv_id'])
 
         raise HTTPNotFound(msg)
 
-    return { 'env': env, 'service': service, 'config': Config }
+    return { 'site': site, 'service': service, 'config': Config }
 
 
 @view_config(route_name='service_details', renderer="services/service_details.html")
 def service_details(request):
     try:
-        env = get_env(request.matchdict['env_id'])
-        service = env.services[request.matchdict['serv_id']]
+        site = get_site(request.matchdict['site_id'])
+        service = site.services[request.matchdict['serv_id']]
         
     except Exception:
         msg = 'Unable to find site and service under "{0}" and "{1}"'
-        msg = msg.format(request.matchdict['env_id'], request.matchdict['serv_id'])
+        msg = msg.format(request.matchdict['site_id'], request.matchdict['serv_id'])
 
         raise HTTPNotFound(msg)
 
-    return { 'env': env, 'service': service, 'config': Config }
+    return { 'site': site, 'service': service, 'config': Config }
 
 @view_config(route_name='service_tag', renderer="string")
 def service_tag(request):
     try:
-        service = SiteDAL.get_service(request.matchdict['env_id'], request.matchdict['serv_id'])
+        service = SiteDAL.get_service(request.matchdict['site_id'], request.matchdict['serv_id'])
         # todo, once we have a user logged in we'll pass in the user too
         tag = git_dirify(request.POST['tag'])
         service.tag(tag, request.POST['msg'], 'anonymous')
 
         # pull the updated service
-        updated_service = SiteDAL.get_service(request.matchdict['env_id'], request.matchdict['serv_id'])
+        updated_service = SiteDAL.get_service(request.matchdict['site_id'], request.matchdict['serv_id'])
 
         return dumps({ 'success': True, 'service': updated_service })
     except Exception as e:
         msg = 'Unable to tag site and service under "{0}" and "{1}"'
-        msg = msg.format(request.POST['env_id'], request.POST['serv_id'])
+        msg = msg.format(request.POST['site_id'], request.POST['serv_id'])
         return handle_json_exception(e, msg, request)
 
 
@@ -140,23 +142,23 @@ def validate_token(request):
     if(request.POST['token'] != Config.get('token')):
         raise Exception("Invalid security token")
 
-def get_env(env_name):
-    env = SiteDAL.get_env(env_name)
+def get_site(site_name):
+    site = SiteDAL.get_site(site_name)
 
-    if not env:
-        msg = 'Unable to find env "{0}"'.format(env_name)
+    if not site:
+        msg = 'Unable to find site "{0}"'.format(site_name)
         raise HTTPNotFound(msg)
 
-    return env
+    return site
 
 @view_config(route_name="service_freeze")
 def service_freeze(request):
     try:
-        env = get_env(request.matchdict['env_id'])
-        service = env.services[request.matchdict['serv_id']]
+        site = get_site(request.matchdict['site_id'])
+        service = site.services[request.matchdict['serv_id']]
 
         response = Response(content_type='service/octet-stream')
-        file_name = service.env_name + '_' + service.name_url + '_requirements.txt'
+        file_name = service.site_name + '_' + service.name_url + '_requirements.txt'
         response.content_disposition = 'attachment; filename="' + file_name + '"'
         response.charset = "UTF-8"
         response.text = service.freeze_requirements()
@@ -202,7 +204,7 @@ def bambino_ips(request):
         return {'success': True, 'ip_addresses': ips}
     except KeyError as e:
         msg = 'Unable to find Bambino IP addresses "{0}"'
-        msg = msg.format(request.POST['env_id'], request.POST['serv_id'])
+        msg = msg.format(request.POST['site_id'], request.POST['serv_id'])
         return handle_json_exception(e, msg, request)
 
 
@@ -217,6 +219,11 @@ def load_config(event):
     """
     Config.load_config(event.app.registry.settings)
 
+@view_config(route_name='favicon')
+def favicon_view(request):
+    here = os.path.dirname(__file__)
+    icon = os.path.join(here, 'static', 'favicon.ico')
+    return FileResponse(icon, request=request)
 
 ##################
 # ERROR HANDLING

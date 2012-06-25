@@ -22,17 +22,18 @@ def main(global_config, **settings):
     config.add_static_view(name='img', path='static/img')
 
     # routes for doula
+    config.add_route('favicon', '/favicon.ico')
     config.add_route('home', '/')
-    config.add_route('envs', '/envs')
+    config.add_route('sites', '/sites')
     
-    config.add_route('environment', '/envs/{env_id}')
-    config.add_route('environment_tag', '/envs/{env_id}/tag')
+    config.add_route('site', '/sites/{site_id}')
+    config.add_route('site_tag', '/sites/{site_id}/tag')
 
-    config.add_route('service', '/envs/{env_id}/{serv_id}')
-    config.add_route('service_tag', '/envs/{env_id}/{serv_id}/tag')
-    config.add_route('service_freeze', '/envs/{env_id}/{serv_id}/freeze')
-    config.add_route('service_deploy', '/envs/{env_id}/{serv_id}/deploy')
-    config.add_route('service_details', '/envs/{env_id}/{serv_id}/details')
+    config.add_route('service', '/sites/{site_id}/{serv_id}')
+    config.add_route('service_tag', '/sites/{site_id}/{serv_id}/tag')
+    config.add_route('service_freeze', '/sites/{site_id}/{serv_id}/freeze')
+    config.add_route('service_deploy', '/sites/{site_id}/{serv_id}/deploy')
+    config.add_route('service_details', '/sites/{site_id}/{serv_id}/details')
 
     config.add_route('queue', '/queue')
     config.add_route('settings', '/settings')

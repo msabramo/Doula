@@ -12,7 +12,7 @@ class TestSitesDAL(unittest.TestCase):
         self.cache.flushall()
     
     def test_save_service_as_deployed(self):
-        app = Application('app_name', 'env_name', 'node_name', 'http://0.0.0.0.6542')
+        app = Application('app_name', 'site_name', 'node_name', 'http://0.0.0.0.6542')
         app.status = 'tagged'
         tags = [{'name': 'last tag', 'message': 'last tag message', 'date': '8484848'}]
         app.add_tags_from_dict(tags)
@@ -23,7 +23,7 @@ class TestSitesDAL(unittest.TestCase):
         self.assertEqual(app.get_status(), 'deployed')
         
         key = SiteDAL._get_deployed_app_key(app)
-        self.assertEqual(key, 'env_name_app_name_deployed')
+        self.assertEqual(key, 'site_name_app_name_deployed')
         
         self.assertTrue(SiteDAL.is_deployed(app, tag))
     

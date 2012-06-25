@@ -121,10 +121,10 @@ class Site(object):
         return combined_services
 
 class Node(object):
-    def __init__(self, name, env_name, url, services={}):
+    def __init__(self, name, site_name, url, services={}):
         self.name = name
         self.name_url = dirify(name)
-        self.env_name = env_name
+        self.site_name = site_name
         self.url = url
         self.services = services
         self.errors = [ ]
@@ -143,7 +143,7 @@ class Node(object):
             rslt = json.loads(r.text)
             
             for app in rslt['services']:
-                a = Application.build_app(self.env_name, self.name, self.url, app)
+                a = Application.build_app(self.site_name, self.name, self.url, app)
                 self.services[a.name_url] = a
             
         except requests.exceptions.ConnectionError as e:
@@ -163,14 +163,14 @@ class Node(object):
     
 
 class Application(object):
-    def __init__(self, name, env_name, node_name, url,
+    def __init__(self, name, site_name, node_name, url,
         current_branch_app='', current_branch_config='',
         change_count_app='', change_count_config='',
         is_dirty_app=False, is_dirty_config=False,
         last_tag_app='', last_tag_config='', last_tag_message='',
         status='', remote='', repo='', packages=[], changed_files=[], tags=[]):
         self.name = name
-        self.env_name = env_name
+        self.site_name = site_name
         self.node_name = node_name
         self.name_url = dirify(name)
         self.url = url
@@ -195,10 +195,10 @@ class Application(object):
         self.tags = tags
 
     @staticmethod
-    def build_app(env_name, node_name, url, app):
+    def build_app(site_name, node_name, url, app):
         """Build an service object from the app dictionary"""
 
-        a = Application(app['name'], env_name, node_name, url)
+        a = Application(app['name'], site_name, node_name, url)
         a.current_branch_app = app['current_branch_app']
         a.change_count_app = app['change_count_app']
         a.change_count_config = app['change_count_config']
@@ -265,7 +265,7 @@ class Application(object):
         self.status = 'tagged'
         
         audit = Audit()
-        audit.log_action(self.env_name, self.name, 'tag', user)
+        audit.log_action(self.site_name, self.name, 'tag', user)
     
     def _update_last_tag(self):
         self.last_tag_app = self.get_last_tag()
@@ -300,11 +300,11 @@ class Application(object):
         SiteDAL.save_service_as_deployed(self, tag)
         
         audit = Audit()
-        audit.log_action(self.env_name, self.name, 'deploy', user)
+        audit.log_action(self.site_name, self.name, 'deploy', user)
     
     def get_logs(self):
         audit = Audit()
-        app_logs = audit.get_app_logs(self.env_name, self.name)
+        app_logs = audit.get_app_logs(self.site_name, self.name)
 
         for log in app_logs:
             log['service'] = self.name
