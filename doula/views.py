@@ -5,12 +5,14 @@ import traceback
 
 from doula.util import dumps
 from doula.util import git_dirify
+from doula.util import to_log_msg
 from doula.models.sites_dal import SiteDAL
 from doula.config import Config
 
 from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPNotFound
+from pyramid.httpexceptions import HTTPInternalServerError
 from pyramid.events import ApplicationCreated
 from pyramid.events import subscriber
 from git import GitCommandError
@@ -30,19 +32,16 @@ def show_envs(request):
     try:
         env = SiteDAL.get_environments()
     except Exception as e:
-        # alextodo, centralize this ish, clean up our fucking code. look at
-        # create web so that we can learn how to handle error messages
-        # correctly. fuck me.
-        tb = traceback.format_exc()
-        msg = 'Error: {0}'.format(e.message)
+        return handle_exception(e, request)
 
     return { 'envs': env, 'config': Config }
 
-
 @view_config(route_name='environment', renderer="envs/environment.html")
 def environment(request):
-    # alextodo, make it work for everything and report errors properly
-    env = get_env(request.matchdict['env_id'])
+    try:
+        env = get_env(request.matchdict['env_id'])
+    except Exception as e:
+        return handle_exception(e, request)
 
     return {
         'env': env, 
@@ -66,24 +65,19 @@ def environment_tag(request):
         return dumps({'success': True, 'env_id': site})
     except GitCommandError as e:
         msg = "Git error: {0}." .format(str(e.stderr))
-        return dumps({'success': False, 'msg': msg})
+        return handle_json_exception(e, msg, request)
     except Exception as e:
-        tb = traceback.format_exc()
-        print 'TRACEBACK'
-        print tb
-        msg = 'Error: {0}'.format(e.message)
+        return handle_json_exception(e, msg, request)
 
-        # alextodo, common json rendering, set mime type
-        return dumps({'success': False, 'msg': msg})
-
+###############
 # SERVICE VIEWS
+###############
 
 @view_config(route_name='service', renderer="services/release_actions.html")
 def service(request):
     try:
         env = get_env(request.matchdict['env_id'])
         service = env.services[request.matchdict['serv_id']]
-        
     except Exception:
         msg = 'Unable to find site and service under "{0}" and "{1}"'
         msg = msg.format(request.matchdict['env_id'], request.matchdict['serv_id'])
@@ -119,11 +113,10 @@ def service_tag(request):
         updated_service = SiteDAL.get_service(request.matchdict['env_id'], request.matchdict['serv_id'])
 
         return dumps({ 'success': True, 'service': updated_service })
-    except KeyError:
+    except Exception as e:
         msg = 'Unable to tag site and service under "{0}" and "{1}"'
         msg = msg.format(request.POST['env_id'], request.POST['serv_id'])
-
-        return dumps({'success': False, 'msg': msg})
+        return handle_json_exception(e, msg, request)
 
 
 @view_config(route_name='service_deploy', renderer="string")
@@ -140,9 +133,7 @@ def service_deploy(request):
     except Exception as e:
         msg = 'Unable to deploy service. Error: "{0}"'
         msg = msg.format(e.message)
-        log.error(msg)
-
-        return dumps({'success': False, 'msg': msg})
+        return handle_json_exception(e, msg, request)
 
 def validate_token(request):
     # Validate security token
@@ -160,14 +151,17 @@ def get_env(env_name):
 
 @view_config(route_name="service_freeze")
 def service_freeze(request):
-    env = get_env(request.matchdict['env_id'])
-    service = env.services[request.matchdict['serv_id']]
+    try:
+        env = get_env(request.matchdict['env_id'])
+        service = env.services[request.matchdict['serv_id']]
 
-    response = Response(content_type='service/octet-stream')
-    file_name = service.env_name + '_' + service.name_url + '_requirements.txt'
-    response.content_disposition = 'attachment; filename="' + file_name + '"'
-    response.charset = "UTF-8"
-    response.text = service.freeze_requirements()
+        response = Response(content_type='service/octet-stream')
+        file_name = service.env_name + '_' + service.name_url + '_requirements.txt'
+        response.content_disposition = 'attachment; filename="' + file_name + '"'
+        response.charset = "UTF-8"
+        response.text = service.freeze_requirements()
+    except Exception as e:
+        return handle_exception(e, request)
 
     return response
 
@@ -197,7 +191,7 @@ def bambino_register(request):
 
     return {'success': 'true'}
 
-@view_config(route_name='bambino_ips', renderer="json")
+@view_config(route_name='bambino_ips', renderer="string")
 def bambino_ips(request):
     """
     Return all the IP addresses for the Bambinos.
@@ -206,18 +200,15 @@ def bambino_ips(request):
     try:
         ips = SiteDAL.get_node_ips()
         return {'success': True, 'ip_addresses': ips}
-    except KeyError:
+    except KeyError as e:
         msg = 'Unable to find Bambino IP addresses "{0}"'
         msg = msg.format(request.POST['env_id'], request.POST['serv_id'])
+        return handle_json_exception(e, msg, request)
 
-        return dumps({'success': False, 'msg': msg})
 
-# ERROR HANDLING
-@view_config(context=HTTPNotFound, renderer='error/404.html')
-def not_found(self, request):
-    request.response.status = 404
-
-    return { 'msg': request.exception.message, 'config': Config }
+####################
+# Application events
+####################
 
 @subscriber(ApplicationCreated)
 def load_config(event):
@@ -225,3 +216,35 @@ def load_config(event):
     Load the Application config settings
     """
     Config.load_config(event.app.registry.settings)
+
+
+##################
+# ERROR HANDLING
+##################
+
+@view_config(context=HTTPNotFound, renderer='error/404.html')
+def not_found(self, request):
+    request.response.status = 404
+    log_error(request.exception, request.exception.message, request)
+
+    return { 'msg': request.exception.message, 'config': Config }
+
+def handle_json_exception(e, msg, request):
+    request.response.status = 500
+    log_error(e, msg, request)
+
+    return dumps({ 'success': False, 'msg': msg, 'stacktrace': tb })
+
+def handle_exception(e, request):
+    request.response.status = 500
+    request.override_renderer = 'error/exception.html'
+    log_error(e, e.message, request)
+
+    return { 'msg': e.message, 'stacktrace': tb, 'config': Config }
+
+def log_error(e, msg, request):
+    tb = traceback.format_exc()
+    print "TRACEBACK\n" + str(tb)
+
+    log_vals = { 'url': request.url, 'error': msg, 'stacktrace': tb }
+    log.error(to_log_msg(log_vals))

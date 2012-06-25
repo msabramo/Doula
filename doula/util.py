@@ -53,3 +53,14 @@ def is_number(s):
         return True
     except ValueError:
         return False
+
+def to_log_msg(log_vals):
+    """
+    Return a key=value pair style log msg. Makes our log msg easy to 
+    search in Splunk.
+    """
+    log_msg = ''
+    for key,value in log_vals.iteritems():
+        log_msg += str(key) + '=' + str(value) + ' '
+
+    return log_msg.strip()

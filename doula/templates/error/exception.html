@@ -1,0 +1,13 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+<h3>There was an unexpected error with your request. 
+	Contact <a href="https://alexquez.wufoo.com/forms/doula-feedback-form/" target="_blank">DevOps.</a>
+</h3>
+<br />
+<div>
+	<p>The error was: <strong>{{ msg }}</strong></p>
+  <div {% if config.get('dev_env') == 'prod' %}style="display: none"{% endif %}>
+  	<pre><code>{{ stacktrace }}</code></pre>
+  </div>
+</div>
+{% endblock %}

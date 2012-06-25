@@ -17,8 +17,10 @@
                 </ul>
                 {% if config.get('dev_env') != 'prod' %}
                 <ul class="nav pull-right">
-                    <li>
-                        <a href="/settings" class="dropdown-toggle" data-toggle="dropdown">
+                    <li {% if path.startswith('/settings') %}class="active"{% endif %}>
+                        <a href="/settings" 
+                        class="dropdown-toggle" 
+                        data-toggle="dropdown">
                             <i class="icon-cog icon-white"></i>
                             Settings
                         </a>
