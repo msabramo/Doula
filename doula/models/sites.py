@@ -26,6 +26,7 @@ from doula.models.site_tag_history import SiteTagHistory
 
 log = logging.getLogger('doula')
 
+
 class Site(object):
     def __init__(self, name, status='unknown', nodes={}, services={}):
         self.name = name
@@ -33,6 +34,7 @@ class Site(object):
         self.status = status
         self.nodes = nodes
         self.services = services
+
     def get_status(self):
         """
         The status of the site is the most serious status of all it's services.
@@ -40,13 +42,13 @@ class Site(object):
         """
         status_value = 0
         status_values = {
-            'unknown'                 : 0,
-            'deployed'                : 1,
-            'tagged'                  : 2,
-            'change_to_config'        : 3,
-            'change_to_app'           : 3,
+            'unknown': 0,
+            'deployed': 1,
+            'tagged': 2,
+            'change_to_config': 3,
+            'change_to_app': 3,
             'change_to_app_and_config': 3,
-            'uncommitted_changes'     : 4
+            'uncommitted_changes': 4
         }
 
         for app_name, app in self.services.iteritems():
@@ -57,8 +59,9 @@ class Site(object):
                 self.status = app.get_status()
 
         return self.status
+
     def get_logs(self):
-        all_logs = [ ]
+        all_logs = []
 
         for app_name, app in self.services.iteritems():
             all_logs.extend(app.get_logs())
@@ -94,9 +97,9 @@ class Site(object):
             nodes[{'name':value, 'site':value, 'url':value}]
         And builds Node objects
         """
-        nodes = { }
+        nodes = {}
 
-        for name,n in simple_nodes.iteritems():
+        for name, n in simple_nodes.iteritems():
             node = Node(name, n['site'], n['url'])
             node.load_services()
             nodes[name] = node
@@ -110,13 +113,14 @@ class Site(object):
         builds the services as a combined list of their
         services for the entire site.
         """
-        combined_services = { }
+        combined_services = {}
 
         for k, node in nodes.iteritems():
             for app_name, app in node.services.iteritems():
                 combined_services[app_name] = app
 
         return combined_services
+
 
 class Node(object):
     def __init__(self, name, env_name, url, services={}):
@@ -125,15 +129,15 @@ class Node(object):
         self.env_name = env_name
         self.url = url
         self.services = services
-        self.errors = [ ]
+        self.errors = []
 
     def load_services(self):
         """
         Update the services
         """
         try:
-            self.errors = [ ]
-            self.services = { }
+            self.errors = []
+            self.services = {}
 
             r = requests.get(self.url + '/services')
             # If the response is non 200, we raise an error
@@ -187,6 +191,7 @@ class Application(object):
         self.packages = packages
         self.changed_files = changed_files
         self.tags = tags
+
     @staticmethod
     def build_app(env_name, node_name, url, app):
         """Build an service object from the app dictionary"""
@@ -203,8 +208,8 @@ class Application(object):
         a.last_tag_message = app['last_tag_message']
         a.current_branch_config = app['current_branch_config']
         a.changed_files = app['changed_files']
-        a.tags = [ ]
-        a.packages = [ ]
+        a.tags = []
+        a.packages = []
         a.add_packages(app['packages'])
         a.add_tags_from_dict(app['tags'])
 
@@ -239,7 +244,7 @@ class Application(object):
 
         if m:
             compare_url = 'http://' + m.group(1) + '/' + m.group(2) + '/' + self.name
-            compare_url+= '/compare/' + self.last_tag.name + '...' + self.current_branch_app
+            compare_url += '/compare/' + self.last_tag.name + '...' + self.current_branch_app
 
         return compare_url
 
@@ -311,12 +316,13 @@ class Application(object):
     def freeze_requirements(self):
         reqs = ''
 
-        self.packages.sort(key = operator.attrgetter('name'))
+        self.packages.sort(key=operator.attrgetter('name'))
 
         for pckg in self.packages:
             reqs += pckg.name + '==' + pckg.version + "\n"
 
         return reqs
+
 
 class Package(object):
     """
@@ -326,6 +332,7 @@ class Package(object):
         self.name = name
         self.version = version
 
+
 class Tag(object):
     """
     Represents a git tag
@@ -334,4 +341,3 @@ class Tag(object):
         self.name = name
         self.date = date
         self.message = message
-
