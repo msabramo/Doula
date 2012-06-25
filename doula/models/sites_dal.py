@@ -54,16 +54,16 @@ class SiteDAL(object):
     
     @staticmethod
     def _get_deployed_app_set_key(app):
-        return '_'.join([app.env_name, app.name_url, 'deploy_tags'])
+        return '_'.join([app.site_name, app.name_url, 'deploy_tags'])
     
     @staticmethod
     def _get_deployed_app_key(app):
-        return '_'.join([app.env_name, app.name_url, 'deployed'])
+        return '_'.join([app.site_name, app.name_url, 'deployed'])
     
     @staticmethod
     def register_node(node):
         node = SiteDAL._lower_keys(node)
-        site = SiteDAL._get_env(node['site'])
+        site = SiteDAL._get_site(node['site'])
         site['nodes'][node['name']] = node
         
         key = SiteDAL._get_site_cache_key(node['site'])
@@ -82,7 +82,7 @@ class SiteDAL(object):
     
     @staticmethod
     def unregister_node(node):
-        site = SiteDAL._get_env(node['site'])
+        site = SiteDAL._get_site(node['site'])
         del site['nodes'][node['name']]
 
         key = SiteDAL._get_site_cache_key(node['site'])
@@ -96,7 +96,7 @@ class SiteDAL(object):
         return SiteDAL.site_prefix + dirify(name)
     
     @staticmethod
-    def _get_env(name):
+    def _get_site(name):
         """
         Get the site jsonified object from cache. If the site
         doesn't exist create one.
@@ -113,7 +113,7 @@ class SiteDAL(object):
             return { 'name' : name, 'nodes' : { } }
     @staticmethod
     def nodes(name):
-        site = SiteDAL._get_env(name)
+        site = SiteDAL._get_site(name)
         
         return site['nodes']
     
@@ -130,22 +130,22 @@ class SiteDAL(object):
             return site_keys
     
     @staticmethod
-    def get_environments():
+    def get_sites():
         """
         Get list of registered sites. Returns actual Site object.
         """
         all_sites = { }
         
         for site_key in SiteDAL._all_site_keys():
-            env_name = site_key.replace(SiteDAL.site_prefix, '')
-            all_sites[env_name] = SiteDAL.get_env(env_name)
+            site_name = site_key.replace(SiteDAL.site_prefix, '')
+            all_sites[site_name] = SiteDAL.get_site(site_name)
         
         return all_sites
     
     @staticmethod
-    def get_env(env_name):
+    def get_site(site_name):
         from doula.models.sites import Site
-        simple_site = SiteDAL._get_env(env_name)
+        simple_site = SiteDAL._get_site(site_name)
         return Site.build_site(simple_site)
     
     @staticmethod
@@ -169,7 +169,7 @@ class SiteDAL(object):
     def get_node_ips():
         ips = [ ]
         
-        for site in SiteDAL.get_environments():
+        for site in SiteDAL.get_sites():
             key = SiteDAL._get_site_cache_key(site)
             site_obj = json.loads(SiteDAL.cache.get(key))
             
@@ -180,5 +180,5 @@ class SiteDAL(object):
     
     @staticmethod
     def get_service(site, app):
-        site = SiteDAL.get_env(site)
+        site = SiteDAL.get_site(site)
         return site.services[app]

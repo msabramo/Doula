@@ -70,12 +70,12 @@ def js_script(ctx, js_files, js_file_name = ''):
 
 
 def get_version_from_env(env, prodjs_path):
-    if env.globals.get('js_version', 0) > 0:
-        return env.globals.get('js_version')
+    if site.globals.get('js_version', 0) > 0:
+        return site.globals.get('js_version')
     else:
         # get version, save to env
         version = read(clean_path(prodjs_path + '/' + VERSION_FILE))
-        env.globals['js_version'] = version
+        site.globals['js_version'] = version
         
         return version
 

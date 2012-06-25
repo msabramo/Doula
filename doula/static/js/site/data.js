@@ -11,13 +11,13 @@ var Data = {
     
     init: function() {
         this.token = __token;
-        _mixin(this, __env);
+        _mixin(this, __site);
         _mixin(this, AJAXUtil);
     },
     
     tagService: function(service, tag, tag_msg) {
         var msg = 'Tagging ' + service.name;
-        var url = ['/envs', Data.name_url, service.name_url, 'tag'].join('/');
+        var url = ['/sites', Data.name_url, service.name_url, 'tag'].join('/');
         var params = { 'tag' : tag, 'msg' : tag_msg };
         
         this.post(msg, url, params, this.doneTagService);
@@ -28,8 +28,8 @@ var Data = {
         UI.doneTagService(rlst.service);
     },
 
-    tagEnv: function(tag, tag_msg) {
-        var msg = 'Tagging Env';
+    tagSite: function(tag, tag_msg) {
+        var msg = 'Tagging Site';
         var url = '/tagsite';
         
         var params = {
@@ -38,17 +38,17 @@ var Data = {
             'msg'         : tag_msg
         };
         
-        this.post(msg, url, params, this.doneTagEnv, this.failedTagEnv);
+        this.post(msg, url, params, this.donetagSite, this.failedtagSite);
     },
 
-    doneTagEnv: function(rslt) {
+    donetagSite: function(rslt) {
         Data.status = rslt.site.status;
         Data.last_tag = rslt.site.last_tag;
         
         UI.doneTagService('site');
     },
 
-    failedTagEnv: function() {
+    failedtagSite: function() {
         UI.failedTag();
     },
     

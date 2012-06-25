@@ -6,7 +6,7 @@
 <br />
 <div>
 	<p>The error was: <strong>{{ msg }}</strong></p>
-  <div {% if config.get('dev_env') == 'prod' %}style="display: none"{% endif %}>
+  <div {% if config.get('env') == 'prod' %}style="display: none"{% endif %}>
   	<pre><code>{{ stacktrace }}</code></pre>
   </div>
 </div>

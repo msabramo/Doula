@@ -1,12 +1,12 @@
 {% extends 'layouts/base.html' %}
 {% block content %}
 <div class="title">
-	<h2>{{ service.name }} on {{ env.name|upper }}</h2>
+	<h2>{{ service.name }} on {{ site.name|upper }}</h2>
 </div>
 <div>
 <div class="well">
-  <a id="push-to-test-env" class="btn sm-btn" href="#">
-  <i class="icon-chevron-right icon-black"></i> Release to Test Environment</a>
+  <a id="push-to-test-site" class="btn sm-btn" href="#">
+  <i class="icon-chevron-right icon-black"></i> Release to Test Site</a>
   <a id="add-pckg" class="btn sm-btn-success" href="#">
   <i class="icon-plus icon-white"></i> Add New Version</a>
 </div>
@@ -20,7 +20,7 @@
   </div>
 
   <div id="single_task">
-    Release to new environment task logs.
+    Release to new site task logs.
   </div>
 </div>
 
@@ -61,13 +61,13 @@
       <option>Python-Excel</option>
     </select>
     <span class="help-block">
-      Select the package you want to add to this Application Environment
+      Select the package you want to add to this Service Environment
     </span>
   </form>
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">Close</a>
-    <a href="#" class="btn sm-btn">Add to Application Environment</a>
+    <a href="#" class="btn sm-btn">Add to Service Environment</a>
   </div>
 </div>
 <div id="push-to-cheese-modal" class="modal hide">
