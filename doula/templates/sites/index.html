@@ -1,0 +1,22 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+<div class="title">
+	<h2>Test Sites</h2>
+</div>
+<ul class="sm-list unstyled">
+	{% if sites|length > 0 %}
+	  {% for name, site in sites.iteritems() %}
+	  <li>
+			<a href="/sites/{{ site.name_url }}">
+	    	<span class="{{ site.get_status()|get_status_class }}"></span>
+	    	<strong>{{ site.name|upper }}</strong>
+	  	</a>
+		</li>
+	  {% endfor %}
+  {% else %}
+    <li>
+      <h3>No sites registered</h3>
+    </li>
+  {% endif %}
+</ul>
+{% endblock %}

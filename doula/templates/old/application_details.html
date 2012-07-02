@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block nav %}
+<nav>
+<a href="/">Home</a>
+<a href="/sites">Sites</a>
+<a href="/sites/{{ site.name_url }}">{{ site.name }}</a>
+<a href="/sites/{{ site.name_url }}/{{ app.name_url }}">{{ app.name }}</a>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="page-wrap">
+    <h2>Details for <span>{{ app.name }}</span></h2>
+    <table>
+        <tr class="odd">
+            <td><strong>Name</strong></td>
+            <td>{{ app.name }}</td>
+        </tr>
+        <tr>
+            <td><strong>Status</strong></td>
+            <td>{{ app.get_status()|get_pretty_status }}</td>
+        </tr>
+        <tr class="odd">
+            <td><strong>Last Tag</strong></td>
+            <td>{{ app.last_tag.name }}</td>
+        </tr>
+        <tr>
+            <td><strong>Last Tag Message</strong></td>
+            <td>{{ app.last_tag.message }}</td>
+        </tr>
+        <tr class="odd">
+            <td><strong>Compare View</strong></td>
+            <td>
+              {% if app.tags|length > 0 %}
+              <div>
+                Compare the tag
+                <select id="compare_dropdown1">
+                  {% for tag in app.tags|sort(attribute='date',reverse=True) %}
+                    <option value="{{ tag.name }}" 
+                    {% if loop.index == 2 %}selected="selected"{% endif %}>
+                      {{ tag.name }}
+                    </option>
+                  {% endfor %}
+                </select>
+                to the tag
+                <select id="compare_dropdown2">
+                  {% for tag in app.tags|sort(attribute='date', reverse=True) %}
+                    <option value="{{ tag.name }}" 
+                    {% if loop.index == 1 %}selected="selected"{% endif %}>
+                    {{ tag.name }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div>
+                <br /><!-- fix styles here, they are wrong, don't do the br -->
+              <a id="compare_url" href="{{ app.get_compare_url() }}" target="_blank">
+                Compare {{ app.last_tag.name }} to {{ app.last_tag.name }}
+              </a>
+              </div>
+              {% else %}
+                No tags exist for <strong>{{ app.name }}</strong>
+              {% endif %}
+            </td>
+        </tr>
+        {% if app.changed_files|length > 0 and app.get_status() == 'uncommitted_changes' %}
+        <tr>
+            <th style="vertical-align: top;">
+                Changed Files
+            </th>
+            <td>
+                <table>
+                {% for changed_file in app.changed_files|sort %}
+                <tr>
+                  <td>{{ changed_file }}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </td>
+        </tr>
+        {% endif %}
+        <tr>
+            <th style="vertical-align: top;">
+                Packages
+            </th>
+            <!-- create four columns per row -->
+            <td valign="top" align="left">
+              <div>
+                Download
+                <a href="/sites/{{ site.name_url }}/{{ app.name_url }}/freeze" >
+                Requirements File
+                </a>
+                for {{ app.name }}
+              </div>
+              <table>
+                {% set count = 1 %}
+                
+                {% for pack in app.packages|sort(attribute='name') %}
+                {% if count == 1 %}
+                <tr>
+                {% endif %}
+
+                  <td><strong>{{ pack.name }}</strong> {{ pack.version }}</td>
+
+                {% if count == 3 %}
+                </tr>
+                {% endif %}
+
+                {% if count == 3 %}{% set count = 1 %}{% else %}{% set count = count + 1 %}{% endif %}
+
+                {% endfor %}
+              </table>
+            </td>
+        </tr>
+    </table>
+</div>
+<script>
+  __compare_url = "{{ app.get_compare_url() }}";
+</script>
+{{ [
+'/js/libs/global-min.js',
+'/js/libs/global-pro-min.js',
+'/js/common/util.js',
+'/js/libs/site-tabs.js',
+'/js/service/service.js'
+]|js_script|safe }}
+{% endblock %}

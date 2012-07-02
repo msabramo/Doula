@@ -19,32 +19,26 @@ def main(global_config, **settings):
     config.add_static_view(name='prodjs', path='static/prodjs')
     config.add_static_view(name='css', path='static/css')
     config.add_static_view(name='images', path='static/images')
+    config.add_static_view(name='img', path='static/img')
 
-    config.add_static_view(name='wf', path='templates/wireframes/static')
-
-    # routes for application
+    # routes for doula
+    config.add_route('favicon', '/favicon.ico')
     config.add_route('home', '/')
     config.add_route('sites', '/sites')
-    config.add_route('site', '/sites/{site}')
-    config.add_route('site_log', '/sites/{site}/logs')
-    config.add_route('application', '/sites/{site}/{application}')
-    config.add_route('app_requirements_file', '/sites/{site}/{application}/freeze')
-    config.add_route('register', '/register')
-    config.add_route('deploy_old', '/deployold')
-    config.add_route('tag_site', '/tagsite')
-    config.add_route('tag', '/tag')
-    config.add_route('nodes_ip_lookup', '/nodes/ip_addresses')
+    
+    config.add_route('site', '/sites/{site_id}')
+    config.add_route('site_tag', '/sites/{site_id}/tag')
 
-    config.add_route('wfhome', '/wfhome')
-    config.add_route('appenvs', '/appenvs')
-    config.add_route('appenv', '/appenvs/{appenv}')
+    config.add_route('service', '/sites/{site_id}/{serv_id}')
+    config.add_route('service_tag', '/sites/{site_id}/{serv_id}/tag')
+    config.add_route('service_freeze', '/sites/{site_id}/{serv_id}/freeze')
+    config.add_route('service_deploy', '/sites/{site_id}/{serv_id}/deploy')
+    config.add_route('service_details', '/sites/{site_id}/{serv_id}/details')
 
-    config.add_route('deploy', '/deploy')
-    config.add_route('deploy_site', '/deploy/{site}')
-
-    config.add_route('packages', '/packages')
-    config.add_route('package', '/packages/{id}')
     config.add_route('queue', '/queue')
     config.add_route('settings', '/settings')
+
+    config.add_route('bambino_register', '/bambino/register')
+    config.add_route('bambino_ips', '/bambino/ip_addresses')
 
     return config.make_wsgi_app()

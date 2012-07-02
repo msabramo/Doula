@@ -15,7 +15,7 @@ class SiteDAL(object):
         pass
 
     @staticmethod
-    def save_application_as_deployed(app, tag):
+    def save_service_as_deployed(app, tag):
         SiteDAL._add_to_deploy_set(app, tag)
         SiteDAL._set_app_tag_as_deployed(app, tag)
 
@@ -179,6 +179,6 @@ class SiteDAL(object):
         return ips
 
     @staticmethod
-    def get_application(site, app):
+    def get_service(site, app):
         site = SiteDAL.get_site(site)
-        return site.applications[app]
+        return site.services[app]

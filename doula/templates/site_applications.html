@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-wrap">
+  
+<h1 class="cap">{{ site.name }}</h1>
+
+ <div id="accordion" class="accordion">
+    {% for key_val_pair in site.services|dictsort %}
+    {% set app = key_val_pair[1] %}
+    <div id="stat_{{ app.name_url }}" class="key {{ app.get_status()|get_stat_class }}">
+
+      <header>
+         <a id="deploy_{{ app.name_url }}" app-id="{{ app.name_url }}" 
+          class="deploy {% if app.get_status() != 'tagged'%}hide{% endif %}" href="#">
+          <span class="icon">&#8658;</span> Deploy
+         </a>
+         <span id="status_{{ app.name_url }}" app-id="{{ app.name_url }}" 
+         class="{{ app.get_status()|get_status_class }}">&#x25BA;</span>
+         <a href="/sites/{{ site.name_url }}/{{ app.name_url }}"><span class="icon">⚙</span> Details</a>
+         <h3>
+           <a id="panel_{{ app.name_url }}" href="#panel{{ loop.index }}" 
+           class="{% if app.get_status() != 'uncommitted_changes' %}keyOpener{% else %}keyCloser{% endif %}">
+             {{ app.name }}
+             <strong>{{ app.get_status()|get_pretty_status }}</strong>
+             {% if app.get_status() != 'deployed' and app.get_status() != 'tagged' and app.get_status() != 'uncommitted_changes' %}<em><span class="icon">✍</span> Tag Changes</em>{% endif %}
+           </a>
+         </h3>
+      </header>
+      {% if app.get_status() != 'deployed' and app.get_status() != 'tagged' %}
+      <section id="panel{{ loop.index }}">
+
+         <form id="form_{{ app.name_url }}" method="post" action="#">
+
+           <div>
+             <label>Tag:</label>
+
+             <input id="tag_{{ app.name_url }}" type="text" class="tag span3" required="required" placeholder="Valid tag format 0.1.1(a|b|c|rc)">
+             <span class="instruct">Last tag: <strong>{{ app.last_tag.name }}</strong></span>
+           </div>
+
+           <div>
+             <label>Commit Message:</label>
+             <textarea class="commit" id="msg_{{ app.name_url }}" cols="40" rows="5" required placeholder="Don’t make something unless it is both necessary and useful; but if it is both necessary and useful, don’t hesitate to make it beautiful."></textarea>
+           </div>
+
+           <div>
+             <input class="btn" type="submit" value="Commit">
+           </div>
+
+       </form>
+
+      </section>
+      {% endif %}
+    </div>
+    {% endfor %}
+
+    {% set last_index = site.services|length + 1 %}
+    
+    <!-- details for tag of tags -->
+    <div id="stat_site" class="site_accord key {{ site.get_status()|get_stat_class }}">
+
+      <header>
+         <span id="status_site" app-id="site" 
+         class="{{ site.get_status()|get_status_class }}">&#x25BA;</span>
+         <h3>
+           <a id="panel_site" href="#panel{{ last_index + 1 }}" 
+           class="keyOpener">
+             {{ site.name }} {{ last_index }}
+             <strong>{{ site.get_status()|get_pretty_status }}</strong>
+             {% if site.get_status() != 'uncommitted_changes' %}<em><span class="icon">✍</span> Tag Site</em>{% endif %}
+           </a>
+         </h3>
+      </header>
+      <section id="panel{{ last_index + 1 }}">
+        {% if site.get_status() != 'uncommitted_changes' %}
+          <form id="form_site" method="post" action="#">
+             <div>
+               <label>Site Tag:</label>
+
+               <input id="tag_site" type="text" class="tag span3" required="required" placeholder="Enter the tag. One rule. No spaces.">
+               <span class="instruct">Last site tag: <strong></strong></span>
+             </div>
+
+             <div>
+               <label>Commit Message:</label>
+               <textarea class="commit" id="msg_site" cols="40" rows="5" required placeholder="Don’t make something unless it is both necessary and useful; but if it is both necessary and useful, don’t hesitate to make it beautiful."></textarea>
+             </div>
+
+             <div>
+               <input class="btn" type="submit" value="Commit">
+             </div>
+         </form>
+        {% else %}
+          <p class="title-instruct">You cannot tag this site until all the services with uncommitted changes have been committed or reverted.</p>
+        {% endif %}
+      </section>
+    </div>
+
+</div> <!-- div#accordion -->
+
+<div class="deployment hide">
+  <input id="deploy_site_btn" type="submit" value="Deploy Site" class="btn btn-large disabled" disabled>
+  <p><small><span class="icon icon-warning">⚠</span> You'll have to tag each service before you can deploy this site.</small></p>
+</div>
+
+</div>
+{% include 'error_dialog.html' %}
+<script>
+  var __site = {{ site_json|safe }};
+  var __token = "{{ token|safe }}";
+</script>
+
+{{ [
+'/js/libs/global-min.js', 
+'/js/libs/global-pro-min.js', 
+'/js/libs/accordions.js',
+'/js/libs/site-tabs.js',
+'/js/libs/jquery.colorbox.js',
+'/js/common/util.js',
+'/js/common/ajax_util.js',
+'/js/site/ui.js', 
+'/js/site/site_data.js', 
+'/js/site/site.js'
+]|js_script|safe }}
+{% endblock %}

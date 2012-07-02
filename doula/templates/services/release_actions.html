@@ -1,0 +1,103 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+<div class="title">
+	<h2>{{ service.name }} on {{ site.name|upper }}</h2>
+</div>
+<div>
+<div class="well">
+  <a id="push-to-test-site" class="btn sm-btn" href="#">
+  <i class="icon-chevron-right icon-black"></i> Release to Test Site</a>
+  <a id="add-pckg" class="btn sm-btn-success" href="#">
+  <i class="icon-plus icon-white"></i> Add New Version</a>
+</div>
+
+<!-- show you the state of the tasks -->
+<div class="alert alert-info">
+  <h5>2 Running Tasks</h5>
+
+  <div id="single_task">
+    Running log for a single task. Push new package
+  </div>
+
+  <div id="single_task">
+    Release to new site task logs.
+  </div>
+</div>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Package</th>
+      <th>Version</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for pckg in service.packages|sort(attribute='name') %}
+    <tr>
+      <td>{{ pckg.name }} {{ pckg.version['version']}}</td>
+      <td>
+        <select id="select01">
+          <option>Remove this package</option>
+          <!-- alextodo, packages need a history -->
+          <option selected="selected" value="{{ pckg.version }}">{{ pckg.version }}</option>
+        </select>
+        <a class="btn sm-btn-success new-version-btn" href="#">
+  <i class="icon-chevron-right icon-white"></i> New Version</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+<div id="add-packages" class="modal hide">
+  <div class="modal-header">
+    <h3>Packages on Cheese Prism</h3>
+  </div>
+  <div class="modal-body">
+    <form class="well">
+    <select id="select01">
+      <option selected="selected">Select a package</option>
+      <option>Mako</option>
+      <option>Python-Excel</option>
+    </select>
+    <span class="help-block">
+      Select the package you want to add to this Service Environment
+    </span>
+  </form>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Close</a>
+    <a href="#" class="btn sm-btn">Add to Service Environment</a>
+  </div>
+</div>
+<div id="push-to-cheese-modal" class="modal hide">
+  <div class="modal-header">
+    <h3>Push New Version to Cheese Prism</h3>
+  </div>
+  <div class="modal-body">
+    <form class="well">
+    <label>Branch</label>
+    <select id="select01">
+      <option selected="selected">Select a branch</option>
+      <option>master</option>
+      <option>test-feature</option>
+    </select>
+    <label>Next Version</label>
+    <!-- specify the next version -->
+    <input type="text" class="span3" value="0.0.3">
+    <span class="help-block">
+      Select the branch you want to package and send to Cheese Prism. The head of the Git Repo will be packaged.
+    </span>
+  </form>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Close</a>
+    <a id="add-to-cheeseprism" class="btn sm-btn-success" href="#">
+  <i class="icon-plus icon-white"></i> Publish New Version</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script language="javascript" type="text/javascript" src="/js/services/appenvs.js"></script>
+{% endblock %}
