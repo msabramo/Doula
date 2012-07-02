@@ -22,6 +22,7 @@ class QueueTests(unittest.TestCase):
         types = ['push_to_cheeseprism',
                  'push_to_cheeseprism',
                  'cycle_services']
+        job_dict['service'] = 'dummypackage'
         for _type in types:
             job_dict['job_type'] = _type
             q.this(job_dict)

@@ -363,9 +363,8 @@ class Package(object):
     """
     Represents a python package
     """
-    def __init__(self, name, version):
+    def __init__(self, name):
         self.name = name
-        self.version = version
 
     def distribute(self, branch, new_version):
         with self.repo() as repo:

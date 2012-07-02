@@ -155,6 +155,8 @@ class Queue(object):
             job_dict['id'] = self.qm.enqueue('doula.jobs:push_to_cheeseprism', job_dict=job_dict)
         elif job_type is 'cycle_services':
             job_dict['id'] = self.qm.enqueue('doula.jobs:cycle_services', job_dict=job_dict)
+        else:
+            return None
 
         save(job_dict)
         return job_dict['id']
