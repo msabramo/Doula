@@ -1,16 +1,17 @@
-import json
-import re
-import requests
-import logging
-import operator
-import traceback
-
+from doula.models.audit import Audit
+from doula.models.site_tag_history import SiteTagHistory
+from doula.models.sites_dal import SiteDAL
+from doula.services.cheese_prism import CheesePrism
+from doula.services.cheese_prism import PythonPackage
 from doula.util import dirify
 from doula.util import dumps
 from doula.util import is_number
-from doula.models.audit import Audit
-from doula.models.sites_dal import SiteDAL
-from doula.models.site_tag_history import SiteTagHistory
+import json
+import logging
+import operator
+import re
+import requests
+import traceback
 
 # Defines the Data Models for Doula and Bambino.
 #
@@ -18,11 +19,11 @@ from doula.models.site_tag_history import SiteTagHistory
 #   Site
 #     nodes
 #       services
-#         Application
+#         Service
 #           packages
 #             Package
 #     services
-#       Application
+#       Service
 #         packages
 #           Package
 
@@ -143,7 +144,7 @@ class Node(object):
             rslt = json.loads(r.text)
             
             for app in rslt['services']:
-                a = Application.build_app(self.site_name, self.name, self.url, app)
+                a = Service.build_app(self.site_name, self.name, self.url, app)
                 self.services[a.name_url] = a
             
         except requests.exceptions.ConnectionError as e:
@@ -162,7 +163,7 @@ class Node(object):
         return self.services
     
 
-class Application(object):
+class Service(object):
     def __init__(self, name, site_name, node_name, url,
         current_branch_app='', current_branch_config='',
         change_count_app='', change_count_config='',
@@ -198,7 +199,7 @@ class Application(object):
     def build_app(site_name, node_name, url, app):
         """Build an service object from the app dictionary"""
 
-        a = Application(app['name'], site_name, node_name, url)
+        a = Service(app['name'], site_name, node_name, url)
         a.current_branch_app = app['current_branch_app']
         a.change_count_app = app['change_count_app']
         a.change_count_config = app['change_count_config']
@@ -280,9 +281,6 @@ class Application(object):
             if tag.date > latest_tag_date:
                 latest_tag = tag
                 latest_tag_date = tag.date
-        
-        print 'LATEST TAG'
-        print latest_tag
 
         return latest_tag
     
@@ -356,6 +354,14 @@ class Package(object):
     def __init__(self, name, version):
         self.name = name
         self.version = version
+    def get_versions(self):
+        pypackage = CheesePrism.find_package_by_name(self.name)
+        versions = pypackage.get_versions() if pypackage else []
+
+        if not self.version in versions:
+            versions.append(self.version)
+
+        return versions
 
 class Tag(object):
     """

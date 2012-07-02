@@ -13,7 +13,7 @@ var Site = (function() {
         $('form').on('submit', this.tag);
         $('input.tag').on('change', this.validateTag);
         $('textarea.commit').on('change', this.validateMsg);
-        $('a.deploy').on('click', this.deployApplication);
+        $('a.deploy').on('click', this.deployService);
     },
     
     tag: function(event) {

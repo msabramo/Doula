@@ -38,7 +38,7 @@ class SiteTagHistory(object):
 
         The tag is a simple string
         The branch is the name of the site
-        The apps is a dictionary of Application objects. {'app name': service object}
+        The apps is a dictionary of Service objects. {'app name': service object}
         """
         # alextodo, need to check for duplicate tags
         # need to be able to autogenerate a tag.
@@ -69,7 +69,7 @@ class SiteTagHistory(object):
             log.info("Adding apps as submodules")
 
             if app.remote == '':
-                msg = "Application '%s' does not have a valid Git remote." % (app.name)
+                msg = "Service '%s' does not have a valid Git remote." % (app.name)
                 raise Exception(msg)
 
             self._cmd('git submodule add ' + app.remote + ' ' + app.name)
@@ -171,7 +171,7 @@ def get_services():
         rslt = json.loads(app_file.read())
 
         for app in rslt['services']:
-            a = Application.build_app('test site name', 'test node name', 'http://url', app)
+            a = Service.build_app('test site name', 'test node name', 'http://url', app)
             services[a.name_url] = a
 
     return services

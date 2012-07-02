@@ -1,7 +1,7 @@
 import unittest
 from doula.util import pprint
 from doula.cache import Cache
-from doula.models.sites import Application
+from doula.models.sites import Service
 from doula.models.sites_dal import SiteDAL
 from doula.util import dirify
 
@@ -12,7 +12,7 @@ class TestSitesDAL(unittest.TestCase):
         self.cache.flushall()
     
     def test_save_service_as_deployed(self):
-        app = Application('app_name', 'site_name', 'node_name', 'http://0.0.0.0.6542')
+        app = Service('app_name', 'site_name', 'node_name', 'http://0.0.0.0.6542')
         app.status = 'tagged'
         tags = [{'name': 'last tag', 'message': 'last tag message', 'date': '8484848'}]
         app.add_tags_from_dict(tags)

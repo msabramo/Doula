@@ -1,23 +1,22 @@
-import os
-import json
-import time
-import logging
-import traceback
-
+from doula.config import Config
+from doula.models.sites_dal import SiteDAL
 from doula.util import dumps
 from doula.util import git_dirify
 from doula.util import to_log_msg
-from doula.models.sites_dal import SiteDAL
-from doula.config import Config
-
+from git import GitCommandError
+from pyramid.events import ApplicationCreated
+from pyramid.events import subscriber
+from pyramid.httpexceptions import HTTPInternalServerError
+from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import FileResponse
 from pyramid.response import Response
 from pyramid.view import view_config
-from pyramid.httpexceptions import HTTPNotFound
-from pyramid.httpexceptions import HTTPInternalServerError
-from pyramid.events import ApplicationCreated
-from pyramid.events import subscriber
-from git import GitCommandError
+
+import json
+import logging
+import os
+import time
+import traceback
 
 log = logging.getLogger('doula')
 
@@ -209,13 +208,13 @@ def bambino_ips(request):
 
 
 ####################
-# Application events
+# Service events
 ####################
 
 @subscriber(ApplicationCreated)
 def load_config(event):
     """
-    Load the Application config settings
+    Load the Service config settings
     """
     Config.load_config(event.app.registry.settings)
 
@@ -224,6 +223,7 @@ def favicon_view(request):
     here = os.path.dirname(__file__)
     icon = os.path.join(here, 'static', 'favicon.ico')
     return FileResponse(icon, request=request)
+
 
 ##################
 # ERROR HANDLING
@@ -239,6 +239,7 @@ def not_found(self, request):
 def handle_json_exception(e, msg, request):
     request.response.status = 500
     log_error(e, msg, request)
+    tb = traceback.format_exc()
 
     return dumps({ 'success': False, 'msg': msg, 'stacktrace': tb })
 
@@ -246,6 +247,7 @@ def handle_exception(e, request):
     request.response.status = 500
     request.override_renderer = 'error/exception.html'
     log_error(e, e.message, request)
+    tb = traceback.format_exc()
 
     return { 'msg': e.message, 'stacktrace': tb, 'config': Config }
 

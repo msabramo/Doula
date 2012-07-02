@@ -1,6 +1,17 @@
-import json
 from pprint import pprint as pretty_print
+import json
 import re
+import requests
+
+
+def pull_url(url):
+    """
+    Pull the URL text. Always raise the status error.
+    """
+    r = requests.get(url)
+    # If the response is non 200, we raise an error
+    r.raise_for_status()
+    return r.text
 
 def dirify(url):
     url = url.lower()
