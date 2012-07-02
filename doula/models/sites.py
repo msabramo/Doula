@@ -3,9 +3,11 @@ import re
 import requests
 import logging
 import operator
+import traceback
 
 from doula.util import dirify
 from doula.util import dumps
+from doula.util import is_number
 from doula.models.audit import Audit
 from doula.models.sites_dal import SiteDAL
 from doula.models.site_tag_history import SiteTagHistory
@@ -123,10 +125,10 @@ class Site(object):
 
 
 class Node(object):
-    def __init__(self, name, env_name, url, services={}):
+    def __init__(self, name, site_name, url, services={}):
         self.name = name
         self.name_url = dirify(name)
-        self.env_name = env_name
+        self.site_name = site_name
         self.url = url
         self.services = services
         self.errors = []
@@ -145,7 +147,7 @@ class Node(object):
             rslt = json.loads(r.text)
 
             for app in rslt['services']:
-                a = Application.build_app(self.env_name, self.name, self.url, app)
+                a = Application.build_app(self.site_name, self.name, self.url, app)
                 self.services[a.name_url] = a
 
         except requests.exceptions.ConnectionError as e:
@@ -155,20 +157,24 @@ class Node(object):
         except Exception as e:
             msg = 'Unable to load services. Error: {0}'.format(e.message)
             log.error(msg)
+            tb = traceback.format_exc()
+            print 'TRACEBACK'
+            print tb
+
             self.errors.append(msg)
 
         return self.services
 
 
 class Application(object):
-    def __init__(self, name, env_name, node_name, url,
+    def __init__(self, name, site_name, node_name, url,
         current_branch_app='', current_branch_config='',
         change_count_app='', change_count_config='',
         is_dirty_app=False, is_dirty_config=False,
         last_tag_app='', last_tag_config='', last_tag_message='',
         status='', remote='', repo='', packages=[], changed_files=[], tags=[]):
         self.name = name
-        self.env_name = env_name
+        self.site_name = site_name
         self.node_name = node_name
         self.name_url = dirify(name)
         self.url = url
@@ -193,10 +199,10 @@ class Application(object):
         self.tags = tags
 
     @staticmethod
-    def build_app(env_name, node_name, url, app):
+    def build_app(site_name, node_name, url, app):
         """Build an service object from the app dictionary"""
 
-        a = Application(app['name'], env_name, node_name, url)
+        a = Application(app['name'], site_name, node_name, url)
         a.current_branch_app = app['current_branch_app']
         a.change_count_app = app['change_count_app']
         a.change_count_config = app['change_count_config']
@@ -212,6 +218,7 @@ class Application(object):
         a.packages = []
         a.add_packages(app['packages'])
         a.add_tags_from_dict(app['tags'])
+        a.last_tag = a.get_last_tag()
 
         return a
 
@@ -262,14 +269,13 @@ class Application(object):
         self.status = 'tagged'
 
         audit = Audit()
-        audit.log_action(self.env_name, self.name, 'tag', user)
+        audit.log_action(self.site_name, self.name, 'tag', user)
 
     def _update_last_tag(self):
-        self.last_tag_app = self.last_tag
-        self.last_tag_config = self.last_tag
+        self.last_tag_app = self.get_last_tag()
+        self.last_tag_config = self.get_last_tag()
 
-    @property
-    def last_tag(self):
+    def get_last_tag(self):
         # Initialize an empty tag if it doesn't tag exist
         latest_tag = Tag('', '', '')
         latest_tag_date = 0
@@ -278,6 +284,9 @@ class Application(object):
             if tag.date > latest_tag_date:
                 latest_tag = tag
                 latest_tag_date = tag.date
+
+        print 'LATEST TAG'
+        print latest_tag
 
         return latest_tag
 
@@ -295,16 +304,37 @@ class Application(object):
         SiteDAL.save_service_as_deployed(self, tag)
 
         audit = Audit()
-        audit.log_action(self.env_name, self.name, 'deploy', user)
+        audit.log_action(self.site_name, self.name, 'deploy', user)
 
     def get_logs(self):
         audit = Audit()
-        app_logs = audit.get_app_logs(self.env_name, self.name)
+        app_logs = audit.get_app_logs(self.site_name, self.name)
 
         for log in app_logs:
             log['service'] = self.name
 
         return app_logs
+
+    def next_version(self):
+        """
+        Get the next logical version.
+        i.e. 0.2.4 -> 0.2.5
+        """
+        next_version = ''
+        rslts = re.split(r'(\d+)', self.last_tag.name)
+        rslts.reverse()
+        found_digit = False
+
+        for rslt in rslts:
+            if found_digit is False and is_number(rslt):
+                found_digit = True
+                part = int(rslt) + 1
+            else:
+                part = rslt
+
+            next_version = str(part) + next_version
+
+        return next_version
 
     def get_tag_by_name(self, name):
         for tag in self.tags:

@@ -23,5 +23,5 @@ var AppEnv = {
 };
 
 $(document).ready(function() {
-	AppEnv.init();
+	Appsite.init();
 });

@@ -1,6 +1,6 @@
-var Env = (function() {
-  // The main Env Module
-  var Env = {
+var Site = (function() {
+  // The main Site Module
+  var Site = {
       
     init: function() {
         Data.init();
@@ -19,18 +19,18 @@ var Env = (function() {
     tag: function(event) {
         var serviceID = this.id.replace('form_', '');
 
-        if(serviceID == 'site') Env.tagEnv(serviceID);
-        else Env.tagService(serviceID);
+        if(serviceID == 'site') Site.tagSite(serviceID);
+        else Site.tagService(serviceID);
         
         return false;
     },
 
-    tagEnv: function() {
+    tagSite: function() {
         var tag = $('#tag_site').val();
         var msg = $('#msg_site').val();
         
         UI.onTag();
-        Data.tagEnv(tag, msg);
+        Data.tagSite(tag, msg);
     },
 
     tagService: function(serviceID) {
@@ -58,11 +58,11 @@ var Env = (function() {
       }
     }
   };
-  // This ends the main Env module
+  // This ends the main Site module
   
-  return Env;
+  return Site;
 })();
 
 $(document).ready(function() {
-  Env.init();
+  Site.init();
 });

@@ -81,10 +81,11 @@ var AJAXUtil = {
               url: url,
               type: type,
               data: this._getDataValues(params),
-              success: function(rslt) {
+              success: function(response) {
                 $('#progress_bar').hide();
-                  var rslt = (typeof(rslt) == 'string') ? $.parseJSON(rslt) : rslt;
-                  
+                  rslt = (typeof(response) == 'string') ? 
+                    $.parseJSON(response) : response;
+
                   if(rslt.success) {
                       onDone(rslt);
                   }

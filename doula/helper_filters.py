@@ -68,8 +68,8 @@ def get_pretty_status(status):
         'tagged': 'Tagged',
         'deployed': 'Deployed',
         'change_to_config': 'Changes to Configuration',
-        'change_to_app': 'Changes to Application Environment',
-        'change_to_app_and_config': 'Changes to Configuration and Application Environment',
+        'change_to_app': 'Changes to Service Environment',
+        'change_to_app_and_config': 'Changes to Configuration and Service Environment',
         'uncommitted_changes': 'Uncommitted Changes'
     }
     

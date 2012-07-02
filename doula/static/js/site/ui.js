@@ -17,9 +17,11 @@ var UI = {
         });
 
         $('.collapse').collapse({
-            parent: '#envs-accordion',
+            parent: '#sites-accordion',
             toggle: false
         });
+
+        this.updateTooltips();
     },
 
     updateTooltips: function() {
@@ -37,12 +39,18 @@ var UI = {
             .addClass('disabled');
     },
 
-    doneTagService: function(elID) {
-        $('#collapse_' + elID).collapse('hide');
-        $('#link_' + elID + ' span').attr('class', 'status-tagged');
-        $('#link_' + elID).click(UI.rtf);
-        $('#link_' + elID).attr('data-toggle', 'do_not_collapse');
+    doneTagService: function(service) {
+        $('#collapse_' + service.name_url).collapse('hide');
+        $('#link_' + service.name_url + ' span').attr('class', 'status-tagged');
 
+        var title = service.name + " has already been tagged ";
+        title += "(" + service.last_tag.name + ")";
+
+        $('#link_' + service.name_url)
+            .click(UI.rtf)
+            .attr('title', title)
+            .attr('data-toggle', 'do_not_collapse');
+        
         UI.updateTooltips();
     },
 

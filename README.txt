@@ -1,4 +1,5 @@
 Doula
 =====
 
-Doula is a test environment monitoring service. Developed at Survey Monkey, it helps the team monitor Python testing environments as they move through the development life cycle.
+
+Doula is a release management system developed at Survey Monkey to manage the lifecycle of the Survey Monkey services. It manages python packaging, deployment to test environments and versioning releases to the field.
