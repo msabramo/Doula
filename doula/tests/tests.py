@@ -2,8 +2,9 @@ import json
 import unittest
 
 from pyramid import testing
-from doula.views import register
+from doula.views import bambino_register
 from doula.cache import Cache
+
 
 class ViewTests(unittest.TestCase):
     def setUp(self):
@@ -15,18 +16,18 @@ class ViewTests(unittest.TestCase):
 
     def test_register(self):
         request = testing.DummyRequest()
-        
+
         node = {
             'name': 'Bambino 1',
             'site': 'Monkey Test One',
-            'url' : 'http://127.0.0.1:6542'
+            'url': 'http://127.0.0.1:6542'
         }
-        
+
         request.POST['action'] = 'register'
         request.POST['node'] = json.dumps(node)
-        result = register(request)
+        result = bambino_register(request)
         self.assertEqual(result['success'], 'true')
-    
+
 
 if __name__ == '__main__':
     unittest.main()

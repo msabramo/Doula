@@ -1,4 +1,6 @@
+from doula.util import dumps
 from doula.util import pull_url
+
 import logging
 import re
 
@@ -73,3 +75,25 @@ class CheesePrism(object):
                 versions.append(match.group(1))
 
         return versions
+
+    @staticmethod
+    def other_packages(packages):
+        """
+        Get all the packages on cheese prism, but not on this service
+        """
+        all_packages = CheesePrism.all_packages()
+
+        for pckg in packages:
+            found_pckg = False
+
+            for all_pckg in all_packages:
+                if all_pckg.name == pckg.name:
+                    found_pckg = all_pckg
+                    break
+
+            if found_pckg:
+                all_packages.remove(found_pckg)
+
+            found_pckg = False
+
+        return all_packages

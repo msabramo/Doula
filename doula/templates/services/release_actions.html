@@ -39,7 +39,7 @@
         <select id="select01">
           <option value="remove">Remove package</option>
 
-          {% for version in pckg.get_versions()|sort %}
+          {% for version in pckg.get_versions()|sort(reverse=True, case_sensitive=False) %}
             <option value="{{ version }}"
             {% if pckg.version == version %}selected="selected"{% endif %} >
               {{ version }}
@@ -54,6 +54,8 @@
   </tbody>
 </table>
 </div>
+
+<!-- all the packages on cheese prism not in this service -->
 <div id="add-packages" class="modal hide">
   <div class="modal-header">
     <h3>Packages on Cheese Prism</h3>
@@ -62,8 +64,11 @@
     <form class="well">
     <select id="select01">
       <option selected="selected">Select a package</option>
-      <option>Mako</option>
-      <option>Python-Excel</option>
+      {% for pckg in other_packages|sort(attribute='name') %}
+        <option value="{{ pckg.name }}" >
+          {{ pckg.name }}
+        </option>
+      {% endfor %}
     </select>
     <span class="help-block">
       Select the package you want to add to this Service Environment

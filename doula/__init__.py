@@ -14,6 +14,7 @@ def main(global_config, **settings):
 
     # Scan this module
     config.scan('doula.views')
+    config.scan('doula.views_release_actions')
 
     config.add_static_view(name='js', path='static/js')
     config.add_static_view(name='prodjs', path='static/prodjs')

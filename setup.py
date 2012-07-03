@@ -16,7 +16,8 @@ requires = [
     'simplejson',
     'redis',
     'fabric',
-    'gitpython'
+    'gitpython',
+    'retools'
     ]
 
 setup(name='Doula',
