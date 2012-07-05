@@ -28,7 +28,8 @@ class CheesePrism(object):
     Provides an interface to CheesePrism, Survey Monkey's PyPi
     """
     url = 'http://yorick:9003/'
-
+    # alextodo, every one of these calls should query cheese prism
+    # start working on putting this data on redis
     @staticmethod
     def find_package_by_name(name):
         """
