@@ -1,6 +1,7 @@
+from retools.queue import QueueManager
 import json
 import redis
-from retools.queue import QueueManager
+import time
 
 default_queue_name = 'main'
 
@@ -10,8 +11,7 @@ common_dict = {
     'job_type': '',
     'site': '',
     'service': '',
-    'time_started': 0,
-    'log_file': ''
+    'time_started': 0
 }
 
 push_to_cheeseprism_dict = dict({
@@ -19,11 +19,15 @@ push_to_cheeseprism_dict = dict({
     'branch': '',
     'version': ''
 }.items() + common_dict.items())
+
+cycle_services_dict = dict({}.items() + common_dict.items())
+# in practice i feel this is unncessary.
 cycle_services_dict = dict({}.items() + common_dict.items())
 
 base_dicts = {
     'push_to_cheeseprism': push_to_cheeseprism_dict,
-    'cycle_services': cycle_services_dict
+    'cycle_services': cycle_services_dict,
+    'pull_cheeseprism_data': common_dict
 }
 
 # Initialize redis database
@@ -77,9 +81,8 @@ def save(attrs):
     """
     k = keys()
     p = rdb.pipeline()
+    job_dict = base_dicts[attrs['job_type']]
 
-    _type = attrs['job_type']
-    job_dict = base_dicts[_type]
     for key, val in attrs.items():
         job_dict[key] = val
 
@@ -95,11 +98,14 @@ def update(attrs):
     p = rdb.pipeline()
 
     job_dict = pop_job(default_queue_name, attrs['id'])
-    for key, val in attrs.items():
-        job_dict[key] = val
+    # sometimes the job_dict comes back as None, why?
 
-    p.sadd(k['jobs'], json.dumps(job_dict))
-    p.execute()
+    if job_dict:    
+        for key, val in attrs.items():
+            job_dict[key] = val
+
+        p.sadd(k['jobs'], json.dumps(job_dict))
+        p.execute()
 
 
 class Queue(object):
@@ -115,8 +121,7 @@ class Queue(object):
         job_type: (push_package|cycle_service)
         site: '',
         service: '',
-        time_started: '',
-        log_file: 'path to log file to write to'
+        time_started: ''
     }
 
     Push to Cheese Prism
@@ -149,12 +154,17 @@ class Queue(object):
         self.qm.subscriber('job_failure', handler='doula.queue:add_failure')
 
     def this(self, job_dict):
+        job_dict['status'] = 'queued'
+        # alextodo, this should happen when the job is started
+        job_dict['time_started'] = time.time()
         job_type = job_dict['job_type']
 
         if job_type is 'push_to_cheeseprism':
             job_dict['id'] = self.qm.enqueue('doula.jobs:push_to_cheeseprism', job_dict=job_dict)
         elif job_type is 'cycle_services':
             job_dict['id'] = self.qm.enqueue('doula.jobs:cycle_services', job_dict=job_dict)
+        elif job_type is 'pull_cheeseprism_data':
+            job_dict['id'] = self.qm.enqueue('doula.jobs:pull_cheeseprism_data', job_dict=job_dict)
         else:
             return None
 

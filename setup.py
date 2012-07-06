@@ -6,18 +6,21 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.txt')).read()
 
 requires = [
+    'APScheduler',
+    'fabric',
+    'gitpython',
     'Jinja2',
     'path.py',
     'pyramid',
-    'pyramid_debugtoolbar',
     'pyramid-jinja2',
-    'waitress',
-    'requests',
-    'simplejson',
+    'pyramid_debugtoolbar',
     'redis',
-    'fabric',
-    'gitpython',
+    'requests',
     'retools'
+    'retools',
+    'simplejson',
+    'supervisor',
+    'waitress',
     ]
 
 setup(name='Doula',

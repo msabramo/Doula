@@ -1,4 +1,5 @@
 from doula.config import Config
+from doula.jobs_timer import start_task_scheduling
 from doula.models.sites_dal import SiteDAL
 from doula.util import *
 from doula.views_helpers import *
@@ -14,7 +15,6 @@ import json
 import logging
 import os
 import time
-import traceback
 
 log = logging.getLogger('doula')
 
@@ -110,6 +110,7 @@ def load_config(event):
     Load the Service config settings
     """
     Config.load_config(event.app.registry.settings)
+    start_task_scheduling()
 
 @view_config(route_name='favicon')
 def favicon_view(request):

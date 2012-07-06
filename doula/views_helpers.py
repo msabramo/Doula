@@ -1,6 +1,7 @@
 from doula.models.sites_dal import SiteDAL
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.view import view_config
+import traceback
 
 def get_site(site_name):
     site = SiteDAL.get_site(site_name)

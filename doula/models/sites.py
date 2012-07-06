@@ -362,7 +362,7 @@ class Package(object):
     """
     Represents a python package
     """
-    def __init__(self, name):
+    def __init__(self, name, version):
         self.name = name
         self.version = version
     def get_versions(self):
