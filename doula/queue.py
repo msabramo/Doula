@@ -25,6 +25,7 @@ cycle_services_dict = dict({}.items() + common_dict.items())
 cycle_services_dict = dict({}.items() + common_dict.items())
 
 base_dicts = {
+    'base': common_dict,
     'push_to_cheeseprism': push_to_cheeseprism_dict,
     'cycle_services': cycle_services_dict,
     'pull_cheeseprism_data': common_dict,
@@ -44,9 +45,10 @@ def keys():
     }
 
 
-def get_jobs(queue_name):
+def get_jobs():
     # Combine the two job locations
-    jobs_json = rdb.smembers('doula:jobs:' + queue_name)
+    k = keys()
+    jobs_json = rdb.smembers(k['jobs'])
 
     # Created a list of all of the jobs(dict)
     jobs = []
@@ -57,26 +59,27 @@ def get_jobs(queue_name):
     return jobs
 
 
-def get_job(queue_name, id):
-    jobs = get_jobs(queue_name)
+def get_job(id):
+    jobs = get_jobs()
 
     for job in jobs:
         if job['id'] == id:
             return job
 
 
-def pop_job(queue_name, id):
-    jobs = get_jobs(queue_name)
-    p = rdb.pipeline()
+def pop_job(p, id):
+    k = keys()
+    jobs = get_jobs()
 
     for job in jobs:
         if job['id'] == id:
-            p.srem(queue_name, json.dumps(job))
-            p.execute()
+            p.srem(k['jobs'], json.dumps(job))
             return job
 
+    return None
 
-def save(attrs):
+
+def save(p, attrs):
     """
     Given a complete or partial "Job" dict, saves it
     """
@@ -84,22 +87,29 @@ def save(attrs):
     p = rdb.pipeline()
     job_dict = base_dicts[attrs['job_type']]
 
+    if 'job_type' in attrs:
+        _type = attrs['job_type']
+        job_dict = base_dicts[_type]
+    else:
+        job_dict = base_dicts['base']
+
     for key, val in attrs.items():
         job_dict[key] = val
 
     p.sadd(k['jobs'], json.dumps(job_dict))
-    p.execute()
 
 
-def update(attrs):
+def update(p, attrs):
     """
-    Updates a specific "Job" dict, must be give an id
+    Updates a specific "Job" dict, must be given an id
     """
     k = keys()
-    p = rdb.pipeline()
-
     job_dict = pop_job(default_queue_name, attrs['id'])
     # sometimes the job_dict comes back as None, why?
+    if 'id' in attrs:
+        job_dict = pop_job(p, attrs['id'])
+    else:
+        raise Exception('Must pass an id into the update function.')
 
     if job_dict:
         for key, val in attrs.items():
@@ -107,6 +117,8 @@ def update(attrs):
 
         p.sadd(k['jobs'], json.dumps(job_dict))
         p.execute()
+    else:
+        return False
 
 
 class Queue(object):
@@ -159,6 +171,7 @@ class Queue(object):
         # alextodo, this should happen when the job is started
         job_dict['time_started'] = time.time()
         job_type = job_dict['job_type']
+        p = rdb.pipeline()
 
         if job_type is 'push_to_cheeseprism':
             job_dict['id'] = self.qm.enqueue('doula.jobs:push_to_cheeseprism', job_dict=job_dict)
@@ -171,11 +184,12 @@ class Queue(object):
         else:
             return None
 
-        save(job_dict)
+        save(p, job_dict)
+        p.execute()
         return job_dict['id']
 
     def get(self, job_dict):
-        jobs = get_jobs(default_queue_name)
+        jobs = get_jobs()
 
         # Loop through each criteria, throw out the jobs that don't meet
         for job in jobs:
@@ -196,11 +210,15 @@ def add_result(job=None, result=None):
     """
     Subscriber that gets called right after the job gets run, and is successful.
     """
-    update({'id': job.job_id, 'status': 'complete'})
+    p = rdb.pipeline()
+    update(p, {'id': job.job_id, 'status': 'complete'})
+    p.execute()
 
 
 def add_failure(job=None, exc=None):
     """
     Subscriber that gets called when a job fails.
     """
-    update({'id': job.job_id, 'status': 'failed'})
+    p = rdb.pipeline()
+    update(p, {'id': job.job_id, 'status': 'failed'})
+    p.execute()

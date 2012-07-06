@@ -1,19 +1,18 @@
 import json
 import os
 import logging
-import subprocess
 import sys
 
 from git import Git
 from git import Repo
-from git import Submodule
 from doula.util import git_dirify
-from doula.util import dumps
+from doula.models.service import Service
 
 log = logging.getLogger('doula')
 log.setLevel(logging.INFO)
 std_out = logging.StreamHandler(sys.__stdout__)
 log.addHandler(std_out)
+
 
 class SiteTagHistory(object):
     """
@@ -26,12 +25,13 @@ class SiteTagHistory(object):
         self.branch = git_dirify(branch)
         self.log_path = log_path
         self.repo = self._checkout_repo(path, remote)
+
     def tags(self):
         # need to return a list of tags here for the site tag history
         pass
 
     def tag_site(self, tag, msg, apps):
-        """ 
+        """
         Tag every app with the new tag. Then tag the sitetaghistory repo
         with the tag and every repo as a submodule for that branch. The branch
         will always be equal to the site.
@@ -110,7 +110,6 @@ class SiteTagHistory(object):
         print 'RSLT: ' + str(rslt)
         f.close()
 
-
     def _tag_site_tag_history(self, tag, msg):
         """Tag the site tag history repo."""
         log.info('Tagging site tag history with tag %s' % tag)
@@ -159,13 +158,15 @@ class SiteTagHistory(object):
 # For development
 import random
 
+
 # alextodo, put into a unit test
 def get_random_tag():
     num = random.randrange(0, 1000000)
     return 'test_tag ' + str(num)
 
+
 def get_services():
-    services = { }
+    services = {}
 
     with open('temp/services.json') as app_file:
         rslt = json.loads(app_file.read())
@@ -189,6 +190,5 @@ if __name__ == '__main__':
     tag = get_random_tag()
     branch = 'mt1'
     apps = get_services()
-    
-    sth.tag_site(tag, 'tagging site test', apps)
 
+    sth.tag_site(tag, 'tagging site test', apps)

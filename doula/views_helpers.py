@@ -5,6 +5,10 @@ from pyramid.httpexceptions import HTTPNotFound
 from pyramid.view import view_config
 import traceback
 
+import logging
+
+log = logging.getLogger('doula')
+
 
 def get_site(site_name):
     site = SiteDAL.get_site(site_name)

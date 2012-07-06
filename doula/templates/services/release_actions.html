@@ -46,6 +46,9 @@
             </option>
           {% endfor %}
         </select>
+        <!-- alextodo, put the packages with github repos (basically sm packages) at the top, always
+        were not pulling all the data for repos.
+        -->
         {% if pckg.name in github_repos %}
         <a class="btn sm-btn-success new-version-btn" data-name="{{pckg.name}}" href="#">
           <i class="icon-chevron-right icon-white"></i> New Version

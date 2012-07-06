@@ -1,6 +1,6 @@
 from doula.cache import Cache
 from doula.github.github import pull_devmonkeys_repos
-from doula.models.sites import Package
+from doula.models.package import Package
 from doula.services.cheese_prism import CheesePrism
 from doula.util import *
 import supervisor
