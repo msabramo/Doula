@@ -15,8 +15,7 @@ def push_to_cheeseprism(job_dict=None):
     has a job_type of 'push_to_cheeseprism'
     joetodo be descriptive about what the task actually does.
     """
-    # joetodo, get the version number too
-    p = Package(job_dict['service'], '0')
+    p = Package(job_dict['service'], '0', job_dict['remote'])
     p.distribute(job_dict['branch'], job_dict['version'])
 
 

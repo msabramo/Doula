@@ -4,15 +4,17 @@ from fabric.api import *
 from git import *
 from tempfile import TemporaryFile
 import os
+import shutil
 
 
 class Package(object):
     """
     Represents a python package
     """
-    def __init__(self, name, version):
+    def __init__(self, name, version, remote=None):
         self.name = name
         self.version = version
+        self.removet = remote
 
     def get_versions(self):
         pypackage = CheesePrism.find_package_by_name(self.name)
@@ -40,7 +42,7 @@ class Package(object):
             repo_path = os.path.join('repos', self.name)
 
             # Clone specified service's repo
-            repo = Repo.clone_from("git@code.corp.surveymonkey.com:joed/%s.git" % self.name,
+            repo = Repo.clone_from(self.remote + "/%s.git" % self.name,
                                    repo_path)
             yield repo
         finally:

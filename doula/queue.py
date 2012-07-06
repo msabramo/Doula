@@ -2,6 +2,7 @@ from retools.queue import QueueManager
 import json
 import redis
 import time
+import traceback
 
 default_queue_name = 'main'
 
@@ -11,12 +12,13 @@ common_dict = {
     'job_type': '',
     'site': '',
     'service': '',
-    'time_started': 0
+    'time_started': 0,
+    'exc': ''
 }
 
 push_to_cheeseprism_dict = dict({
     'remote': '',
-    'branch': '',
+    'branch': 'master',
     'version': ''
 }.items() + common_dict.items())
 
@@ -220,5 +222,6 @@ def add_failure(job=None, exc=None):
     Subscriber that gets called when a job fails.
     """
     p = rdb.pipeline()
-    update(p, {'id': job.job_id, 'status': 'failed'})
+    exc = traceback.format_exc()
+    update(p, {'id': job.job_id, 'status': 'failed', 'exc': exc})
     p.execute()
