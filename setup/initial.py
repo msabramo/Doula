@@ -19,7 +19,7 @@ def do_setup(project):
     supervisor_file = '/etc/supervisor/conf.d/%s.conf' % project
     if exists(supervisor_file):
         sudo('rm %s' % supervisor_file)
-        run('ln -s $(pwd)/supervisor.conf %s' % supervisor_file)
+    run('ln -s %s/etc/supervisor.conf %s' % (path, supervisor_file)
 
 def setup(project):
     _validate(project)
