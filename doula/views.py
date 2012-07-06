@@ -1,13 +1,10 @@
 from doula.config import Config
 from doula.models.sites_dal import SiteDAL
-from doula.services.cheese_prism import CheesePrism
-from doula.util import dumps
-from doula.util import git_dirify
-from doula.util import to_log_msg
+from doula.util import *
+from doula.views_helpers import *
 from git import GitCommandError
 from pyramid.events import ApplicationCreated
 from pyramid.events import subscriber
-from pyramid.httpexceptions import HTTPInternalServerError
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import FileResponse
 from pyramid.response import Response
@@ -72,16 +69,6 @@ def site_tag(request):
         return handle_json_exception(e, msg, request)
 
 
-# QUEUE VIEWS
-@view_config(route_name='queue', renderer='queue/index.html')
-def show_queue(request):
-    return { 'config': Config }
-
-# SETTINGS VIEWS
-@view_config(route_name='settings', renderer='settings/index.html')
-def show_settings(request):
-    return { 'config': Config }
-
 # BAMBINO VIEWS
 @view_config(route_name='bambino_register', renderer='json')
 def bambino_register(request):
@@ -130,36 +117,3 @@ def favicon_view(request):
     icon = os.path.join(here, 'static', 'favicon.ico')
     return FileResponse(icon, request=request)
 
-
-##################
-# ERROR HANDLING
-##################
-
-@view_config(context=HTTPNotFound, renderer='error/404.html')
-def not_found(self, request):
-    request.response.status = 404
-    log_error(request.exception, request.exception.message, request)
-
-    return { 'msg': request.exception.message, 'config': Config }
-
-def handle_json_exception(e, msg, request):
-    request.response.status = 500
-    log_error(e, msg, request)
-    tb = traceback.format_exc()
-
-    return dumps({ 'success': False, 'msg': msg, 'stacktrace': tb })
-
-def handle_exception(e, request):
-    request.response.status = 500
-    request.override_renderer = 'error/exception.html'
-    log_error(e, e.message, request)
-    tb = traceback.format_exc()
-
-    return { 'msg': e.message, 'stacktrace': tb, 'config': Config }
-
-def log_error(e, msg, request):
-    tb = traceback.format_exc()
-    print "TRACEBACK\n" + str(tb)
-
-    log_vals = { 'url': request.url, 'error': msg, 'stacktrace': tb }
-    log.error(to_log_msg(log_vals))

@@ -1,3 +1,4 @@
+from doula.cache import Cache
 from doula.util import dumps
 from doula.util import pull_url
 
@@ -35,6 +36,9 @@ class CheesePrism(object):
         """
         Package URL's are case sensitive so we need to find the exact URL
         """
+        # redis key == cheeseprism_pckg_(cleaned name) = all versions of a pckg
+        # also cull together the data for a package, commits, log history
+        # all that ish.
         packages = CheesePrism.all_packages()
         comparable_name = CheesePrism.clean_for_compare(name)
 
@@ -57,6 +61,7 @@ class CheesePrism(object):
         """
         Return all packages
         """
+        # redis key == cheeseprism_pckgs = (set)
         text = pull_url(CheesePrism.url + '/index/')
         matches = re.findall(r'a.+href="(.+)"', text, re.M)
 

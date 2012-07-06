@@ -1,23 +1,14 @@
 from doula.config import Config
 from doula.models.sites_dal import SiteDAL
 from doula.services.cheese_prism import CheesePrism
-from doula.util import dumps
-from doula.util import git_dirify
-from doula.util import to_log_msg
-from git import GitCommandError
-from pyramid.events import ApplicationCreated
-from pyramid.events import subscriber
-from pyramid.httpexceptions import HTTPInternalServerError
+from doula.util import *
+from doula.views_helpers import *
 from pyramid.httpexceptions import HTTPNotFound
-from pyramid.response import FileResponse
 from pyramid.response import Response
 from pyramid.view import view_config
 
 import json
 import logging
-import os
-import time
-import traceback
 
 log = logging.getLogger('doula')
 
@@ -42,7 +33,7 @@ def service(request):
         'service': service, 
         'config': Config,
         'other_packages': other_packages
-        }
+    }
 
 
 @view_config(route_name='service_details', renderer="services/service_details.html")
@@ -97,15 +88,6 @@ def validate_token(request):
     # Validate security token
     if(request.POST['token'] != Config.get('token')):
         raise Exception("Invalid security token")
-
-def get_site(site_name):
-    site = SiteDAL.get_site(site_name)
-
-    if not site:
-        msg = 'Unable to find site "{0}"'.format(site_name)
-        raise HTTPNotFound(msg)
-
-    return site
 
 @view_config(route_name="service_freeze")
 def service_freeze(request):
