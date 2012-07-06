@@ -1,5 +1,5 @@
 import supervisor
-from doula.models.sites import Package
+from doula.models.package import Package
 
 
 def push_to_cheeseprism(job_dict=None):

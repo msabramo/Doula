@@ -4,10 +4,10 @@ from mock import patch
 from mock import call
 from doula.cache import Cache
 from doula.models.sites_dal import SiteDAL
-from doula.models.sites import Package
+from doula.models.package import Package
+
 
 class TestSitesDAL(unittest.TestCase):
-
     def setUp(self):
         Cache.env = 'dev'
         Cache.clear_cache()
@@ -108,7 +108,7 @@ class PackageTests(unittest.TestCase):
         pass
 
     def make_one(self):
-        return Package("dummycode", "1.3.1")
+        return Package("dummycode")
 
     def test_repo(self):
         package = self.make_one()

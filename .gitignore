@@ -19,6 +19,8 @@
 *.rar
 *.tar
 *.zip
+*.egg
+*.egg-info
 
 # Logs and databases #
 ######################
@@ -54,5 +56,3 @@ data
 env/
 temp
 .coverage
-Doula.egg-info
-egggitinfo-0.1-py2.7.egg

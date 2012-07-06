@@ -39,9 +39,10 @@ def keys():
     }
 
 
-def get_jobs(queue_name):
+def get_jobs():
     # Combine the two job locations
-    jobs_json = rdb.smembers('doula:jobs:' + queue_name)
+    k = keys()
+    jobs_json = rdb.smembers(k['jobs'])
 
     # Created a list of all of the jobs(dict)
     jobs = []
@@ -52,21 +53,22 @@ def get_jobs(queue_name):
     return jobs
 
 
-def get_job(queue_name, id):
-    jobs = get_jobs(queue_name)
+def get_job(id):
+    jobs = get_jobs()
 
     for job in jobs:
         if job['id'] == id:
             return job
 
 
-def pop_job(queue_name, id):
-    jobs = get_jobs(queue_name)
+def pop_job(id):
+    k = keys()
     p = rdb.pipeline()
+    jobs = get_jobs()
 
     for job in jobs:
         if job['id'] == id:
-            p.srem(queue_name, json.dumps(job))
+            p.srem(k['jobs'], json.dumps(job))
             p.execute()
             return job
 
@@ -94,7 +96,7 @@ def update(attrs):
     k = keys()
     p = rdb.pipeline()
 
-    job_dict = pop_job(default_queue_name, attrs['id'])
+    job_dict = pop_job(attrs['id'])
     for key, val in attrs.items():
         job_dict[key] = val
 
@@ -162,7 +164,7 @@ class Queue(object):
         return job_dict['id']
 
     def get(self, job_dict):
-        jobs = get_jobs(default_queue_name)
+        jobs = get_jobs()
 
         # Loop through each criteria, throw out the jobs that don't meet
         for job in jobs:
