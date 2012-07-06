@@ -10,16 +10,40 @@ def _validate(project):
         print 'this command takes one of the following arguments:'
         print valid_projects
 
+def _pull(project, path):
+    with cd(path):
+        if not exists('bin'):
+            run('virtualenv .')
+        with prefix('. bin/activate'):
+            run('echo $VIRTUAL_ENV')
+            run('pip install -e git+git://github.com/Doula/%s.git@master#egg=%s' % (project.title(), project))
+        with cd('src/%s' % project):
+            run('git submodule init')
+            run('git submodule update')
+        with cd('src/%s/etc' % project):
+            run('git checkout master')
+            run('git pull origin master')
+            if(project == 'doula'):
+                _restart(project, 6543)
+            else:
+                _restart(project, 6666)
+
 def do_setup(project):
     path = '/opt/%s' % project
     if not exists(path):
         sudo('mkdir %s' % path)
         sudo('chown doula:root %s' % path)
         sudo('chmod 0775 %s' % path)
+
     supervisor_file = '/etc/supervisor/conf.d/%s.conf' % project
-    if exists(supervisor_file):
-        sudo('rm %s' % supervisor_file)
-    run('ln -s %s/etc/supervisor.conf %s' % (path, supervisor_file)
+    sudo('rm %s' % supervisor_file)
+    sudo('ln -s %s/src/bambino/etc/supervisor.conf %s' % (path, supervisor_file))
+
+    _pull(project, path)
+
+def _restart(project, port):
+    run('supervisorctl reread')
+    run('supervisorctl load %s_%s' % (project, port))
 
 def setup(project):
     _validate(project)
