@@ -16,8 +16,6 @@ requires = [
     'pyramid_debugtoolbar',
     'redis',
     'requests',
-    'retools'
-    'retools',
     'simplejson',
     'supervisor',
     'waitress',
