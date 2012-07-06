@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from fabric.api import *
 from tempfile import TemporaryFile
@@ -10,8 +11,9 @@ class Package(object):
     """
     Represents a python package
     """
-    def __init__(self, name):
+    def __init__(self, name, remote=None):
         self.name = name
+        self.remote = remote
 
     def distribute(self, branch, new_version):
         with self.repo() as repo:
@@ -30,7 +32,7 @@ class Package(object):
             repo_path = os.path.join('repos', self.name)
 
             # Clone specified service's repo
-            repo = Repo.clone_from("git@code.corp.surveymonkey.com:joed/%s.git" % self.name,
+            repo = Repo.clone_from(self.remote + "/%s.git" % self.name,
                                    repo_path)
             yield repo
         finally:
