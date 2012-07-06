@@ -147,7 +147,7 @@ class SiteDAL(object):
 
     @staticmethod
     def get_site(site_name):
-        from doula.models.sites import Site
+        from doula.models.site import Site
         simple_site = SiteDAL._get_site(site_name)
         return Site.build_site(simple_site)
 

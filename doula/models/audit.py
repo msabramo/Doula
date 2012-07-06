@@ -1,7 +1,6 @@
 """
 Implements the auditing piece of Doula.
 """
-
 import json
 
 from datetime import datetime
@@ -43,4 +42,3 @@ class Audit(object):
 
     def _get_set_key(self, site_name, app_name):
         return '_'.join([site_name, app_name, 'logs'])
-

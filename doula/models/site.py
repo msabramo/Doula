@@ -1,3 +1,5 @@
+import logging
+
 from fabric.api import *
 from git import *
 
