@@ -1,12 +1,13 @@
 from doula.cache import Cache
+from doula.github.github import pull_devmonkeys_repos
 from doula.models.sites import Package
 from doula.services.cheese_prism import CheesePrism
 from doula.util import *
-import json
 import supervisor
 import traceback
 
 cache = Cache.cache()
+
 
 def push_to_cheeseprism(job_dict=None):
     """
@@ -18,6 +19,7 @@ def push_to_cheeseprism(job_dict=None):
     p = Package(job_dict['service'], '0')
     p.distribute(job_dict['branch'], job_dict['version'])
 
+
 # joenote why pass in None? you must have a job_dict
 def cycle_services(job_dict=None):
     """
@@ -27,11 +29,12 @@ def cycle_services(job_dict=None):
     """
     supervisor.restart()
 
+
 def pull_cheeseprism_data(job_dict):
     """
     Ping Cheese Prism and pull the latest packages and all of their versions.
     """
-    # alexgtodo, update the log file
+    # alexgtodo, update the log file, use the correct log file
     try:
         pipeline = cache.pipeline()
 
@@ -44,16 +47,25 @@ def pull_cheeseprism_data(job_dict):
 
         pipeline.execute()
 
-        print 'done pulling data from cheeseprism'
+        print 'Done pulling data from cheeseprism'
     except Exception as e:
         # alextodo, need to pass come up with a commone way to handle failure
         print e
         print traceback.format_exc()
         raise
 
+
 def pull_github_data(job_dict):
     """
     Pull the github data for every python package.
     Pull commit history, tags, branches. Everything.
     """
-    pass
+    try:
+        repos = pull_devmonkeys_repos()
+        cache.set("devmonkeys_repos", dumps(repos))
+
+        print 'Done pulling github data'
+    except Exception as e:
+        print e
+        print traceback.format_exc()
+        raise

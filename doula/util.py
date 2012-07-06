@@ -4,6 +4,14 @@ import re
 import requests
 
 
+def clean_for_compare(name):
+        name = name.lower()
+        name = name.replace('-', '')
+        name = name.replace('_', '')
+
+        return name
+
+
 def pull_url(url):
     """
     Pull the URL text. Always raise the status error.
@@ -13,6 +21,7 @@ def pull_url(url):
     r.raise_for_status()
     return r.text
 
+
 def dirify(url):
     url = url.lower()
     url = url.replace('<', '')
@@ -21,8 +30,9 @@ def dirify(url):
     url = url.replace('"', '')
     url = re.sub(r'\s+', '_', url)
     url = re.sub(r'[^\d\w\s]!', '', url)
-    
+
     return url
+
 
 def git_dirify(name):
     """
@@ -40,23 +50,26 @@ def git_dirify(name):
     # cannot end with the /
     name = name.rstrip('/')
     # cannot end with the .lock
-    name = name.rstrip('.lock')    
+    name = name.rstrip('.lock')
 
     return name
+
 
 class ObjectEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, object):
-            return getattr(obj, '__dict__', { })
-        
+            return getattr(obj, '__dict__', {})
+
         raise TypeError(repr(obj) + " is not JSON serializable")
-    
+
 
 def dumps(obj):
     return ObjectEncoder().encode(obj)
 
+
 def pprint(obj):
     pretty_print(dumps(obj))
+
 
 def is_number(s):
     try:
@@ -65,13 +78,14 @@ def is_number(s):
     except ValueError:
         return False
 
+
 def to_log_msg(log_vals):
     """
-    Return a key=value pair style log msg. Makes our log msg easy to 
+    Return a key=value pair style log msg. Makes our log msg easy to
     search in Splunk.
     """
     log_msg = ''
-    for key,value in log_vals.iteritems():
+    for key, value in log_vals.iteritems():
         log_msg += str(key) + '=' + str(value) + ' '
 
     return log_msg.strip()

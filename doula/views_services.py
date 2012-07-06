@@ -1,4 +1,5 @@
 from doula.config import Config
+from doula.github.github import get_service_github_repos
 from doula.models.sites_dal import SiteDAL
 from doula.services.cheese_prism import CheesePrism
 from doula.util import *
@@ -7,7 +8,6 @@ from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
 from pyramid.view import view_config
 
-import json
 import logging
 
 log = logging.getLogger('doula')
@@ -16,22 +16,29 @@ log = logging.getLogger('doula')
 # SERVICE VIEWS
 ###############
 
+
 @view_config(route_name='service', renderer="services/release_actions.html")
 def service(request):
     try:
         site = get_site(request.matchdict['site_id'])
         service = site.services[request.matchdict['serv_id']]
         other_packages = CheesePrism.other_packages(service.packages)
+        # alextodo, over weekend put the github repos into the service package
+        # that data should live with the package, not by itself somewhere else.
+        github_repos = get_service_github_repos(service)
     except Exception:
         msg = 'Unable to find site and service under "{0}" and "{1}"'
         msg = msg.format(request.matchdict['site_id'], request.matchdict['serv_id'])
 
         raise HTTPNotFound(msg)
 
-    return { 
-        'site': site, 
-        'service': service, 
+    return {
+        'site': site,
+        'service': service,
         'config': Config,
+        'service_json': dumps(service),
+        'github_repos': github_repos,
+        'github_repos_json': dumps(github_repos),
         'other_packages': other_packages
     }
 
@@ -41,14 +48,15 @@ def service_details(request):
     try:
         site = get_site(request.matchdict['site_id'])
         service = site.services[request.matchdict['serv_id']]
-        
+
     except Exception:
         msg = 'Unable to find site and service under "{0}" and "{1}"'
         msg = msg.format(request.matchdict['site_id'], request.matchdict['serv_id'])
 
         raise HTTPNotFound(msg)
 
-    return { 'site': site, 'service': service, 'config': Config }
+    return {'site': site, 'service': service, 'config': Config}
+
 
 @view_config(route_name='service_tag', renderer="string")
 def service_tag(request):
@@ -61,7 +69,7 @@ def service_tag(request):
         # pull the updated service
         updated_service = SiteDAL.get_service(request.matchdict['site_id'], request.matchdict['serv_id'])
 
-        return dumps({ 'success': True, 'service': updated_service })
+        return dumps({'success': True, 'service': updated_service})
     except Exception as e:
         msg = 'Unable to tag site and service under "{0}" and "{1}"'
         msg = msg.format(request.POST['site_id'], request.POST['serv_id'])
@@ -84,10 +92,12 @@ def service_deploy(request):
         msg = msg.format(e.message)
         return handle_json_exception(e, msg, request)
 
+
 def validate_token(request):
     # Validate security token
     if(request.POST['token'] != Config.get('token')):
         raise Exception("Invalid security token")
+
 
 @view_config(route_name="service_freeze")
 def service_freeze(request):

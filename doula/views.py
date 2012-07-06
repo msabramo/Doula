@@ -6,9 +6,7 @@ from doula.views_helpers import *
 from git import GitCommandError
 from pyramid.events import ApplicationCreated
 from pyramid.events import subscriber
-from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import FileResponse
-from pyramid.response import Response
 from pyramid.view import view_config
 
 import json
@@ -18,10 +16,12 @@ import time
 
 log = logging.getLogger('doula')
 
+
 # SITE VIEWS
 @view_config(route_name='home', renderer='sites/index.html')
 def show_home(request):
     return show_sites(request)
+
 
 @view_config(route_name='sites', renderer='sites/index.html')
 def show_sites(request):
@@ -33,7 +33,8 @@ def show_sites(request):
     except Exception as e:
         return handle_exception(e, request)
 
-    return { 'sites': sites, 'config': Config }
+    return {'sites': sites, 'config': Config}
+
 
 @view_config(route_name='site', renderer="sites/site.html")
 def site(request):
@@ -43,11 +44,12 @@ def site(request):
         return handle_exception(e, request)
 
     return {
-        'site': site, 
-        'site_json': dumps(site), 
+        'site': site,
+        'site_json': dumps(site),
         'token': Config.get('token'),
         'config': Config
         }
+
 
 @view_config(route_name='site_tag', renderer="string")
 def site_tag(request):
@@ -85,6 +87,7 @@ def bambino_register(request):
 
     return {'success': 'true'}
 
+
 @view_config(route_name='bambino_ips', renderer="string")
 def bambino_ips(request):
     """
@@ -112,9 +115,9 @@ def load_config(event):
     Config.load_config(event.app.registry.settings)
     start_task_scheduling()
 
+
 @view_config(route_name='favicon')
 def favicon_view(request):
     here = os.path.dirname(__file__)
     icon = os.path.join(here, 'static', 'favicon.ico')
     return FileResponse(icon, request=request)
-

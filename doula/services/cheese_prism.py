@@ -9,13 +9,6 @@ log = logging.getLogger('doula')
 cache = Cache.cache()
 
 
-def clean_for_compare(name):
-        name = name.lower()
-        name = name.replace('-', '')
-        name = name.replace('_', '')
-
-        return name
-
 class PythonPackage(object):
     def __init__(self, url, versions=[]):
         self.url = url
@@ -29,7 +22,7 @@ class PythonPackage(object):
         """
         if len(self.versions) == 0:
             self.versions = CheesePrism.pull_package_versions(self.url)
-        
+
         return self.versions
 
     def get_versions(self):
@@ -60,7 +53,7 @@ class CheesePrism(object):
         for p in packages:
             if comparable_name == clean_for_compare(p.name):
                 return p
-        
+
         return False
 
     @staticmethod
@@ -76,7 +69,7 @@ class CheesePrism(object):
             all_packages.append(pckg)
 
         return all_packages
-        
+
     @staticmethod
     def pull_all_packages():
         """
@@ -86,7 +79,7 @@ class CheesePrism(object):
         matches = re.findall(r'a.+href="(.+)"', text, re.M)
 
         return [PythonPackage(m) for m in matches]
-    
+
     @staticmethod
     def pull_package_versions(url):
         text = pull_url(url)

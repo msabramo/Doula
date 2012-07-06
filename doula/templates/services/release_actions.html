@@ -46,8 +46,11 @@
             </option>
           {% endfor %}
         </select>
-        <a class="btn sm-btn-success new-version-btn" href="#">
-  <i class="icon-chevron-right icon-white"></i> New Version</a>
+        {% if pckg.name in github_repos %}
+        <a class="btn sm-btn-success new-version-btn" data-name="{{pckg.name}}" href="#">
+          <i class="icon-chevron-right icon-white"></i> New Version
+        </a>
+        {% endif %}
       </td>
     </tr>
     {% endfor %}
@@ -109,5 +112,11 @@
 {% endblock %}
 
 {% block scripts %}
+<script>
+var __service = {{service_json|safe}};
+var __github_repos = {{github_repos_json|safe}};
+
+</script>
+<script language="javascript" type="text/javascript" src="/js/services/serv_data.js"></script>
 <script language="javascript" type="text/javascript" src="/js/services/serv_env.js"></script>
 {% endblock %}

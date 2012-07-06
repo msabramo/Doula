@@ -1,6 +1,8 @@
 var ServiceEnv = {
 
 	init: function() {
+		Data.init();
+
 		this.bindToUIActions();
 		this.bindToDataActions();
 	},
@@ -16,9 +18,17 @@ var ServiceEnv = {
 			$('#add-packages').modal();
 		});
 
-		$('.new-version-btn').on('click', function() {
-			$('#push-to-cheese-modal').modal();
-		});
+		$('.new-version-btn').on('click', this.showNewVersionModal);
+	},
+
+	showNewVersionModal: function() {
+		var name = $(this).attr('data-name');
+		var repo = Data.findGitHubRepo(name);
+		// alextodo need to build the right modal information.
+		console.log(repo);
+
+		$('#push-to-cheese-modal').modal();
+		return false;
 	}
 };
 

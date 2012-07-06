@@ -1,10 +1,18 @@
 import datetime
+from doula.util import clean_for_compare
+
+
+def clean(text):
+    return clean_for_compare(text)
+
 
 def get_status_class(status):
     return get_class('status', status)
 
+
 def get_stat_class(status):
     return get_class('stat', status)
+
 
 def get_class(prefix, status):
     if status == 'deployed':
@@ -18,6 +26,7 @@ def get_class(prefix, status):
     else:
         return prefix + '-changed'
 
+
 def format_datetime(date):
     year = int(date[0:4])
     month = int(date[4:6])
@@ -30,6 +39,7 @@ def format_datetime(date):
     format = '%m/%d/%Y %I:%M %p'
     return d.strftime(format)
 
+
 def format_isodate(isodate):
     """
     Formats an iso date like 2012-05-04T16:30:20.140762
@@ -37,8 +47,9 @@ def format_isodate(isodate):
     """
     dt, _, us = isodate.partition(".")
     dt = datetime.datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
-    
+
     return dt.strftime('%B %d, %Y %I:%M %p')
+
 
 def format_isodate_date(isodate):
     """
@@ -47,8 +58,9 @@ def format_isodate_date(isodate):
     """
     dt, _, us = isodate.partition(".")
     dt = datetime.datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
-    
+
     return dt.strftime('%B %d, %Y')
+
 
 def format_isodate_time(isodate):
     """
@@ -57,8 +69,9 @@ def format_isodate_time(isodate):
     """
     dt, _, us = isodate.partition(".")
     dt = datetime.datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
-    
+
     return dt.strftime('%I:%M %p')
+
 
 def get_pretty_status(status):
     """
@@ -72,7 +85,7 @@ def get_pretty_status(status):
         'change_to_app_and_config': 'Changes to Configuration and Service Environment',
         'uncommitted_changes': 'Uncommitted Changes'
     }
-    
+
     if status in statuses:
         return statuses[status]
     else:

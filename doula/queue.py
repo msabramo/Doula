@@ -27,7 +27,8 @@ cycle_services_dict = dict({}.items() + common_dict.items())
 base_dicts = {
     'push_to_cheeseprism': push_to_cheeseprism_dict,
     'cycle_services': cycle_services_dict,
-    'pull_cheeseprism_data': common_dict
+    'pull_cheeseprism_data': common_dict,
+    'pull_github_data': common_dict
 }
 
 # Initialize redis database
@@ -100,7 +101,7 @@ def update(attrs):
     job_dict = pop_job(default_queue_name, attrs['id'])
     # sometimes the job_dict comes back as None, why?
 
-    if job_dict:    
+    if job_dict:
         for key, val in attrs.items():
             job_dict[key] = val
 
@@ -165,6 +166,8 @@ class Queue(object):
             job_dict['id'] = self.qm.enqueue('doula.jobs:cycle_services', job_dict=job_dict)
         elif job_type is 'pull_cheeseprism_data':
             job_dict['id'] = self.qm.enqueue('doula.jobs:pull_cheeseprism_data', job_dict=job_dict)
+        elif job_type is 'pull_github_data':
+            job_dict['id'] = self.qm.enqueue('doula.jobs:pull_github_data', job_dict=job_dict)
         else:
             return None
 
