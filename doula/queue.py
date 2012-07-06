@@ -22,6 +22,7 @@ push_to_cheeseprism_dict = dict({
 cycle_services_dict = dict({}.items() + common_dict.items())
 
 base_dicts = {
+    'base': common_dict,
     'push_to_cheeseprism': push_to_cheeseprism_dict,
     'cycle_services': cycle_services_dict
 }
@@ -61,47 +62,53 @@ def get_job(id):
             return job
 
 
-def pop_job(id):
+def pop_job(p, id):
     k = keys()
-    p = rdb.pipeline()
     jobs = get_jobs()
 
     for job in jobs:
         if job['id'] == id:
             p.srem(k['jobs'], json.dumps(job))
-            p.execute()
             return job
 
+    return None
 
-def save(attrs):
+
+def save(p, attrs):
     """
     Given a complete or partial "Job" dict, saves it
     """
     k = keys()
-    p = rdb.pipeline()
 
-    _type = attrs['job_type']
-    job_dict = base_dicts[_type]
+    if 'job_type' in attrs:
+        _type = attrs['job_type']
+        job_dict = base_dicts[_type]
+    else:
+        job_dict = base_dicts['base']
+
     for key, val in attrs.items():
         job_dict[key] = val
 
     p.sadd(k['jobs'], json.dumps(job_dict))
-    p.execute()
 
 
-def update(attrs):
+def update(p, attrs):
     """
-    Updates a specific "Job" dict, must be give an id
+    Updates a specific "Job" dict, must be given an id
     """
     k = keys()
-    p = rdb.pipeline()
 
-    job_dict = pop_job(attrs['id'])
-    for key, val in attrs.items():
-        job_dict[key] = val
+    if 'id' in attrs:
+        job_dict = pop_job(p, attrs['id'])
+    else:
+        raise Exception('Must pass an id into the update function.')
 
-    p.sadd(k['jobs'], json.dumps(job_dict))
-    p.execute()
+    if job_dict:
+        for key, val in attrs.items():
+            job_dict[key] = val
+        p.sadd(k['jobs'], json.dumps(job_dict))
+    else:
+        return False
 
 
 class Queue(object):
@@ -151,7 +158,12 @@ class Queue(object):
         self.qm.subscriber('job_failure', handler='doula.queue:add_failure')
 
     def this(self, job_dict):
-        job_type = job_dict['job_type']
+        p = rdb.pipeline()
+
+        if 'job_type' in job_dict:
+            job_type = job_dict['job_type']
+        else:
+            return None
 
         if job_type is 'push_to_cheeseprism':
             job_dict['id'] = self.qm.enqueue('doula.jobs:push_to_cheeseprism', job_dict=job_dict)
@@ -160,7 +172,8 @@ class Queue(object):
         else:
             return None
 
-        save(job_dict)
+        save(p, job_dict)
+        p.execute()
         return job_dict['id']
 
     def get(self, job_dict):
@@ -185,11 +198,15 @@ def add_result(job=None, result=None):
     """
     Subscriber that gets called right after the job gets run, and is successful.
     """
-    update({'id': job.job_id, 'status': 'complete'})
+    p = rdb.pipeline()
+    update(p, {'id': job.job_id, 'status': 'complete'})
+    p.execute()
 
 
 def add_failure(job=None, exc=None):
     """
     Subscriber that gets called when a job fails.
     """
-    update({'id': job.job_id, 'status': 'failed'})
+    p = rdb.pipeline()
+    update(p, {'id': job.job_id, 'status': 'failed'})
+    p.execute()
