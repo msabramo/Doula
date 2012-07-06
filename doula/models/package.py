@@ -5,22 +5,6 @@ from tempfile import TemporaryFile
 from git import *
 from contextlib import contextmanager
 
-# Defines the Data Models for Doula and Bambino.
-#
-# sites
-#   Site
-#     nodes
-#       services
-#         Application
-#           packages
-#             Package
-#     services
-#       Application
-#         packages
-#           Package
-
-log = logging.getLogger('doula')
-
 
 class Package(object):
     """
