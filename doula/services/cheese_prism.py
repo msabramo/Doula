@@ -75,7 +75,7 @@ class CheesePrism(object):
         """
         Return all the packages from the Cheese Prism site.
         """
-        text = pull_url(CheesePrism.url + '/index/')
+        text = pull_url(CheesePrism.url + 'index/')
         matches = re.findall(r'a.+href="(.+)"', text, re.M)
 
         return [PythonPackage(m) for m in matches]
