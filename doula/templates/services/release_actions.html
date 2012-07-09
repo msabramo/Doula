@@ -48,6 +48,7 @@
     {% endfor %}
 
     <!-- packages without github info, alextodo, hide this by default -->
+    {# do we want to only show the other dependencies or should you be able to change them? what else can we change?
     {% for pckg in service.packages|sort(attribute='name') %}
     {% if not pckg.get_github_info() %}
     <tr>
@@ -67,6 +68,7 @@
     </tr>
     {% endif %}
     {% endfor %}
+    #}
   </tbody>
 </table>
 </div>
