@@ -44,78 +44,84 @@ var EventUtil = {
     onclick: function(selector, func) {
         $(selector).on('click', _bind(function(event) {
             func = _bind(func, this);
-            func(event)
+            func(event);
             return false;
         }, this));
     }
-}
+};
 
 // Implements the publish subscribe model, using jquery
 var DataEventManager = {
     subscribe: function(event, fn) {
         $(this).bind(event, fn);
     },
-    
+
     publish: function(event, data) {
         $(this).trigger(event, data);
     }
-}
+};
 
 // This class encapsulates all the common functionality of a standard
 // get or post for this application
 var AJAXUtil = {
-    
+
     post: function(msg, url, params, onDone, onFail) {
         this._send(msg, 'POST', url, params, onDone, onFail);
     },
-    
+
     get: function(msg, url, params, onDone, onFail) {
         this._send(msg, 'GET', url, params, onDone, onFail);
     },
-    
+
     _send: function(msg, type, url, params, onDone, onFail) {
         $('#progress_bar').show();
         onDone = _bind(onDone, this);
-        
+
         $.ajax({
               url: url,
               type: type,
               data: this._getDataValues(params),
               success: function(response) {
                 $('#progress_bar').hide();
-                  rslt = (typeof(response) == 'string') ? 
+                  try {
+                    rslt = (typeof(response) == 'string') ?
                     $.parseJSON(response) : response;
 
-                  if(rslt.success) {
-                      onDone(rslt);
+                    if(rslt.success) {
+                        onDone(rslt);
+                    }
+                    else {
+                        if(typeof(onFail) == 'function') {
+                            onFail(rslt);
+                        }
+                        else {
+                            AJAXUtil._showStandardErrorMessage(rslt);
+                        }
+                    }
                   }
-                  else {
-                      if(typeof(onFail) == 'function') {
-                          onFail(rslt);
-                      }
-                      else {
-                          AJAXUtil._showStandardErrorMessage(rslt);
-                      }
+                  catch(err) {
+                    // response isn't JSON, simple HTML
+                    onDone(response);
                   }
               }
         });
     },
-    
+
     _getDataValues: function(params) {
         var dataValues = '';
         var count = 0;
-        
+
         for(var key in params) {
-            if(dataValues != '') dataValues += '&';
+            if(dataValues !== '') dataValues += '&';
             dataValues += key + '=' + encodeURIComponent(params[key]);
         }
-        
+
         return dataValues;
     },
-    
+
     _showStandardErrorMessage: function(rslt) {
         // alextodo, show standard error message too
         // no modals
         alert(rslt.msg);
     }
-}
+};

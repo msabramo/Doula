@@ -1,9 +1,9 @@
 import datetime
-from doula.util import clean_for_compare
+from doula.util import comparable_name
 
 
 def clean(text):
-    return clean_for_compare(text)
+    return comparable_name(text)
 
 
 def get_status_class(status):

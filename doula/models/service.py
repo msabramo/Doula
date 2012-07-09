@@ -1,16 +1,13 @@
-import re
-import requests
-import logging
-import operator
-
+from doula.models.audit import Audit
+from doula.models.package import Package
+from doula.models.sites_dal import SiteDAL
+from doula.util import *
 from fabric.api import *
 from git import *
-
-from doula.util import dirify
-from doula.util import is_number
-from doula.models.audit import Audit
-from doula.models.sites_dal import SiteDAL
-from doula.models.package import Package
+import logging
+import operator
+import re
+import requests
 
 # Defines the Data Models for Doula and Bambino.
 #
@@ -180,21 +177,7 @@ class Service(object):
         Get the next logical version.
         i.e. 0.2.4 -> 0.2.5
         """
-        next_version = ''
-        rslts = re.split(r'(\d+)', self.last_tag.name)
-        rslts.reverse()
-        found_digit = False
-
-        for rslt in rslts:
-            if found_digit is False and is_number(rslt):
-                found_digit = True
-                part = int(rslt) + 1
-            else:
-                part = rslt
-
-            next_version = str(part) + next_version
-
-        return next_version
+        return next_version(self.last_tag.name)
 
     def get_tag_by_name(self, name):
         for tag in self.tags:
@@ -202,6 +185,16 @@ class Service(object):
                 return tag
 
         return False
+
+    def get_package_by_name(self, package_name):
+        package = False
+
+        for pckg in self.packages:
+            if comparable_name(pckg.name) == comparable_name(package_name):
+                package = pckg
+                break
+
+        return package
 
     def freeze_requirements(self):
         reqs = ''

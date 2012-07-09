@@ -20,6 +20,19 @@ def get_devmonkeys_repos():
     return json.loads(cache.get("devmonkeys_repos"))
 
 
+def get_package_github_info(name):
+    """
+    Get the github repo details for a particular package
+    """
+    all_repos = get_devmonkeys_repos()
+
+    for repo in all_repos:
+        if comparable_name(repo['name']) == comparable_name(name):
+            return repo
+
+    return False
+
+
 def get_service_github_repos(service):
     """
     Get the github repo details for the services packages
@@ -29,8 +42,8 @@ def get_service_github_repos(service):
 
     for pckg in service.packages:
         for r in all_repos:
-            if clean_for_compare(r['name']) == clean_for_compare(pckg.name):
-                github_repos[r['name']] = r
+            if comparable_name(r['name']) == comparable_name(pckg.name):
+                github_repos[comparable_name(r['name'])] = r
                 break
 
     return github_repos

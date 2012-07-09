@@ -118,6 +118,6 @@ def load_config(event):
 
 @view_config(route_name='favicon')
 def favicon_view(request):
-    here = os.path.dirname(__file__)
+    here = os.path.dirname(__file__).replace('views', '')
     icon = os.path.join(here, 'static', 'favicon.ico')
     return FileResponse(icon, request=request)

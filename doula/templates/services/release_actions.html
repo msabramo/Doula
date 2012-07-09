@@ -6,23 +6,14 @@
 <div>
 <div class="well">
   <a id="push-to-test-site" class="btn sm-btn" href="#">
+  <!-- release to test site needs a modal -->
   <i class="icon-chevron-right icon-black"></i> Release to Test Site</a>
+  <!-- add new version to this service -->
   <a id="add-pckg" class="btn sm-btn-success" href="#">
   <i class="icon-plus icon-white"></i> Add New Version</a>
 </div>
 
-<!-- show you the state of the tasks -->
-<div class="alert alert-info">
-  <h5>2 Running Tasks</h5>
-
-  <div id="single_task">
-    Running log for a single task. Push new package
-  </div>
-
-  <div id="single_task">
-    Release to new site task logs.
-  </div>
-</div>
+<!-- service_queue_status.html here -->
 
 <table class="table table-striped">
   <thead>
@@ -32,7 +23,9 @@
     </tr>
   </thead>
   <tbody>
+    <!-- our packages first, the ones with the github repo data -->
     {% for pckg in service.packages|sort(attribute='name') %}
+    {% if pckg.get_github_info() %}
     <tr>
       <td>{{ pckg.name }} {{ pckg.version['version'] }}</td>
       <td>
@@ -46,16 +39,33 @@
             </option>
           {% endfor %}
         </select>
-        <!-- alextodo, put the packages with github repos (basically sm packages) at the top, always
-        were not pulling all the data for repos.
-        -->
-        {% if pckg.name in github_repos %}
         <a class="btn sm-btn-success new-version-btn" data-name="{{pckg.name}}" href="#">
           <i class="icon-chevron-right icon-white"></i> New Version
         </a>
-        {% endif %}
       </td>
     </tr>
+    {% endif %}
+    {% endfor %}
+
+    <!-- packages without github info, alextodo, hide this by default -->
+    {% for pckg in service.packages|sort(attribute='name') %}
+    {% if not pckg.get_github_info() %}
+    <tr>
+      <td>{{ pckg.name }} {{ pckg.version['version'] }}</td>
+      <td>
+        <select id="select01">
+          <option value="remove">Remove package</option>
+
+          {% for version in pckg.get_versions()|sort(reverse=True, case_sensitive=False) %}
+            <option value="{{ version }}"
+            {% if pckg.version == version %}selected="selected"{% endif %} >
+              {{ version }}
+            </option>
+          {% endfor %}
+        </select>
+      </td>
+    </tr>
+    {% endif %}
     {% endfor %}
   </tbody>
 </table>
@@ -63,63 +73,22 @@
 
 <!-- all the packages on cheese prism not in this service -->
 <div id="add-packages" class="modal hide">
-  <div class="modal-header">
-    <h3>Packages on Cheese Prism</h3>
-  </div>
-  <div class="modal-body">
-    <form class="well">
-    <select id="select01">
-      <option selected="selected">Select a package</option>
-      {% for pckg in other_packages|sort(attribute='name') %}
-        <option value="{{ pckg.name }}" >
-          {{ pckg.name }}
-        </option>
-      {% endfor %}
-    </select>
-    <span class="help-block">
-      Select the package you want to add to this Service Environment
-    </span>
-  </form>
-  </div>
-  <div class="modal-footer">
-    <a href="#" class="btn" data-dismiss="modal">Close</a>
-    <a href="#" class="btn sm-btn">Add to Service Environment</a>
-  </div>
+  <!-- fill in -->
 </div>
 <div id="push-to-cheese-modal" class="modal hide">
-  <div class="modal-header">
-    <h3>Push New Version to Cheese Prism</h3>
-  </div>
-  <div class="modal-body">
-    <form class="well">
-    <label>Branch</label>
-    <select id="select01">
-      <option selected="selected">Select a branch</option>
-      <option>master</option>
-      <option>test-feature</option>
-    </select>
-    <label>Next Version</label>
-    <!-- specify the next version -->
-    <input type="text" class="span3" value="0.0.3">
-    <span class="help-block">
-      Select the branch you want to package and send to Cheese Prism. The head of the Git Repo will be packaged.
-    </span>
-  </form>
-  </div>
-  <div class="modal-footer">
-    <a href="#" class="btn" data-dismiss="modal">Close</a>
-    <a id="add-to-cheeseprism" class="btn sm-btn-success" href="#">
-  <i class="icon-plus icon-white"></i> Publish New Version</a>
-  </div>
+  <!-- fill in -->
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
 var __service = {{service_json|safe}};
-var __github_repos = {{github_repos_json|safe}};
-
 </script>
-<script language="javascript" type="text/javascript" src="/js/services/serv_data.js"></script>
-<script language="javascript" type="text/javascript" src="/js/services/serv_env.js"></script>
+<script language="javascript" type="text/javascript" src=""></script>
+<script language="javascript" type="text/javascript" src=""></script>
+{{ [
+'/js/common/util.js',
+'/js/services/serv_data.js',
+'/js/services/serv_env.js'
+]|js_script|safe }}
 {% endblock %}

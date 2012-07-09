@@ -4,12 +4,34 @@ import re
 import requests
 
 
-def clean_for_compare(name):
-        name = name.lower()
-        name = name.replace('-', '')
-        name = name.replace('_', '')
+def next_version(version):
+    """
+    Get the next logical version.
+    i.e. 0.2.4 -> 0.2.5
+    """
+    next_version = ''
+    rslts = re.split(r'(\d+)', version)
+    rslts.reverse()
+    found_digit = False
 
-        return name
+    for rslt in rslts:
+        if found_digit is False and is_number(rslt):
+            found_digit = True
+            part = int(rslt) + 1
+        else:
+            part = rslt
+
+        next_version = str(part) + next_version
+
+    return next_version
+
+
+def comparable_name(name):
+    name = name.lower()
+    name = name.replace('-', '')
+    name = name.replace('_', '')
+
+    return name
 
 
 def pull_url(url):

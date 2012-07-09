@@ -3,6 +3,7 @@ class Config(object):
     Holds onto the config settings for the entire application
     """
     _instance = None
+
     def __init__(self, settings):
         self.settings = settings
 
@@ -14,6 +15,7 @@ class Config(object):
     @staticmethod
     def load_config(settings):
         c = Config(settings)
+        return c
 
     @staticmethod
     def get(key):

@@ -1,6 +1,7 @@
 var ServiceEnv = {
 
 	init: function() {
+		_mixin(this, AJAXUtil);
 		Data.init();
 
 		this.bindToUIActions();
@@ -18,17 +19,25 @@ var ServiceEnv = {
 			$('#add-packages').modal();
 		});
 
-		$('.new-version-btn').on('click', this.showNewVersionModal);
+		$('.new-version-btn').on('click', _bind(this.showNewVersionModal, this));
 	},
 
-	showNewVersionModal: function() {
-		var name = $(this).attr('data-name');
-		var repo = Data.findGitHubRepo(name);
-		// alextodo need to build the right modal information.
-		console.log(repo);
+	showNewVersionModal: function(event) {
+		var name = $(event.srcElement).attr('data-name');
+		console.log($(event.srcElement));
+		// make ajax requests to get modal
+		// /sites/{site_id}/{serv_id}/cheese_prism_modal
+		var url = '/sites/' + Data.site_name + '/';
+		url += Data.name_url + '/cheese_prism_modal';
+		this.get('pull', url, {'name': name}, this.doneShowNewVersionModal);
 
-		$('#push-to-cheese-modal').modal();
 		return false;
+	},
+
+	doneShowNewVersionModal: function(rslt) {
+		$('#push-to-cheese-modal')
+			.html(rslt)
+			.modal();
 	}
 };
 

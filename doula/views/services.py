@@ -1,5 +1,4 @@
 from doula.config import Config
-from doula.github.github import get_service_github_repos
 from doula.models.sites_dal import SiteDAL
 from doula.services.cheese_prism import CheesePrism
 from doula.util import *
@@ -23,9 +22,6 @@ def service(request):
         site = get_site(request.matchdict['site_id'])
         service = site.services[request.matchdict['serv_id']]
         other_packages = CheesePrism.other_packages(service.packages)
-        # alextodo, over weekend put the github repos into the service package
-        # that data should live with the package, not by itself somewhere else.
-        github_repos = get_service_github_repos(service)
     except Exception:
         msg = 'Unable to find site and service under "{0}" and "{1}"'
         msg = msg.format(request.matchdict['site_id'], request.matchdict['serv_id'])
@@ -37,9 +33,30 @@ def service(request):
         'service': service,
         'config': Config,
         'service_json': dumps(service),
-        'github_repos': github_repos,
-        'github_repos_json': dumps(github_repos),
         'other_packages': other_packages
+    }
+
+
+@view_config(route_name='service_cheese_prism_modal', renderer="services/modal_push_to_cheese_prism.html")
+def service_cheese_prism_modal(request):
+    try:
+        site = get_site(request.matchdict['site_id'])
+        service = site.services[request.matchdict['serv_id']]
+        package = service.get_package_by_name(request.GET['name'])
+
+        versions = package.get_versions()
+        versions.sort()
+        versions.reverse()
+        current_version = versions[0]
+    except Exception as e:
+        msg = 'Error pulling Push New Package Modal'
+        return handle_json_exception(e, msg, request)
+
+    return {
+        'service': service,
+        'package': package,
+        'current_version': current_version,
+        'next_version': next_version(current_version)
     }
 
 

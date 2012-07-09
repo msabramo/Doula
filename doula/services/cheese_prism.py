@@ -13,7 +13,7 @@ class PythonPackage(object):
     def __init__(self, url, versions=[]):
         self.url = url
         self.name = url.split('/').pop()
-        self.clean_name = clean_for_compare(self.name)
+        self.clean_name = comparable_name(self.name)
         self.versions = versions
 
     def pull_versions(self):
@@ -48,10 +48,10 @@ class CheesePrism(object):
         # also cull together the data for a package, commits, log history
         # all that ish.
         packages = CheesePrism.all_packages()
-        comparable_name = clean_for_compare(name)
+        name = comparable_name(name)
 
         for p in packages:
-            if comparable_name == clean_for_compare(p.name):
+            if name == comparable_name(p.name):
                 return p
 
         return False

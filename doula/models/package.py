@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 from doula.services.cheese_prism import CheesePrism
+from doula.github.github import get_package_github_info
 from fabric.api import *
 from git import *
 from tempfile import TemporaryFile
@@ -14,7 +15,13 @@ class Package(object):
     def __init__(self, name, version, remote=None):
         self.name = name
         self.version = version
-        self.removet = remote
+        self.remote = remote
+        self.github_info = False
+
+    def get_github_info(self):
+        if not self.github_info:
+            self.github_info = get_package_github_info(self.name)
+        return self.github_info
 
     def get_versions(self):
         pypackage = CheesePrism.find_package_by_name(self.name)

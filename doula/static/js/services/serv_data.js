@@ -3,7 +3,9 @@ var Data = {
 	githubRepos: '',
 
 	init: function() {
-		this.githubRepos = __github_repos;
+		// the service needs to have the github info as well
+		_mixin(this, __service);
+		console.log(this);
 	},
 
 	findGitHubRepo: function(name) {
