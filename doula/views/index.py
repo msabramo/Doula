@@ -2,7 +2,7 @@ from doula.config import Config
 from doula.jobs_timer import start_task_scheduling
 from doula.models.sites_dal import SiteDAL
 from doula.util import *
-from doula.views_helpers import *
+from doula.views.helpers import *
 from git import GitCommandError
 from pyramid.events import ApplicationCreated
 from pyramid.events import subscriber

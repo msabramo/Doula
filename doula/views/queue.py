@@ -1,5 +1,5 @@
 from doula.config import Config
-from doula.views_helpers import *
+from doula.views.helpers import *
 from pyramid.view import view_config
 
 

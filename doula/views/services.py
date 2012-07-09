@@ -3,7 +3,7 @@ from doula.github.github import get_service_github_repos
 from doula.models.sites_dal import SiteDAL
 from doula.services.cheese_prism import CheesePrism
 from doula.util import *
-from doula.views_helpers import *
+from doula.views.helpers import *
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
 from pyramid.view import view_config

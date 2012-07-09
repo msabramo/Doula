@@ -13,10 +13,10 @@ def main(global_config, **settings):
     config.include('pyramid_jinja2')
 
     # Scan this module
-    config.scan('doula.views')
-    config.scan('doula.views_queue')
-    config.scan('doula.views_services')
-    config.scan('doula.views_settings')
+    config.scan('doula.views.index')
+    config.scan('doula.views.queue')
+    config.scan('doula.views.services')
+    config.scan('doula.views.settings')
 
     config.add_static_view(name='js', path='static/js')
     config.add_static_view(name='prodjs', path='static/prodjs')
@@ -28,7 +28,7 @@ def main(global_config, **settings):
     config.add_route('favicon', '/favicon.ico')
     config.add_route('home', '/')
     config.add_route('sites', '/sites')
-    
+
     config.add_route('site', '/sites/{site_id}')
     config.add_route('site_tag', '/sites/{site_id}/tag')
 
