@@ -8,13 +8,12 @@ from pyramid.events import ApplicationCreated
 from pyramid.events import subscriber
 from pyramid.response import FileResponse
 from pyramid.view import view_config
-
 import json
 import logging
 import os
 import time
 
-log = logging.getLogger('doula')
+log = logging.getLogger(__name__)
 
 
 # SITE VIEWS

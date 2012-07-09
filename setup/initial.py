@@ -4,11 +4,22 @@ from fabric.contrib.files import exists
 env.user = 'doula'
 env.key_filename = '~/.ssh/id_rsa_doula'
 
+
 def _validate(project):
     valid_projects = ['bambino', 'doula']
     if(not project in valid_projects):
         print 'this command takes one of the following arguments:'
         print valid_projects
+
+
+def _make_jobs_log_dir(project):
+    path = '/var/log/%s' % project
+
+    if not exists(path):
+        sudo('mkdir %s' % path)
+        sudo('chown doula:root %s' % path)
+        sudo('chmod 0775 %s' % path)
+
 
 def _pull(project, path):
     with cd(path):
@@ -28,6 +39,7 @@ def _pull(project, path):
             else:
                 _restart(project, 6666)
 
+
 def do_setup(project):
     path = '/opt/%s' % project
     if not exists(path):
@@ -41,9 +53,11 @@ def do_setup(project):
 
     _pull(project, path)
 
+
 def _restart(project, port):
     run('supervisorctl reread')
     run('supervisorctl load %s_%s' % (project, port))
+
 
 def setup(project):
     _validate(project)
