@@ -4,111 +4,6 @@ import redis
 import time
 import traceback
 
-default_queue_name = 'main'
-
-common_dict = {
-    'id': 0,
-    'status': '',
-    'job_type': '',
-    'site': '',
-    'service': '',
-    'time_started': 0,
-    'exc': ''
-}
-
-push_to_cheeseprism_dict = dict({
-    'remote': '',
-    'branch': 'master',
-    'version': ''
-}.items() + common_dict.items())
-
-cycle_services_dict = dict({}.items() + common_dict.items())
-# in practice i feel this is unncessary.
-cycle_services_dict = dict({}.items() + common_dict.items())
-
-base_dicts = {
-    'base': common_dict,
-    'push_to_cheeseprism': push_to_cheeseprism_dict,
-    'cycle_services': cycle_services_dict,
-    'pull_cheeseprism_data': common_dict,
-    'pull_github_data': common_dict
-}
-
-# Initialize redis database
-rdb = redis.Redis()
-
-
-def keys():
-    """
-    Returns the standard keys for interacting with redis.
-    """
-    return {
-        'jobs': 'doula:jobs:' + default_queue_name
-    }
-
-
-def get_jobs():
-    # Combine the two job locations
-    k = keys()
-    jobs_json = rdb.smembers(k['jobs'])
-
-    # Created a list of all of the jobs(dict)
-    jobs = []
-    for job_json in jobs_json:
-        job = json.loads(job_json)
-        jobs.append(job)
-
-    return jobs
-
-
-def get_job(id):
-    jobs = get_jobs()
-
-    for job in jobs:
-        if job['id'] == id:
-            return job
-
-
-def pop_job(p, id):
-    k = keys()
-    jobs = get_jobs()
-
-    for job in jobs:
-        if job['id'] == id:
-            p.srem(k['jobs'], json.dumps(job))
-            return job
-
-    return None
-
-
-def save(p, attrs):
-    """
-    Given a complete or partial "Job" dict, saves it
-    """
-    k = keys()
-    p = rdb.pipeline()
-    p.sadd(k['jobs'], json.dumps(attrs))
-
-
-def update(p, attrs):
-    """
-    Updates a specific "Job" dict, must be given an id
-    """
-    k = keys()
-    if 'id' in attrs:
-        job_dict = pop_job(p, attrs['id'])
-    else:
-        raise Exception('Must pass an id into the update function.')
-
-    if job_dict:
-        for key, val in attrs.items():
-            job_dict[key] = val
-
-        p.sadd(k['jobs'], json.dumps(job_dict))
-        p.execute()
-    else:
-        return False
-
 
 class Queue(object):
     """
@@ -150,8 +45,42 @@ class Queue(object):
 
     """
 
+    default_queue_name = 'main'
+
+    common_dict = {
+        'id': 0,
+        'status': '',
+        'job_type': '',
+        'site': '',
+        'service': '',
+        'time_started': 0,
+        'exc': ''
+    }
+
+    push_to_cheeseprism_dict = dict({
+        'remote': '',
+        'branch': 'master',
+        'version': ''
+    }.items() + common_dict.items())
+
+    cycle_services_dict = dict({}.items() + common_dict.items())
+    # in practice i feel this is unncessary.
+    cycle_services_dict = dict({}.items() + common_dict.items())
+
+    base_dicts = {
+        'base': common_dict,
+        'push_to_cheeseprism': push_to_cheeseprism_dict,
+        'cycle_services': cycle_services_dict,
+        'pull_cheeseprism_data': common_dict,
+        'pull_github_data': common_dict
+    }
+
     def __init__(self):
-        self.qm = QueueManager(default_queue_name=default_queue_name)
+        # Initialize redis database
+        self.rdb = redis.Redis()
+
+        # Initialize the QueueManager
+        self.qm = QueueManager(default_queue_name=self.default_queue_name)
         self.qm.subscriber('job_postrun', handler='doula.queue:add_result')
         self.qm.subscriber('job_failure', handler='doula.queue:add_failure')
 
@@ -159,7 +88,7 @@ class Queue(object):
         if 'job_type' in attrs and attrs['job_type'] in \
             ['push_to_cheeseprism', 'cycle_services', 'pull_cheeseprism_data', 'pull_github_data']:
             _type = attrs['job_type']
-            job_dict = base_dicts[_type]
+            job_dict = self.base_dicts[_type]
         else:
             return Exception('A valid job type must be specified.')
 
@@ -169,7 +98,7 @@ class Queue(object):
         job_dict['status'] = 'queued'
         job_dict['time_started'] = time.time()
         job_type = job_dict['job_type']
-        p = rdb.pipeline()
+        p = self.rdb.pipeline()
 
         if job_type is 'push_to_cheeseprism':
             job_dict['id'] = self.qm.enqueue('doula.jobs:push_to_cheeseprism', job_dict=job_dict)
@@ -180,12 +109,12 @@ class Queue(object):
         elif job_type is 'pull_github_data':
             job_dict['id'] = self.qm.enqueue('doula.jobs:pull_github_data', job_dict=job_dict)
 
-        save(p, job_dict)
+        self._save(p, job_dict)
         p.execute()
         return job_dict['id']
 
     def get(self, job_dict):
-        jobs = get_jobs()
+        jobs = self._get_jobs()
 
         # Loop through each criteria, throw out the jobs that don't meet
         for job in jobs:
@@ -198,6 +127,75 @@ class Queue(object):
 
         return jobs
 
+    def update(self, job_dict):
+        if not 'id' in job_dict:
+            raise Exception('Must pass an id into the update function.')
+
+        p = self.rdb.pipeline()
+        self._update(p, job_dict)
+        p.execute()
+
+    def _keys(self):
+        """
+        Returns the standard keys for interacting with redis.
+        """
+        return {
+            'jobs': 'doula:jobs:' + self.default_queue_name
+        }
+
+    def _get_jobs(self):
+        # Combine the two job locations
+        k = self._keys()
+        jobs_json = self.rdb.smembers(k['jobs'])
+
+        # Created a list of all of the jobs(dict)
+        jobs = []
+        for job_json in jobs_json:
+            job = json.loads(job_json)
+            jobs.append(job)
+
+        return jobs
+
+    def _get_job(self, id):
+        jobs = self._get_jobs()
+
+        for job in jobs:
+            if job['id'] == id:
+                return job
+
+    def _pop_job(self, p, id):
+        k = self._keys()
+        jobs = self._get_jobs()
+
+        for job in jobs:
+            if job['id'] == id:
+                p.srem(k['jobs'], json.dumps(job))
+                return job
+        return None
+
+    def _save(self, p, attrs):
+        """
+        Given a complete "Job" dict, saves it
+        """
+        k = self._keys()
+        p = self.rdb.pipeline()
+        p.sadd(k['jobs'], json.dumps(attrs))
+
+    def _update(self, p, attrs):
+        """
+        Updates a specific "Job" dict, must be given an id
+        """
+        k = self._keys()
+        job_dict = self._pop_job(p, attrs['id'])
+
+        if job_dict:
+            for key, val in attrs.items():
+                job_dict[key] = val
+            p.sadd(k['jobs'], json.dumps(job_dict))
+            p.execute()
+        else:
+            return False
+
 
 #
 # Retools Subscribers
@@ -206,16 +204,14 @@ def add_result(job=None, result=None):
     """
     Subscriber that gets called right after the job gets run, and is successful.
     """
-    p = rdb.pipeline()
-    update(p, {'id': job.job_id, 'status': 'complete'})
-    p.execute()
+    queue = Queue()
+    queue.update({'id': job.job_id, 'status': 'complete'})
 
 
 def add_failure(job=None, exc=None):
     """
     Subscriber that gets called when a job fails.
     """
-    p = rdb.pipeline()
     exc = traceback.format_exc()
-    update(p, {'id': job.job_id, 'status': 'failed', 'exc': exc})
-    p.execute()
+    queue = Queue()
+    queue.update({'id': job.job_id, 'status': 'failed', 'exc': exc})

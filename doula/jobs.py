@@ -17,6 +17,8 @@ ch.setLevel(logging.DEBUG)
 log.addHandler(fh)
 log.addHandler(ch)
 
+print 'hello dude '
+log.info("EHLLLLLLLL ")
 
 def push_to_cheeseprism(job_dict=None):
     """
@@ -25,9 +27,17 @@ def push_to_cheeseprism(job_dict=None):
     joetodo be descriptive about what the task actually does.
     """
     try:
+        log.info("About to push package to cheese prism %s" % job_dict['remote'])
+        print "about to push package to job_dict"
+
         p = Package(job_dict['service'], '0', job_dict['remote'])
         p.distribute(job_dict['branch'], job_dict['version'])
+        print 'done pushing package'
+        log.info('Finished pushing package %s to CheesePrism' % job_dict['remote'])
     except Exception as e:
+        print 'exception here its'
+        print traceback.format_exc()
+
         log.error(e.message)
         log.error(traceback.format_exc())
         raise
@@ -52,6 +62,7 @@ def pull_cheeseprism_data(job_dict):
     Ping Cheese Prism and pull the latest packages and all of their versions.
     """
     try:
+        print 'hello pull cheese prism job'
         cache = Cache.cache()
         pipeline = cache.pipeline()
 
@@ -63,9 +74,10 @@ def pull_cheeseprism_data(job_dict):
             pipeline.set('cheeseprism_pckg_' + pckg.clean_name, dumps(pckg))
 
         pipeline.execute()
-
+        print 'DONE PULLING CHEESE'
         log.info('Done pulling data from cheeseprism')
     except Exception as e:
+        print e
         log.error(e.message)
         log.error(traceback.format_exc())
         raise

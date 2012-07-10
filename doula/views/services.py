@@ -1,5 +1,6 @@
 from doula.config import Config
 from doula.models.sites_dal import SiteDAL
+from doula.queue import Queue
 from doula.services.cheese_prism import CheesePrism
 from doula.util import *
 from doula.views.helpers import *
@@ -7,6 +8,7 @@ from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
 from pyramid.view import view_config
 import logging
+import uuid
 
 log = logging.getLogger(__name__)
 
@@ -36,7 +38,7 @@ def service(request):
     }
 
 
-@view_config(route_name='service_cheese_prism_modal', renderer="services/modal_push_to_cheese_prism.html")
+@view_config(route_name='service_cheese_prism_modal', renderer="services/modal_push_package.html")
 def service_cheese_prism_modal(request):
     try:
         site = get_site(request.matchdict['site_id'])
@@ -66,23 +68,39 @@ def service_cheese_prism_push(request):
         service = site.services[request.matchdict['serv_id']]
         package = service.get_package_by_name(request.GET['name'])
 
+        # alextodo, use a validation for the branch and version right here
+        # no empty values, no duplicates, make sure the branch exist
+        # alextodo, verification will also require that we don't allow
+        # another version number that is already being pushed onto the queue
+        remote = package.get_github_info()['git_url']
         next_version = request.GET['next_version']
         branch = request.GET['branch']
-
-        versions = package.get_versions()
-        versions.sort()
-        versions.reverse()
-        current_version = versions[0]
+        job_dict = enqueue_push_package(service, remote, branch, next_version)
     except Exception as e:
         msg = 'Error pulling Push New Package Modal'
         return handle_json_exception(e, msg, request)
 
-    return {
-        'service': service,
-        'package': package,
-        'current_version': current_version,
-        'next_version': next_version(current_version)
+    return dumps({'success': True, 'job': job_dict})
+
+
+def enqueue_push_package(service, remote, branch, version):
+    """
+    Enqueue the job onto the queue
+    """
+    job_dict = {
+        'id': uuid.uuid1().hex,
+        'service': service.name,
+        'remote': remote,
+        'branch': branch,
+        'version': version,
+        'job_type': 'push_to_cheeseprism'
     }
+    print "HELLO JOB DICT"
+    print job_dict
+    q = Queue()
+    q.this(job_dict)
+
+    return job_dict
 
 
 @view_config(route_name='service_details', renderer="services/service_details.html")
