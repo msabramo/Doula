@@ -4,10 +4,13 @@ from doula.models.sites_dal import SiteDAL
 from doula.util import *
 from fabric.api import *
 from git import *
+from socket import error as socket_error
 import logging
 import operator
 import re
 import requests
+import xmlrpclib
+import json
 
 # Defines the Data Models for Doula and Bambino.
 #
@@ -81,6 +84,28 @@ class Service(object):
         a.last_tag = a.get_last_tag()
 
         return a
+
+
+    @staticmethod
+    def cycle(proxy, service_name):
+        try:
+            result = proxy.supervisor.stopProcessGroup(service_name)
+            results = proxy.supervisor.startProcessGroup(service_name)
+
+            success = True
+            for result in results:
+                if(result['status'] != 80):
+                    success = False
+
+            if(success):
+                True
+            else:
+                raise CycleServiceException('one service failed', results)
+
+        # exceptions are weird with xmlrpc: http://betabug.ch/blogs/ch-athens/1012
+        except (socket_error, xmlrpclib.Fault, xmlrpclib.ProtocolError, xmlrpclib.ResponseError), error_code:
+            raise  CycleServiceException(error_code)
+
 
     def add_packages(self, pckgs):
         for name, pckg in pckgs.iteritems():
@@ -205,3 +230,10 @@ class Service(object):
             reqs += pckg.name + '==' + pckg.version + "\n"
 
         return reqs
+
+class CycleServiceException(Exception):
+    def __init__(self, message, results=[]):
+        self.message = message
+        self.results = results
+    def __str__(self):
+        return json.dumps({'message': self.message, 'results': self.results})

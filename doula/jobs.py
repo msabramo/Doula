@@ -2,10 +2,12 @@ from doula.cache import Cache
 from doula.github.github import pull_devmonkeys_repos
 from doula.models.package import Package
 from doula.services.cheese_prism import CheesePrism
+from doula.models.service import Service
 from doula.util import *
 import logging
 import supervisor
 import traceback
+import xmlrpclib
 
 log = logging.getLogger(__name__)
 fh = logging.FileHandler('/var/log/doula/jobs.log')
@@ -31,14 +33,18 @@ def push_to_cheeseprism(job_dict=None):
         raise
 
 
-# joenote why pass in None? you must have a job_dict
-def cycle_services(job_dict=None):
+def cycle_services(supervisor_ip, service_name):
     """
     This function will be enqueued by Queue upon receiving a job dict that
     has a job_type of 'cycle_services'
     joetodo be descriptive about what the task actually does.
     """
-    supervisor.restart()
+    try:
+        Service.cycle(xmlrpclib.ServerProxy(supervisor_ip), service_name)
+    except Exception as e:
+        log.error(e.message)
+        log.error(traceback.format_exc())
+        raise
 
 
 def pull_cheeseprism_data(job_dict):
