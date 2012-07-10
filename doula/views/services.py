@@ -58,7 +58,6 @@ def service_cheese_prism_modal(request):
         'next_version': next_version(current_version)
     }
 
-
 @view_config(route_name='service_details', renderer="services/service_details.html")
 def service_details(request):
     try:
