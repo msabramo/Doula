@@ -3,8 +3,17 @@ from doula.github.github import pull_devmonkeys_repos
 from doula.models.package import Package
 from doula.services.cheese_prism import CheesePrism
 from doula.util import *
+import logging
 import supervisor
 import traceback
+
+log = logging.getLogger(__name__)
+fh = logging.FileHandler('/var/log/doula/jobs.log')
+fh.setLevel(logging.INFO)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+log.addHandler(fh)
+log.addHandler(ch)
 
 cache = Cache.cache()
 
@@ -46,7 +55,7 @@ def pull_cheeseprism_data(job_dict):
 
         pipeline.execute()
 
-        print 'Done pulling data from cheeseprism'
+        log.info('Done pulling data from cheeseprism')
     except Exception as e:
         # alextodo, need to pass come up with a commone way to handle failure
         print e

@@ -37,7 +37,7 @@ class CheesePrism(object):
     """
     Provides an interface to CheesePrism, Survey Monkey's PyPi
     """
-    url = 'http://yorick:9003/'
+    url = 'http://yorick.corp.surveymonkey.com:9003/'
 
     @staticmethod
     def find_package_by_name(name):
@@ -75,7 +75,7 @@ class CheesePrism(object):
         """
         Return all the packages from the Cheese Prism site.
         """
-        text = pull_url(CheesePrism.url + '/index/')
+        text = pull_url(CheesePrism.url + 'index/')
         matches = re.findall(r'a.+href="(.+)"', text, re.M)
 
         return [PythonPackage(m) for m in matches]

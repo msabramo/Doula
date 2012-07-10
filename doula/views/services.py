@@ -6,10 +6,9 @@ from doula.views.helpers import *
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
 from pyramid.view import view_config
-
 import logging
 
-log = logging.getLogger('doula')
+log = logging.getLogger(__name__)
 
 ###############
 # SERVICE VIEWS
