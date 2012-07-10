@@ -365,6 +365,7 @@ class Package(object):
     def __init__(self, name, version):
         self.name = name
         self.version = version
+
     def get_versions(self):
         pypackage = CheesePrism.find_package_by_name(self.name)
         versions = pypackage.get_versions() if pypackage else []
