@@ -58,6 +58,33 @@ def service_cheese_prism_modal(request):
         'next_version': next_version(current_version)
     }
 
+
+@view_config(route_name='service_cheese_prism_push', renderer="string")
+def service_cheese_prism_push(request):
+    try:
+        site = get_site(request.matchdict['site_id'])
+        service = site.services[request.matchdict['serv_id']]
+        package = service.get_package_by_name(request.GET['name'])
+
+        next_version = request.GET['next_version']
+        branch = request.GET['branch']
+
+        versions = package.get_versions()
+        versions.sort()
+        versions.reverse()
+        current_version = versions[0]
+    except Exception as e:
+        msg = 'Error pulling Push New Package Modal'
+        return handle_json_exception(e, msg, request)
+
+    return {
+        'service': service,
+        'package': package,
+        'current_version': current_version,
+        'next_version': next_version(current_version)
+    }
+
+
 @view_config(route_name='service_details', renderer="services/service_details.html")
 def service_details(request):
     try:

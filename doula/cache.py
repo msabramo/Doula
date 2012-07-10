@@ -1,7 +1,5 @@
-import redis
 import logging
-
-from mockredis import MockRedis
+import redis
 
 # Right now this is hard coded. Would be nice to have a util class that reads
 # the ini file
@@ -34,5 +32,6 @@ class Cache(object):
             if Cache.env == 'prod':
                 raise
             else:
+                from mockredis import MockRedis
                 Cache.redis = MockRedis()
                 return Cache.redis

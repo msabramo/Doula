@@ -15,8 +15,6 @@ ch.setLevel(logging.DEBUG)
 log.addHandler(fh)
 log.addHandler(ch)
 
-cache = Cache.cache()
-
 
 def push_to_cheeseprism(job_dict=None):
     """
@@ -24,8 +22,13 @@ def push_to_cheeseprism(job_dict=None):
     has a job_type of 'push_to_cheeseprism'
     joetodo be descriptive about what the task actually does.
     """
-    p = Package(job_dict['service'], '0', job_dict['remote'])
-    p.distribute(job_dict['branch'], job_dict['version'])
+    try:
+        p = Package(job_dict['service'], '0', job_dict['remote'])
+        p.distribute(job_dict['branch'], job_dict['version'])
+    except Exception as e:
+        log.error(e.message)
+        log.error(traceback.format_exc())
+        raise
 
 
 # joenote why pass in None? you must have a job_dict
@@ -42,8 +45,8 @@ def pull_cheeseprism_data(job_dict):
     """
     Ping Cheese Prism and pull the latest packages and all of their versions.
     """
-    # alexgtodo, update the log file, use the correct log file
     try:
+        cache = Cache.cache()
         pipeline = cache.pipeline()
 
         packages = CheesePrism.pull_all_packages()
@@ -57,9 +60,8 @@ def pull_cheeseprism_data(job_dict):
 
         log.info('Done pulling data from cheeseprism')
     except Exception as e:
-        # alextodo, need to pass come up with a commone way to handle failure
-        print e
-        print traceback.format_exc()
+        log.error(e.message)
+        log.error(traceback.format_exc())
         raise
 
 
@@ -70,10 +72,11 @@ def pull_github_data(job_dict):
     """
     try:
         repos = pull_devmonkeys_repos()
+        cache = Cache.cache()
         cache.set("devmonkeys_repos", dumps(repos))
 
-        print 'Done pulling github data'
+        log.info('Done pulling github data')
     except Exception as e:
-        print e
-        print traceback.format_exc()
+        log.error(e.message)
+        log.error(traceback.format_exc())
         raise
