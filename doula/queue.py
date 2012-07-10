@@ -87,18 +87,7 @@ def save(p, attrs):
     """
     k = keys()
     p = rdb.pipeline()
-    job_dict = base_dicts[attrs['job_type']]
-
-    if 'job_type' in attrs:
-        _type = attrs['job_type']
-        job_dict = base_dicts[_type]
-    else:
-        job_dict = base_dicts['base']
-
-    for key, val in attrs.items():
-        job_dict[key] = val
-
-    p.sadd(k['jobs'], json.dumps(job_dict))
+    p.sadd(k['jobs'], json.dumps(attrs))
 
 
 def update(p, attrs):
@@ -106,8 +95,6 @@ def update(p, attrs):
     Updates a specific "Job" dict, must be given an id
     """
     k = keys()
-    job_dict = pop_job(default_queue_name, attrs['id'])
-    # sometimes the job_dict comes back as None, why?
     if 'id' in attrs:
         job_dict = pop_job(p, attrs['id'])
     else:
@@ -168,9 +155,18 @@ class Queue(object):
         self.qm.subscriber('job_postrun', handler='doula.queue:add_result')
         self.qm.subscriber('job_failure', handler='doula.queue:add_failure')
 
-    def this(self, job_dict):
+    def this(self, attrs):
+        if 'job_type' in attrs and attrs['job_type'] in \
+            ['push_to_cheeseprism', 'cycle_services', 'pull_cheeseprism_data', 'pull_github_data']:
+            _type = attrs['job_type']
+            job_dict = base_dicts[_type]
+        else:
+            return Exception('A valid job type must be specified.')
+
+        for key, val in attrs.items():
+            job_dict[key] = val
+
         job_dict['status'] = 'queued'
-        # alextodo, this should happen when the job is started
         job_dict['time_started'] = time.time()
         job_type = job_dict['job_type']
         p = rdb.pipeline()
@@ -183,8 +179,6 @@ class Queue(object):
             job_dict['id'] = self.qm.enqueue('doula.jobs:pull_cheeseprism_data', job_dict=job_dict)
         elif job_type is 'pull_github_data':
             job_dict['id'] = self.qm.enqueue('doula.jobs:pull_github_data', job_dict=job_dict)
-        else:
-            return None
 
         save(p, job_dict)
         p.execute()

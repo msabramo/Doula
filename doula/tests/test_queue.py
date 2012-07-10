@@ -1,10 +1,15 @@
 import json
-import redis
 import unittest
+import doula.queue
 
 from retools.queue import Job
+from mock import call
+from mock import Mock
+from mock import patch
+from mockredis import MockRedis
 
 from doula.queue import default_queue_name
+from doula.queue import common_dict
 from doula.queue import base_dicts
 from doula.queue import keys
 from doula.queue import get_jobs
@@ -20,7 +25,7 @@ from doula.queue import add_failure
 class QueueTests(unittest.TestCase):
     def setUp(self):
         self.k = keys()
-        self.rdb = redis.Redis()
+        doula.queue.rdb = self.rdb = MockRedis()
 
     def tearDown(self):
         self.rdb.flushdb()
@@ -85,19 +90,6 @@ class QueueTests(unittest.TestCase):
         job = self.rdb.srandmember(self.k['jobs'])
         job = json.loads(job)
         self.assertEqual(job['id'], 1)
-        self.assertIn('branch', job)
-
-    def test_save_base(self):
-        p = self.rdb.pipeline()
-        save(p, {'id': 1})
-        p.execute()
-
-        jobs = self.rdb.smembers(self.k['jobs'])
-        self.assertEqual(len(jobs), 1)
-        job = self.rdb.srandmember(self.k['jobs'])
-        job = json.loads(job)
-        self.assertEqual(job['id'], 1)
-        self.assertNotIn('branch', job)
 
     def test_update(self):
         self._add_job(1)
@@ -129,45 +121,54 @@ class QueueTests(unittest.TestCase):
         self.assertIn('job_postrun', queue.qm.global_events)
         self.assertIn('job_failure', queue.qm.global_events)
 
-    def test_queue_this_push(self):
+    @patch('doula.queue.time.time')
+    def test_queue_this_push(self, time):
+        time.return_value = 0
         queue = Queue()
+        queue.qm.enqueue = Mock()
+        queue.qm.enqueue.return_value = '234hisadf93uq93254ijfsad93'
 
         id = queue.this({'job_type': 'push_to_cheeseprism'})
-        self.assertNotEqual(id, None)
+        expected = [call('doula.jobs:push_to_cheeseprism', job_dict={'status': 'queued',
+                                                                     'remote': '',
+                                                                     'time_started': 0,
+                                                                     'service': '',
+                                                                     'job_type': 'push_to_cheeseprism',
+                                                                     'site': '',
+                                                                     'version': '',
+                                                                     'branch': 'master',
+                                                                     'id': '234hisadf93uq93254ijfsad93',
+                                                                     'exc': ''})]
+        self.assertEqual(queue.qm.enqueue.mock_calls, expected)
+        self.assertEqual(id, '234hisadf93uq93254ijfsad93')
 
-        retools_jobs = self.rdb.lrange('retools:queue:main', 0, -1)
-        retools_job = json.loads(retools_jobs[0])
-        self.assertEqual(id, retools_job['job_id'])
-        self.assertEqual('doula.jobs:push_to_cheeseprism', retools_job['job'])
-
-        job = self.rdb.srandmember(self.k['jobs'])
-        job = json.loads(job)
-        self.assertEqual(job['id'], id)
-
-    def test_queue_this_cycle(self):
+    @patch('doula.queue.time.time')
+    def test_queue_this_cycle(self, time):
+        time.return_value = 0
         queue = Queue()
+        queue.qm.enqueue = Mock()
+        queue.qm.enqueue.return_value = '234hisadf93uq93254ijfsad93'
 
         id = queue.this({'job_type': 'cycle_services'})
-        self.assertNotEqual(id, None)
-
-        retools_jobs = self.rdb.lrange('retools:queue:main', 0, -1)
-        retools_job = json.loads(retools_jobs[0])
-        self.assertEqual(id, retools_job['job_id'])
-        self.assertEqual('doula.jobs:cycle_services', retools_job['job'])
-
-        job = self.rdb.srandmember(self.k['jobs'])
-        job = json.loads(job)
-        self.assertEqual(job['id'], id)
+        expected = [call('doula.jobs:cycle_services', job_dict={'status': 'queued',
+                                                                'time_started': 0,
+                                                                'service': '',
+                                                                'job_type': 'cycle_services',
+                                                                'site': '',
+                                                                'id': '234hisadf93uq93254ijfsad93',
+                                                                'exc': ''})]
+        self.assertEqual(queue.qm.enqueue.mock_calls, expected)
+        self.assertEqual(id, '234hisadf93uq93254ijfsad93')
 
     def test_queue_this_wrong_job_type(self):
         queue = Queue()
         id = queue.this({'job_type': 'asdf'})
-        self.assertEqual(id, None)
+        self.assertTrue(isinstance(id, Exception))
 
     def test_queue_this_none_jobtype(self):
         queue = Queue()
         id = queue.this({})
-        self.assertEqual(id, None)
+        self.assertTrue(isinstance(id, Exception))
 
     def test_queue_get(self):
         queue = Queue()
@@ -175,7 +176,6 @@ class QueueTests(unittest.TestCase):
         queue.this({'job_type': 'push_to_cheeseprism'})
 
         jobs = queue.get({'id': id, 'blah': 'key'})
-        self.assertEqual(len(jobs), 1)
         self.assertEqual(jobs[0]['job_type'], 'push_to_cheeseprism')
 
         jobs = queue.get({'job_type': 'push_to_cheeseprism'})
@@ -183,12 +183,15 @@ class QueueTests(unittest.TestCase):
         self.assertEqual(jobs[0]['job_type'], 'push_to_cheeseprism')
 
     def test_add_result_subscriber(self):
-        queue = Queue()
-        queue.this({'job_type': 'push_to_cheeseprism'})
+        k = keys()
+        retools_job = Mock()
+        retools_job.job_id = 0
 
-        retools_jobs = self.rdb.lrange('retools:queue:main', -1, 0)
-        payload = retools_jobs[0]
-        retools_job = Job(default_queue_name, payload, self.rdb)
+        job_dict = common_dict
+        job_dict['id'] = 0
+        job_dict['status'] = 'queued'
+        self.rdb.sadd(k['jobs'], json.dumps(job_dict))
+
         add_result(job=retools_job)
 
         job = self.rdb.srandmember(self.k['jobs'])
@@ -196,14 +199,18 @@ class QueueTests(unittest.TestCase):
         self.assertEqual(job['status'], 'complete')
 
     def test_add_failure_subscriber(self):
-        queue = Queue()
-        queue.this({'job_type': 'push_to_cheeseprism'})
+        k = keys()
+        retools_job = Mock()
+        retools_job.job_id = 0
 
-        retools_jobs = self.rdb.lrange('retools:queue:main', -1, 0)
-        payload = retools_jobs[0]
-        retools_job = Job(default_queue_name, payload, self.rdb)
-        add_failure(job=retools_job)
+        job_dict = common_dict
+        job_dict['id'] = 0
+        job_dict['status'] = 'queued'
+        self.rdb.sadd(k['jobs'], json.dumps(job_dict))
+
+        add_failure(job=retools_job, exc=Exception('This is an exception!'))
 
         job = self.rdb.srandmember(self.k['jobs'])
         job = json.loads(job)
         self.assertEqual(job['status'], 'failed')
+        self.assertIsNot(job['exc'], None)
