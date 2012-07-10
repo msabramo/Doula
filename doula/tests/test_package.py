@@ -15,7 +15,7 @@ class PackageTests(unittest.TestCase):
         pass
 
     def make_one(self):
-        return Package("dummycode")
+        return Package("dummycode", "0.1.3", "git@code.corp.surveymonkey.com:joed")
 
     def test_repo(self):
         package = self.make_one()

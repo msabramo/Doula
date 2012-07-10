@@ -19,7 +19,7 @@ requires = [
     'simplejson',
     'supervisor',
     'waitress',
-    'retools',
+    'retools'
     ]
 
 setup(name='Doula',
