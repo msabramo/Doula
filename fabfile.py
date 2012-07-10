@@ -1,4 +1,3 @@
-from fabric.api import local
 from fabric.api import cd
 from fabric.api import *
 from fabric.contrib.files import exists
@@ -10,6 +9,7 @@ doula_dir = '/opt/doula'
 supervisor_file = '/etc/supervisor/conf.d/doula.conf'
 
 print env.key_filename
+
 
 def update():
     with cd(doula_dir):
@@ -25,6 +25,7 @@ def update():
             run('git checkout master')
             run('git pull origin master')
         restart()
+
 
 def restart():
     run('supervisorctl reread doula_6543')
