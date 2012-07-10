@@ -2,13 +2,11 @@ import json
 import unittest
 import doula.queue
 
-from retools.queue import Job
 from mock import call
 from mock import Mock
 from mock import patch
 from mockredis import MockRedis
 
-from doula.queue import default_queue_name
 from doula.queue import common_dict
 from doula.queue import base_dicts
 from doula.queue import keys
