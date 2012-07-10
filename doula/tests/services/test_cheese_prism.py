@@ -20,8 +20,9 @@ class CheesePrismTests(unittest.TestCase):
     def test_package_versions(self):
         packages = CheesePrism.all_packages()
         package = packages.pop()
-        
+
         self.assertEqual(len(package.get_versions()), 1)
+
     def test_find_package_url_by_name(self):
         package = CheesePrism.find_package_by_name('jinja2')
         self.assertEqual(package.name, 'Jinja2')

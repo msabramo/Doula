@@ -3,6 +3,7 @@ import unittest
 from doula.models.audit import Audit
 from doula.cache import Cache
 
+
 class AuditTests(unittest.TestCase):
     def setUp(self):
         Cache.env = 'dev'
@@ -15,12 +16,12 @@ class AuditTests(unittest.TestCase):
     def test_log_action(self):
         audit = Audit()
         audit.log_action('site_name', 'app_name', 'deploy', 'anonymous')
-        
+
         logs = audit.get_app_logs('site_name', 'app_name')
-        
+
         self.assertEqual(len(logs), 1)
         self.assertEqual(logs[0]['user'], 'anonymous')
-    
+
 
 if __name__ == '__main__':
     unittest.main()

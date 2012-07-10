@@ -1,11 +1,11 @@
+import os
+import shutil
 from contextlib import contextmanager
 from doula.services.cheese_prism import CheesePrism
 from doula.github.github import get_package_github_info
 from fabric.api import *
 from git import *
 from tempfile import TemporaryFile
-import os
-import shutil
 
 
 class Package(object):
