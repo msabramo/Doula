@@ -30,3 +30,5 @@ def update():
 def restart():
     run('supervisorctl reread doula_6543')
     run('supervisorctl restart doula_6543')
+    run('supervisorctl reread retools')
+    run('supervisorctl restart retools')
