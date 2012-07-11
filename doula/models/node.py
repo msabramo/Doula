@@ -72,4 +72,4 @@ class Node(object):
         if services_as_json:
             return services_as_json
         else:
-            return self.pull_services
+            return self.pull_services()
