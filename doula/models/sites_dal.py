@@ -64,7 +64,7 @@ class SiteDAL(object):
     @staticmethod
     def register_node(node):
         node = SiteDAL._lower_keys(node)
-        site = SiteDAL._get_site(node['site'])
+        site = SiteDAL._get_site_as_json(node['site'])
         site['nodes'][node['name']] = node
 
         key = SiteDAL._get_site_cache_key(node['site'])
@@ -83,7 +83,7 @@ class SiteDAL(object):
 
     @staticmethod
     def unregister_node(node):
-        site = SiteDAL._get_site(node['site'])
+        site = SiteDAL._get_site_as_json(node['site'])
         del site['nodes'][node['name']]
 
         key = SiteDAL._get_site_cache_key(node['site'])
@@ -98,7 +98,7 @@ class SiteDAL(object):
         return SiteDAL.site_prefix + dirify(name)
 
     @staticmethod
-    def _get_site(name):
+    def _get_site_as_json(name):
         """
         Get the site jsonified object from cache. If the site
         doesn't exist create one.
@@ -116,7 +116,7 @@ class SiteDAL(object):
 
     @staticmethod
     def nodes(name):
-        site = SiteDAL._get_site(name)
+        site = SiteDAL._get_site_as_json(name)
 
         return site['nodes']
 
@@ -131,6 +131,20 @@ class SiteDAL(object):
             return [site_keys]
         else:
             return site_keys
+
+    @staticmethod
+    def get_simple_sites():
+        """
+        Get a list of the sites that are registered
+        Returned objects are dictionaries
+        """
+        simple_sites = {}
+
+        for site_key in SiteDAL._all_site_keys():
+            site_name = site_key.replace(SiteDAL.site_prefix, '')
+            simple_sites[site_name] = SiteDAL._get_site_as_json(site_name)
+
+        return simple_sites
 
     @staticmethod
     def get_sites():
@@ -148,7 +162,7 @@ class SiteDAL(object):
     @staticmethod
     def get_site(site_name):
         from doula.models.site import Site
-        simple_site = SiteDAL._get_site(site_name)
+        simple_site = SiteDAL._get_site_as_json(site_name)
         return Site.build_site(simple_site)
 
     @staticmethod

@@ -1,10 +1,10 @@
 from doula.models.service import Service
-from doula.util import dirify
+from doula.util import *
 from fabric.api import *
 from git import *
+from doula.cache import Cache
 import json
 import logging
-import requests
 import traceback
 
 # Defines the Data Models for Doula and Bambino.
@@ -33,6 +33,12 @@ class Node(object):
         self.services = services
         self.errors = []
 
+    def pull_services(self):
+        """
+        Return the services for this node as json
+        """
+        return pull_url(self.url + '/services')
+
     def load_services(self):
         """
         Update the services
@@ -40,27 +46,30 @@ class Node(object):
         try:
             self.errors = []
             self.services = {}
+            services_as_json = self._get_services_as_json()
+            services = json.loads(services_as_json)
 
-            r = requests.get(self.url + '/services')
-            # If the response is non 200, we raise an error
-            r.raise_for_status()
-            rslt = json.loads(r.text)
-
-            for app in rslt['services']:
+            for app in services['services']:
                 a = Service.build_app(self.site_name, self.name, self.url, app)
                 self.services[a.name_url] = a
-
-        except requests.exceptions.ConnectionError as e:
-            msg = 'Unable to contact node {0} at URL {1}'.format(self.name, self.url)
-            log.error(msg)
-            self.errors.append(msg)
         except Exception as e:
             msg = 'Unable to load services. Error: {0}'.format(e.message)
             log.error(msg)
-            tb = traceback.format_exc()
-            print 'TRACEBACK'
-            print tb
+            log.error(traceback.format_exc())
 
             self.errors.append(msg)
 
         return self.services
+
+    def _get_services_as_json(self):
+        """
+        Get the services as json from redis. If not in redis. pull from
+        Bambinos
+        """
+        cache = Cache.cache()
+        services_as_json = cache.get('node_services_' + self.name_url)
+
+        if services_as_json:
+            return services_as_json
+        else:
+            return self.pull_services

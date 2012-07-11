@@ -72,7 +72,8 @@ class Queue(object):
         'push_to_cheeseprism': push_to_cheeseprism_dict,
         'cycle_services': cycle_services_dict,
         'pull_cheeseprism_data': common_dict,
-        'pull_github_data': common_dict
+        'pull_github_data': common_dict,
+        'pull_bambino_data': common_dict
     }
 
     def __init__(self):
@@ -86,7 +87,7 @@ class Queue(object):
 
     def this(self, attrs):
         if 'job_type' in attrs and attrs['job_type'] in \
-            ['push_to_cheeseprism', 'cycle_services', 'pull_cheeseprism_data', 'pull_github_data']:
+            ['push_to_cheeseprism', 'cycle_services', 'pull_cheeseprism_data', 'pull_github_data', 'pull_bambino_data']:
             _type = attrs['job_type']
             job_dict = self.base_dicts[_type]
         else:
@@ -108,6 +109,8 @@ class Queue(object):
             job_dict['id'] = self.qm.enqueue('doula.jobs:pull_cheeseprism_data', job_dict=job_dict)
         elif job_type is 'pull_github_data':
             job_dict['id'] = self.qm.enqueue('doula.jobs:pull_github_data', job_dict=job_dict)
+        elif job_type is 'pull_bambino_data':
+            job_dict['id'] = self.qm.enqueue('doula.jobs:pull_bambino_data', job_dict=job_dict)
 
         self._save(p, job_dict)
         p.execute()

@@ -1,5 +1,5 @@
 from doula.models.package import Package
-from doula.models.sites import Service
+from doula.models.service import Service
 from doula.models.tag import Tag
 import unittest
 

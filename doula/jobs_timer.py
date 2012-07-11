@@ -35,10 +35,27 @@ def pull_cheeseprism_data():
     q.this(job_dict)
 
 
+def pull_bambino_data():
+    """
+    Update the cached bambino data
+    """
+    job_dict = {
+        'id': uuid.uuid1().hex,
+        'job_type': 'pull_bambino_data'
+    }
+
+    q = Queue()
+    q.this(job_dict)
+
+
 def start_task_scheduling():
-    """Start scheduling tasks."""
+    """
+    Start scheduling tasks.
+    """
     sched = Scheduler()
     sched.start()
     # alextodo change seconds to minutes
-    sched.add_interval_job(pull_github_data, seconds=int(Config.get('task_interval')))
-    sched.add_interval_job(pull_cheeseprism_data, seconds=int(Config.get('task_interval')))
+    interval = int(Config.get('task_interval'))
+    sched.add_interval_job(pull_bambino_data, seconds=interval)
+    sched.add_interval_job(pull_github_data, seconds=interval)
+    sched.add_interval_job(pull_cheeseprism_data, seconds=interval)

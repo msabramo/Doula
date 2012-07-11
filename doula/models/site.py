@@ -1,11 +1,9 @@
-import logging
-
-from fabric.api import *
-from git import *
-
-from doula.util import dirify
 from doula.models.node import Node
 from doula.models.site_tag_history import SiteTagHistory
+from doula.util import dirify
+from fabric.api import *
+from git import *
+import logging
 
 # Defines the Data Models for Doula and Bambino.
 #
