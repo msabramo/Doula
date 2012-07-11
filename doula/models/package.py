@@ -81,8 +81,6 @@ class Package(object):
 
     def push(self, repo, remote_name):
         # Push changes
-        import pdb; pdb.set_trace()
-        print repo.remotes
         remote = repo.remotes[remote_name]
         remote.pull()
         remote.push()
