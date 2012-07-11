@@ -5,7 +5,6 @@ from doula.services.cheese_prism import CheesePrism
 from doula.models.service import Service
 from doula.util import *
 import logging
-import supervisor
 import sys
 import traceback
 import xmlrpclib
@@ -29,6 +28,7 @@ def push_to_cheeseprism(job_dict=None):
     joetodo be descriptive about what the task actually does.
     """
     try:
+        # alextodo, figure out how the hell retools works. wtf.
         print 'about to push to cheese prism'
         print job_dict
         log.info("About to push package to cheese prism %s" % job_dict['remote'])
@@ -38,6 +38,7 @@ def push_to_cheeseprism(job_dict=None):
 
         log.info('Finished pushing package %s to CheesePrism' % job_dict['remote'])
     except Exception as e:
+        print "errors hello in push to cheese"
         print e
         print traceback.format_exc()
         log.error(e.message)
@@ -90,29 +91,19 @@ def pull_github_data(job_dict):
     Pull commit history, tags, branches. Everything.
     """
     try:
+        print 'pulling github data'
         repos = pull_devmonkeys_repos()
+        print 'done kinda with repos'
         cache = Cache.cache()
+        print 'cached'
         cache.set("devmonkeys_repos", dumps(repos))
 
+        print 'done pulling githbu data'
         log.info('Done pulling github data')
     except Exception as e:
+        print 'broken'
+        print e
+        print traceback.format_exc()
         log.error(e.message)
         log.error(traceback.format_exc())
         raise
-
-if __name__ == '__main__':
-    """
-
-    """
-    # original remote - git://code.corp.surveymonkey.com/devmonkeys/BillWeb.git
-    # git@github.com:devmonkeys/BillWeb.git
-    job_dict = {
-    'remote': 'git@code.corp.surveymonkey.com:devmonkeys/BillWeb.git',
-    'service': 'billweb',
-    'job_type': 'push_to_cheeseprism',
-    'version': '0.2.4',
-    'branch': 'master',
-    'id': '91c66859cae911e1b33ab8f6b1191577'
-    }
-    push_to_cheeseprism(job_dict)
-    print 'WTF'

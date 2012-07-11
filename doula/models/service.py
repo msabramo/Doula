@@ -85,7 +85,6 @@ class Service(object):
 
         return a
 
-
     @staticmethod
     def cycle(proxy, service_name):
         try:
@@ -106,10 +105,9 @@ class Service(object):
         except (socket_error, xmlrpclib.Fault, xmlrpclib.ProtocolError, xmlrpclib.ResponseError), error_code:
             raise  CycleServiceException(error_code)
 
-
     def add_packages(self, pckgs):
         for name, pckg in pckgs.iteritems():
-            self.packages.append(Package(pckg['name'], pckg['version']))
+            self.packages.append(Package(pckg['name'], pckg['version'], ''))
 
     def add_tags_from_dict(self, tags_as_dicts):
         for tag in tags_as_dicts:
@@ -231,9 +229,11 @@ class Service(object):
 
         return reqs
 
+
 class CycleServiceException(Exception):
     def __init__(self, message, results=[]):
         self.message = message
         self.results = results
+
     def __str__(self):
         return json.dumps({'message': self.message, 'results': self.results})

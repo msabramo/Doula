@@ -1,3 +1,4 @@
+from doula.cache import Cache
 from doula.config import Config
 from doula.jobs_timer import start_task_scheduling
 from doula.models.sites_dal import SiteDAL
@@ -112,6 +113,8 @@ def load_config(event):
     Load the Service config settings
     """
     Config.load_config(event.app.registry.settings)
+    Cache.cache().set('doula.cheeseprism_url', Config.get('doula.cheeseprism_url'))
+
     start_task_scheduling()
 
 

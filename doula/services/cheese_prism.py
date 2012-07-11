@@ -62,11 +62,14 @@ class CheesePrism(object):
         Return all packages from our data store
         """
         all_packages = []
-        json_packages = json.loads(cache.get('cheeseprism_packages'))
+        packages_as_json = cache.get('cheeseprism_packages')
 
-        for jpckg in json_packages:
-            pckg = PythonPackage(jpckg['url'], jpckg['versions'])
-            all_packages.append(pckg)
+        if packages_as_json:
+            json_packages = json.loads(packages_as_json)
+
+            for jpckg in json_packages:
+                pckg = PythonPackage(jpckg['url'], jpckg['versions'])
+                all_packages.append(pckg)
 
         return all_packages
 

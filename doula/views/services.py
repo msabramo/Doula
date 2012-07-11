@@ -72,7 +72,7 @@ def service_cheese_prism_push(request):
         # no empty values, no duplicates, make sure the branch exist
         # alextodo, verification will also require that we don't allow
         # another version number that is already being pushed onto the queue
-        remote = package.get_github_info()['git_url']
+        remote = package.get_github_info()['ssh_url']
         next_version = request.GET['next_version']
         branch = request.GET['branch']
         job_dict = enqueue_push_package(service, remote, branch, next_version)
@@ -95,8 +95,9 @@ def enqueue_push_package(service, remote, branch, version):
         'version': version,
         'job_type': 'push_to_cheeseprism'
     }
-    print "HELLO JOB DICT"
+    print "ENQUING THE PUSH PACKAGE JOBJ"
     print job_dict
+
     q = Queue()
     q.this(job_dict)
 

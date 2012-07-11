@@ -1,12 +1,11 @@
-import os
-import shutil
 from contextlib import contextmanager
-from doula.services.cheese_prism import CheesePrism
 from doula.github.github import get_package_github_info
-from doula.config import Config
+from doula.services.cheese_prism import CheesePrism
 from fabric.api import *
 from git import *
 from tempfile import TemporaryFile
+import os
+import shutil
 
 
 class Package(object):
@@ -89,5 +88,8 @@ class Package(object):
     def upload(self, repo):
         # Call `python setup.py sdist upload` to put upload to cheeseprism
         with lcd(repo.working_dir):
-            config = Config()
-            local('python setup.py sdist upload -r ' + config.get('doula.cheeseprism_url'))
+            # joetodo, read this value from redis
+            # key is redis doula.cheeseprism_url
+            # doula.cheeseprism_url = http://mtclone.corp.surveymonkey.com:6543/simple
+            url = 'http://mtclone.corp.surveymonkey.com:6543/simple'
+            local('python setup.py sdist upload -r ' + url)

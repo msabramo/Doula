@@ -7,9 +7,6 @@ from doula.util import *
 import json
 
 cache = Cache.cache()
-# what's the Doula user? we need the details for that.
-user = "surveymonkey"
-token = "bf51a7224a9baf757bc12923e0a81561"
 api = "http://api.code.corp.surveymonkey.com"
 
 
@@ -56,7 +53,7 @@ def pull_devmonkeys_repos():
         [{
         "name":[name of project],
         "html_url":[url to github page of project],
-        "git_url":[git hub repo page of project],
+        "ssh_url":[git ssh url],
         "tags":[{
             "name":[name of tag],
             "commit_hash": [hash of tag]
@@ -97,7 +94,7 @@ def pull_devmonkeys_repos():
         repo = {
             "name": git_repo["name"],
             "html_url": git_repo["html_url"],
-            "git_url": git_repo["git_url"],
+            "ssh_url": git_repo["ssh_url"],
             "tags": tags,
             "branches": branches
         }
