@@ -5,18 +5,20 @@ from doula.services.cheese_prism import CheesePrism
 from doula.util import *
 import logging
 import supervisor
+import sys
 import traceback
 
 log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+
 fh = logging.FileHandler('/var/log/doula/jobs.log')
-fh.setLevel(logging.INFO)
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
+fh.setLevel(logging.DEBUG)
 log.addHandler(fh)
+
+ch = logging.StreamHandler(sys.stdout)
+ch.setLevel(logging.DEBUG)
 log.addHandler(ch)
 
-print 'hello dude '
-log.info("EHLLLLLLLL ")
 
 def push_to_cheeseprism(job_dict=None):
     """
@@ -25,17 +27,17 @@ def push_to_cheeseprism(job_dict=None):
     joetodo be descriptive about what the task actually does.
     """
     try:
+        print 'about to push to cheese prism'
+        print job_dict
         log.info("About to push package to cheese prism %s" % job_dict['remote'])
-        print "about to push package to job_dict"
 
         p = Package(job_dict['service'], '0', job_dict['remote'])
         p.distribute(job_dict['branch'], job_dict['version'])
-        print 'done pushing package'
+
         log.info('Finished pushing package %s to CheesePrism' % job_dict['remote'])
     except Exception as e:
-        print 'exception here its'
+        print e
         print traceback.format_exc()
-
         log.error(e.message)
         log.error(traceback.format_exc())
         raise
@@ -56,7 +58,6 @@ def pull_cheeseprism_data(job_dict):
     Ping Cheese Prism and pull the latest packages and all of their versions.
     """
     try:
-        print 'hello pull cheese prism job'
         cache = Cache.cache()
         pipeline = cache.pipeline()
 
@@ -68,7 +69,7 @@ def pull_cheeseprism_data(job_dict):
             pipeline.set('cheeseprism_pckg_' + pckg.clean_name, dumps(pckg))
 
         pipeline.execute()
-        print 'DONE PULLING CHEESE'
+
         log.info('Done pulling data from cheeseprism')
     except Exception as e:
         print e
@@ -92,3 +93,20 @@ def pull_github_data(job_dict):
         log.error(e.message)
         log.error(traceback.format_exc())
         raise
+
+if __name__ == '__main__':
+    """
+
+    """
+    # original remote - git://code.corp.surveymonkey.com/devmonkeys/BillWeb.git
+    # git@github.com:devmonkeys/BillWeb.git
+    job_dict = {
+    'remote': 'git@code.corp.surveymonkey.com:devmonkeys/BillWeb.git',
+    'service': 'billweb',
+    'job_type': 'push_to_cheeseprism',
+    'version': '0.2.4',
+    'branch': 'master',
+    'id': '91c66859cae911e1b33ab8f6b1191577'
+    }
+    push_to_cheeseprism(job_dict)
+    print 'WTF'

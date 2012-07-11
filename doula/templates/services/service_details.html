@@ -1,7 +1,10 @@
 {% extends 'layouts/base.html' %}
 {% block content %}
 <div class="title">
-  <h2>Details for {{ service.name }}</h2>
+  <h2>Details for
+    <a href="/sites/{{site.name_url}}/{{service.name_url}}/details">{{ service.name }}</a> on
+    <a href="/sites/{{site.name_url}}">{{ site.name|upper }}</a></h2>
+  </h2>
 </div>
 <table class="table table-striped">
     <tr>
@@ -24,7 +27,7 @@
             Compare the tag
             <select id="compare_dropdown1">
               {% for tag in service.tags|sort(attribute='date',reverse=True) %}
-                <option value="{{ tag.name }}" 
+                <option value="{{ tag.name }}"
                 {% if loop.index == 2 %}selected="selected"{% endif %}>
                   {{ tag.name }}
                 </option>
@@ -33,7 +36,7 @@
             to the tag
             <select id="compare_dropdown2">
               {% for tag in service.tags|sort(attribute='date', reverse=True) %}
-                <option value="{{ tag.name }}" 
+                <option value="{{ tag.name }}"
                 {% if loop.index == 1 %}selected="selected"{% endif %}>
                 {{ tag.name }}
                 </option>
@@ -82,7 +85,7 @@
             </td>
             </tr>
             {% set count = 1 %}
-            
+
             {% for pack in service.packages|sort(attribute='name') %}
             {% if count == 1 %}
             <tr>

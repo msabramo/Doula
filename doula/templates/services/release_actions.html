@@ -1,7 +1,9 @@
 {% extends 'layouts/base.html' %}
 {% block content %}
 <div class="title">
-	<h2>{{ service.name }} on {{ site.name|upper }}</h2>
+	<h2>
+    <a href="/sites/{{site.name_url}}/{{service.name_url}}">{{ service.name }}</a> on
+    <a href="/sites/{{site.name_url}}">{{ site.name|upper }}</a></h2>
 </div>
 <div>
 <div class="well">

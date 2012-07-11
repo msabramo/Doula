@@ -49,8 +49,7 @@ class Package(object):
             repo_path = os.path.join('repos', self.name)
 
             # Clone specified service's repo
-            repo = Repo.clone_from(self.remote + "/%s.git" % self.name,
-                                   repo_path)
+            repo = Repo.clone_from(self.remote, repo_path)
             yield repo
         finally:
             # Clean up repo directory
@@ -80,11 +79,13 @@ class Package(object):
         index.add(files)
         index.commit(msg)
 
-    def push(self, repo, remote):
+    def push(self, repo, remote_name):
         # Push changes
-        origin = repo.remotes[remote]
-        origin.pull()
-        origin.push()
+        import pdb; pdb.set_trace()
+        print repo.remotes
+        remote = repo.remotes[remote_name]
+        remote.pull()
+        remote.push()
 
     def upload(self, repo):
         # Call `python setup.py sdist upload` to put upload to cheeseprism
