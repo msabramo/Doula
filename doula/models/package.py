@@ -3,6 +3,7 @@ import shutil
 from contextlib import contextmanager
 from doula.services.cheese_prism import CheesePrism
 from doula.github.github import get_package_github_info
+from doula.config import Config
 from fabric.api import *
 from git import *
 from tempfile import TemporaryFile
@@ -12,7 +13,7 @@ class Package(object):
     """
     Represents a python package
     """
-    def __init__(self, name, version, remote=None):
+    def __init__(self, name, version, remote):
         self.name = name
         self.version = version
         self.remote = remote
@@ -88,4 +89,5 @@ class Package(object):
     def upload(self, repo):
         # Call `python setup.py sdist upload` to put upload to cheeseprism
         with lcd(repo.working_dir):
-            local('python setup.py sdist upload -r local')
+            config = Config()
+            local('python setup.py sdist upload -r ' + config.get('doula.cheeseprism_url'))
