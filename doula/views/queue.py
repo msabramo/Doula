@@ -7,3 +7,8 @@ from pyramid.view import view_config
 @view_config(route_name='queue', renderer='queue/index.html')
 def show_queue(request):
     return {'config': Config}
+
+
+@view_config(route_name='queue', renderer='json', xhr=True)
+def update_queue(request):
+    return {}

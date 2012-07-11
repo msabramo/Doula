@@ -236,3 +236,27 @@ a.side_tab {
   z-index: 9999999;
   display: none;
 }
+/*
+*
+* Queue Pages
+*
+*/
+.sort_by {
+  overflow: auto;
+  margin-bottom: 5px;
+}
+.sort_by li {
+  float: left;
+  margin-right: 8px;
+}
+.queued_items .queued_item {
+  margin-bottom: 5px;
+}
+.queued_items .queued_item .logs {
+  overflow-x: scroll;
+}
+/*
+*
+* End Queue Pages
+*
+*/
