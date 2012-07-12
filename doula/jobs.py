@@ -1,11 +1,13 @@
 from doula.cache import Cache
 from doula.github.github import pull_devmonkeys_repos
-from doula.models.package import Package
 from doula.models.node import Node
+from doula.models.package import Package
 from doula.models.service import Service
 from doula.models.sites_dal import SiteDAL
 from doula.services.cheese_prism import CheesePrism
 from doula.util import *
+from doula.config import Config
+import json
 import logging
 import sys
 import traceback
@@ -23,6 +25,15 @@ ch.setLevel(logging.DEBUG)
 log.addHandler(ch)
 
 
+def load_config():
+    """
+    Load the config from redis
+    """
+    cache = Cache.cache()
+    settings_as_json = cache.get('doula_settings')
+    Config.load_config(json.loads(settings_as_json))
+
+
 def push_to_cheeseprism(job_dict=None):
     """
     This function will be enqueued by Queue upon receiving a job dict that
@@ -30,8 +41,8 @@ def push_to_cheeseprism(job_dict=None):
     joetodo be descriptive about what the task actually does.
     """
     try:
-        # alextodo, figure out how the hell retools works. wtf.
         log.info("About to push package to cheese prism %s" % job_dict['remote'])
+        load_config()
 
         p = Package(job_dict['service'], '0', job_dict['remote'])
         p.distribute(job_dict['branch'], job_dict['version'])
@@ -51,6 +62,7 @@ def cycle_services(supervisor_ip, service_name):
     """
     try:
         log.info('started cycling service %s' % service_name)
+        load_config()
 
         Service.cycle(xmlrpclib.ServerProxy(supervisor_ip), service_name)
     except Exception as e:
@@ -65,6 +77,7 @@ def pull_cheeseprism_data(job_dict):
     """
     try:
         log.info('Started pulling cheeseprism data')
+        load_config()
 
         cache = Cache.cache()
         pipeline = cache.pipeline()
@@ -92,6 +105,7 @@ def pull_github_data(job_dict):
     """
     try:
         log.info('pulling github data')
+        load_config()
 
         repos = pull_devmonkeys_repos()
         cache = Cache.cache()
@@ -110,6 +124,7 @@ def pull_bambino_data(job_dict):
     """
     try:
         log.info('Pulling bambino data')
+        load_config()
 
         cache = Cache.cache()
         pipeline = cache.pipeline()

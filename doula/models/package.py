@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from doula.config import Config
 from doula.github.github import get_package_github_info
 from doula.services.cheese_prism import CheesePrism
 from fabric.api import *
@@ -88,8 +89,8 @@ class Package(object):
     def upload(self, repo):
         # Call `python setup.py sdist upload` to put upload to cheeseprism
         with lcd(repo.working_dir):
-            # joetodo, read this value from redis
-            # key is redis doula.cheeseprism_url
-            # doula.cheeseprism_url = http://mtclone.corp.surveymonkey.com:6543/simple
-            url = 'http://mtclone.corp.surveymonkey.com:6543/simple'
+            # joetodo, every job loads the config from redis
+            # so we can operate like normal again in the jobs
+            # this code should work
+            url = Config.get('doula.cheeseprism_url')
             local('python setup.py sdist upload -r ' + url)
