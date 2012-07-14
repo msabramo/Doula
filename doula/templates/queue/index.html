@@ -2,58 +2,18 @@
 {% block content %}
 <h2>Queue</h2>
 <ul class="sort_by unstyled">
+    <li><a href="/queue?sort_by=all">all</a></li>
     <li><a href="/queue?sort_by=queued">queued</a></li>
     <li><a href="/queue?sort_by=complete">complete</a></li
     <li><a href="/queue?sort_by=failed">failed</a></li>
 </ul>
 <div class="queued_items">
-    {% for queued_item in range(5) %}
-        <div class="queued_item alert alert-info">
-            We are reading your e-mail.
-            <div class="logs">
-                <pre>
-IOError: [Errno 2] No such file or directory: '/var/log/doula/jobs.log'
-2012-07-11 11:14:41,489 ERROR [apscheduler.scheduler][Thread-44] Job "pull_github_data (trigger: interval[0:00:30], next run at: 2012-07-11 11:15:11.481899)" raised an exception
-Traceback (most recent call last):
-  File "build/bdist.macosx-10.4-x86_64/egg/apscheduler/scheduler.py", line 486, in _run_job
-    retval = job.func(*job.args, **job.kwargs)
-  File "/Users/joedallago/Projects/Doula/doula/jobs_timer.py", line 21, in pull_github_data
-    q.this(job_dict)
-  File "/Users/joedallago/Projects/Doula/doula/queue.py", line 111, in this
-    job_dict['id'] = self.qm.enqueue('doula.jobs:pull_github_data', job_dict=job_dict)
-  File "/Users/joedallago/Projects/Doula/env/lib/python2.7/site-packages/retools-0.2-py2.7.egg/retools/queue.py", line 169, in enqueue
-    job_func = pkg_resources.EntryPoint.parse('x=%s' % job).load(False)
-  File "/Users/joedallago/Projects/Doula/env/lib/python2.7/site-packages/setuptools-0.6c11-py2.7.egg/pkg_resources.py", line 1954, in load
-    entry = __import__(self.module_name, globals(),globals(), ['__name__'])
-  File "/Users/joedallago/Projects/Doula/doula/jobs.py", line 17, in
-    fh = logging.FileHandler('/var/log/doula/jobs.log')
-  File "/Users/joedallago/Opt/Python-2.7.3/lib/python2.7/logging/__init__.py", line 897, in __init__
-    StreamHandler.__init__(self, self._open())
-  File "/Users/joedallago/Opt/Python-2.7.3/lib/python2.7/logging/__init__.py", line 916, in _open
-    stream = open(self.baseFilename, self.mode)
-IOError: [Errno 2] No such file or directory: '/var/log/doula/jobs.log'
-2012-07-11 11:14:41,489 INFO  [apscheduler.scheduler][Thread-45] Running job "pull_cheeseprism_data (trigger: interval[0:00:30], next run at: 2012-07-11 11:15:11.482099)" (scheduled at 2012-07-11 11:14:41.482099)
-2012-07-11 11:14:41,490 ERROR [apscheduler.scheduler][Thread-45] Job "pull_cheeseprism_data (trigger: interval[0:00:30], next run at: 2012-07-11 11:15:11.482099)" raised an exception
-Traceback (most recent call last):
-  File "build/bdist.macosx-10.4-x86_64/egg/apscheduler/scheduler.py", line 486, in _run_job
-    retval = job.func(*job.args, **job.kwargs)
-  File "/Users/joedallago/Projects/Doula/doula/jobs_timer.py", line 35, in pull_cheeseprism_data
-    q.this(job_dict)
-  File "/Users/joedallago/Projects/Doula/doula/queue.py", line 109, in this
-    job_dict['id'] = self.qm.enqueue('doula.jobs:pull_cheeseprism_data', job_dict=job_dict)
-  File "/Users/joedallago/Projects/Doula/env/lib/python2.7/site-packages/retools-0.2-py2.7.egg/retools/queue.py", line 169, in enqueue
-    job_func = pkg_resources.EntryPoint.parse('x=%s' % job).load(False)
-  File "/Users/joedallago/Projects/Doula/env/lib/python2.7/site-packages/setuptools-0.6c11-py2.7.egg/pkg_resources.py", line 1954, in load
-    entry = __import__(self.module_name, globals(),globals(), ['__name__'])
-  File "/Users/joedallago/Projects/Doula/doula/jobs.py", line 17, in
-    fh = logging.FileHandler('/var/log/doula/jobs.log')
-  File "/Users/joedallago/Opt/Python-2.7.3/lib/python2.7/logging/__init__.py", line 897, in __init__
-    StreamHandler.__init__(self, self._open())
-  File "/Users/joedallago/Opt/Python-2.7.3/lib/python2.7/logging/__init__.py", line 916, in _open
-    stream = open(self.baseFilename, self.mode)
-IOError: [Errno 2] No such file or directory: '/var/log/doula/jobs.log'
-                </pre>
+    {% for queued_item in queued_items %}
+        <div class="queued_item alert alert-success accordion-group">
+            <div class="accordion-heading" data-toggle="collapse" data-target="#item_{{ queued_item['id'] }}">
+                {{ queued_item['job_type'] }}
             </div>
+            <div id="item_{{ queued_item['id'] }}" class="logs accordion-body collapse">{{ queued_item['log']|safe }}</div>
         </div>
     {% endfor %}
 </div>

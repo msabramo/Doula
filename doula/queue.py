@@ -89,7 +89,7 @@ class Queue(object):
         if 'job_type' in attrs and attrs['job_type'] in \
             ['push_to_cheeseprism', 'cycle_services', 'pull_cheeseprism_data', 'pull_github_data', 'pull_bambino_data']:
             _type = attrs['job_type']
-            job_dict = self.base_dicts[_type]
+            job_dict = self.base_dicts[_type].copy()
         else:
             return Exception('A valid job type must be specified.')
 
@@ -120,11 +120,15 @@ class Queue(object):
         jobs = self._get_jobs()
 
         # Loop through each criteria, throw out the jobs that don't meet
-        for job in jobs:
+        for job in list(jobs):
             for k, v in job_dict.items():
                 try:
-                    if job[k] != v:
-                        jobs.remove(job)
+                    if type(v) == str:
+                        if job[k] != v:
+                            jobs.remove(job)
+                    elif type(v) == list:
+                        if not job[k] in v:
+                            jobs.remove(job)
                 except KeyError:
                     continue
 
@@ -172,7 +176,7 @@ class Queue(object):
 
         for job in jobs:
             if job['id'] == id:
-                p.srem(k['jobs'], json.dumps(job))
+                p.srem(k['jobs'], json.dumps(job, sort_keys=True))
                 return job
         return None
 
@@ -181,8 +185,7 @@ class Queue(object):
         Given a complete "Job" dict, saves it
         """
         k = self._keys()
-        p = self.rdb.pipeline()
-        p.sadd(k['jobs'], json.dumps(attrs))
+        p.sadd(k['jobs'], json.dumps(attrs, sort_keys=True))
 
     def _update(self, p, attrs):
         """
@@ -194,8 +197,7 @@ class Queue(object):
         if job_dict:
             for key, val in attrs.items():
                 job_dict[key] = val
-            p.sadd(k['jobs'], json.dumps(job_dict))
-            p.execute()
+            p.sadd(k['jobs'], json.dumps(job_dict, sort_keys=True))
         else:
             return False
 

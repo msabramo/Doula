@@ -13,16 +13,20 @@ import sys
 import traceback
 import xmlrpclib
 
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
 
-fh = logging.FileHandler('/var/log/doula/jobs.log')
-fh.setLevel(logging.DEBUG)
-log.addHandler(fh)
+def create_logger(job_id):
+    log = logging.getLogger(__name__)
+    log.setLevel(logging.DEBUG)
 
-ch = logging.StreamHandler(sys.stdout)
-ch.setLevel(logging.DEBUG)
-log.addHandler(ch)
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.DEBUG)
+    log.addHandler(ch)
+
+    fh = logging.FileHandler(os.path.join('/var/log/doula', str(job_id) + '.log'))
+    fh.setLevel(logging.DEBUG)
+    log.addHandler(fh)
+
+    return log
 
 
 def load_config():
@@ -34,12 +38,13 @@ def load_config():
     Config.load_config(json.loads(settings_as_json))
 
 
-def push_to_cheeseprism(job_dict=None):
+def push_to_cheeseprism(job, job_dict=None):
     """
     This function will be enqueued by Queue upon receiving a job dict that
     has a job_type of 'push_to_cheeseprism'
     joetodo be descriptive about what the task actually does.
     """
+    log = create_logger(job.job_id)
     try:
         log.info("About to push package to cheese prism %s" % job_dict['remote'])
         load_config()
@@ -60,6 +65,7 @@ def cycle_services(supervisor_ip, service_name):
     has a job_type of 'cycle_services'
     joetodo be descriptive about what the task actually does.
     """
+    log = create_logger(job_dict)
     try:
         log.info('started cycling service %s' % service_name)
         load_config()
@@ -71,10 +77,11 @@ def cycle_services(supervisor_ip, service_name):
         raise
 
 
-def pull_cheeseprism_data(job_dict):
+def pull_cheeseprism_data(job, job_dict=None):
     """
     Ping Cheese Prism and pull the latest packages and all of their versions.
     """
+    log = create_logger(job.job_id)
     try:
         log.info('Started pulling cheeseprism data')
         load_config()
@@ -98,11 +105,12 @@ def pull_cheeseprism_data(job_dict):
         raise
 
 
-def pull_github_data(job_dict):
+def pull_github_data(job, job_dict=None):
     """
     Pull the github data for every python package.
     Pull commit history, tags, branches. Everything.
     """
+    log = create_logger(job.job_id)
     try:
         log.info('pulling github data')
         load_config()
@@ -118,10 +126,11 @@ def pull_github_data(job_dict):
         raise
 
 
-def pull_bambino_data(job_dict):
+def pull_bambino_data(job, job_dict=None):
     """
     Pull the data from all the bambino's
     """
+    log = create_logger(job.job_id)
     try:
         log.info('Pulling bambino data')
         load_config()
