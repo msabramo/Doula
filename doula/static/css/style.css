@@ -521,7 +521,11 @@ a.side_tab {
 .queued_items .queued_item {
   margin-bottom: 5px;
 }
+.queued_items .queued_item:hover {
+  cursor: pointer;
+}
 .queued_items .queued_item .logs {
+  margin-top: 0px;
   overflow-x: scroll;
 }
 /*
