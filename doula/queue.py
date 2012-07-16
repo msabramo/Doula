@@ -1,4 +1,5 @@
 from retools.queue import QueueManager
+import uuid
 import json
 import redis
 import time
@@ -63,14 +64,10 @@ class Queue(object):
         'version': ''
     }.items() + common_dict.items())
 
-    cycle_services_dict = dict({}.items() + common_dict.items())
-    # in practice i feel this is unncessary.
-    cycle_services_dict = dict({}.items() + common_dict.items())
-
     base_dicts = {
         'base': common_dict,
         'push_to_cheeseprism': push_to_cheeseprism_dict,
-        'cycle_services': cycle_services_dict,
+        'cycle_services': common_dict,
         'pull_cheeseprism_data': common_dict,
         'pull_github_data': common_dict,
         'pull_bambino_data': common_dict
@@ -89,28 +86,30 @@ class Queue(object):
         if 'job_type' in attrs and attrs['job_type'] in \
             ['push_to_cheeseprism', 'cycle_services', 'pull_cheeseprism_data', 'pull_github_data', 'pull_bambino_data']:
             _type = attrs['job_type']
-            job_dict = self.base_dicts[_type]
+            job_dict = self.base_dicts[_type].copy()
         else:
             return Exception('A valid job type must be specified.')
 
         for key, val in attrs.items():
             job_dict[key] = val
 
+        # generate unique id
+        job_dict['id'] = uuid.uuid1().hex
         job_dict['status'] = 'queued'
         job_dict['time_started'] = time.time()
         job_type = job_dict['job_type']
         p = self.rdb.pipeline()
 
         if job_type is 'push_to_cheeseprism':
-            job_dict['id'] = self.qm.enqueue('doula.jobs:push_to_cheeseprism', job_dict=job_dict)
+            self.qm.enqueue('doula.jobs:push_to_cheeseprism', job_dict=job_dict)
         elif job_type is 'cycle_services':
-            job_dict['id'] = self.qm.enqueue('doula.jobs:cycle_services', job_dict=job_dict)
+            self.qm.enqueue('doula.jobs:cycle_services', job_dict=job_dict)
         elif job_type is 'pull_cheeseprism_data':
-            job_dict['id'] = self.qm.enqueue('doula.jobs:pull_cheeseprism_data', job_dict=job_dict)
+            self.qm.enqueue('doula.jobs:pull_cheeseprism_data', job_dict=job_dict)
         elif job_type is 'pull_github_data':
-            job_dict['id'] = self.qm.enqueue('doula.jobs:pull_github_data', job_dict=job_dict)
+            self.qm.enqueue('doula.jobs:pull_github_data', job_dict=job_dict)
         elif job_type is 'pull_bambino_data':
-            job_dict['id'] = self.qm.enqueue('doula.jobs:pull_bambino_data', job_dict=job_dict)
+            self.qm.enqueue('doula.jobs:pull_bambino_data', job_dict=job_dict)
 
         self._save(p, job_dict)
         p.execute()
@@ -120,11 +119,15 @@ class Queue(object):
         jobs = self._get_jobs()
 
         # Loop through each criteria, throw out the jobs that don't meet
-        for job in jobs:
+        for job in list(jobs):
             for k, v in job_dict.items():
                 try:
-                    if job[k] != v:
-                        jobs.remove(job)
+                    if isinstance(v, basestring):
+                        if job[k] != v:
+                            jobs.remove(job)
+                    elif type(v) == list:
+                        if not job[k] in v:
+                            jobs.remove(job)
                 except KeyError:
                     continue
 
@@ -172,7 +175,7 @@ class Queue(object):
 
         for job in jobs:
             if job['id'] == id:
-                p.srem(k['jobs'], json.dumps(job))
+                p.srem(k['jobs'], json.dumps(job, sort_keys=True))
                 return job
         return None
 
@@ -181,8 +184,7 @@ class Queue(object):
         Given a complete "Job" dict, saves it
         """
         k = self._keys()
-        p = self.rdb.pipeline()
-        p.sadd(k['jobs'], json.dumps(attrs))
+        p.sadd(k['jobs'], json.dumps(attrs, sort_keys=True))
 
     def _update(self, p, attrs):
         """
@@ -194,8 +196,7 @@ class Queue(object):
         if job_dict:
             for key, val in attrs.items():
                 job_dict[key] = val
-            p.sadd(k['jobs'], json.dumps(job_dict))
-            p.execute()
+            p.sadd(k['jobs'], json.dumps(job_dict, sort_keys=True))
         else:
             return False
 
@@ -208,7 +209,7 @@ def add_result(job=None, result=None):
     Subscriber that gets called right after the job gets run, and is successful.
     """
     queue = Queue()
-    queue.update({'id': job.job_id, 'status': 'complete'})
+    queue.update({'id': job.kwargs['job_dict']['id'], 'status': 'complete'})
 
 
 def add_failure(job=None, exc=None):
@@ -217,4 +218,4 @@ def add_failure(job=None, exc=None):
     """
     exc = traceback.format_exc()
     queue = Queue()
-    queue.update({'id': job.job_id, 'status': 'failed', 'exc': exc})
+    queue.update({'id': job.kwargs['job_dict']['id'], 'status': 'failed', 'exc': exc})
