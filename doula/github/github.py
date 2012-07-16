@@ -3,6 +3,7 @@ A simplified interface to the Github V3 API
 """
 
 from doula.cache import Cache
+from doula.config import Config
 from doula.util import *
 import json
 
@@ -69,13 +70,14 @@ def pull_devmonkeys_repos():
         }]
     """
     repos = []
-    url = api + '/orgs/devmonkeys/repos'
+    url = api + '/orgs/' + Config.get('doula.github_org') + '/repos'
     git_repos = json.loads(pull_url(url))
 
     for git_repo in git_repos:
         # Pull the tags from github
         tags = []
-        tag_url = api + '/repos/devmonkeys/' + git_repo['name'] + '/tags'
+        tag_url = api + '/repos/' + Config.get('doula.github_org')
+        tag_url += '/' + git_repo['name'] + '/tags'
         git_tags = json.loads(pull_url(tag_url))
 
         for git_tag in git_tags:

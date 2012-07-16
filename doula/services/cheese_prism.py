@@ -77,10 +77,7 @@ class CheesePrism(object):
         """
         Return all the packages from the Cheese Prism site.
         """
-        # can't use the mtclone index to read from. why?
-        # alextodo, make sure our mtclone cheese prism is the same as prod cheeseprism
-        # talk to whit to see if prod is different then what's checked in
-        url = Config.get('doula.read.cheeseprism_url')
+        url = Config.get('doula.cheeseprism_url')
         text = pull_url(url + '/index/')
         matches = re.findall(r'a.+href="(.+)"', text, re.M)
 
