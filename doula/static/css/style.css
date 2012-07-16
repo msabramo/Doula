@@ -11,7 +11,7 @@
 }
 /* Error */
 .k {
-  color: #008000;
+  color: #41c05f;
   font-weight: bold;
 }
 /* Keyword */
@@ -167,7 +167,7 @@
 }
 /* Name.Tag */
 .nv {
-  color: #19177c;
+  color: #3d9fcd;
 }
 /* Name.Variable */
 .ow {
@@ -209,7 +209,7 @@
 }
 /* Literal.String.Doc */
 .s2 {
-  color: #ba2121;
+  color: #be3e3e;
 }
 /* Literal.String.Double */
 .se {

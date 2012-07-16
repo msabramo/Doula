@@ -7,6 +7,7 @@ from doula.models.sites_dal import SiteDAL
 from doula.services.cheese_prism import CheesePrism
 from doula.util import *
 from doula.config import Config
+import os
 import json
 import logging
 import sys
@@ -114,7 +115,6 @@ def pull_github_data(job, job_dict=None):
     try:
         log.info('pulling github data')
         load_config()
-
         repos = pull_devmonkeys_repos()
         cache = Cache.cache()
         cache.set("devmonkeys_repos", dumps(repos))

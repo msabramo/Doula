@@ -13,7 +13,7 @@ from pygments.formatters import HtmlFormatter
 @view_config(route_name='queue', renderer='queue/index.html')
 def show_queue(request):
     queue = Queue()
-    queued_items = queue.get({'job_type': ['pull_bambino_data', 'pull_cheeseprism_data']})
+    queued_items = queue.get({'job_type': ['pull_bambino_data', 'pull_cheeseprism_data', 'pull_github_data']})
 
     i = 0
     for queued_item in queued_items:
@@ -28,6 +28,10 @@ def show_queue(request):
         queued_items[i]['log'] = highlight(log, BashLexer(), HtmlFormatter())
         i += 1
 
+    # sort all of the items with respect to time
+    queued_items = sorted(queued_items, key=lambda k: k['time_started'])
+    # descending order
+    queued_items = reversed(queued_items)
     return {'config': Config,
             'queued_items': queued_items}
 
