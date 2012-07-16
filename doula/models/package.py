@@ -37,6 +37,7 @@ class Package(object):
         with self.repo() as repo:
             self.update_version(repo, new_version)
             self.commit(repo, ['setup.py'], 'DOULA: Updating Version.')
+            self.tag(repo, new_version)
             self.push(repo, "origin")
             self.upload(repo)
 
@@ -79,6 +80,10 @@ class Package(object):
         index = repo.index
         index.add(files)
         index.commit(msg)
+
+    def tag(self, repo, version):
+        # Tag a version
+        repo.create_tag(version)
 
     def push(self, repo, remote_name):
         # Push changes
