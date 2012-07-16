@@ -1,4 +1,5 @@
 from retools.queue import QueueManager
+import uuid
 import json
 import redis
 import time
@@ -96,21 +97,23 @@ class Queue(object):
         for key, val in attrs.items():
             job_dict[key] = val
 
+        # generate unique id
+        job_dict['id'] = uuid.uuid1().hex
         job_dict['status'] = 'queued'
         job_dict['time_started'] = time.time()
         job_type = job_dict['job_type']
         p = self.rdb.pipeline()
 
         if job_type is 'push_to_cheeseprism':
-            job_dict['id'] = self.qm.enqueue('doula.jobs:push_to_cheeseprism', job_dict=job_dict)
+            self.qm.enqueue('doula.jobs:push_to_cheeseprism', job_dict=job_dict)
         elif job_type is 'cycle_services':
-            job_dict['id'] = self.qm.enqueue('doula.jobs:cycle_services', job_dict=job_dict)
+            self.qm.enqueue('doula.jobs:cycle_services', job_dict=job_dict)
         elif job_type is 'pull_cheeseprism_data':
-            job_dict['id'] = self.qm.enqueue('doula.jobs:pull_cheeseprism_data', job_dict=job_dict)
+            self.qm.enqueue('doula.jobs:pull_cheeseprism_data', job_dict=job_dict)
         elif job_type is 'pull_github_data':
-            job_dict['id'] = self.qm.enqueue('doula.jobs:pull_github_data', job_dict=job_dict)
+            self.qm.enqueue('doula.jobs:pull_github_data', job_dict=job_dict)
         elif job_type is 'pull_bambino_data':
-            job_dict['id'] = self.qm.enqueue('doula.jobs:pull_bambino_data', job_dict=job_dict)
+            self.qm.enqueue('doula.jobs:pull_bambino_data', job_dict=job_dict)
 
         self._save(p, job_dict)
         p.execute()
@@ -210,7 +213,7 @@ def add_result(job=None, result=None):
     Subscriber that gets called right after the job gets run, and is successful.
     """
     queue = Queue()
-    queue.update({'id': job.job_id, 'status': 'complete'})
+    queue.update({'id': job.kwargs['job_dict']['id'], 'status': 'complete'})
 
 
 def add_failure(job=None, exc=None):
@@ -219,4 +222,4 @@ def add_failure(job=None, exc=None):
     """
     exc = traceback.format_exc()
     queue = Queue()
-    queue.update({'id': job.job_id, 'status': 'failed', 'exc': exc})
+    queue.update({'id': job.kwargs['job_dict']['id'], 'status': 'failed', 'exc': exc})
