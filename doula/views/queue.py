@@ -13,7 +13,12 @@ from pygments.formatters import HtmlFormatter
 @view_config(route_name='queue', renderer='queue/index.html')
 def show_queue(request):
     queue = Queue()
-    queued_items = queue.get({'job_type': ['pull_bambino_data', 'pull_cheeseprism_data', 'pull_github_data']})
+
+    query = {}
+    sort_by = request.params.get('sort_by')
+    if sort_by == 'complete' or sort_by == 'failed' or sort_by == 'queued':
+        query = {'status': sort_by}
+    queued_items = queue.get(query)
 
     i = 0
     for queued_item in queued_items:

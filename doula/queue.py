@@ -122,7 +122,7 @@ class Queue(object):
         for job in list(jobs):
             for k, v in job_dict.items():
                 try:
-                    if type(v) == str:
+                    if isinstance(v, basestring):
                         if job[k] != v:
                             jobs.remove(job)
                     elif type(v) == list:
