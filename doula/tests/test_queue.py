@@ -34,7 +34,7 @@ class QueueTests(unittest.TestCase):
         push_to_cheeseprism['id'] = id
 
         # Add to redis, and return the "Job" dict
-        rdb.sadd(self.k['jobs'], json.dumps(push_to_cheeseprism))
+        rdb.sadd(self.k['jobs'], json.dumps(push_to_cheeseprism, sort_keys=True))
         return push_to_cheeseprism
 
     def test_keys(self):
@@ -55,10 +55,10 @@ class QueueTests(unittest.TestCase):
         self.assertEqual(add_job, job)
 
     def test_pop_job(self):
-        add_job = self._add_job(1)
+        add_job = self._add_job('1')
 
         p = self.queue.rdb.pipeline()
-        job = self.queue._pop_job(p, 1)
+        job = self.queue._pop_job(p, '1')
         p.execute()
 
         self.assertEqual(add_job, job)
@@ -66,10 +66,10 @@ class QueueTests(unittest.TestCase):
         self.assertEqual(len(jobs), 0)
 
     def test_pop_job_none(self):
-        self._add_job(1)
+        self._add_job('1')
 
         p = self.queue.rdb.pipeline()
-        job = self.queue._pop_job(p, 2)
+        job = self.queue._pop_job(p, '2')
         p.execute()
 
         self.assertEqual(job, None)
@@ -78,31 +78,44 @@ class QueueTests(unittest.TestCase):
 
     def test_save(self):
         p = self.queue.rdb.pipeline()
-        self.queue._save(p, {'id': 1, 'job_type': 'push_to_cheeseprism'})
+        self.queue._save(p, {'id': '1', 'job_type': 'push_to_cheeseprism'})
         p.execute()
 
         jobs = self.queue.rdb.smembers(self.k['jobs'])
         self.assertEqual(len(jobs), 1)
         job = self.queue.rdb.srandmember(self.k['jobs'])
         job = json.loads(job)
-        self.assertEqual(job['id'], 1)
+        self.assertEqual(job['id'], '1')
+
+    def test_api_update(self):
+        self._add_job('1')
+
+        self.queue.update({'id': '1', 'status': 'complete'})
+
+        jobs = self.queue.rdb.smembers(self.k['jobs'])
+        job = json.loads(jobs.pop())
+        self.assertEqual(job['id'], '1')
+        self.assertEqual(job['status'], 'complete')
+
+    def test_api_update_exception(self):
+        self._add_job('1')
+        self.assertRaises(Exception, self.queue.update, {'status': 'complete'})
 
     def test_update(self):
-        self._add_job(1)
+        self._add_job('1')
 
         p = self.queue.rdb.pipeline()
-        self.queue._update(p, {'id': 1, 'status': 'complete'})
+        self.queue._update(p, {'id': '1', 'status': 'complete'})
         p.execute()
 
         jobs = self.queue.rdb.smembers(self.k['jobs'])
         self.assertEqual(len(jobs), 1)
-        job = self.queue.rdb.srandmember(self.k['jobs'])
-        job = json.loads(job)
+        job = json.loads(jobs.pop())
         self.assertEqual(job['status'], 'complete')
 
     def test_update_not_in_redis(self):
         p = self.queue.rdb.pipeline()
-        result = self.queue._update(p, {'id': 2, 'status': 'complete'})
+        result = self.queue._update(p, {'id': '2', 'status': 'complete'})
         p.execute()
 
         self.assertEqual(result, False)
@@ -121,7 +134,6 @@ class QueueTests(unittest.TestCase):
         time.return_value = 0
         qm = self.queue.qm
         qm.enqueue = Mock()
-        qm.enqueue.return_value = '234hisadf93uq93254ijfsad93'
 
         id = self.queue.this({'job_type': 'push_to_cheeseprism'})
         expected = [call('doula.jobs:push_to_cheeseprism', job_dict={'status': 'queued',
@@ -132,28 +144,73 @@ class QueueTests(unittest.TestCase):
                                                                      'site': '',
                                                                      'version': '',
                                                                      'branch': 'master',
-                                                                     'id': '234hisadf93uq93254ijfsad93',
+                                                                     'id': '%s' % id,
                                                                      'exc': ''})]
         self.assertEqual(qm.enqueue.mock_calls, expected)
-        self.assertEqual(id, '234hisadf93uq93254ijfsad93')
 
     @patch('doula.queue.time.time')
     def test_queue_this_cycle(self, time):
         time.return_value = 0
         qm = self.queue.qm
         qm.enqueue = Mock()
-        qm.enqueue.return_value = '234hisadf93uq93254ijfsad93'
 
         id = self.queue.this({'job_type': 'cycle_services'})
         expected = [call('doula.jobs:cycle_services', job_dict={'status': 'queued',
                                                                 'time_started': 0,
                                                                 'service': '',
+                                                                'exc': '',
                                                                 'job_type': 'cycle_services',
                                                                 'site': '',
-                                                                'id': '234hisadf93uq93254ijfsad93',
-                                                                'exc': ''})]
+                                                                'id': '%s' % id})]
         self.assertEqual(qm.enqueue.mock_calls, expected)
-        self.assertEqual(id, '234hisadf93uq93254ijfsad93')
+
+    @patch('doula.queue.time.time')
+    def test_queue_this_pull_cheeseprism(self, time):
+        time.return_value = 0
+        qm = self.queue.qm
+        qm.enqueue = Mock()
+
+        id = self.queue.this({'job_type': 'pull_cheeseprism_data'})
+        expected = [call('doula.jobs:pull_cheeseprism_data', job_dict={'status': 'queued',
+                                                                'time_started': 0,
+                                                                'service': '',
+                                                                'exc': '',
+                                                                'job_type': 'pull_cheeseprism_data',
+                                                                'site': '',
+                                                                'id': '%s' % id})]
+        self.assertEqual(qm.enqueue.mock_calls, expected)
+
+    @patch('doula.queue.time.time')
+    def test_queue_this_github(self, time):
+        time.return_value = 0
+        qm = self.queue.qm
+        qm.enqueue = Mock()
+
+        id = self.queue.this({'job_type': 'pull_github_data'})
+        expected = [call('doula.jobs:pull_github_data', job_dict={'status': 'queued',
+                                                                'time_started': 0,
+                                                                'service': '',
+                                                                'exc': '',
+                                                                'job_type': 'pull_github_data',
+                                                                'site': '',
+                                                                'id': '%s' % id})]
+        self.assertEqual(qm.enqueue.mock_calls, expected)
+
+    @patch('doula.queue.time.time')
+    def test_queue_this_bambino(self, time):
+        time.return_value = 0
+        qm = self.queue.qm
+        qm.enqueue = Mock()
+
+        id = self.queue.this({'job_type': 'pull_bambino_data'})
+        expected = [call('doula.jobs:pull_bambino_data', job_dict={'status': 'queued',
+                                                                'time_started': 0,
+                                                                'service': '',
+                                                                'exc': '',
+                                                                'job_type': 'pull_bambino_data',
+                                                                'site': '',
+                                                                'id': '%s' % id})]
+        self.assertEqual(qm.enqueue.mock_calls, expected)
 
     def test_queue_this_wrong_job_type(self):
         id = self.queue.this({'job_type': 'asdf'})
@@ -179,14 +236,31 @@ class QueueTests(unittest.TestCase):
         self.assertEqual(len(jobs), 2)
         self.assertEqual(jobs[0]['job_type'], 'push_to_cheeseprism')
 
+    def test_queue_get_list(self):
+        # Have it return a random hex string as an id
+        qm = self.queue.qm
+        qm.enqueue = Mock(side_effect=lambda *args, **kwargs: uuid.uuid4().hex)
+
+        self.queue.this({'job_type': 'push_to_cheeseprism'})
+        self.queue.this({'job_type': 'pull_github_data'})
+        self.queue.this({'job_type': 'push_to_cheeseprism'})
+        self.queue.this({'job_type': 'cycle_services'})
+
+        jobs = self.queue.get({'job_type': ['push_to_cheeseprism', 'cycle_services']})
+        self.assertEqual(len(jobs), 3)
+
     def test_add_result_subscriber(self):
         retools_job = Mock()
-        retools_job.job_id = uuid.uuid4().hex
+        retools_job.kwargs = {
+            'job_dict': {
+                'id': uuid.uuid4().hex
+            }
+        }
 
         job_dict = self.queue.common_dict
-        job_dict['id'] = retools_job.job_id
+        job_dict['id'] = retools_job.kwargs['job_dict']['id']
         job_dict['status'] = 'queued'
-        self.queue.rdb.sadd(self.k['jobs'], json.dumps(job_dict))
+        self.queue.rdb.sadd(self.k['jobs'], json.dumps(job_dict, sort_keys=True))
 
         add_result(job=retools_job)
 
@@ -196,12 +270,16 @@ class QueueTests(unittest.TestCase):
 
     def test_add_failure_subscriber(self):
         retools_job = Mock()
-        retools_job.job_id = 0
+        retools_job.kwargs = {
+            'job_dict': {
+                'id': uuid.uuid4().hex
+            }
+        }
 
         job_dict = self.queue.common_dict
-        job_dict['id'] = 0
+        job_dict['id'] = retools_job.kwargs['job_dict']['id']
         job_dict['status'] = 'queued'
-        self.queue.rdb.sadd(self.k['jobs'], json.dumps(job_dict))
+        self.queue.rdb.sadd(self.k['jobs'], json.dumps(job_dict, sort_keys=True))
 
         add_failure(job=retools_job, exc=Exception('This is an exception!'))
 

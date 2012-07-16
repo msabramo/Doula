@@ -64,14 +64,10 @@ class Queue(object):
         'version': ''
     }.items() + common_dict.items())
 
-    cycle_services_dict = dict({}.items() + common_dict.items())
-    # in practice i feel this is unncessary.
-    cycle_services_dict = dict({}.items() + common_dict.items())
-
     base_dicts = {
         'base': common_dict,
         'push_to_cheeseprism': push_to_cheeseprism_dict,
-        'cycle_services': cycle_services_dict,
+        'cycle_services': common_dict,
         'pull_cheeseprism_data': common_dict,
         'pull_github_data': common_dict,
         'pull_bambino_data': common_dict
