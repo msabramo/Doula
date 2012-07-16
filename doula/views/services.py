@@ -8,7 +8,6 @@ from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
 from pyramid.view import view_config
 import logging
-import uuid
 
 log = logging.getLogger(__name__)
 
@@ -88,16 +87,12 @@ def enqueue_push_package(service, remote, branch, version):
     Enqueue the job onto the queue
     """
     job_dict = {
-        'id': uuid.uuid1().hex,
         'service': service.name,
         'remote': remote,
         'branch': branch,
         'version': version,
         'job_type': 'push_to_cheeseprism'
     }
-    print "ENQUING THE PUSH PACKAGE JOBJ"
-    print job_dict
-
     q = Queue()
     q.this(job_dict)
 

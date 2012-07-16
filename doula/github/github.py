@@ -14,7 +14,12 @@ def get_devmonkeys_repos():
     """
     Get the Dev Monkey repos from redis
     """
-    return json.loads(cache.get("devmonkeys_repos"))
+    repos_as_json = cache.get("devmonkeys_repos")
+
+    if repos_as_json:
+        return json.loads(repos_as_json)
+    else:
+        return []
 
 
 def get_package_github_info(name):

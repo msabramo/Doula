@@ -5,7 +5,6 @@ Schedule tasks to be put on the queue that need to be continually updated.
 from apscheduler.scheduler import Scheduler
 from doula.config import Config
 from doula.queue import Queue
-import uuid
 
 
 def pull_github_data():
@@ -13,7 +12,6 @@ def pull_github_data():
 
     """
     job_dict = {
-        'id': uuid.uuid1().hex,
         'job_type': 'pull_github_data'
     }
 
@@ -27,7 +25,6 @@ def pull_cheeseprism_data():
     Put the tasks on the queue
     """
     job_dict = {
-        'id': uuid.uuid1().hex,
         'job_type': 'pull_cheeseprism_data'
     }
 
@@ -40,7 +37,6 @@ def pull_bambino_data():
     Update the cached bambino data
     """
     job_dict = {
-        'id': uuid.uuid1().hex,
         'job_type': 'pull_bambino_data'
     }
 
