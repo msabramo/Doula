@@ -50,8 +50,10 @@ def start_task_scheduling():
     """
     sched = Scheduler()
     sched.start()
-    # alextodo change seconds to minutes
+
     interval = int(Config.get('task_interval'))
     sched.add_interval_job(pull_bambino_data, seconds=interval)
-    sched.add_interval_job(pull_github_data, seconds=interval)
     sched.add_interval_job(pull_cheeseprism_data, seconds=interval)
+
+    git_interval = int(Config.get('task_interval_pull_github_data'))
+    sched.add_interval_job(pull_github_data, seconds=git_interval)

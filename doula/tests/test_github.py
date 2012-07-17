@@ -15,6 +15,7 @@ class GithubTests(unittest.TestCase):
         pass
 
     def test_pull_devmonkeys_repos(self):
+        # alextodo, add testing to the repos
         repos = pull_devmonkeys_repos()
         print repos
 

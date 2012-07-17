@@ -197,7 +197,27 @@ def pull_devmonkeys_repos():
         "branches":[{
             "name": [name of branch]
             }]
-        }]
+        },
+        "commits": [
+                    {
+                        "sha": "...",
+                        "author": {
+                            "name": "name of author",
+                            "email": "email address",
+                            "date": "date of commit"
+                        },
+                        "message": "...",
+                        "branches": [
+                            {
+                                "name": "",
+                                "sha": ""
+                            }
+                        ]
+                        # version only exist if the commit is a bump version commit
+                        "package_version": "0.2.3"
+                    }
+            ]
+        ]
     """
     repos = []
     url = api + '/orgs/' + Config.get('doula.github_org') + '/repos'
