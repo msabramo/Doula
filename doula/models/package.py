@@ -71,7 +71,7 @@ class Package(object):
 
             for line in f.readlines():
                 if line.startswith("** Copyright SurveyMonkey"):
-                    line = "** Copyright SurveyMonkey %s **" % datetime.now().strftime("%a, %d %b %Y %H:%M:%S")
+                    line = "** Copyright SurveyMonkey %s **\n" % datetime.now().strftime("%a, %d %b %Y %H:%M:%S")
                 elif line.startswith("version"):
                     line = "version = '%s'\n" % new_version
                 tmp.write(line)
