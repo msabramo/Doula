@@ -90,6 +90,7 @@ class Package(object):
         remote = repo.remotes[remote_name]
         remote.pull()
         remote.push()
+        remote.push(tags=True)
 
     def upload(self, repo):
         # Call `python setup.py sdist upload` to put upload to cheeseprism
