@@ -20,7 +20,10 @@ requires = [
     'supervisor',
     'waitress',
     'retools',
-    'pygments'
+    'pygments',
+    'python-ldap==2.3.13',
+    'pyramid_ldap',
+    'pyyaml'
     ]
 
 setup(name='Doula',
