@@ -36,6 +36,8 @@ var ServiceEnv = {
 
 	doneShowPushPackageModal: function(rslt) {
 		$('#push-to-cheese-modal').on('shown', function() {
+			ServiceEnv.validateShowPushPackageModal();
+
 			$('#push_package_branch')
 				.on('change', ServiceEnv.validateShowPushPackageModal);
 			$('#push_package_version')
@@ -66,7 +68,9 @@ var ServiceEnv = {
 
 	// alextodo setup the eventing system that notifies us of things happening
 	// on the backend. use the 10 lines of code for jquery events
-	pushPackage: function() {
+	pushPackage: function(event) {
+		if($(event.target).hasClass('disabled')) return false;
+
 		var url = '/sites/' + Data.site_name + '/';
 		url += Data.name_url + '/cheese_prism_push';
 
@@ -81,6 +85,7 @@ var ServiceEnv = {
 	},
 
 	donePushPackage: function(rslt) {
+		console.log('result of job request');
 		console.log(rslt.job);
 		$('#push-to-cheese-modal').modal('hide');
 		// after this call make sure to update the UI, things need to be freezed

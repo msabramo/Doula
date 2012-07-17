@@ -402,8 +402,15 @@ div.section {
 td a.btn {
   margin: 0px 0px 9px 15px;
 }
+/* Queue */
 .logs {
   margin-top: 10px;
+}
+.sm-accordion-title a {
+  padding: 8px 5px;
+  font-size: 13px;
+  line-height: 18px;
+  display: block;
 }
 .sm-accordion-inner {
   margin-top: 10px;
