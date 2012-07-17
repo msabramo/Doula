@@ -5,6 +5,7 @@ from doula.services.cheese_prism import CheesePrism
 from fabric.api import *
 from git import *
 from tempfile import TemporaryFile
+from datetime import datetime
 import os
 import shutil
 
@@ -69,7 +70,9 @@ class Package(object):
             tmp = TemporaryFile()
 
             for line in f.readlines():
-                if line.startswith("version"):
+                if line.startswith("** Copyright SurveyMonkey"):
+                    line = "** Copyright SurveyMonkey %s **" % datetime.now().strftime("%a, %d %b %Y %H:%M:%S")
+                elif line.startswith("version"):
                     line = "version = '%s'\n" % new_version
                 tmp.write(line)
 
