@@ -1,5 +1,11 @@
+# import os
+# import yaml
+# import ldap
 from pyramid.config import Configurator
 from pyramid_jinja2 import renderer_factory
+# from pyramid.authentication import AuthTktAuthenticationPolicy
+# from pyramid.authorization import ACLAuthorizationPolicy
+# from pyramid_ldap import groupfinder
 
 
 def main(global_config, **settings):
@@ -8,15 +14,47 @@ def main(global_config, **settings):
     """
     config = Configurator(settings=settings)
 
+    # ldap_settings = {}
+    # with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../etc/ldap.yaml')) as f:
+    #     ldap_settings = yaml.load(f)
+
+    # config.set_default_permission('view')
+
+    # config.set_authentication_policy(
+    #     AuthTktAuthenticationPolicy(ldap_settings['auth_pw'],
+    #                                 callback=groupfinder)
+    #     )
+
+    # config.set_authorization_policy(
+    #     ACLAuthorizationPolicy()
+    #     )
+
+    # # ldap setup
+    # config.include('pyramid_ldap')
+
+    # #possibly remove the s in ldaps
+    # config.ldap_setup(
+    #     'ldap://%s' % ldap_settings['ldap_ip'],
+    #     bind=ldap_settings['setup_dn'],
+    #     passwd=ldap_settings['ldap_pw'],
+    #     )
+
+    # config.ldap_set_login_query(
+    #     base_dn=ldap_settings['login_dn'],
+    #     filter_tmpl='(sAMAccountName=%(login)s)',
+    #     scope=ldap.SCOPE_ONELEVEL,
+    #     )
+
+    # config.ldap_set_groups_query(
+    #     base_dn=ldap_settings['group_dn'],
+    #     filter_tmpl='(&(objectCategory=group)(member=%(userdn)s))',
+    #     scope=ldap.SCOPE_SUBTREE,
+    #     cache_period=600,
+    #     )
+
     # Jinja2 config
     config.add_renderer('.html', renderer_factory)
     config.include('pyramid_jinja2')
-
-    # Scan this module
-    config.scan('doula.views.index')
-    config.scan('doula.views.queue')
-    config.scan('doula.views.services')
-    config.scan('doula.views.settings')
 
     config.add_static_view(name='js', path='static/js')
     config.add_static_view(name='prodjs', path='static/prodjs')
@@ -46,4 +84,10 @@ def main(global_config, **settings):
     config.add_route('bambino_register', '/bambino/register')
     config.add_route('bambino_ips', '/bambino/ip_addresses')
 
+    config.add_route('login', '/login')
+    config.add_route('forbidden', '/forbidden')
+    config.add_route('logout', '/logout')
+
+    # Scan this module
+    config.scan('doula.views')
     return config.make_wsgi_app()
