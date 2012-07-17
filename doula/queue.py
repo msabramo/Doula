@@ -128,7 +128,7 @@ class Queue(object):
                     elif type(v) == list:
                         if not job[k] in v:
                             jobs.remove(job)
-                except KeyError:
+                except (KeyError, ValueError):
                     continue
 
         return jobs

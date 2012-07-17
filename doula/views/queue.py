@@ -14,10 +14,10 @@ from pygments.formatters import HtmlFormatter
 def show_queue(request):
     queue = Queue()
 
-    query = {}
+    query = {'job_type': ['push_to_cheeseprism']}
     sort_by = request.params.get('sort_by')
     if sort_by == 'complete' or sort_by == 'failed' or sort_by == 'queued':
-        query = {'status': sort_by}
+        query['status'] = sort_by
     queued_items = queue.get(query)
 
     i = 0
