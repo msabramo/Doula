@@ -36,7 +36,7 @@ class Package(object):
     def distribute(self, branch, new_version):
         with self.repo() as repo:
             self.update_version(repo, new_version)
-            self.commit(repo, ['setup.py'], 'DOULA: Updating Version.')
+            self.commit(repo, ['setup.py'], 'bump version')
             self.tag(repo, new_version)
             self.push(repo, "origin")
             self.upload(repo)
@@ -59,6 +59,10 @@ class Package(object):
                 shutil.rmtree(repo.working_dir)
 
     def update_version(self, repo, new_version):
+        # joetodo update the date
+        # and update the released by line
+        # see this http://code.corp.surveymonkey.com/devmonkeys/AnWeb/commit/b313a95b921725273f1436e4d9d79cee2f592156
+        # and see http://code.corp.surveymonkey.com/devmonkeys/UserWeb/commit/e16267c4ca2a545189d78c9be81995934fbb5eb5
         # Alter setup.py to match the new version
         setup_py_path = os.path.join(repo.working_dir, 'setup.py')
         with open(setup_py_path, 'r+') as f:
@@ -95,8 +99,5 @@ class Package(object):
     def upload(self, repo):
         # Call `python setup.py sdist upload` to put upload to cheeseprism
         with lcd(repo.working_dir):
-            # joetodo, every job loads the config from redis
-            # so we can operate like normal again in the jobs
-            # this code should work
             url = Config.get('doula.cheeseprism_url') + '/simple'
             local('python setup.py sdist upload -r ' + url)
