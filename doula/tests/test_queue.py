@@ -249,6 +249,9 @@ class QueueTests(unittest.TestCase):
         jobs = self.queue.get({'job_type': ['push_to_cheeseprism', 'cycle_services']})
         self.assertEqual(len(jobs), 3)
 
+    # todo: write test for multiple query params, like query = {'job_type': 'push_to_cheeseprism',
+    #                                                           'status': 'complete'}
+
     def test_add_result_subscriber(self):
         retools_job = Mock()
         retools_job.kwargs = {

@@ -97,5 +97,5 @@ class Package(object):
             # joetodo, every job loads the config from redis
             # so we can operate like normal again in the jobs
             # this code should work
-            url = Config.get('doula.cheeseprism_url')
+            url = Config.get('doula.cheeseprism_url') + '/simple'
             local('python setup.py sdist upload -r ' + url)
