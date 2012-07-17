@@ -38,7 +38,7 @@ class PackageTests(unittest.TestCase):
     @patch('git.Repo')
     def test_commit(self, Repo):
         package = self.make_one()
-        package.commit(Repo, ['setup.py'], 'DOULA: Updating Version.')
+        package.commit(Repo, ['setup.py'], 'bump version')
 
         self.assertEqual(Repo.index.add.called, True)
         self.assertEqual(Repo.index.commit.called, True)
