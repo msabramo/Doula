@@ -10,6 +10,14 @@ var ServiceEnv = {
 
 	bindToUIActions: function() {
 		$(".collapse").collapse({'parent': '#accordion2'});
+
+		$('.commit-accordion').on('show', function () {
+			$(this).parent().removeClass('hidden').addClass('shown');
+		});
+
+		$('.commit-accordion').on('hide', function () {
+			$(this).parent().removeClass('shown').addClass('hidden');
+		});
 	},
 
 	bindToDataActions: function() {

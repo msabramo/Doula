@@ -69,7 +69,8 @@
             show the commit log right here.
           -->
           <td colspan="2" class="hidden">
-            <div id="{{ pckg.name|replace(".", "") }}_git_info" class="accordion-body collapse in">
+            <div id="{{ pckg.name|replace(".", "") }}_git_info"
+            class="commit-accordion accordion-body collapse in">
               <ol class="commit-group">
                 {% for commit in git_info['commits']|sort(attribute='date', reverse=True) %}
                   {% include 'services/commit.html' %}
