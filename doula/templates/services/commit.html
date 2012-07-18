@@ -1,0 +1,39 @@
+{% set proj_url = git_info["html_domain"] + '/' + git_info["org"] + '/' + git_info["name"] %}
+<li class="commit commit-group-item
+{% if commit["package_version"] == pckg.version %}active-package{% endif %}">
+  <img class="gravatar" height="36" src="{{commit["author"]["avatar_url"]}}" width="36">
+
+  <p class="commit-title">
+  <a href="{{proj_url}}/commit/{{commit["sha"]}}" target="_blank" class="message">
+    {{commit["message"]}}
+    {% if commit["package_version"] == pckg.version %}(active package){% endif %}
+  </a>
+  </p>
+
+  <div class="commit-meta">
+    <div class="commit-links">
+      <a href="{{proj_url}}/commit/{{commit["sha"]}}" target="_blank" class="gobutton ">
+        <span class="sha">{{commit["sha"][:10]}}
+          <span class="mini-icon mini-icon-arr-right-mini"></span>
+        </span>
+      </a>
+      <a href="{{proj_url}}/tree/{{commit["sha"]}}" class="browse-button" target="_blank"
+        title="Browse the code at this point in the history" rel="nofollow">
+        Browse code <span class="mini-icon mini-icon-arr-right"></span></a>
+    </div>
+
+    {% if commit["package_version"] %}
+    <div class="package-info">
+      <p>
+        {{commit["package_version"]}} on {{commit["branches"]|branches_text}}
+      </p>
+    </div>
+    {% endif %}
+
+    <div class="authorship">
+      <span class="author-name">{{commit["author"]["name"]}}</span> authored
+      <time datetime="{{commit["date"]}}"
+      title="{{commit["date"]}}">X days ago<!-- use filter to get this--></time>
+    </div>
+  </div>
+</li>

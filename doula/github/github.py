@@ -1,5 +1,5 @@
 """
-A simplified interface to the Github V3 API
+A simplified interface to the Github V3 domain
 """
 
 from doula.cache import Cache
@@ -9,7 +9,8 @@ import json
 
 cache = Cache.cache()
 # alextodo put this into the INI
-api = "http://api.code.corp.surveymonkey.com"
+domain = "http://api.code.corp.surveymonkey.com"
+html_domain = "http://code.corp.surveymonkey.com"
 
 
 def get_devmonkeys_repos():
@@ -57,7 +58,7 @@ def pull_tags(git_repo):
     """
     Pull the tags from git and they're corresponding sha's
     """
-    vals = (api, Config.get('doula.github_org'), git_repo['name'])
+    vals = (domain, Config.get('doula.github_org'), git_repo['name'])
     url = "%s/repos/%s/%s/tags" % vals
 
     git_tags = json.loads(pull_url(url))
@@ -76,7 +77,7 @@ def pull_branches(git_repo):
     """
     Pull the branches from the github repo
     """
-    vals = (api, Config.get('doula.github_org'), git_repo['name'])
+    vals = (domain, Config.get('doula.github_org'), git_repo['name'])
     url = "%s/repos/%s/%s/branches" % vals
     github_branches = json.loads(pull_url(url))
     branches = []
@@ -85,7 +86,7 @@ def pull_branches(git_repo):
         branch = {"name": b["name"], "sha": b["commit"]["sha"]}
 
         # Pull the last 50 sha's for each branch
-        vals = (api, Config.get('doula.github_org'), git_repo['name'], branch["sha"])
+        vals = (domain, Config.get('doula.github_org'), git_repo['name'], branch["sha"])
         url = "%s/repos/%s/%s/commits?per_page=50&sha=%s" % vals
 
         commits_for_branch = json.loads(pull_url(url))
@@ -142,7 +143,8 @@ def pull_commits(git_repo, tags, branches):
         "author": {
             "name": "name of author",
             "email": "email address",
-            "date": "date of commit"
+            "date": "date of commit",
+
         },
         "message": "...",
         "branches": [
@@ -155,7 +157,7 @@ def pull_commits(git_repo, tags, branches):
         "package_version": "0.2.3"
     }
     """
-    vals = (api, Config.get('doula.github_org'), git_repo['name'])
+    vals = (domain, Config.get('doula.github_org'), git_repo['name'])
     url = "%s/repos/%s/%s/commits" % vals
 
     commits = []
@@ -164,10 +166,21 @@ def pull_commits(git_repo, tags, branches):
     for cmt in git_commits:
         commit = {
             "sha": cmt["sha"],
-            "author": cmt["commit"]["author"],
+            "author": {
+                "name": cmt["commit"]["author"]["name"],
+                "email": cmt["commit"]["author"]["email"],
+                "date": cmt["commit"]["author"]["date"],
+                "login": "unknown",
+                "avatar_url": "http://code.corp.surveymonkey.com/images/gravatars/gravatar-140.png"
+            },
+            "date": cmt["commit"]["author"]["date"],
             "message": cmt["commit"]["message"],
             "package_version": ""
         }
+
+        if cmt.get("author"):
+            commit["author"]["login"] = cmt["author"]["login"],
+            commit["author"]["avatar_url"] = cmt["author"]["avatar_url"]
 
         commit["branches"] = pull_commit_branches(commit, branches)
 
@@ -190,6 +203,8 @@ def pull_devmonkeys_repos():
         "name":[name of project],
         "html_url":[url to github page of project],
         "ssh_url":[git ssh url],
+        "org": [name of org],
+        "domain": [domain],
         "tags":[{
             "name":[name of tag],
             "commit_hash": [hash of tag]
@@ -199,28 +214,28 @@ def pull_devmonkeys_repos():
             }]
         },
         "commits": [
+            {
+                "sha": "...",
+                "author": {
+                    "name": "name of author",
+                    "email": "email address",
+                    "date": "date of commit"
+                },
+                "message": "...",
+                "branches": [
                     {
-                        "sha": "...",
-                        "author": {
-                            "name": "name of author",
-                            "email": "email address",
-                            "date": "date of commit"
-                        },
-                        "message": "...",
-                        "branches": [
-                            {
-                                "name": "",
-                                "sha": ""
-                            }
-                        ]
-                        # version only exist if the commit is a bump version commit
-                        "package_version": "0.2.3"
+                        "name": "",
+                        "sha": ""
                     }
+                ]
+                # version only exist if the commit is a bump version commit
+                "package_version": "0.2.3"
+            }
             ]
         ]
     """
     repos = []
-    url = api + '/orgs/' + Config.get('doula.github_org') + '/repos'
+    url = domain + '/orgs/' + Config.get('doula.github_org') + '/repos'
     git_repos = json.loads(pull_url(url))
 
     for git_repo in git_repos:
@@ -232,6 +247,9 @@ def pull_devmonkeys_repos():
             "name": git_repo["name"],
             "html_url": git_repo["html_url"],
             "ssh_url": git_repo["ssh_url"],
+            "org": Config.get('doula.github_org'),
+            "domain": domain,
+            "html_domain": html_domain,
             "tags": tags,
             "branches": branches,
             "commits": commits

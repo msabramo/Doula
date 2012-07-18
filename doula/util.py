@@ -28,6 +28,7 @@ def next_version(version):
 
 def comparable_name(name):
     name = name.lower()
+    name = name.replace('.', '')
     name = name.replace('-', '')
     name = name.replace('_', '')
 
