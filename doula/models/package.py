@@ -80,6 +80,13 @@ class Package(object):
             tmp.seek(0)
             f.seek(0)
 
+            if len(tmp.readlines()) != len(f.readlines()):
+                import pdb; pdb.set_trace()
+
+            # Go back to the beginning of each file
+            tmp.seek(0)
+            f.seek(0)
+
             f.write(tmp.read())
 
     def commit(self, repo, files, msg):

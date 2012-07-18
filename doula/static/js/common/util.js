@@ -74,7 +74,6 @@ var AJAXUtil = {
     },
 
     _send: function(msg, type, url, params, onDone, onFail) {
-        $('#progress_bar').show();
         onDone = _bind(onDone, this);
 
         $.ajax({
@@ -82,7 +81,6 @@ var AJAXUtil = {
               type: type,
               data: this._getDataValues(params),
               success: function(response) {
-                $('#progress_bar').hide();
                   try {
                     rslt = (typeof(response) == 'string') ?
                     $.parseJSON(response) : response;

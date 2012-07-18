@@ -1,0 +1,22 @@
+{% macro render_queued_item(queued_item) -%}
+    <div data-id={{ queued_item['id'] }}
+         class="queued_item alert
+         {% if queued_item['status'] == 'queued' %}
+             alert-info
+         {% elif queued_item['status'] == 'complete' %}
+             alert-success
+         {% elif queued_item['status'] == 'failed' %}
+             alert-danger
+         {% endif %}
+          accordion-group"
+         >
+        <div class="accordion-heading" data-toggle="collapse" data-target="#item_{{ queued_item['id'] }}">
+            {{ queued_item['job_type'] }}
+        </div>
+        <div id="item_{{ queued_item['id'] }}" class="logs accordion-body collapse">{{ queued_item['log']|safe }}</div>
+    </div>
+{%- endmacro %}
+
+{% if queued_item: %}
+    {{ render_queued_item(queued_item) }}
+{% endif %}
