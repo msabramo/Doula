@@ -2,6 +2,21 @@ import datetime
 from doula.util import comparable_name
 
 
+def branches_text(branches):
+    """Return the branches text"""
+    if len(branches) == 0:
+        return ''
+    elif len(branches) == 1:
+        return 'branch ' + branches[0]['name']
+    else:
+        text = 'branches '
+
+        for branch in branches:
+            text += branch['name'] + ' and '
+
+        return text.rstrip(' and ')
+
+
 def clean(text):
     return comparable_name(text)
 

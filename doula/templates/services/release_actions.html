@@ -43,8 +43,9 @@
       {% if git_info %}
       <tr>
         <td width="20%">
+          <!-- alextodo, add a tooltip to this thing a ma bobber -->
           <a href="#" onclick="return false;"
-          data-toggle="collapse" data-target="#{{ pckg.name }}_git_info">
+          data-toggle="collapse" data-target="#{{ pckg.name|replace(".", "") }}_git_info">
           {{ pckg.name }}
         </a>
         </td>
@@ -63,22 +64,18 @@
         </td>
       </tr>
       <tr class="git-info-row">
-          <!-- alextodo, after click add class show, remove hidden
-          show the commit log right here.
+          <!--
+            alextodo, after click add class show, remove hidden
+            show the commit log right here.
           -->
           <td colspan="2" class="hidden">
-            <div id="{{ pckg.name }}_git_info" class="accordion-body collapse in">
-              <ul>
-                <!-- alextodo need to sort by author date, should I flatten it out?
-                      yes, alextodo flattent this ish out and sort by author
-                -->
-                {% for commit in git_info['commits']|sort(attribute='sha') %}
-                  <li>
-                    <h5>Sha: {{commit["sha"]}}</h5>
-                    <h5>Commit Message: {{commit["message"]}}</h5>
-                  </li>
+            <div id="{{ pckg.name|replace(".", "") }}_git_info"
+            class="commit-accordion accordion-body collapse in">
+              <ol class="commit-group">
+                {% for commit in git_info['commits']|sort(attribute='date', reverse=True) %}
+                  {% include 'services/commit.html' %}
                 {% endfor %}
-              </ul>
+              </ol>
             </div>
           </td>
       </tr>
@@ -106,11 +103,10 @@
       </tr>
     </thead>
     <tbody>
-      <!-- packages without github info, alextodo, hide this by default -->
       {% for pckg in service.packages|sort(attribute='name') %}
       {% if not pckg.get_github_info() %}
       <tr>
-        <td width="20%">{{ pckg.name }} {{ pckg.version['version'] }}</td>
+        <td width="20%">{{ pckg.name }}</td>
         <td width="80%">
           <select id="pckg_select_{{ pckg.name }}">
             {% for version in pckg.get_versions()|sort(reverse=True, case_sensitive=False) %}
