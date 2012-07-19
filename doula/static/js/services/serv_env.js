@@ -83,8 +83,6 @@ var ServiceEnv = {
 		}
 	},
 
-	// alextodo setup the eventing system that notifies us of things happening
-	// on the backend. use the 10 lines of code for jquery events
 	pushPackage: function(event) {
 		if($(event.target).hasClass('disabled')) return false;
 
@@ -97,22 +95,16 @@ var ServiceEnv = {
 			'next_version': $('#push_package_version').val()
 		};
 
-		// alextodo, will need to properly handle errors from backend. show in modal
 		this.get('Releasing package to Cheese Prism', url, params, this.donePushPackage, this.failedPushPackage);
 	},
 
 	donePushPackage: function(rslt) {
-		// console.log('result of job request');
-		// console.log(rslt.job);
 		$('#push-to-cheese-modal').modal('hide');
-		// after this call make sure to update the UI, things need to be freezed
+		// alextodo make a call to update the queue
 	},
 
 	failedPushPackage: function(rslt) {
-		// update the error messages in modal
-		// console.log('failed push package');
-		// console.log(rslt);
-
+		$('#release_package_errors').removeClass('hide').html(rslt.html);
 	}
 };
 
