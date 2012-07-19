@@ -5,9 +5,11 @@ from doula.services.cheese_prism import CheesePrism
 from doula.util import *
 from doula.views.helpers import *
 from pyramid.httpexceptions import HTTPNotFound
+from pyramid.renderers import render
 from pyramid.response import Response
 from pyramid.view import view_config
 import logging
+import re
 
 log = logging.getLogger(__name__)
 
@@ -67,19 +69,54 @@ def service_cheese_prism_push(request):
         service = site.services[request.matchdict['serv_id']]
         package = service.get_package_by_name(request.GET['name'])
 
+        remote = package.get_github_info()['ssh_url']
+        next_version = request.GET['next_version']
+        branch = request.GET['branch']
+
         # alextodo, use a validation for the branch and version right here
         # no empty values, no duplicates, make sure the branch exist
         # alextodo, verification will also require that we don't allow
         # another version number that is already being pushed onto the queue
-        remote = package.get_github_info()['ssh_url']
-        next_version = request.GET['next_version']
-        branch = request.GET['branch']
-        job_dict = enqueue_push_package(service, remote, branch, next_version)
+        errors = validate_release(package, branch, next_version)
+
+        if len(errors) == 0:
+            job_dict = enqueue_push_package(service, remote, branch, next_version)
+        else:
+            msg = "There were errors attempting to release %s" % (service.name)
+            html = render('doula:templates/services/release_package_error.html',
+                    {'msg': msg, 'errors': errors})
+
+            return dumps({'success': False, 'msg': msg, 'html': html})
     except Exception as e:
         msg = 'Error pulling Push New Package Modal'
         return handle_json_exception(e, msg, request)
 
     return dumps({'success': True, 'job': job_dict})
+
+
+def validate_release(package, branch, next_version):
+    """
+    Validate that:
+        The version number does not already exist
+    """
+    errors = []
+    git_info = package.get_github_info()
+
+    if not next_version:
+        errors.add('Version number cannot be empty')
+
+    for tag in git_info['tags']:
+        # tags by doula are always prefixed with a v
+        # and test that it doesn't match without
+        tag_name = re.sub(r'^v', '', str(tag['name']))
+
+        if tag_name == next_version:
+            msg = "This package version (%s) already exist. "
+            msg += "Try another version."
+            msg = msg % next_version
+            errors.append(msg)
+
+    return errors
 
 
 def enqueue_push_package(service, remote, branch, version):
