@@ -4,7 +4,6 @@ var Site = (function() {
 
     init: function() {
         Data.init();
-        Queue.init();
         UI.init();
 
         this.bindToDataActions();
