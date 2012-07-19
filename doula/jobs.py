@@ -42,8 +42,9 @@ def load_config():
 def push_to_cheeseprism(job_dict=None):
     """
     This function will be enqueued by Queue upon receiving a job dict that
-    has a job_type of 'push_to_cheeseprism'
-    joetodo be descriptive about what the task actually does.
+    has a job_type of 'push_to_cheeseprism'.  Upon being called, it will
+    updated the version present in the setup.py of the repo, and release the
+    package to cheeseprism.
     """
     log = create_logger(job_dict['id'])
     try:
@@ -63,8 +64,9 @@ def push_to_cheeseprism(job_dict=None):
 def cycle_services(supervisor_ip, service_name):
     """
     This function will be enqueued by Queue upon receiving a job dict that
-    has a job_type of 'cycle_services'
-    joetodo be descriptive about what the task actually does.
+    has a job_type of 'cycle_services'.  Upon being called, it will restart
+    the necessary supervisor processes to make the changes to the packages live
+    on a specific site.
     """
     # log = create_logger(job_dict)
     try:
