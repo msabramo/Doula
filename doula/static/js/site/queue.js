@@ -1,9 +1,17 @@
 QueuedItems = {
-    init: function() {
+    init: function(kwargs) {
         _mixin(this, AJAXUtil);
+
+        // Class event handlers
         this.poll = $.proxy(this, 'poll');
         this.handle_updates = $.proxy(this, 'handle_updates');
         this.show_latest_notifications = $.proxy(this, 'show_latest_notifications');
+
+        // "Job Dict" arguments
+        this.kwargs = {};
+        if (kwargs !== undefined) {
+            this.kwargs = kwargs;
+        }
 
         // Elements
         this.latest_notifications = $('.latest_notifications');
@@ -18,7 +26,8 @@ QueuedItems = {
 
     poll: function() {
         var url = '/queue';
-        this.get('poll', url, {'last_updated': this.data.lastUpdated}, this.handle_updates);
+        this.kwargs.last_updated = this.data.lastUpdated;
+        this.get('poll', url, this.kwargs, this.handle_updates);
     },
 
     handle_updates: function(data) {
@@ -64,5 +73,5 @@ QueuedItems = {
 };
 
 $(document).ready(function() {
-  QueuedItems.init();
+    QueuedItems.init();
 });

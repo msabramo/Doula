@@ -4,10 +4,12 @@ from doula.queue import Queue
 from doula.services.cheese_prism import CheesePrism
 from doula.util import *
 from doula.views.helpers import *
-from pyramid.httpexceptions import HTTPNotFound
 from pyramid.renderers import render
+from doula.views.queue import get_log
 from pyramid.response import Response
 from pyramid.view import view_config
+from datetime import datetime
+import time
 import logging
 import re
 
@@ -20,40 +22,53 @@ log = logging.getLogger(__name__)
 
 @view_config(route_name='service', renderer="services/release_actions.html")
 def service(request):
-    try:
-        site = get_site(request.matchdict['site_id'])
-        service = site.services[request.matchdict['serv_id']]
-        other_packages = CheesePrism.other_packages(service.packages)
-    except Exception:
-        msg = 'Unable to find site and service under "{0}" and "{1}"'
-        msg = msg.format(request.matchdict['site_id'], request.matchdict['serv_id'])
+    queue = Queue()
 
-        raise HTTPNotFound(msg)
+    site = get_site(request.matchdict['site_id'])
+    service = site.services[request.matchdict['serv_id']]
+    other_packages = CheesePrism.other_packages(service.packages)
+
+    query = {'job_type': ['push_to_cheeseprism'],
+             'service': service}
+    last_updated = datetime.now()
+    queued_items = queue.get(query)
+
+    i = 0
+    for queued_item in queued_items:
+        queued_items[i]['log'] = ''
+        # If job is already completed/failed
+        if queued_item['status'] in ['complete', 'failed']:
+            queued_items[i]['log'] = get_log(queued_item['id'])
+        i += 1
+
+    # sort all of the items with respect to time
+    queued_items = sorted(queued_items, key=lambda k: k['time_started'])
+    # descending order
+    queued_items = reversed(queued_items)
+
+    last_updated = time.mktime(last_updated.timetuple())
 
     return {
         'site': site,
         'service': service,
         'config': Config,
         'service_json': dumps(service),
-        'other_packages': other_packages
+        'other_packages': other_packages,
+        'queued_items': queued_items,
+        'last_updated': last_updated
     }
 
 
 @view_config(route_name='service_cheese_prism_modal', renderer="services/modal_push_package.html")
 def service_cheese_prism_modal(request):
-    try:
-        site = get_site(request.matchdict['site_id'])
-        service = site.services[request.matchdict['serv_id']]
-        package = service.get_package_by_name(request.GET['name'])
+    site = get_site(request.matchdict['site_id'])
+    service = site.services[request.matchdict['serv_id']]
+    package = service.get_package_by_name(request.GET['name'])
 
-        versions = package.get_versions()
-        versions.sort()
-        versions.reverse()
-        current_version = versions[0]
-    except Exception as e:
-        msg = 'Error pulling Push New Package Modal'
-        return handle_json_exception(e, msg, request)
-
+    versions = package.get_versions()
+    versions.sort()
+    versions.reverse()
+    current_version = versions[0]
     return {
         'service': service,
         'package': package,
@@ -64,32 +79,28 @@ def service_cheese_prism_modal(request):
 
 @view_config(route_name='service_cheese_prism_push', renderer="string")
 def service_cheese_prism_push(request):
-    try:
-        site = get_site(request.matchdict['site_id'])
-        service = site.services[request.matchdict['serv_id']]
-        package = service.get_package_by_name(request.GET['name'])
+    site = get_site(request.matchdict['site_id'])
+    service = site.services[request.matchdict['serv_id']]
+    package = service.get_package_by_name(request.GET['name'])
 
-        remote = package.get_github_info()['ssh_url']
-        next_version = request.GET['next_version']
-        branch = request.GET['branch']
+    remote = package.get_github_info()['ssh_url']
+    next_version = request.GET['next_version']
+    branch = request.GET['branch']
 
-        # alextodo, use a validation for the branch and version right here
-        # no empty values, no duplicates, make sure the branch exist
-        # alextodo, verification will also require that we don't allow
-        # another version number that is already being pushed onto the queue
-        errors = validate_release(package, branch, next_version)
+    # alextodo, use a validation for the branch and version right here
+    # no empty values, no duplicates, make sure the branch exist
+    # alextodo, verification will also require that we don't allow
+    # another version number that is already being pushed onto the queue
+    errors = validate_release(package, branch, next_version)
 
-        if len(errors) == 0:
-            job_dict = enqueue_push_package(service, remote, branch, next_version)
-        else:
-            msg = "There were errors attempting to release %s" % (service.name)
-            html = render('doula:templates/services/release_package_error.html',
-                    {'msg': msg, 'errors': errors})
+    if len(errors) == 0:
+        job_dict = enqueue_push_package(service, remote, branch, next_version)
+    else:
+        msg = "There were errors attempting to release %s" % (service.name)
+        html = render('doula:templates/services/release_package_error.html',
+                {'msg': msg, 'errors': errors})
 
-            return dumps({'success': False, 'msg': msg, 'html': html})
-    except Exception as e:
-        msg = 'Error pulling Push New Package Modal'
-        return handle_json_exception(e, msg, request)
+        return dumps({'success': False, 'msg': msg, 'html': html})
 
     return dumps({'success': True, 'job': job_dict})
 
@@ -98,6 +109,8 @@ def validate_release(package, branch, next_version):
     """
     Validate that:
         The version number does not already exist
+        alextodo, we need to figure out if the version number has already
+        been added to the queue, check against that too
     """
     errors = []
     git_info = package.get_github_info()
@@ -138,52 +151,34 @@ def enqueue_push_package(service, remote, branch, version):
 
 @view_config(route_name='service_details', renderer="services/service_details.html")
 def service_details(request):
-    try:
-        site = get_site(request.matchdict['site_id'])
-        service = site.services[request.matchdict['serv_id']]
-
-    except Exception:
-        msg = 'Unable to find site and service under "{0}" and "{1}"'
-        msg = msg.format(request.matchdict['site_id'], request.matchdict['serv_id'])
-
-        raise HTTPNotFound(msg)
-
+    site = get_site(request.matchdict['site_id'])
+    service = site.services[request.matchdict['serv_id']]
     return {'site': site, 'service': service, 'config': Config}
 
 
 @view_config(route_name='service_tag', renderer="string")
 def service_tag(request):
-    try:
-        service = SiteDAL.get_service(request.matchdict['site_id'], request.matchdict['serv_id'])
-        # todo, once we have a user logged in we'll pass in the user too
-        tag = git_dirify(request.POST['tag'])
-        service.tag(tag, request.POST['msg'], 'anonymous')
+    service = SiteDAL.get_service(request.matchdict['site_id'], request.matchdict['serv_id'])
+    # todo, once we have a user logged in we'll pass in the user too
+    tag = git_dirify(request.POST['tag'])
+    service.tag(tag, request.POST['msg'], 'anonymous')
 
-        # pull the updated service
-        updated_service = SiteDAL.get_service(request.matchdict['site_id'], request.matchdict['serv_id'])
+    # pull the updated service
+    updated_service = SiteDAL.get_service(request.matchdict['site_id'], request.matchdict['serv_id'])
 
-        return dumps({'success': True, 'service': updated_service})
-    except Exception as e:
-        msg = 'Unable to tag site and service under "{0}" and "{1}"'
-        msg = msg.format(request.POST['site_id'], request.POST['serv_id'])
-        return handle_json_exception(e, msg, request)
+    return dumps({'success': True, 'service': updated_service})
 
 
 @view_config(route_name='service_deploy', renderer="string")
 def service_deploy(request):
-    try:
-        validate_token(request)
+    validate_token(request)
 
-        service = SiteDAL.get_service(SiteDAL.get_master_site(), request.POST['serv_id'])
-        tag = service.get_tag_by_name(request.POST['tag'])
-        # todo, for now pass in the anonymous user until we start authenticating
-        service.mark_as_deployed(tag, 'anonymous')
+    service = SiteDAL.get_service(SiteDAL.get_master_site(), request.POST['serv_id'])
+    tag = service.get_tag_by_name(request.POST['tag'])
+    # todo, for now pass in the anonymous user until we start authenticating
+    service.mark_as_deployed(tag, 'anonymous')
 
-        return dumps({'success': True, 'service': service})
-    except Exception as e:
-        msg = 'Unable to deploy service. Error: "{0}"'
-        msg = msg.format(e.message)
-        return handle_json_exception(e, msg, request)
+    return dumps({'success': True, 'service': service})
 
 
 def validate_token(request):
@@ -194,16 +189,12 @@ def validate_token(request):
 
 @view_config(route_name="service_freeze")
 def service_freeze(request):
-    try:
-        site = get_site(request.matchdict['site_id'])
-        service = site.services[request.matchdict['serv_id']]
+    site = get_site(request.matchdict['site_id'])
+    service = site.services[request.matchdict['serv_id']]
 
-        response = Response(content_type='service/octet-stream')
-        file_name = service.site_name + '_' + service.name_url + '_requirements.txt'
-        response.content_disposition = 'attachment; filename="' + file_name + '"'
-        response.charset = "UTF-8"
-        response.text = service.freeze_requirements()
-    except Exception as e:
-        return handle_exception(e, request)
-
+    response = Response(content_type='service/octet-stream')
+    file_name = service.site_name + '_' + service.name_url + '_requirements.txt'
+    response.content_disposition = 'attachment; filename="' + file_name + '"'
+    response.charset = "UTF-8"
+    response.text = service.freeze_requirements()
     return response

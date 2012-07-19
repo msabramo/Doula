@@ -52,6 +52,9 @@ def main(global_config, **settings):
     #     cache_period=600,
     #     )
 
+    # Tweens
+    config.add_tween('doula.views.helpers.exception_tween_factory')
+
     # Jinja2 config
     config.add_renderer('.html', renderer_factory)
     config.include('pyramid_jinja2')
