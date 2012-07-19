@@ -43,7 +43,7 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(Repo.index.add.called, True)
         self.assertEqual(Repo.index.commit.called, True)
         self.assertEqual(Repo.index.add.call_args_list, [call(['setup.py'])])
-        self.assertEqual(Repo.index.commit.call_args_list, [call('DOULA: Updating Version.')])
+        self.assertEqual(Repo.index.commit.call_args_list, [call('bump version')])
 
     @patch('git.Repo')
     def test_push(self, Repo):
@@ -53,3 +53,22 @@ class PackageTests(unittest.TestCase):
         origin = Repo.remotes["origin"]
         self.assertEqual(origin.pull.called, True)
         self.assertEqual(origin.push.called, True)
+
+    def test_get_updated_setup_dot_py(self):
+        package = self.make_one()
+        lines = []
+        lines.append('** Copyright SurveyMonkey Wed, 7 Jul 2011 15:13:22 **')
+        lines.append('Source:      devmonkeys/UserWeb *master 3fffaf9')
+        lines.append('Released by: ringo')
+        lines.append('version = "0.9.9"')
+
+        text = package.get_updated_setup_dot_py(
+            lines, '0.1.1', 'test', 'git@github.com:Doula/Doula.git',
+            '224c0e7a4c967c1266c20a2290e')
+
+        self.assertTrue("Doula/Doula *test 224c0e7" in text)
+        self.assertTrue("Released by:" in text)
+        self.assertTrue("version = '0.1.1'" in text)
+
+if __name__ == '__main__':
+    unittest.main()

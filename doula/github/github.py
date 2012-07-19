@@ -2,6 +2,7 @@
 A simplified interface to the Github V3 domain
 """
 
+from datetime import datetime
 from doula.cache import Cache
 from doula.config import Config
 from doula.util import *
@@ -177,6 +178,10 @@ def pull_commits(git_repo, tags, branches):
             "message": cmt["commit"]["message"],
             "package_version": ""
         }
+
+        # if no date. use today's date
+        if not commit["date"]:
+            commit["date"] = datetime.now().strftime("%a, %d %b %Y %H:%M:%S")
 
         if cmt.get("author"):
             commit["author"]["login"] = cmt["author"]["login"],

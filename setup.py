@@ -27,7 +27,7 @@ requires = [
     ]
 
 setup(name='Doula',
-      version='0.0',
+      version='0.1',
       description='Doula',
       long_description=README,
       classifiers=[

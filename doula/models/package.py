@@ -4,9 +4,9 @@ from doula.github.github import get_package_github_info
 from doula.services.cheese_prism import CheesePrism
 from fabric.api import *
 from git import *
-from tempfile import TemporaryFile
 from datetime import datetime
 import os
+import re
 import shutil
 
 
@@ -60,27 +60,52 @@ class Package(object):
                 shutil.rmtree(repo.working_dir)
 
     def update_version(self, repo, new_version):
-        # joetodo update the date
-        # and update the released by line
-        # see this http://code.corp.surveymonkey.com/devmonkeys/AnWeb/commit/b313a95b921725273f1436e4d9d79cee2f592156
-        # and see http://code.corp.surveymonkey.com/devmonkeys/UserWeb/commit/e16267c4ca2a545189d78c9be81995934fbb5eb5
-        # Alter setup.py to match the new version
-        setup_py_path = os.path.join(repo.working_dir, 'setup.py')
-        with open(setup_py_path, 'r+') as f:
-            tmp = TemporaryFile()
+        """
+        Update the setup.py with a new version, parent sha, branch and author
+        """
+        # todo, we still need to update the user who did the push
+        try:
+            setup_py_path = os.path.join(repo.working_dir, 'setup.py')
 
-            for line in f.readlines():
-                if line.startswith("** Copyright SurveyMonkey"):
-                    line = "** Copyright SurveyMonkey %s **\n" % datetime.now().strftime("%a, %d %b %Y %H:%M:%S")
-                elif line.startswith("version"):
-                    line = "version = '%s'\n" % new_version
-                tmp.write(line)
+            setup_dot_py = open(setup_py_path, 'r')
+            lines = setup_dot_py.readlines()
+            setup_dot_py.close()
 
-            # Go back to the beginning of each file
-            tmp.seek(0)
-            f.seek(0)
+            updated_setup_dot_py = self.get_updated_setup_dot_py(
+                lines, new_version, repo.active_branch.name,
+                repo.remotes.origin.url, repo.head.commit.hexsha)
 
-            f.write(tmp.read())
+            setup_dot_py = open(setup_py_path, 'w')
+            setup_dot_py.write(updated_setup_dot_py)
+            setup_dot_py.close()
+        finally:
+            if not setup_dot_py:
+                setup_dot_py.close()
+
+    def get_updated_setup_dot_py(self, lines, version, branch, remote_url, parent_sha, user=''):
+        """
+        Update the setup.py values (version number, branch, parent sha and user)
+        before we push up the latest commit. Here we simply roll through the current
+        lines in the setup.py and return a list with the updated lines
+        """
+        updated_lines = []
+
+        for line in lines:
+            if re.match(r'^\*\* Copyright', line.strip(), re.I):
+                new_line = "** Copyright SurveyMonkey %s **" % datetime.now().strftime("%a, %d %b %Y %H:%M:%S")
+                updated_lines.append(new_line)
+            elif re.match(r'^version', line.strip(), re.I):
+                updated_lines.append("version = '%s'" % version)
+            elif re.match(r'^Source: ', line.strip(), re.I):
+                # remote_url takes format: git@github.com:Doula/Doula.git
+                org_and_proj = remote_url.split(':')[1].replace('.git', '')
+                vals = (org_and_proj, branch, parent_sha[:7])
+                new_line = 'Source:      %s *%s %s' % vals
+                updated_lines.append(new_line)
+            else:
+                updated_lines.append(line)
+
+        return "\n".join(updated_lines)
 
     def commit(self, repo, files, msg):
         # Commit change to repo

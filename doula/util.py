@@ -17,7 +17,12 @@ def next_version(version):
     for rslt in rslts:
         if found_digit is False and is_number(rslt):
             found_digit = True
-            part = int(rslt) + 1
+            part = int(rslt)
+
+            if part == 9:
+                part = 91
+            else:
+                part = part + 1
         else:
             part = rslt
 
