@@ -21,8 +21,6 @@ requires = [
     'waitress',
     'retools',
     'pygments',
-    'python-ldap==2.3.13',
-    'pyramid_ldap',
     'pyyaml'
     ]
 
