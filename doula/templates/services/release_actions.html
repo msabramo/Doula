@@ -8,6 +8,7 @@
     <a href="/sites/{{site.name_url}}">{{ site.name|upper }}</a></h2>
 </div>
 
+{% if config.get('env') != 'prod' %}
 <div class="queued_items" data-last-updated="{{ last_updated }}">
   <div class="latest_notifications alert">
   </div>
@@ -15,6 +16,7 @@
     {{ queued_item_tmpl.render_queued_item(queued_item) }}
   {% endfor %}
 </div>
+{% endif %}
 
 <div>
 <div class="well hide">
