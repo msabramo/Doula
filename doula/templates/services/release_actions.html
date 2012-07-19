@@ -1,9 +1,19 @@
 {% extends 'layouts/base.html' %}
+{% import 'queue/queued_item.html' as queued_item_tmpl %}
+
 {% block content %}
 <div class="title">
 	<h2>
     {{ service.name }} on
     <a href="/sites/{{site.name_url}}">{{ site.name|upper }}</a></h2>
+</div>
+
+<div class="queued_items" data-last-updated="{{ last_updated }}">
+  <div class="latest_notifications alert">
+  </div>
+  {% for queued_item in queued_items %}
+    {{ queued_item_tmpl.render_queued_item(queued_item) }}
+  {% endfor %}
 </div>
 
 <div>
@@ -26,7 +36,7 @@
     </div>
   </div>
 
-  <div id="sm_packages_table" class="accordion-body collapse">
+  <div id="sm_packages_table" class="accordion-body in collapse">
   <table class="table">
     <thead>
       <tr>
@@ -71,7 +81,7 @@
           -->
           <td colspan="2" class="hidden">
             <div id="{{ pckg.name|replace(".", "") }}_git_info"
-            class="commit-accordion accordion-body collapse in hide-on-load"
+            class="commit-accordion accordion-body collapse hide-on-load"
             style="display: none;">
               <ol class="commit-group hide-on-load" style="display: none;">
                 {% for commit in git_info['commits']|sort(attribute='date', reverse=True) %}
@@ -96,7 +106,7 @@
     </div>
   </div>
 
-  <div id="other_packages_table" class="accordion-body collapse in hide-on-load"
+  <div id="other_packages_table" class="accordion-body collapse hide-on-load"
   style="display: none;">
   <table class="table table-striped">
     <thead>

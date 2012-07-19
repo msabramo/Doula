@@ -4,9 +4,11 @@ from doula.queue import Queue
 from doula.services.cheese_prism import CheesePrism
 from doula.util import *
 from doula.views.helpers import *
-from pyramid.httpexceptions import HTTPNotFound
+from doula.views.queue import get_log
 from pyramid.response import Response
 from pyramid.view import view_config
+from datetime import datetime
+import time
 import logging
 
 log = logging.getLogger(__name__)
@@ -18,15 +20,40 @@ log = logging.getLogger(__name__)
 
 @view_config(route_name='service', renderer="services/release_actions.html")
 def service(request):
+    queue = Queue()
+
     site = get_site(request.matchdict['site_id'])
     service = site.services[request.matchdict['serv_id']]
     other_packages = CheesePrism.other_packages(service.packages)
+
+    query = {'job_type': ['push_to_cheeseprism'],
+             'service': service}
+    last_updated = datetime.now()
+    queued_items = queue.get(query)
+
+    i = 0
+    for queued_item in queued_items:
+        queued_items[i]['log'] = ''
+        # If job is already completed/failed
+        if queued_item['status'] in ['complete', 'failed']:
+            queued_items[i]['log'] = get_log(queued_item['id'])
+        i += 1
+
+    # sort all of the items with respect to time
+    queued_items = sorted(queued_items, key=lambda k: k['time_started'])
+    # descending order
+    queued_items = reversed(queued_items)
+
+    last_updated = time.mktime(last_updated.timetuple())
+
     return {
         'site': site,
         'service': service,
         'config': Config,
         'service_json': dumps(service),
-        'other_packages': other_packages
+        'other_packages': other_packages,
+        'queued_items': queued_items,
+        'last_updated': last_updated
     }
 
 
