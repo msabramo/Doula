@@ -152,12 +152,14 @@
 {% block scripts %}
 <script>
 var __service = {{service_json|safe}};
+var __job_dict = {{job_dict|safe}};
 </script>
 <script language="javascript" type="text/javascript" src=""></script>
 <script language="javascript" type="text/javascript" src=""></script>
 {{ [
 '/js/common/util.js',
 '/js/services/serv_data.js',
-'/js/services/serv_env.js'
+'/js/services/serv_env.js',
+'/js/site/queue.js'
 ]|js_script|safe }}
 {% endblock %}

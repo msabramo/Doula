@@ -4,7 +4,6 @@ from doula.queue import Queue
 from doula.services.cheese_prism import CheesePrism
 from doula.util import *
 from doula.views.helpers import *
-from doula.views.queue import get_log
 from pyramid.response import Response
 from pyramid.view import view_config
 from datetime import datetime
@@ -20,30 +19,13 @@ log = logging.getLogger(__name__)
 
 @view_config(route_name='service', renderer="services/release_actions.html")
 def service(request):
-    queue = Queue()
-
     site = get_site(request.matchdict['site_id'])
     service = site.services[request.matchdict['serv_id']]
     other_packages = CheesePrism.other_packages(service.packages)
 
     query = {'job_type': ['push_to_cheeseprism'],
-             'service': service}
+             'service': service.name}
     last_updated = datetime.now()
-    queued_items = queue.get(query)
-
-    i = 0
-    for queued_item in queued_items:
-        queued_items[i]['log'] = ''
-        # If job is already completed/failed
-        if queued_item['status'] in ['complete', 'failed']:
-            queued_items[i]['log'] = get_log(queued_item['id'])
-        i += 1
-
-    # sort all of the items with respect to time
-    queued_items = sorted(queued_items, key=lambda k: k['time_started'])
-    # descending order
-    queued_items = reversed(queued_items)
-
     last_updated = time.mktime(last_updated.timetuple())
 
     return {
@@ -52,8 +34,9 @@ def service(request):
         'config': Config,
         'service_json': dumps(service),
         'other_packages': other_packages,
-        'queued_items': queued_items,
-        'last_updated': last_updated
+        'queued_items': [],
+        'last_updated': last_updated,
+        'job_dict': dumps(query)
     }
 
 
@@ -67,6 +50,7 @@ def service_cheese_prism_modal(request):
     versions.sort()
     versions.reverse()
     current_version = versions[0]
+
     return {
         'service': service,
         'package': package,
@@ -77,7 +61,6 @@ def service_cheese_prism_modal(request):
 
 @view_config(route_name='service_cheese_prism_push', renderer="string")
 def service_cheese_prism_push(request):
-    raise Exception('blah')
     site = get_site(request.matchdict['site_id'])
     service = site.services[request.matchdict['serv_id']]
     package = service.get_package_by_name(request.GET['name'])
@@ -90,6 +73,7 @@ def service_cheese_prism_push(request):
     next_version = request.GET['next_version']
     branch = request.GET['branch']
     job_dict = enqueue_push_package(service, remote, branch, next_version)
+
     return dumps({'success': True, 'job': job_dict})
 
 
@@ -114,6 +98,7 @@ def enqueue_push_package(service, remote, branch, version):
 def service_details(request):
     site = get_site(request.matchdict['site_id'])
     service = site.services[request.matchdict['serv_id']]
+
     return {'site': site, 'service': service, 'config': Config}
 
 
@@ -158,4 +143,5 @@ def service_freeze(request):
     response.content_disposition = 'attachment; filename="' + file_name + '"'
     response.charset = "UTF-8"
     response.text = service.freeze_requirements()
+
     return response

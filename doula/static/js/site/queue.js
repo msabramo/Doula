@@ -73,5 +73,5 @@ QueuedItems = {
 };
 
 $(document).ready(function() {
-    QueuedItems.init();
+    QueuedItems.init(__job_dict);
 });
