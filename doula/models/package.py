@@ -94,7 +94,7 @@ class Package(object):
             if re.match(r'^\*\* Copyright', line.strip(), re.I):
                 new_line = "** Copyright SurveyMonkey %s **" % datetime.now().strftime("%a, %d %b %Y %H:%M:%S")
                 updated_lines.append(new_line)
-            elif re.match(r'^version', line.strip(), re.I):
+            elif re.match(r'(version\s+=\s(\'|")(.+)(\'|"))', line.strip(), re.I):
                 updated_lines.append("version = '%s'" % version)
             elif re.match(r'^Source: ', line.strip(), re.I):
                 # remote_url takes format: git@github.com:Doula/Doula.git
@@ -103,7 +103,7 @@ class Package(object):
                 new_line = 'Source:      %s *%s %s' % vals
                 updated_lines.append(new_line)
             else:
-                updated_lines.append(line)
+                updated_lines.append(line.rstrip())
 
         return "\n".join(updated_lines)
 
@@ -115,7 +115,8 @@ class Package(object):
 
     def tag(self, repo, version):
         # Tag a version
-        repo.create_tag(version)
+        version = re.sub(r'^v', '', str(version))
+        repo.create_tag('v' + version)
 
     def push(self, repo, remote_name):
         # Push changes
