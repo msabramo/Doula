@@ -15,7 +15,7 @@
         title="{{ service.name }} has already been tagged ({{ service.last_tag.name }})"
         data-toggle="collapse" data-parent="#sites-accordion"
       {% else %}
-        data-toggle="do_not_collapse" rel="tooltip" 
+        data-toggle="do_not_collapse" rel="tooltip"
         {% if service.status == 'tagged' %}
           title="{{ service.name }} has already been tagged ({{ service.last_tag.name }})"
         {% elif service.status == 'uncommitted_changes' %}
@@ -28,12 +28,11 @@
         {{ service.name }}
       </a>
 
-      {% if config.get('env') != 'prod' %}
       <a href="/sites/{{ site.name_url }}/{{ service.name_url }}" class="accord-link">
         Release Actions
       </a>
-      {% endif %}
-      <a href="/sites/{{ site.name_url }}/{{ service.name_url }}/details" 
+
+      <a href="/sites/{{ site.name_url }}/{{ service.name_url }}/details"
       class="accord-link">
         Service Details
       </a>

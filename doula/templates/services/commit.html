@@ -31,9 +31,9 @@
     {% endif %}
 
     <div class="authorship">
-      <span class="author-name">{{commit["author"]["name"]}}</span> authored
+      <span class="author-name">{{commit["author"]["name"]}}</span> <!-- authored -->
       <time datetime="{{commit["date"]}}"
-      title="{{commit["date"]}}">X days ago<!-- use filter to get this--></time>
+      title="{{commit["date"]}}" class="hide">X days ago</time>
     </div>
   </div>
 </li>

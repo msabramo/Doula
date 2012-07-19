@@ -5,21 +5,19 @@
                 <a class="brand" href="/">Doula</a>
                 <ul class="nav">
                     {% set path = req.path %}
-                    <li {% if path.startswith('/sites') or path == "/" %} 
+                    <li {% if path.startswith('/sites') or path == "/" %}
                     class="active" {% endif %}>
                         <a href="/sites">Sites</a>
                     </li>
-                    {% if config.get('env') != 'prod' %}
                     <li {% if path.startswith('/queue') %} class="active" {% endif %}>
                         <a href="/queue">Queue</a>
                     </li>
-                    {% endif %}
                 </ul>
                 {% if config.get('env') != 'prod' %}
                 <ul class="nav pull-right">
                     <li {% if path.startswith('/settings') %}class="active"{% endif %}>
-                        <a href="/settings" 
-                        class="dropdown-toggle" 
+                        <a href="/settings"
+                        class="dropdown-toggle"
                         data-toggle="dropdown">
                             <i class="icon-cog icon-white"></i>
                             Settings
