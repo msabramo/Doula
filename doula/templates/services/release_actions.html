@@ -44,7 +44,8 @@
       <tr>
         <td width="20%">
           <!-- alextodo, add a tooltip to this thing a ma bobber -->
-          <a href="#" onclick="return false;"
+          <a href="#" onclick="return false;" rel="tooltip"
+          title="Click to see the Git commit history"
           data-toggle="collapse" data-target="#{{ pckg.name|replace(".", "") }}_git_info">
           {{ pckg.name }}
         </a>
@@ -70,8 +71,9 @@
           -->
           <td colspan="2" class="hidden">
             <div id="{{ pckg.name|replace(".", "") }}_git_info"
-            class="commit-accordion accordion-body collapse in" style="display: none;">
-              <ol class="commit-group">
+            class="commit-accordion accordion-body collapse in hide-on-load"
+            style="display: none;">
+              <ol class="commit-group hide-on-load" style="display: none;">
                 {% for commit in git_info['commits']|sort(attribute='date', reverse=True) %}
                   {% include 'services/commit.html' %}
                 {% endfor %}
@@ -94,7 +96,8 @@
     </div>
   </div>
 
-  <div id="other_packages_table" class="accordion-body collapse in" style="display: none;">
+  <div id="other_packages_table" class="accordion-body collapse in hide-on-load"
+  style="display: none;">
   <table class="table table-striped">
     <thead>
       <tr>

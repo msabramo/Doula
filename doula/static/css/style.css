@@ -408,7 +408,7 @@ td a.btn {
   border: 0px;
 }
 .git-info-row .shown {
-  padding: 8px;
+  padding: 8px 0px;
   border-top: 1px solid #DDD;
 }
 h3.commit-group-heading {
@@ -439,9 +439,10 @@ h3.commit-group-heading {
 .active-package {
   background: #FCF8E3 !important;
 }
-.commit-group-item:first-child {
-  border-top: none;
+/*.commit-group-item:first-child {
+	border-top: none;
 }
+*/
 .commit-group-item:nth-child(2n+1) {
   background: white;
 }

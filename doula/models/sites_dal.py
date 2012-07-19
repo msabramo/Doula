@@ -84,7 +84,8 @@ class SiteDAL(object):
     @staticmethod
     def unregister_node(node):
         site = SiteDAL._get_site_as_json(node['site'])
-        del site['nodes'][node['name']]
+        name = node['name'].lower()
+        del site['nodes'][name]
 
         key = SiteDAL._get_site_cache_key(node['site'])
         SiteDAL.cache.set(key, json.dumps(site))
@@ -106,6 +107,7 @@ class SiteDAL(object):
             {'name':'value',
             nodes: [{'name':{'name':value, 'site':value, 'url':value}}]}
         """
+        name = name.lower()
         site = SiteDAL.cache.get(SiteDAL._get_site_cache_key(name))
 
         if site:

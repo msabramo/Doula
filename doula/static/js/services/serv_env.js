@@ -9,7 +9,14 @@ var ServiceEnv = {
 	},
 
 	bindToUIActions: function() {
-		$(".collapse").each(function(index, el) {
+		$('a[rel="tooltip"]').tooltip({
+			"delay": {
+				"show": 500,
+				"hide": 100
+			}
+		});
+
+		$(".hide-on-load").each(function(index, el) {
 			$(el).show();
 		});
 
@@ -93,20 +100,20 @@ var ServiceEnv = {
 		};
 
 		// alextodo, will need to properly handle errors from backend. show in modal
-		this.get('Pushing package to Cheese Prism', url, params, this.donePushPackage, this.failedPushPackage);
+		this.get('Releasing package to Cheese Prism', url, params, this.donePushPackage, this.failedPushPackage);
 	},
 
 	donePushPackage: function(rslt) {
-		console.log('result of job request');
-		console.log(rslt.job);
+		// console.log('result of job request');
+		// console.log(rslt.job);
 		$('#push-to-cheese-modal').modal('hide');
 		// after this call make sure to update the UI, things need to be freezed
 	},
 
 	failedPushPackage: function(rslt) {
 		// update the error messages in modal
-		console.log('failed push package');
-		console.log(rslt);
+		// console.log('failed push package');
+		// console.log(rslt);
 
 	}
 };
