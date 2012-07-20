@@ -70,7 +70,8 @@ class Queue(object):
         'cycle_services': common_dict,
         'pull_cheeseprism_data': common_dict,
         'pull_github_data': common_dict,
-        'pull_bambino_data': common_dict
+        'pull_bambino_data': common_dict,
+        'cleanup_queue': common_dict
     }
 
     def __init__(self):
@@ -84,7 +85,7 @@ class Queue(object):
 
     def this(self, attrs):
         if 'job_type' in attrs and attrs['job_type'] in \
-            ['push_to_cheeseprism', 'cycle_services', 'pull_cheeseprism_data', 'pull_github_data', 'pull_bambino_data']:
+            ['push_to_cheeseprism', 'cycle_services', 'pull_cheeseprism_data', 'pull_github_data', 'pull_bambino_data', 'cleanup_queue']:
             _type = attrs['job_type']
             job_dict = self.base_dicts[_type].copy()
         else:
@@ -110,12 +111,14 @@ class Queue(object):
             self.qm.enqueue('doula.jobs:pull_github_data', job_dict=job_dict)
         elif job_type is 'pull_bambino_data':
             self.qm.enqueue('doula.jobs:pull_bambino_data', job_dict=job_dict)
+        elif job_type is 'cleanup_queue':
+            self.qm.enqueue('doula.jobs:cleanup_queue', job_dict=job_dict)
 
         self._save(p, job_dict)
         p.execute()
         return job_dict['id']
 
-    def get(self, job_dict):
+    def get(self, job_dict={}):
         jobs = self._get_jobs()
 
         # Loop through each criteria, throw out the jobs that don't meet
@@ -139,6 +142,14 @@ class Queue(object):
 
         p = self.rdb.pipeline()
         self._update(p, job_dict)
+        p.execute()
+
+    def remove(self, job_dict_ids):
+        if isinstance(job_dict_ids, basestring):
+            job_dict_ids = [job_dict_ids]
+
+        p = self.rdb.pipeline()
+        self._remove_jobs(p, job_dict_ids)
         p.execute()
 
     def _keys(self):
@@ -178,6 +189,14 @@ class Queue(object):
                 p.srem(k['jobs'], json.dumps(job, sort_keys=True))
                 return job
         return None
+
+    def _remove_jobs(self, p, ids):
+        k = self._keys()
+        jobs = self._get_jobs()
+
+        for job in jobs:
+            if job['id'] in ids:
+                p.srem(k['jobs'], json.dumps(job, sort_keys=True))
 
     def _save(self, p, attrs):
         """

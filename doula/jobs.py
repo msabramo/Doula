@@ -7,12 +7,15 @@ from doula.models.sites_dal import SiteDAL
 from doula.services.cheese_prism import CheesePrism
 from doula.util import *
 from doula.config import Config
+from doula.queue import Queue
+from datetime import datetime
 import os
 import json
 import logging
 import sys
 import traceback
 import xmlrpclib
+import time
 
 
 def create_logger(job_id):
@@ -152,6 +155,35 @@ def pull_bambino_data(job_dict=None):
 
         pipeline.execute()
         log.info('Done pulling bambino data')
+    except Exception as e:
+        log.error(e.message)
+        log.error(traceback.format_exc())
+        raise
+
+
+def cleanup_queue(job_dict=None):
+    """
+    Cleanup unneeded jobs stored in our queueing system.
+    """
+    log = create_logger(job_dict['id'])
+    try:
+        log.info('Cleaning up the queue')
+
+        now = datetime.now()
+        now = time.mktime(now.timetuple())
+
+        queue = Queue()
+        jobs = queue.get()
+        # Get completed jobs that need to be deleted
+        completed_job_ids = [job['id'] for job in jobs if job['time_started'] < now - 7200 and job['status'] == 'success']
+        # Get failed jobs that need to be deleted
+        failed_job_ids = [job['id'] for job in jobs if job['time_started'] < now - 14400 and job['status'] == 'failed']
+
+        # Remove completed jobs and failed jobs that are unneeded
+        queue.remove(completed_job_ids)
+        queue.remove(failed_job_ids)
+
+        log.info('Done cleaning up the queue')
     except Exception as e:
         log.error(e.message)
         log.error(traceback.format_exc())
