@@ -175,13 +175,16 @@ def cleanup_queue(job_dict=None):
         queue = Queue()
         jobs = queue.get()
         # Get completed jobs that need to be deleted
-        completed_job_ids = [job['id'] for job in jobs if job['time_started'] < now - 7200 and job['status'] == 'success']
+        complete_job_ids = [job['id'] for job in jobs if job['time_started'] < now - 7200 and job['status'] == 'complete']
         # Get failed jobs that need to be deleted
         failed_job_ids = [job['id'] for job in jobs if job['time_started'] < now - 14400 and job['status'] == 'failed']
 
+        ids = complete_job_ids + failed_job_ids
         # Remove completed jobs and failed jobs that are unneeded
-        queue.remove(completed_job_ids)
-        queue.remove(failed_job_ids)
+        queue.remove(ids)
+        # Remove all completed and failed logs
+        for id in ids:
+            os.remove(os.path.join('/var/log/doula', id + '.log'))
 
         log.info('Done cleaning up the queue')
     except Exception as e:
