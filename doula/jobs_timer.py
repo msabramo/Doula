@@ -44,6 +44,18 @@ def pull_bambino_data():
     q.this(job_dict)
 
 
+def cleanup_queue():
+    """
+    Update the cached bambino data
+    """
+    job_dict = {
+        'job_type': 'cleanup_queue'
+    }
+
+    q = Queue()
+    q.this(job_dict)
+
+
 def start_task_scheduling():
     """
     Start scheduling tasks.
@@ -59,3 +71,6 @@ def start_task_scheduling():
 
     git_interval = int(Config.get('task_interval_pull_github_data'))
     sched.add_interval_job(pull_github_data, seconds=git_interval)
+
+    cleanup_interval = int(Config.get('task_interval_cleanup_queue'))
+    sched.add_interval_job(cleanup_queue, seconds=cleanup_interval)
