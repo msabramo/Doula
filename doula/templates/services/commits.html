@@ -1,0 +1,49 @@
+{% set last_day = None %}
+{% set found_active_package = False %}
+
+{% for commit in git_info['commits']|sort(attribute='date', reverse=True) %}
+  {# THE FIRST LOOP AROUND WE'LL TRY TO START WITH THE ACTIVE PACKAGE COMMIT #}
+  {% set proj_url = git_info["html_domain"] + '/' + git_info["org"] + '/' + git_info["name"] %}
+
+  {% if commit["package_version"] == pckg.version %}
+    {% set found_active_package = True %}
+  {% endif %}
+
+  {% if found_active_package == True %}
+    {% if last_day != commit["date"]|formatted_day %}
+      {% set last_day = commit["date"]|formatted_day %}
+      {% if loop.index != 1 %}
+        </ol>
+      {% endif %}
+      <h3 class="commit-group-heading">{{last_day}}</h3>
+      <ol class="commit-group hide-on-load" style="display: none;">
+    {% endif %}
+
+    {% include 'services/commit.html' %}
+
+  {% endif %}
+
+{% endfor %}
+
+{% if found_active_package == True %}
+  </ol>
+{% else %}
+  {# NO ACTIVE PACKAGE EXIST IN THE COMMIT HISTORY. SHOW THE WHOLE THING #}
+
+  {% for commit in git_info['commits']|sort(attribute='date', reverse=True) %}
+  {% set proj_url = git_info["html_domain"] + '/' + git_info["org"] + '/' + git_info["name"] %}
+
+  {% if last_day != commit["date"]|formatted_day %}
+    {% set last_day = commit["date"]|formatted_day %}
+    {% if loop.index != 1 %}
+      </ol>
+    {% endif %}
+    <h3 class="commit-group-heading">{{last_day}}</h3>
+    <ol class="commit-group hide-on-load" style="display: none;">
+  {% endif %}
+
+    {% include 'services/commit.html' %}
+
+  {% endfor %}
+  </ol>
+{% endif %}

@@ -76,6 +76,23 @@ class QueueTests(unittest.TestCase):
         jobs = self.queue.rdb.smembers(self.k['jobs'])
         self.assertEqual(len(jobs), 1)
 
+    def test_remove_job(self):
+        ids = ['1', '2', '3', '4', '5']
+        for i in ids:
+            self._add_job(i)
+
+        ids.remove('2')
+        ids.remove('4')
+        p = self.queue.rdb.pipeline()
+        self.queue._remove_jobs(p, ids)
+        p.execute()
+
+        jobs = self.queue.rdb.smembers(self.k['jobs'])
+        persisted_ids = [json.loads(job)['id'] for job in jobs]
+        self.assertEqual(len(jobs), 2)
+        self.assertIn('2', persisted_ids)
+        self.assertIn('4', persisted_ids)
+
     def test_save(self):
         p = self.queue.rdb.pipeline()
         self.queue._save(p, {'id': '1', 'job_type': 'push_to_cheeseprism'})

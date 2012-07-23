@@ -1,61 +1,38 @@
-{% set last_day = None %}
-{% set found_active_package = False %}
+<li class="commit commit-group-item clearfix
+{% if commit["package_version"] == pckg.version %}active-package{% endif %}">
+  <img class="gravatar" height="36" src="{{commit["author"]["avatar_url"]}}" width="36">
 
-{% for commit in git_info['commits']|sort(attribute='date', reverse=True) %}
-{% set proj_url = git_info["html_domain"] + '/' + git_info["org"] + '/' + git_info["name"] %}
+  <p class="commit-title">
+  <a href="{{proj_url}}/commit/{{commit["sha"]}}" target="_blank" class="message">
+    {{commit["message"]}}
+    {% if commit["package_version"] == pckg.version %}(active package){% endif %}
+  </a>
+  </p>
 
-{% if commit["package_version"] == pckg.version %}
-  {% set found_active_package = True %}
-{% endif %}
-
-{% if found_active_package %}
-  {% if last_day != commit["date"]|formatted_day %}
-    {% set last_day = commit["date"]|formatted_day %}
-    {% if loop.index != 1 %}
-      </ol>
-    {% endif %}
-    <h3 class="commit-group-heading">{{last_day}}</h3>
-    <ol class="commit-group hide-on-load" style="display: none;">
-  {% endif %}
-
-  <li class="commit commit-group-item clearfix
-  {% if commit["package_version"] == pckg.version %}active-package{% endif %}">
-    <img class="gravatar" height="36" src="{{commit["author"]["avatar_url"]}}" width="36">
-
-    <p class="commit-title">
-    <a href="{{proj_url}}/commit/{{commit["sha"]}}" target="_blank" class="message">
-      {{commit["message"]}}
-      {% if commit["package_version"] == pckg.version %}(active package){% endif %}
-    </a>
-    </p>
-
-    <div class="commit-meta">
-      <div class="commit-links">
-        <a href="{{proj_url}}/commit/{{commit["sha"]}}" target="_blank" class="gobutton ">
-          <span class="sha">{{commit["sha"][:10]}}
-            <span class="mini-icon mini-icon-arr-right-mini"></span>
-          </span>
-        </a>
-        <a href="{{proj_url}}/tree/{{commit["sha"]}}" class="browse-button" target="_blank"
-          title="Browse the code at this point in the history" rel="nofollow">
-          Browse code <span class="mini-icon mini-icon-arr-right"></span></a>
-      </div>
-
-      {% if commit["package_version"] %}
-      <div class="package-info">
-        <p>
-          {{commit["package_version"]}} on {{commit["branches"]|branches_text}}
-        </p>
-      </div>
-      {% endif %}
-
-      <div class="authorship">
-        <span class="author-name">{{commit["author"]["name"]}}</span> authored
-        <time datetime="{{commit["date"]}}"
-        title="{{commit["date"]}}">{{commit["date"]|relative_datetime}}</time>
-      </div>
+  <div class="commit-meta">
+    <div class="commit-links">
+      <a href="{{proj_url}}/commit/{{commit["sha"]}}" target="_blank" class="gobutton ">
+        <span class="sha">{{commit["sha"][:10]}}
+          <span class="mini-icon mini-icon-arr-right-mini"></span>
+        </span>
+      </a>
+      <a href="{{proj_url}}/tree/{{commit["sha"]}}" class="browse-button" target="_blank"
+        title="Browse the code at this point in the history" rel="nofollow">
+        Browse code <span class="mini-icon mini-icon-arr-right"></span></a>
     </div>
-  </li>
-  {% endfor %}
-  </ol>
-{% endif %}
+
+    {% if commit["package_version"] %}
+    <div class="package-info">
+      <p>
+        {{commit["package_version"]}} on {{commit["branches"]|branches_text}}
+      </p>
+    </div>
+    {% endif %}
+
+    <div class="authorship">
+      <span class="author-name">{{commit["author"]["name"]}}</span> authored
+      <time datetime="{{commit["date"]}}"
+      title="{{commit["date"]}}">{{commit["date"]|relative_datetime}}</time>
+    </div>
+  </div>
+</li>
