@@ -83,11 +83,7 @@
             <div id="{{ pckg.name|replace(".", "") }}_git_info"
             class="commit-accordion accordion-body collapse hide-on-load"
             style="display: none;">
-              <ol class="commit-group hide-on-load" style="display: none;">
-                {% for commit in git_info['commits']|sort(attribute='date', reverse=True) %}
-                  {% include 'services/commit.html' %}
-                {% endfor %}
-              </ol>
+              {% include 'services/commit.html' %}
             </div>
           </td>
       </tr>

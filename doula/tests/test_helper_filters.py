@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime
 
 from doula.helper_filters import *
 
@@ -14,6 +15,41 @@ class HelperTests(unittest.TestCase):
         date_string = "2012-05-05T16:30:20.140762"
         pretty_date = format_isodate(date_string)
         self.assertEqual('May 05, 2012 04:30 PM', pretty_date)
+
+    def test_relative_datetime(self):
+        now = datetime.now()
+
+        # Test for Today at 12:01 AM
+        today = datetime(now.year, now.month, now.day, 00, 1, 10)
+        today_val = today.strftime("%Y-%m-%dT%X+02:00")
+        result = relative_datetime(today_val)
+
+        self.assertEqual("Today at 12:01 AM", result)
+
+        # expect Yesterday at 10:31 AM
+        yesterday = datetime(now.year, now.month, now.day - 1, 10, 31, 10)
+        yester_val = yesterday.strftime("%Y-%m-%dT%X+02:00")
+        result = relative_datetime(yester_val)
+
+        self.assertEqual('Yesterday at 10:31 AM', result)
+
+        # expect 5 days ago at 10:31 AM
+        days_ago = datetime(now.year, now.month, now.day - 5, 10, 31, 10)
+        days_ago_val = days_ago.strftime("%Y-%m-%dT%X+02:00")
+        result = relative_datetime(days_ago_val)
+
+        self.assertEqual('5 days ago at 10:31 AM', result)
+
+    def test_formatted_day(self):
+        date = "2012-02-15T10:12:01+02:00"
+        result = formatted_day(date)
+
+        self.assertEqual("February 15, 2012", result)
+
+        date = "2012-10-02T10:12:01+02:00"
+        result = formatted_day(date)
+
+        self.assertEqual("October 02, 2012", result)
 
 
 if __name__ == '__main__':
