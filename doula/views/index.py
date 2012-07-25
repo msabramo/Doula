@@ -79,7 +79,7 @@ def bambino_ips(request):
     Used for deployment to update every Bambino registered with Doula.
     """
     ips = SiteDAL.get_node_ips()
-    return {'success': True, 'ip_addresses': ips}
+    return json.dumps({'success': True, 'ip_addresses': ips})
 
 
 ####################

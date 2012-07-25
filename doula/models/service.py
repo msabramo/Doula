@@ -92,6 +92,7 @@ class Service(object):
             results = proxy.supervisor.startProcessGroup(service_name)
 
             success = True
+
             for result in results:
                 if(result['status'] != 80):
                     success = False

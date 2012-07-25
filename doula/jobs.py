@@ -64,7 +64,7 @@ def push_to_cheeseprism(job_dict=None):
         raise
 
 
-def cycle_services(supervisor_ip, service_name):
+def cycle_services(job_dict):
     """
     This function will be enqueued by Queue upon receiving a job dict that
     has a job_type of 'cycle_services'.  Upon being called, it will restart
@@ -73,6 +73,15 @@ def cycle_services(supervisor_ip, service_name):
     """
     # log = create_logger(job_dict)
     try:
+        # how do we get the service name and supervisor IP?
+        # Pull the mt environment, pull the supervisorconf
+        # then what
+        # bambino will need to provide the supervisor file
+        # /etc/supervisor/conf.d, will be it.
+        # Talk to tim about this, how the fuck can we measure?
+        service_name = job_dict['service_name']
+        supervisor_ip = job_dict['supervisor_ip']
+
         log.info('started cycling service %s' % service_name)
         load_config()
 
