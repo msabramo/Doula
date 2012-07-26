@@ -2,10 +2,25 @@
 {% import 'queue/queued_item.html' as queued_item_tmpl %}
 
 {% block content %}
-<div class="title">
+<div class="title-actions-bar clearfix">
 	<h2>
-    {{ service.name }} on
-    <a href="/sites/{{site.name_url}}">{{ site.name|upper }}</a></h2>
+    <a href="/sites/{{site.name_url}}">
+      {{ site.name|upper }}</a> / {{ service.name }}
+  </h2>
+  <ul>
+    <li>
+      <a id="push-to-site" class="hide btn sm-btn" href="#">
+        <i class="icon-chevron-right icon-black"></i>
+        Release to Site
+      </a>
+    </li>
+    <li>
+      <a id="cycle" class="btn sm-btn" href="#">
+        <i class="icon-repeat icon-black"></i>
+        Cycle
+      </a>
+    </li>
+  </ul>
 </div>
 
 <div class="queued_items" data-last-updated="{{ last_updated }}">
@@ -17,14 +32,6 @@
 </div>
 
 <div>
-<div class="well hide">
-  <a id="push-to-test-site" class="btn sm-btn" href="#">
-  <!-- release to test site needs a modal -->
-  <i class="icon-chevron-right icon-black"></i> Release to Test Site</a>
-  <!-- add new version to this service -->
-  <a id="add-pckg" class="btn sm-btn-success" href="#">
-  <i class="icon-plus icon-white"></i> Add New Package</a>
-</div>
 
 <!-- service_queue_status.html here -->
 <div class="accordion group" id="package-accordion">

@@ -71,21 +71,17 @@ def cycle_services(job_dict):
     the necessary supervisor processes to make the changes to the packages live
     on a specific site.
     """
-    # log = create_logger(job_dict)
+    log = create_logger(job_dict['id'])
+    load_config()
+    # alextodo, need to finish testing with tim, on the actual box
+    # I'll need to get supervisor running locally on my box
     try:
-        # how do we get the service name and supervisor IP?
-        # Pull the mt environment, pull the supervisorconf
-        # then what
-        # bambino will need to provide the supervisor file
-        # /etc/supervisor/conf.d, will be it.
-        # Talk to tim about this, how the fuck can we measure?
-        service_name = job_dict['service_name']
-        supervisor_ip = job_dict['supervisor_ip']
+        for ip in job_dict['nodes']:
+            for name in job_dict['supervisor_service_names']:
+                log.info('Cycling service: %s' % name)
+                Service.cycle(xmlrpclib.ServerProxy(ip), name)
 
         log.info('started cycling service %s' % service_name)
-        load_config()
-
-        Service.cycle(xmlrpclib.ServerProxy(supervisor_ip), service_name)
     except Exception as e:
         log.error(e.message)
         log.error(traceback.format_exc())

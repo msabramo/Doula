@@ -172,6 +172,36 @@ def validate_token(request):
         raise Exception("Invalid security token")
 
 
+@view_config(route_name='service_cycle', renderer="string")
+def service_cycle(request):
+    service = SiteDAL.get_service(request.matchdict['site_id'], request.matchdict['serv_id'])
+    nodes = SiteDAL.nodes(service.site_name)
+    job_id = enqueue_cycle_services(nodes, service)
+
+    return dumps({'success': True, 'job_id': job_id})
+
+
+def enqueue_cycle_services(nodes, service):
+    """
+    Enqueue the job onto the queue
+    """
+    # alextodo, make sure to account for the problem where
+    # a service could be spread across several boxes
+    # you would need to be able to restart all of them, do we abstract this?
+    ips = []
+
+    for node_name in nodes:
+        ips.append(nodes[node_name]['ip'])
+
+    queue = Queue()
+
+    return queue.this({
+        'job_type': 'cycle_services',
+        'nodes': ips,
+        'supervisor_service_names': service.supervisor_service_names
+    })
+
+
 @view_config(route_name="service_freeze")
 def service_freeze(request):
     site = get_site(request.matchdict['site_id'])

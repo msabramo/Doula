@@ -30,36 +30,32 @@ log = logging.getLogger('doula')
 
 
 class Service(object):
-    def __init__(self, name, site_name, node_name, url,
-        current_branch_app='', current_branch_config='',
-        change_count_app='', change_count_config='',
-        is_dirty_app=False, is_dirty_config=False,
-        last_tag_app='', last_tag_config='', last_tag_message='',
-        status='', remote='', repo='', packages=[], changed_files=[], tags=[]):
+    def __init__(self, name, site_name, node_name, url):
         self.name = name
         self.site_name = site_name
         self.node_name = node_name
         self.name_url = dirify(name)
         self.url = url
 
-        self.current_branch_app = current_branch_app
-        self.current_branch_config = current_branch_config
+        self.current_branch_app = ''
+        self.current_branch_config = ''
 
-        self.change_count_app = change_count_app
-        self.change_count_config = change_count_config
+        self.change_count_app = ''
+        self.change_count_config = ''
 
-        self.is_dirty_app = is_dirty_app
-        self.is_dirty_config = is_dirty_config
+        self.is_dirty_app = False
+        self.is_dirty_config = False
 
-        self.last_tag_app = last_tag_app
-        self.last_tag_config = last_tag_config
-        self.last_tag_message = last_tag_message
+        self.last_tag_app = ''
+        self.last_tag_config = ''
+        self.last_tag_message = ''
 
-        self.status = status
-        self.remote = remote
-        self.packages = packages
-        self.changed_files = changed_files
-        self.tags = tags
+        self.status = ''
+        self.remote = ''
+        self.packages = []
+        self.changed_files = []
+        self.tags = []
+        self.supervisor_service_names = []
 
     @staticmethod
     def build_app(site_name, node_name, url, app):
@@ -82,6 +78,7 @@ class Service(object):
         a.add_packages(app['packages'])
         a.add_tags_from_dict(app['tags'])
         a.last_tag = a.get_last_tag()
+        a.supervisor_service_names = app['supervisor_service_names']
 
         return a
 
