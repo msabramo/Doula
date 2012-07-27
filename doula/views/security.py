@@ -1,45 +1,37 @@
-# from pyramid.view import (
-#     view_config,
-#     forbidden_view_config
-# )
-# from pyramid.response import Response
-# from pyramid.httpexceptions import HTTPFound
-# from pyramid_ldap import get_ldap_connector
-# from pyramid.security import (
-#    remember,
-#    forget
-# )
+import json
+from velruse import login_url
+from pyramid.view import (
+    view_config,
+    forbidden_view_config
+)
+from pyramid.security import (
+    NO_PERMISSION_REQUIRED,
+    remember,
+    forget
+)
+from pyramid.httpexceptions import HTTPFound
 
 
-# @view_config(route_name='login', renderer='doula:templates/security/login.html')
-# @forbidden_view_config(renderer='doula:templates/security/login.html')
-# def login(request):
-#     url = request.current_route_url()
-#     login = ''
-#     password = ''
-#     error = ''
-
-#     if 'form.submitted' in request.POST:
-#         login = request.POST['login']
-#         password = request.POST['password']
-#         connector = get_ldap_connector(request)
-#         data = connector.authenticate(login, password)
-#         if data is not None:
-#             dn = data[0]
-#             headers = remember(request, dn)
-#             return HTTPFound('/', headers=headers)
-#         else:
-#             error = 'Invalid credentials'
-
-#     return dict(
-#         login_url=url,
-#         login=login,
-#         password=password,
-#         error=error,
-#         )
+@view_config(name='login', renderer='myapp:templates/login.mako', permission=NO_PERMISSION_REQUIRED)
+@forbidden_view_config(renderer='clusterflunk:templates/login.mako')
+def login_view(request):
+    return HTTPFound(location=login_url(request, 'github'))
 
 
-# @view_config(route_name='logout')
-# def logout(request):
-#     headers = forget(request)
-#     return Response('Logged out', headers=headers)
+@view_config(context='velruse.AuthenticationComplete', renderer='myapp:templates/result.mako', permission=NO_PERMISSION_REQUIRED)
+def login_complete_view(request):
+    context = request.context
+    result = {
+        'profile': context.profile,
+        'credentials': context.credentials,
+    }
+    return {
+        'result': json.dumps(result, indent=4),
+    }
+
+
+@view_config(context='velruse.AuthenticationDenied', renderer='myapp:templates/result.mako', permission=NO_PERMISSION_REQUIRED)
+def login_denied_view(request):
+    return {
+        'result': 'denied',
+    }

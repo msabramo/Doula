@@ -1,56 +1,32 @@
-# import os
-# import yaml
-# import ldap
 from pyramid.config import Configurator
 from pyramid_jinja2 import renderer_factory
-# from pyramid.authentication import AuthTktAuthenticationPolicy
-# from pyramid.authorization import ACLAuthorizationPolicy
-# from pyramid_ldap import groupfinder
+from pyramid.authentication import SessionAuthenticationPolicy
+from pyramid.authorization import ACLAuthorizationPolicy
+from pyramid.session import UnencryptedCookieSessionFactoryConfig
+from doula.resources import Site
+from doula.security import groupfinder
 
 
 def main(global_config, **settings):
     """
     Serve Doula.
     """
-    config = Configurator(settings=settings)
+    authentication_policy = SessionAuthenticationPolicy(callback=groupfinder)
+    authorization_policy = ACLAuthorizationPolicy()
+    session_factory = UnencryptedCookieSessionFactoryConfig(settings['doula.session_secret'],
+                                                            cookie_max_age=3600)
+    config = Configurator(settings=settings,
+                          root_factory=Site,
+                          authentication_policy=authentication_policy,
+                          authorization_policy=authorization_policy,
+                          session_factory=session_factory)
 
-    # ldap_settings = {}
-    # with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../etc/ldap.yaml')) as f:
-    #     ldap_settings = yaml.load(f)
+    # Github integration
+    config.include('velruse.providers.github')
+    config.add_github_login_from_settings(prefix='github.')
 
-    # config.set_default_permission('view')
-
-    # config.set_authentication_policy(
-    #     AuthTktAuthenticationPolicy(ldap_settings['auth_pw'],
-    #                                 callback=groupfinder)
-    #     )
-
-    # config.set_authorization_policy(
-    #     ACLAuthorizationPolicy()
-    #     )
-
-    # # ldap setup
-    # config.include('pyramid_ldap')
-
-    # #possibly remove the s in ldaps
-    # config.ldap_setup(
-    #     'ldap://%s' % ldap_settings['ldap_ip'],
-    #     bind=ldap_settings['setup_dn'],
-    #     passwd=ldap_settings['ldap_pw'],
-    #     )
-
-    # config.ldap_set_login_query(
-    #     base_dn=ldap_settings['login_dn'],
-    #     filter_tmpl='(sAMAccountName=%(login)s)',
-    #     scope=ldap.SCOPE_ONELEVEL,
-    #     )
-
-    # config.ldap_set_groups_query(
-    #     base_dn=ldap_settings['group_dn'],
-    #     filter_tmpl='(&(objectCategory=group)(member=%(userdn)s))',
-    #     scope=ldap.SCOPE_SUBTREE,
-    #     cache_period=600,
-    #     )
+    # Security
+    config.set_default_permission('authenticated')
 
     # Tweens
     config.add_tween('doula.views.helpers.exception_tween_factory')
