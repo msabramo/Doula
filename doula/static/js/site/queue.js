@@ -55,6 +55,7 @@ QueuedItems = {
 
         if (data.new_queued_items.length > 0) {
             this.latest_notifications.show();
+            // todo: change 'are' to account for plural
             this.latest_notifications.html('There are ' + data.new_queued_items.length + ' jobs to be displayed.');
         }
     },
@@ -73,5 +74,8 @@ QueuedItems = {
 };
 
 $(document).ready(function() {
+    // global variable '__job_dict' is the criteria that will be queried for on the backend
+    // so if __job_dict = {'job_type': 'push_to_cheeseprism'}, only jobs with a job_type of
+    // 'push_to_cheeseprism' will be displayed in the Queue
     QueuedItems.init(__job_dict);
 });

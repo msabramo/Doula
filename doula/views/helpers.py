@@ -52,12 +52,13 @@ def handle_json_exception(e, request):
 
 def handle_exception(e, request):
     request.response.status = 500
-    request.override_renderer = 'error/exception.html'
     log_error(e, request)
     tb = traceback.format_exc()
 
     return render_to_response('doula:templates/error/exception.html',
-                              {'msg': e.message, 'stacktrace': tb, 'config': Config, 'request': request})
+                              {'msg': unicode(e.message, errors='replace'),
+                               'stacktrace': unicode(tb, errors='replace'),
+                               'config': Config, 'request': request})
 
 
 def exception_tween_factory(handler, registry):

@@ -5,6 +5,7 @@ from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.session import UnencryptedCookieSessionFactoryConfig
 from doula.resources import Site
 from doula.security import groupfinder
+from doula.request import get_user
 
 
 def main(global_config, **settings):
@@ -14,7 +15,7 @@ def main(global_config, **settings):
     authentication_policy = SessionAuthenticationPolicy(callback=groupfinder)
     authorization_policy = ACLAuthorizationPolicy()
     session_factory = UnencryptedCookieSessionFactoryConfig(settings['doula.session_secret'],
-                                                            cookie_max_age=3600)
+                                                            cookie_max_age=2592000)
     config = Configurator(settings=settings,
                           root_factory=Site,
                           authentication_policy=authentication_policy,
@@ -30,6 +31,9 @@ def main(global_config, **settings):
 
     # Tweens
     config.add_tween('doula.views.helpers.exception_tween_factory')
+
+    # Request
+    config.set_request_property(get_user, 'user', reify=True)
 
     # Jinja2 config
     config.add_renderer('.html', renderer_factory)
@@ -63,10 +67,6 @@ def main(global_config, **settings):
 
     config.add_route('bambino_register', '/bambino/register')
     config.add_route('bambino_ips', '/bambino/ip_addresses')
-
-    config.add_route('login', '/login')
-    config.add_route('forbidden', '/forbidden')
-    config.add_route('logout', '/logout')
 
     # Scan this module
     config.scan('doula.views')
