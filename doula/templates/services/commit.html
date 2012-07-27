@@ -1,5 +1,4 @@
-{% set proj_url = git_info["html_domain"] + '/' + git_info["org"] + '/' + git_info["name"] %}
-<li class="commit commit-group-item
+<li class="commit commit-group-item clearfix
 {% if commit["package_version"] == pckg.version %}active-package{% endif %}">
   <img class="gravatar" height="36" src="{{commit["author"]["avatar_url"]}}" width="36">
 
@@ -31,9 +30,9 @@
     {% endif %}
 
     <div class="authorship">
-      <span class="author-name">{{commit["author"]["name"]}}</span> <!-- authored -->
+      <span class="author-name">{{commit["author"]["name"]}}</span> authored
       <time datetime="{{commit["date"]}}"
-      title="{{commit["date"]}}" class="hide">X days ago</time>
+      title="{{commit["date"]}}">{{commit["date"]|relative_datetime}}</time>
     </div>
   </div>
 </li>

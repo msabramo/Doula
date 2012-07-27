@@ -36,7 +36,28 @@ var ServiceEnv = {
 			$('#add-packages').modal();
 		});
 
+		$('#cycle').on('click', _bind(this.cycle, this));
 		$('.new-version-btn').on('click', _bind(this.showPushPackageModal, this));
+	},
+
+	cycle: function(event) {
+		$(event.target).addClass('disabled');
+		// alextodo, this feature isn't done till we know when to actually
+		// re enable the service. we have to find out from the queue if
+		// we're allowed to enable the cycle service again
+		$('#cycle').unbind().bind('click', function() { return false; });
+
+		// make ajax requests to get modal
+		var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/cycle';
+		this.get('cycle', url, {}, this.doneCycleService);
+
+		return false;
+	},
+
+	doneCycleService: function(rslt) {
+		// i will need to poll for changes, maybe I can subscribe to a change
+		// event put out by the job queue? dunno
+		console.log(rslt);
 	},
 
 	showPushPackageModal: function(event) {

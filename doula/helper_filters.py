@@ -1,5 +1,38 @@
-import datetime
+from datetime import datetime
 from doula.util import comparable_name
+
+
+def formatted_day(date):
+    """
+    Returns a friendly date in the format: July 10, 2012
+    date - a date formatted as a string (ex. "2012-02-15T10:12:01+02:00")
+    """
+    datetime_only = date.split('+')[0]
+    dt = datetime.strptime(datetime_only, "%Y-%m-%dT%X")
+    return dt.strftime("%B %d, %Y")
+
+
+def relative_datetime(date):
+    """
+    Brings back a friendly date time.
+
+    For example dates returned will be:
+        Yesterday at noon
+        Today at 3:18pm
+        2 days ago at 10:02 AM.
+
+    date - a date formatted as a string (ex. "2012-02-15T10:12:01+02:00")
+    """
+    datetime_only = date.split('+')[0]
+    dt = datetime.strptime(datetime_only, "%Y-%m-%dT%X")
+    delta = datetime.now() - dt
+
+    if delta.days == 0:
+        return 'Today at %s' % dt.strftime("%I:%M %p")
+    elif delta.days == 1:
+        return 'Yesterday at %s' % dt.strftime("%I:%M %p")
+    else:
+        return str(delta.days) + ' days ago at %s' % dt.strftime("%I:%M %p")
 
 
 def branches_text(branches):
@@ -50,7 +83,7 @@ def format_datetime(date):
     minute = int(date[10:12])
     second = int(date[12:14])
 
-    d = datetime.datetime(year, month, day, hour, minute, second)
+    d = datetime(year, month, day, hour, minute, second)
     format = '%m/%d/%Y %I:%M %p'
     return d.strftime(format)
 
@@ -61,7 +94,7 @@ def format_isodate(isodate):
     into a date like May 05, 2012 04:30 PM
     """
     dt, _, us = isodate.partition(".")
-    dt = datetime.datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
+    dt = datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
 
     return dt.strftime('%B %d, %Y %I:%M %p')
 
@@ -72,7 +105,7 @@ def format_isodate_date(isodate):
     into a date like May 05, 2012
     """
     dt, _, us = isodate.partition(".")
-    dt = datetime.datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
+    dt = datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
 
     return dt.strftime('%B %d, %Y')
 
@@ -83,7 +116,7 @@ def format_isodate_time(isodate):
     into a date like 04:30 PM
     """
     dt, _, us = isodate.partition(".")
-    dt = datetime.datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
+    dt = datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
 
     return dt.strftime('%I:%M %p')
 

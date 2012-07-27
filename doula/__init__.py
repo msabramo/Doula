@@ -53,6 +53,7 @@ def main(global_config, **settings):
     config.add_route('service_tag', '/sites/{site_id}/{serv_id}/tag')
     config.add_route('service_freeze', '/sites/{site_id}/{serv_id}/freeze')
     config.add_route('service_deploy', '/sites/{site_id}/{serv_id}/deploy')
+    config.add_route('service_cycle', '/sites/{site_id}/{serv_id}/cycle')
     config.add_route('service_details', '/sites/{site_id}/{serv_id}/details')
     config.add_route('service_cheese_prism_modal', '/sites/{site_id}/{serv_id}/cheese_prism_modal')
     config.add_route('service_cheese_prism_push', '/sites/{site_id}/{serv_id}/cheese_prism_push')
