@@ -24,7 +24,11 @@
                         </a>
                     </li>
                     <li>
-                        {{ request.user['username'] }}
+                        <a href="/settings"
+                        class="dropdown-toggle">
+                            <img class="avatar" src="{{ request.user['avatar_url'] }}" />
+                            {{ request.user['username'] }}
+                        </a>
                     </li>
                 </ul>
                 {% endif %}
