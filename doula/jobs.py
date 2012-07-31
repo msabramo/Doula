@@ -4,6 +4,7 @@ from doula.models.node import Node
 from doula.models.package import Package
 from doula.models.service import Service
 from doula.models.sites_dal import SiteDAL
+from doula.models.push import Push
 from doula.services.cheese_prism import CheesePrism
 from doula.util import *
 from doula.config import Config
@@ -130,6 +131,38 @@ def pull_github_data(job_dict=None):
         log.error(traceback.format_exc())
         raise
 
+
+def push_service_environment(job_dict=None):
+    """
+    Pip install the packages sent
+    """
+    log = create_logger(job_dict['id'])
+    try:
+        #TODO: verbose statemenet
+        log.info('pushing code to environment')
+        load_config()
+        failures = []
+
+        try:
+            push = Push(
+                Config.get('bambino.web_app_dir'),
+                Config.get('doula.cheeseprism_url'),
+                Config.get('doula.keyfile_path'),
+                job_dict['node_name_or_ip']
+            )
+            successes, failures = push.packages(job_dict['service_name'])
+            push.config(job_dict['service_name'])
+        except Exception as e:
+            failures.append({'package':'git', 'error':str(e)})
+
+        if failures:
+            raise Exception(json.dumps(failures))
+
+        log.info('Done installing packages.')
+    except Exception as e:
+        log.error(e.message)
+        log.error(traceback.format_exc())
+        raise
 
 def pull_bambino_data(job_dict=None):
     """
