@@ -28,7 +28,7 @@ def get_site(site_name):
 @view_config(context=HTTPNotFound, renderer='error/404.html')
 def not_found(self, request):
     request.response.status = 404
-    log_error(request.exception, request.exception.message, request)
+    log_error(request.exception, request)
 
     return {'msg': request.exception.message, 'config': Config}
 
@@ -52,12 +52,13 @@ def handle_json_exception(e, request):
 
 def handle_exception(e, request):
     request.response.status = 500
-    request.override_renderer = 'error/exception.html'
-    log_error(e, e.message, request)
+    log_error(e, request)
     tb = traceback.format_exc()
 
     return render_to_response('doula:templates/error/exception.html',
-                              {'msg': e.message, 'stacktrace': tb, 'config': Config})
+                              {'msg': unicode(e.message, errors='replace'),
+                               'stacktrace': unicode(tb, errors='replace'),
+                               'config': Config, 'request': request})
 
 
 def exception_tween_factory(handler, registry):

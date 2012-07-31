@@ -1,59 +1,39 @@
-# import os
-# import yaml
-# import ldap
 from pyramid.config import Configurator
 from pyramid_jinja2 import renderer_factory
-# from pyramid.authentication import AuthTktAuthenticationPolicy
-# from pyramid.authorization import ACLAuthorizationPolicy
-# from pyramid_ldap import groupfinder
+from pyramid.authentication import SessionAuthenticationPolicy
+from pyramid.authorization import ACLAuthorizationPolicy
+from pyramid.session import UnencryptedCookieSessionFactoryConfig
+from doula.resources import Site
+from doula.security import groupfinder
+from doula.request import get_user
 
 
 def main(global_config, **settings):
     """
     Serve Doula.
     """
-    config = Configurator(settings=settings)
+    authentication_policy = SessionAuthenticationPolicy(callback=groupfinder)
+    authorization_policy = ACLAuthorizationPolicy()
+    session_factory = UnencryptedCookieSessionFactoryConfig(settings['doula.session_secret'],
+                                                            cookie_max_age=2592000)
+    config = Configurator(settings=settings,
+                          root_factory=Site,
+                          authentication_policy=authentication_policy,
+                          authorization_policy=authorization_policy,
+                          session_factory=session_factory)
 
-    # ldap_settings = {}
-    # with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../etc/ldap.yaml')) as f:
-    #     ldap_settings = yaml.load(f)
+    # Github integration
+    config.include('velruse.providers.github')
+    config.add_github_login_from_settings(prefix='github.')
 
-    # config.set_default_permission('view')
-
-    # config.set_authentication_policy(
-    #     AuthTktAuthenticationPolicy(ldap_settings['auth_pw'],
-    #                                 callback=groupfinder)
-    #     )
-
-    # config.set_authorization_policy(
-    #     ACLAuthorizationPolicy()
-    #     )
-
-    # # ldap setup
-    # config.include('pyramid_ldap')
-
-    # #possibly remove the s in ldaps
-    # config.ldap_setup(
-    #     'ldap://%s' % ldap_settings['ldap_ip'],
-    #     bind=ldap_settings['setup_dn'],
-    #     passwd=ldap_settings['ldap_pw'],
-    #     )
-
-    # config.ldap_set_login_query(
-    #     base_dn=ldap_settings['login_dn'],
-    #     filter_tmpl='(sAMAccountName=%(login)s)',
-    #     scope=ldap.SCOPE_ONELEVEL,
-    #     )
-
-    # config.ldap_set_groups_query(
-    #     base_dn=ldap_settings['group_dn'],
-    #     filter_tmpl='(&(objectCategory=group)(member=%(userdn)s))',
-    #     scope=ldap.SCOPE_SUBTREE,
-    #     cache_period=600,
-    #     )
+    # Security
+    config.set_default_permission('authenticated')
 
     # Tweens
     config.add_tween('doula.views.helpers.exception_tween_factory')
+
+    # Request
+    config.set_request_property(get_user, 'user', reify=True)
 
     # Jinja2 config
     config.add_renderer('.html', renderer_factory)
@@ -77,6 +57,7 @@ def main(global_config, **settings):
     config.add_route('service_tag', '/sites/{site_id}/{serv_id}/tag')
     config.add_route('service_freeze', '/sites/{site_id}/{serv_id}/freeze')
     config.add_route('service_deploy', '/sites/{site_id}/{serv_id}/deploy')
+    config.add_route('service_cycle', '/sites/{site_id}/{serv_id}/cycle')
     config.add_route('service_details', '/sites/{site_id}/{serv_id}/details')
     config.add_route('service_cheese_prism_modal', '/sites/{site_id}/{serv_id}/cheese_prism_modal')
     config.add_route('service_cheese_prism_push', '/sites/{site_id}/{serv_id}/cheese_prism_push')
@@ -86,10 +67,6 @@ def main(global_config, **settings):
 
     config.add_route('bambino_register', '/bambino/register')
     config.add_route('bambino_ips', '/bambino/ip_addresses')
-
-    config.add_route('login', '/login')
-    config.add_route('forbidden', '/forbidden')
-    config.add_route('logout', '/logout')
 
     # Scan this module
     config.scan('doula.views')

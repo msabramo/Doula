@@ -65,19 +65,24 @@ def push_to_cheeseprism(job_dict=None):
         raise
 
 
-def cycle_services(supervisor_ip, service_name):
+def cycle_services(job_dict):
     """
     This function will be enqueued by Queue upon receiving a job dict that
     has a job_type of 'cycle_services'.  Upon being called, it will restart
     the necessary supervisor processes to make the changes to the packages live
     on a specific site.
     """
-    # log = create_logger(job_dict)
+    log = create_logger(job_dict['id'])
+    load_config()
+    # alextodo, need to finish testing with tim, on the actual box
+    # I'll need to get supervisor running locally on my box
     try:
-        log.info('started cycling service %s' % service_name)
-        load_config()
+        for ip in job_dict['nodes']:
+            for name in job_dict['supervisor_service_names']:
+                log.info('Cycling service: %s' % name)
+                Service.cycle(xmlrpclib.ServerProxy(ip), name)
 
-        Service.cycle(xmlrpclib.ServerProxy(supervisor_ip), service_name)
+        log.info('started cycling service %s' % service_name)
     except Exception as e:
         log.error(e.message)
         log.error(traceback.format_exc())

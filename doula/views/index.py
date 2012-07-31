@@ -8,6 +8,7 @@ from pyramid.events import ApplicationCreated
 from pyramid.events import subscriber
 from pyramid.response import FileResponse
 from pyramid.view import view_config
+from pyramid.security import NO_PERMISSION_REQUIRED
 import json
 import logging
 import os
@@ -56,7 +57,7 @@ def site_tag(request):
 
 
 # BAMBINO VIEWS
-@view_config(route_name='bambino_register', renderer='json')
+@view_config(route_name='bambino_register', renderer='json', permission=NO_PERMISSION_REQUIRED)
 def bambino_register(request):
     """
     Register a Bambino node with Doula.
@@ -79,7 +80,7 @@ def bambino_ips(request):
     Used for deployment to update every Bambino registered with Doula.
     """
     ips = SiteDAL.get_node_ips()
-    return {'success': True, 'ip_addresses': ips}
+    return json.dumps({'success': True, 'ip_addresses': ips})
 
 
 ####################

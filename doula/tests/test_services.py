@@ -17,7 +17,8 @@ class ServiceTests(unittest.TestCase):
         service.last_tag_app = '1.0.3'
         service.current_branch_app = 'master'
 
-        tags = [{'name': '1.0.3', 'message': 'last tag message', 'date': '8484848'}]
+        tags = [{'name': '1.0.3', 'message': 'message', 'date': 'date'}]
+        service.add_tags_from_dict(tags)
         service.add_tags_from_dict(tags)
 
         compare_url = 'http://code.corp.surveymonkey.com'
@@ -29,10 +30,10 @@ class ServiceTests(unittest.TestCase):
         service = Service('test_app', 'site_name', 'test_node', 'http://test.com')
         packages = []
 
-        packages.append(Package('mnn', '1'))
-        packages.append(Package('ebd', '2'))
-        packages.append(Package('dbc', '2'))
-        packages.append(Package('abc', '1'))
+        packages.append(Package('mnn', '1', 'origin'))
+        packages.append(Package('ebd', '2', 'origin'))
+        packages.append(Package('dbc', '2', 'origin'))
+        packages.append(Package('abc', '1', 'origin'))
         service.packages = packages
 
         expected = "abc==1\n"
@@ -44,13 +45,17 @@ class ServiceTests(unittest.TestCase):
 
     def test_next_version_number(self):
         service = Service('test_app', 'site_name', 'test_node', 'http://test.com')
-        service.tags = [Tag('0.1.4', 'date', 'message')]
+        tags = [{'name': '1.1.4', 'message': 'message', 'date': 'date'}]
+        service.add_tags_from_dict(tags)
 
         expected = '0.1.5'
 
         self.assertEqual(service.next_version(), expected)
 
+        service = Service('test_app', 'site_name', 'test_node', 'http://test.com')
         service.tags = [Tag('45.2.4 rc', 'date', 'message')]
+        tags = [{'name': '45.2.4 rc', 'message': 'message', 'date': 'date'}]
+        service.add_tags_from_dict(tags)
 
         expected = '45.2.5 rc'
 
