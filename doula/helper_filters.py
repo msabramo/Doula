@@ -31,8 +31,22 @@ def relative_datetime(date):
         return 'Today at %s' % dt.strftime("%I:%M %p")
     elif delta.days == 1:
         return 'Yesterday at %s' % dt.strftime("%I:%M %p")
+    elif delta.days > 1 and delta.days < 30:
+        return '%s days ago at %s' % (delta.days, dt.strftime("%I:%M %p"))
+    elif delta.days > 29 and delta.days < 365:
+        months = delta.days / 30
+
+        if months == 1:
+            return '1 month ago'
+        else:
+            return str(months) + ' months ago'
     else:
-        return str(delta.days) + ' days ago at %s' % dt.strftime("%I:%M %p")
+        years = delta.days / 365
+
+        if years == 1:
+            return '1 year ago'
+        else:
+            return str(years) + ' years ago'
 
 
 def branches_text(branches):

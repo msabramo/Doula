@@ -25,7 +25,7 @@ def service(request):
     service = site.services[request.matchdict['serv_id']]
     other_packages = CheesePrism.other_packages(service.packages)
 
-    query = {'job_type': ['push_to_cheeseprism'],
+    query = {'job_type': ['push_to_cheeseprism', 'cycle_services'],
              'service': service.name}
     last_updated = datetime.now()
     last_updated = time.mktime(last_updated.timetuple())
@@ -198,6 +198,7 @@ def enqueue_cycle_services(nodes, service):
     return queue.this({
         'job_type': 'cycle_services',
         'nodes': ips,
+        'name': service.name,
         'supervisor_service_names': service.supervisor_service_names
     })
 

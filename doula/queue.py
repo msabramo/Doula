@@ -15,7 +15,7 @@ class Queue(object):
     Common for every job:
     {
         id: "",
-        status: (queued, completed, failed),
+        status: (queued, complete, failed),
         job_type: (push_package|cycle_service)
         site: '',
         service: '',

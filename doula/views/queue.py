@@ -26,7 +26,7 @@ def get_log(job_id):
 def show_queue(request):
     queue = Queue()
 
-    query = {'job_type': ['push_to_cheeseprism']}
+    query = {'job_type': ['push_to_cheeseprism', 'cycle_services']}
     sort_by = request.params.get('sort_by')
     if sort_by == 'complete' or sort_by == 'failed' or sort_by == 'queued':
         query['status'] = sort_by
@@ -47,6 +47,7 @@ def show_queue(request):
     queued_items = reversed(queued_items)
 
     last_updated = time.mktime(last_updated.timetuple())
+
     return {'config': Config,
             'queued_items': queued_items,
             'last_updated': last_updated}
@@ -57,7 +58,7 @@ def update_queue(request):
     queue = Queue()
     last_updated = request.GET['last_updated']
 
-    query = {'job_type': ['push_to_cheeseprism']}
+    query = {'job_type': ['push_to_cheeseprism', 'cycle_services']}
     queued_items = queue.get(query)
 
     i = 0
