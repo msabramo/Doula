@@ -24,6 +24,26 @@ QueuedItems = {
 
         this.data = $('.queued_items').data();
         window.setInterval(this.poll, 2000);
+
+        this.selectActiveLabel();
+    },
+
+    selectActiveLabel: function() {
+        var searchArray = document.location.search.split('=');
+        var type = 'all';
+
+        if(searchArray[1]) {
+            type = searchArray[1];
+        }
+
+        $('ul.sort_by a').each(function(index, el) {
+            if($(el).html().toLowerCase() == type) {
+                $(el).addClass('active');
+            }
+            else {
+                $(el).removeClass('active');
+            }
+        });
     },
 
     poll: function() {

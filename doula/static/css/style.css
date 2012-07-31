@@ -359,22 +359,22 @@ body {
   background-image: linear-gradient(top, #85c3c6, #79b5b7);
 }
 /* Title actions */
-.title-actions-bar {
+.title-bar {
   margin-bottom: 8px;
 }
-.title-actions-bar h1,
-.title-actions-bar h2,
-.title-actions-bar h3,
-.title-actions-bar h4,
-.title-actions-bar h5 {
+.title-bar h1,
+.title-bar h2,
+.title-bar h3,
+.title-bar h4,
+.title-bar h5 {
   margin: 0px 0px 10px 0px;
   float: left;
 }
-.title-actions-bar ul {
+.title-bar ul {
   margin: 5px 0px 0px 0px;
   float: right;
 }
-.title-actions-bar li {
+.title-bar li {
   display: inline;
   padding: 5px 0px 10px 10px;
   list-style-type: none;
@@ -649,6 +649,16 @@ a.side_tab {
 .sort_by li {
   float: left;
   margin-right: 8px;
+}
+.sort_by a.active {
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+  background-color: #609C9D;
+  padding: 1px 5px 2px;
+  vertical-align: baseline;
+  border-radius: 3px;
 }
 .queued_items .latest_notifications {
   margin-bottom: 5px;
