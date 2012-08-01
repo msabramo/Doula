@@ -52,6 +52,7 @@ def handle_json_exception(e, request):
 
 def handle_exception(e, request):
     request.response.status = 500
+    request.override_renderer = 'error/exception.html'
     log_error(e, request)
     tb = traceback.format_exc()
 
