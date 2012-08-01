@@ -40,6 +40,19 @@ class HelperTests(unittest.TestCase):
 
         self.assertEqual('5 days ago at 10:31 AM', result)
 
+        # expect 2 months ago
+        days_ago = datetime(now.year, now.month - 2, now.day - 15, 10, 31, 10)
+        days_ago_val = days_ago.strftime("%Y-%m-%dT%X+02:00")
+        result = relative_datetime(days_ago_val)
+
+        self.assertEqual('2 months ago', result)
+
+        days_ago = datetime(now.year - 2, now.month, now.day, 10, 31, 10)
+        days_ago_val = days_ago.strftime("%Y-%m-%dT%X+02:00")
+        result = relative_datetime(days_ago_val)
+
+        self.assertEqual('2 years ago', result)
+
     def test_formatted_day(self):
         date = "2012-02-15T10:12:01+02:00"
         result = formatted_day(date)

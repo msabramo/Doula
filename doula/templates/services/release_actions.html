@@ -2,7 +2,7 @@
 {% import 'queue/queued_item.html' as queued_item_tmpl %}
 
 {% block content %}
-<div class="title-actions-bar clearfix">
+<div class="title-bar clearfix">
 	<h2>
     <a href="/sites/{{site.name_url}}">
       {{ site.name|upper }}</a> / {{ service.name }}
@@ -161,8 +161,8 @@ var __job_dict = {{job_dict|safe}};
 <script language="javascript" type="text/javascript" src=""></script>
 {{ [
 '/js/common/util.js',
+'/js/common/queue.js',
 '/js/services/serv_data.js',
-'/js/services/serv_env.js',
-'/js/site/queue.js'
+'/js/services/serv_env.js'
 ]|js_script|safe }}
 {% endblock %}

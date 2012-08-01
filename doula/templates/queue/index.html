@@ -2,20 +2,28 @@
 {% import 'queue/queued_item.html' as queued_item_tmpl %}
 
 {% block content %}
-<h2>Queue</h2>
+<h2 class="title-bar">Queue</h2>
+
 <ul class="sort_by unstyled">
-    <li><a href="/queue?sort_by=all">all</a></li>
-    <li><a href="/queue?sort_by=queued">queued</a></li>
-    <li><a href="/queue?sort_by=complete">complete</a></li
-    <li><a href="/queue?sort_by=failed">failed</a></li>
+    <li><a href="/queue?sort_by=all" class="">All</a></li>
+    <li><a href="/queue?sort_by=queued" class="active">Queued</a></li>
+    <li><a href="/queue?sort_by=complete">Complete</a></li
+    <li><a href="/queue?sort_by=failed">Failed</a></li>
 </ul>
 
 <div class="queued_items" data-last-updated="{{ last_updated }}">
     <div class="latest_notifications alert">
     </div>
+    {% set items = [] %}
     {% for queued_item in queued_items %}
+    	{% if items.append(1) %}{% endif %}
         {{ queued_item_tmpl.render_queued_item(queued_item) }}
     {% endfor %}
+    {% if items|length == 0 %}
+    	<div class="queued_item alert accordion-group">
+            <p>No queue items</p>
+    	</div>
+    {% endif %}
 </div>
 {% endblock %}
 
@@ -25,6 +33,6 @@ __job_dict = {};
 </script>
 {{ [
 '/js/common/util.js',
-'/js/site/queue.js'
+'/js/common/queue.js'
 ]|js_script|safe }}
 {% endblock %}

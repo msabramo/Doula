@@ -61,6 +61,40 @@ var DataEventManager = {
     }
 };
 
+// Extends the string object with function in to check
+// if the string exist in the array, or as an attribute of the array
+_inArray = function(key, array, attribute) {
+  for(var i = 0; i < array.length; i++) {
+    var item = array[i];
+
+    if(typeof(item) == 'object') {
+      if(key == item[attribute]) return item;
+    }
+    else {
+      if(key == item) return item;
+    }
+  }
+
+  return false;
+};
+
+_withoutArray = function(array, key, attribute) {
+  var arrayWithout = [];
+
+  for(var i = 0; i < array.length; i++) {
+    var item = array[i];
+
+    if(typeof(item) == 'object') {
+      if(array != item[attribute]) arrayWithout.push(item);
+    }
+    else {
+      if(array != item) arrayWithout.push(item);
+    }
+  }
+
+  return arrayWithout;
+};
+
 // This class encapsulates all the common functionality of a standard
 // get or post for this application
 var AJAXUtil = {

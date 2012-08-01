@@ -1,5 +1,11 @@
 var ServiceEnv = {
 
+	cycleServiceJobs: [],
+
+	/****************
+	INITIAL SERVICE
+	*****************/
+
 	init: function() {
 		_mixin(this, AJAXUtil);
 		Data.init();
@@ -38,27 +44,59 @@ var ServiceEnv = {
 
 		$('#cycle').on('click', _bind(this.cycle, this));
 		$('.new-version-btn').on('click', _bind(this.showPushPackageModal, this));
+
+		QueuedItems.subscribe('queue-item-changed', _bind(this.queueItemChanged, this));
 	},
 
-	cycle: function(event) {
-		$(event.target).addClass('disabled');
-		// alextodo, this feature isn't done till we know when to actually
-		// re enable the service. we have to find out from the queue if
-		// we're allowed to enable the cycle service again
-		$('#cycle').unbind().bind('click', function() { return false; });
+	/****************
+	CYCLE SERVICE
+	*****************/
 
-		// make ajax requests to get modal
+	// alextodo, last thing to do is initially allow us to cycle the services
+	// disable the button if there is currently someone trying to cycle this service
+	// does this query for everyone else too?
+	cycle: function(event) {
+		this.disableCycleButton();
+
 		var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/cycle';
 		this.get('cycle', url, {}, this.doneCycleService);
 
 		return false;
 	},
 
+	// This here would have to listen for the pass or failure of the pen
+	// would be nice to be notified of an event
 	doneCycleService: function(rslt) {
-		// i will need to poll for changes, maybe I can subscribe to a change
-		// event put out by the job queue? dunno
-		console.log(rslt);
+		this.cycleServiceJobs.push(rslt.job_id);
 	},
+
+	queueItemChanged: function(event, item) {
+		// Cycle button gets enabled once
+		if(item.job_type == 'cycle_services') {
+			if(item.status == 'failed' || item.status == 'complete') {
+				this.cycleServiceJobs = _withoutArray(this.cycleServiceJobs, item.id, 'id');
+
+				if(this.cycleServiceJobs.length === 0) this.enableCycleButton();
+			}
+		}
+	},
+
+	disableCycleButton: function() {
+		$('#cycle')
+			.unbind()
+			.addClass('disabled')
+			.bind('click', function() { return false; });
+	},
+
+	enableCycleButton: function() {
+		$('#cycle')
+			.removeClass('disabled')
+			.on('click', _bind(this.cycle, this));
+	},
+
+	/****************
+	PUSH PACKAGE
+	*****************/
 
 	showPushPackageModal: function(event) {
 		var name = $(event.srcElement).attr('data-name');
