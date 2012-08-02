@@ -8,7 +8,8 @@ from pyramid.view import (
 )
 from pyramid.security import (
     NO_PERMISSION_REQUIRED,
-    remember
+    remember,
+    forget
 )
 from pyramid.httpexceptions import HTTPFound
 
@@ -17,6 +18,12 @@ from pyramid.httpexceptions import HTTPFound
 @forbidden_view_config(renderer='clusterflunk:templates/login.mako')
 def login_view(request):
     return HTTPFound(location=login_url(request, 'github'))
+
+
+@view_config(name='logout', permission=NO_PERMISSION_REQUIRED)
+def logout_view(request):
+    forget(forget, request.user['username'])
+    return HTTPFound(location='/login')
 
 
 @view_config(context='velruse.AuthenticationComplete', permission=NO_PERMISSION_REQUIRED)
