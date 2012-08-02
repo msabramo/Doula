@@ -240,6 +240,7 @@ def add_result(job=None, result=None):
     user_id = job.kwargs['job_dict']['user_id']
     if user_id:
         user = cache.get('doula:user:%s' % user_id)
+        user = json.loads(user)
         send_message(subject="Epic Doula Success",
                      recipients=[user['email']],
                      body="Job ID:%s succeeded" % job.kwargs['job_dict']['id'])
@@ -258,13 +259,14 @@ def add_failure(job=None, exc=None):
     user_id = job.kwargs['job_dict']['user_id']
     if user_id:
         user = cache.get('doula:user:%s' % user_id)
+        user = json.loads(user)
         send_message(subject="Epic Doula Failure",
                      recipients=[user['email']],
                      body="Job ID:%s failed" % job.kwargs['job_dict']['id'])
 
 
 def send_message(subject=None, recipients=None, body=None):
-    mailer = Mailer()
+    mailer = Mailer(host='192.168.101.5')
     message = Message(subject=subject,
                       sender='doulabot@surveymonkey.com',
                       recipients=recipients,
