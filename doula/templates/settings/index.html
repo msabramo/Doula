@@ -1,10 +1,10 @@
 {% extends 'layouts/base.html' %}
 {% block content %}
 <div>
-    <h2>Jayd3e's Settings</h2>
-    <p>Email: jd.dallago@gmail.com</p>
+    <h2>{{ request.user['username'] }}'s settings</h2>
+    <p>Email: {{ request.user['email'] }}</p>
     <form class="well">
-        Notify Me:
+        <b>Notify Me:</b>
         <label for="notify_me">
             <input type="radio" name="notify_me">
             Always
@@ -13,9 +13,9 @@
             <input type="radio" name="notify_me">
             On Failure
         </label>
-        <label for="irc">
-            <input type="checkbox" name="irc"/>
-            Notify me on IRC
+        <label for="notify_me">
+            <input type="radio" name="notify_me">
+            Never
         </label>
     </form>
 </div>

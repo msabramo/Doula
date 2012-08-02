@@ -8,8 +8,7 @@ from pyramid.view import (
 )
 from pyramid.security import (
     NO_PERMISSION_REQUIRED,
-    remember,
-    forget
+    remember
 )
 from pyramid.httpexceptions import HTTPFound
 
@@ -27,7 +26,8 @@ def login_complete_view(request):
     {
         'username': '',
         'oauth_token': '',
-        'avatar_url': ''
+        'avatar_url': '',
+        'email': ''
     }
     """
     cache = Cache.cache()
@@ -36,13 +36,14 @@ def login_complete_view(request):
     credentials = context.credentials
 
     r = requests.get('https://api.github.com/users/%s' % profile['preferredUsername'],
-                    params={'auth_token': credentials['oauthAccessToken']})
+                     params={'auth_token': credentials['oauthAccessToken']})
     info = r.json
 
     user = {
         'username': profile['preferredUsername'],
         'oauth_token': credentials['oauthAccessToken'],
-        'avatar_url': info['avatar_url']
+        'avatar_url': info['avatar_url'],
+        'email': profile['emails'][0]['value']
     }
     cache.set('doula:user:%s' % user['username'], json.dumps(user))
     remember(request, user['username'])

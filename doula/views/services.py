@@ -78,7 +78,11 @@ def service_cheese_prism_push(request):
     errors = validate_release(package, branch, next_version)
 
     if len(errors) == 0:
-        job_dict = enqueue_push_package(service, remote, branch, next_version)
+        job_dict = enqueue_push_package(request.user['username'],
+                                        service,
+                                        remote,
+                                        branch,
+                                        next_version)
     else:
         msg = "There were errors attempting to release %s" % (service.name)
         html = render('doula:templates/services/release_package_error.html',
@@ -116,11 +120,12 @@ def validate_release(package, branch, next_version):
     return errors
 
 
-def enqueue_push_package(service, remote, branch, version):
+def enqueue_push_package(user_id, service, remote, branch, version):
     """
     Enqueue the job onto the queue
     """
     job_dict = {
+        'user_id': user_id,
         'service': service.name,
         'remote': remote,
         'branch': branch,
@@ -196,6 +201,7 @@ def enqueue_cycle_services(nodes, service):
     queue = Queue()
 
     return queue.this({
+        'user_id': request.user['username'],
         'job_type': 'cycle_services',
         'nodes': ips,
         'supervisor_service_names': service.supervisor_service_names
