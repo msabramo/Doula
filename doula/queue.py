@@ -241,9 +241,12 @@ def add_result(job=None, result=None):
     if user_id:
         user = cache.get('doula:user:%s' % user_id)
         user = json.loads(user)
-        send_message(subject="Epic Doula Success",
-                     recipients=[user['email']],
-                     body="Job ID:%s succeeded" % job.kwargs['job_dict']['id'])
+
+        notify_me = user['settings']['notify_me']
+        if notify_me == 'always':
+            send_message(subject="Epic Doula Success",
+                         recipients=[user['email']],
+                         body="Job ID:%s succeeded" % job.kwargs['job_dict']['id'])
 
 
 def add_failure(job=None, exc=None):
@@ -260,9 +263,12 @@ def add_failure(job=None, exc=None):
     if user_id:
         user = cache.get('doula:user:%s' % user_id)
         user = json.loads(user)
-        send_message(subject="Epic Doula Failure",
-                     recipients=[user['email']],
-                     body="Job ID:%s failed" % job.kwargs['job_dict']['id'])
+
+        notify_me = user['settings']['notify_me']
+        if notify_me == 'always' or notify_me == 'failure':
+            send_message(subject="Epic Doula Failure",
+                         recipients=[user['email']],
+                         body="Job ID:%s failed" % job.kwargs['job_dict']['id'])
 
 
 def send_message(subject=None, recipients=None, body=None):
