@@ -56,7 +56,7 @@ def push_to_cheeseprism(job_dict=None):
         load_config()
 
         p = Package(job_dict['service'], '0', job_dict['remote'])
-        p.distribute(job_dict['user'], job_dict['branch'], job_dict['version'])
+        p.distribute(job_dict['branch'], job_dict['version'])
 
         log.info('Finished pushing package %s to CheesePrism' % job_dict['remote'])
     except Exception as e:
