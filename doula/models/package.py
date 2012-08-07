@@ -9,10 +9,6 @@ import os
 import re
 import shutil
 
-import sys
-import traceback
-
-
 
 class Package(object):
     """

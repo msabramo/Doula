@@ -11,11 +11,11 @@ class PackageTests(unittest.TestCase):
     def setUp(self):
         pass
 
-    def testDown(self):
+    def tearDown(self):
         pass
 
     def make_one(self):
-        return Package("dummycode", "0.1.3", "git@code.corp.surveymonkey.com:joed")
+        return Package("dummycode", "0.1.3", "git@code.corp.surveymonkey.com:joed/dummycode.git")
 
     def test_repo(self):
         package = self.make_one()

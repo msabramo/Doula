@@ -17,7 +17,6 @@ class GithubTests(unittest.TestCase):
     def test_pull_devmonkeys_repos(self):
         # alextodo, add testing to the repos
         repos = pull_devmonkeys_repos()
-        print repos
 
 
 if __name__ == '__main__':
