@@ -721,6 +721,9 @@ a.side_tab {
   margin-top: 0px;
   overflow-x: auto;
 }
+.alert p {
+  margin-bottom: 0px;
+}
 /* release package styles */
 .errors {
   color: #DF0000;

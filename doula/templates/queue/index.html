@@ -22,7 +22,7 @@
         {{ queued_item_tmpl.render_queued_item(queued_item) }}
     {% endfor %}
     {% if items|length == 0 %}
-    	<div class="queued_item alert accordion-group">
+    	<div class="alert">
             <p>No queue items</p>
     	</div>
     {% endif %}
