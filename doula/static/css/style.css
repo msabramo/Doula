@@ -268,8 +268,10 @@ pre {
   text-shadow: none;
 }
 body {
-  margin: 25px 0px;
   background: url(/images/noise.jpg);
+  font-size: 13px;
+  line-height: 18px;
+  margin: 25px 0px;
   overflow-y: scroll;
 }
 .box-shadow {
@@ -310,7 +312,7 @@ body {
   vertical-align: middle;
   border-radius: 3px;
   border: 0px;
-  margin-top: -2px;
+  margin: -5px 5px 0px 0px;
 }
 .content {
   -webkit-box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 8px;
@@ -369,26 +371,6 @@ body {
   padding-top: 12px;
   padding-bottom: 8px;
 }
-/*
-display: block;
-float: left;
-padding: 8px 20px 12px;
-margin-left: -20px;
-font-size: 24px;
-font-weight: 200;
-line-height: 1;
-color: white;
-
-
-li a
-float: none;
-padding: 9px 10px 11px;
-line-height: 19px;
-color: #999;
-text-decoration: none;
-text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-
-*/
 /* Title actions */
 .title-bar {
   background: #F7F7F9;
@@ -397,7 +379,6 @@ text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   line-height: 1.5;
   margin: -10px -20px;
   margin-bottom: 15px;
-  font-size: 20px;
   padding: 10px 20px 0px 20px;
   -webkit-border-radius: 3px 3px 0 0;
   -moz-border-radius: 3px 3px 0 0;
@@ -671,16 +652,6 @@ a.side_tab {
   height: 92px;
   z-index: 9999;
 }
-/* progress bar related */
-#progress_bar {
-  position: absolute;
-  bottom: 50px;
-  right: 35%;
-  width: 400px;
-  margin-left: -200px;
-  z-index: 9999999;
-  display: none;
-}
 /*
 *
 * Queue Pages
@@ -688,7 +659,7 @@ a.side_tab {
 */
 .sort_by {
   overflow: auto;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 }
 .sort_by li {
   float: left;

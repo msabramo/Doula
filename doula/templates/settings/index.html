@@ -5,10 +5,10 @@
         <h2>Settings</h2>
     </div>
 
-    <form class="well">
+    <form>
         <p>Hi <strong>{{ request.user['username'] }}</strong>! Doula will send all email notifications to your Github Enterprise email <strong>{{ request.user['email'] }}</strong>.</p>
 
-        <p><b>Notify Me:</b></p>
+        <p><b>Notify me about a job:</b></p>
         {% set notify_me = request.user['settings']['notify_me'] %}
         <label for="notify_me">
             <input
@@ -20,7 +20,7 @@
             <input
             {{ 'checked' if notify_me == 'failure' else '' }}
             type="radio" name="notify_me" value="failure">
-            On Failure
+            On failure
         </label>
         <label for="notify_me">
             <input
