@@ -4,6 +4,9 @@ import json
 import redis
 import time
 import traceback
+from pyramid_mailer.mailer import Mailer
+from pyramid_mailer.message import Message
+from doula.cache import Cache
 
 
 class Queue(object):
@@ -14,7 +17,8 @@ class Queue(object):
 
     Common for every job:
     {
-        id: "",
+        id: '',
+        user_id: '',
         status: (queued, complete, failed),
         job_type: (push_package|cycle_service)
         site: '',
@@ -50,6 +54,7 @@ class Queue(object):
 
     common_dict = {
         'id': 0,
+        'user_id': '',
         'status': '',
         'job_type': '',
         'site': '',
@@ -230,6 +235,19 @@ def add_result(job=None, result=None):
     queue = Queue()
     queue.update({'id': job.kwargs['job_dict']['id'], 'status': 'complete'})
 
+    # notify our user of a success
+    cache = Cache.cache()
+    user_id = job.kwargs['job_dict']['user_id']
+    if user_id:
+        user = cache.get('doula:user:%s' % user_id)
+        user = json.loads(user)
+
+        notify_me = user['settings']['notify_me']
+        if notify_me == 'always':
+            send_message(subject="Epic Doula Success",
+                         recipients=[user['email']],
+                         body="Job ID:%s succeeded" % job.kwargs['job_dict']['id'])
+
 
 def add_failure(job=None, exc=None):
     """
@@ -238,3 +256,26 @@ def add_failure(job=None, exc=None):
     exc = traceback.format_exc()
     queue = Queue()
     queue.update({'id': job.kwargs['job_dict']['id'], 'status': 'failed', 'exc': exc})
+
+    # notify our user of a failure
+    cache = Cache.cache()
+    user_id = job.kwargs['job_dict']['user_id']
+    if user_id:
+        user = cache.get('doula:user:%s' % user_id)
+        user = json.loads(user)
+
+        notify_me = user['settings']['notify_me']
+        if notify_me == 'always' or notify_me == 'failure':
+            send_message(subject="Epic Doula Failure",
+                         recipients=[user['email']],
+                         body="Job ID:%s failed" % job.kwargs['job_dict']['id'])
+
+
+def send_message(subject=None, recipients=None, body=None):
+    mailer = Mailer(host='192.168.101.5')
+    message = Message(subject=subject,
+                      sender='doulabot@surveymonkey.com',
+                      recipients=recipients,
+                      body=body)
+
+    mailer.send_immediately(message)

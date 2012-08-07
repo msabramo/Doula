@@ -78,7 +78,7 @@ class Service(object):
         a.add_packages(app['packages'])
         a.add_tags_from_dict(app['tags'])
         a.last_tag = a.get_last_tag()
-        a.supervisor_service_names = app['supervisor_service_names']
+        # a.supervisor_service_names = app['supervisor_service_names']
 
         return a
 

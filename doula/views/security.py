@@ -20,6 +20,12 @@ def login_view(request):
     return HTTPFound(location=login_url(request, 'github'))
 
 
+@view_config(name='logout', permission=NO_PERMISSION_REQUIRED)
+def logout_view(request):
+    forget(forget, request.user['username'])
+    return HTTPFound(location='/login')
+
+
 @view_config(context='velruse.AuthenticationComplete', permission=NO_PERMISSION_REQUIRED)
 def login_complete_view(request):
     """
@@ -27,7 +33,11 @@ def login_complete_view(request):
     {
         'username': '',
         'oauth_token': '',
-        'avatar_url': ''
+        'avatar_url': '',
+        'email': '',
+        'settings': {
+            'notify_me': 'always'
+        }
     }
     """
     cache = Cache.cache()
@@ -35,17 +45,24 @@ def login_complete_view(request):
     profile = context.profile
     credentials = context.credentials
 
-    r = requests.get('https://api.github.com/users/%s' % profile['preferredUsername'],
-                    params={'auth_token': credentials['oauthAccessToken']})
-    info = r.json
+    username = profile['preferredUsername']
+    user_exists = cache.get('doula:user:%s' % username)
+    if not user_exists:
+        r = requests.get('https://api.github.com/users/%s' % username,
+                         params={'auth_token': credentials['oauthAccessToken']})
+        info = r.json
 
-    user = {
-        'username': profile['preferredUsername'],
-        'oauth_token': credentials['oauthAccessToken'],
-        'avatar_url': info['avatar_url']
-    }
-    cache.set('doula:user:%s' % user['username'], json.dumps(user))
-    remember(request, user['username'])
+        user = {
+            'username': username,
+            'oauth_token': credentials['oauthAccessToken'],
+            'avatar_url': info['avatar_url'],
+            'email': profile['emails'][0]['value'],
+            'settings': {
+                'notify_me': 'always'
+            }
+        }
+        cache.set('doula:user:%s' % user['username'], json.dumps(user))
+    remember(request, username)
     return  HTTPFound(location='/')
 
 

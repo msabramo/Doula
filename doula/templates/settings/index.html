@@ -1,22 +1,36 @@
 {% extends 'layouts/base.html' %}
 {% block content %}
 <div>
-    <h2>Jayd3e's Settings</h2>
-    <p>Email: jd.dallago@gmail.com</p>
+    <h2>{{ request.user['username'] }}'s settings</h2>
+    <p>Email: {{ request.user['email'] }}</p>
     <form class="well">
-        Notify Me:
+        <b>Notify Me:</b>
+        {% set notify_me = request.user['settings']['notify_me'] %}
         <label for="notify_me">
-            <input type="radio" name="notify_me">
+            <input
+            {{ 'checked' if notify_me == 'always' else '' }}
+            type="radio" name="notify_me" value="always">
             Always
         </label>
         <label for="notify_me">
-            <input type="radio" name="notify_me">
+            <input
+            {{ 'checked' if notify_me == 'failure' else '' }}
+            type="radio" name="notify_me" value="failure">
             On Failure
         </label>
-        <label for="irc">
-            <input type="checkbox" name="irc"/>
-            Notify me on IRC
+        <label for="notify_me">
+            <input
+            {{ 'checked' if notify_me == 'never' else '' }}
+            type="radio" name="notify_me" value="never">
+            Never
         </label>
     </form>
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{ [
+'/js/common/util.js',
+'/js/site/settings.js'
+]|js_script|safe }}
 {% endblock %}

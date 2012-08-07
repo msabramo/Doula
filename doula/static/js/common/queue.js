@@ -24,7 +24,6 @@ QueuedItems = {
 
         this.data = $('.queued_items').data();
         window.setInterval(this.poll, 2000);
-
         this.selectActiveLabel();
     },
 
