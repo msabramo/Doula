@@ -58,7 +58,7 @@ def login_complete_view(request):
             'avatar_url': info['avatar_url'],
             'email': profile['emails'][0]['value'],
             'settings': {
-                'notify_me': 'always'
+                'notify_me': 'failure'
             }
         }
         cache.set('doula:user:%s' % user['username'], json.dumps(user))

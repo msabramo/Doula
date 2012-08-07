@@ -26,6 +26,18 @@ class QueueTests(unittest.TestCase):
     def _test_job_dict(self, _type):
         return self.queue.base_dicts[_type]
 
+    def _add_user(self, username='jayd3e'):
+        user = {
+            'username': username,
+            'oauth_token': '9qu3rndsfi3298ur',
+            'avatar_url': 'url',
+            'email': 'joed@surveymonkey.com',
+            'settings': {
+                'notify_me': 'always'
+            }
+        }
+        self.queue.rdb.set('doula:user:%s' % user['username'], json.dumps(user))
+
     def _add_job(self, id):
         rdb = self.queue.rdb
 
@@ -269,11 +281,14 @@ class QueueTests(unittest.TestCase):
     # todo: write test for multiple query params, like query = {'job_type': 'push_to_cheeseprism',
     #                                                           'status': 'complete'}
 
+    @patch('doula.cache.redis.Redis', new=MockRedis)
     def test_add_result_subscriber(self):
+        self._add_user()
         retools_job = Mock()
         retools_job.kwargs = {
             'job_dict': {
-                'id': uuid.uuid4().hex
+                'id': uuid.uuid4().hex,
+                'user_id': 'jayd3e'
             }
         }
 
@@ -288,11 +303,14 @@ class QueueTests(unittest.TestCase):
         job = json.loads(job)
         self.assertEqual(job['status'], 'complete')
 
+    @patch('doula.cache.redis.Redis', new=MockRedis)
     def test_add_failure_subscriber(self):
+        self._add_user()
         retools_job = Mock()
         retools_job.kwargs = {
             'job_dict': {
-                'id': uuid.uuid4().hex
+                'id': uuid.uuid4().hex,
+                'user_id': 'jayd3e'
             }
         }
 

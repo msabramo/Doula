@@ -23,7 +23,7 @@ class Cache(object):
     def cache():
         try:
             if not Cache.redis:
-                Cache.redis = redis.StrictRedis(HOST, PORT, db=0)
+                Cache.redis = redis.Redis()
                 # Excercise redis to make sure we have a connection
                 Cache.redis.set('__test__', '')
 
