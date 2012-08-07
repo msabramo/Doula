@@ -22,7 +22,8 @@ requires = [
     'retools',
     'pygments',
     'pyyaml',
-    'pyramid_mailer'
+    'pyramid_mailer',
+    'velruse==0.3b1'
     ]
 
 setup(name='Doula',
