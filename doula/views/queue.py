@@ -5,20 +5,9 @@ from datetime import datetime
 from doula.config import Config
 from doula.views.helpers import *
 from doula.queue import Queue
+from doula.queue import get_log
 from pyramid.view import view_config
 from pyramid.renderers import render
-from pygments import highlight
-from pygments.lexers import BashLexer
-from pygments.formatters import HtmlFormatter
-
-
-def get_log(job_id):
-    log = ''
-    log_name = os.path.join('/var/log/doula', job_id + '.log')
-    with open(log_name) as log_file:
-        log = log_file.read()
-
-    return highlight(log, BashLexer(), HtmlFormatter())
 
 
 # QUEUE VIEWS
@@ -70,10 +59,12 @@ def update_queue(request):
         if queued_item['status'] in ['complete', 'failed']:
             queued_item['log'] = get_log(queued_item['id'])
 
+        # render the queued_item
+        queued_item['html'] = render('doula:templates/queue/queued_item.html',
+                                     {'queued_item': queued_item})
+
         # If the job has not been displayed on the interface yet
         if queued_item['time_started'] > int(last_updated):
-            queued_item['html'] = render('doula:templates/queue/queued_item.html',
-                                         {'queued_item': queued_item})
             new_queued_items.append(queued_item)
         i += 1
 
