@@ -56,8 +56,14 @@ def handle_exception(e, request):
     log_error(e, request)
     tb = traceback.format_exc()
 
+    # occassionally the message is already unicode
+    if not type(e.message) is unicode:
+        msg = unicode(e.message, errors='replace')
+    else:
+        msg = e.message
+
     return render_to_response('doula:templates/error/exception.html',
-                              {'msg': unicode(e.message, errors='replace'),
+                              {'msg': msg,
                                'stacktrace': unicode(tb, errors='replace'),
                                'config': Config, 'request': request})
 
