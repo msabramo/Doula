@@ -66,7 +66,7 @@ def login_complete_view(request):
     return  HTTPFound(location='/')
 
 
-@view_config(context='velruse.AuthenticationDenied', renderer='doula:templates/error/exception.mako', permission=NO_PERMISSION_REQUIRED)
+@view_config(context='velruse.AuthenticationDenied', renderer='doula:templates/error/exception.html', permission=NO_PERMISSION_REQUIRED)
 def login_denied_view(request):
     return {
         'result': 'denied',
