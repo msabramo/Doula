@@ -2,6 +2,7 @@ import json
 import requests
 from velruse import login_url
 from doula.cache import Cache
+from doula.config import Config
 from pyramid.view import (
     view_config,
     forbidden_view_config
@@ -70,4 +71,5 @@ def login_complete_view(request):
 def login_denied_view(request):
     return {
         'result': 'denied',
+        'config': Config
     }
