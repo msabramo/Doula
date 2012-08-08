@@ -1,12 +1,28 @@
 from retools.queue import QueueManager
+import os
 import uuid
 import json
 import redis
 import time
 import traceback
+from jinja2 import Environment, PackageLoader
 from pyramid_mailer.mailer import Mailer
 from pyramid_mailer.message import Message
 from doula.cache import Cache
+from pygments import highlight
+from pygments.lexers import BashLexer
+from pygments.formatters import HtmlFormatter
+
+env = Environment(loader=PackageLoader('doula', 'templates'))
+
+
+def get_log(job_id):
+    log = ''
+    log_name = os.path.join('/var/log/doula', job_id + '.log')
+    with open(log_name) as log_file:
+        log = log_file.read()
+
+    return highlight(log, BashLexer(), HtmlFormatter())
 
 
 class Queue(object):
@@ -244,9 +260,11 @@ def add_result(job=None, result=None):
 
         notify_me = user['settings']['notify_me']
         if notify_me == 'always':
+            template = env.get_template('emails/job_success.html')
             send_message(subject="Epic Doula Success",
                          recipients=[user['email']],
-                         body="Job ID:%s succeeded" % job.kwargs['job_dict']['id'])
+                         body=template.render({'job_dict': job.kwargs['job_dict'],
+                                               'user': user}))
 
 
 def add_failure(job=None, exc=None):
@@ -266,9 +284,13 @@ def add_failure(job=None, exc=None):
 
         notify_me = user['settings']['notify_me']
         if notify_me == 'always' or notify_me == 'failure':
+            template = env.get_template('emails/job_failure.html')
             send_message(subject="Epic Doula Failure",
                          recipients=[user['email']],
-                         body="Job ID:%s failed" % job.kwargs['job_dict']['id'])
+                         body=template.render({'job_dict': job.kwargs['job_dict'],
+                                               'user': user,
+                                               'log': get_log(job.kwargs['job_dict']['id']),
+                                               'tb': highlight(exc, BashLexer(), HtmlFormatter())}))
 
 
 def send_message(subject=None, recipients=None, body=None):
@@ -276,6 +298,6 @@ def send_message(subject=None, recipients=None, body=None):
     message = Message(subject=subject,
                       sender='doulabot@surveymonkey.com',
                       recipients=recipients,
-                      body=body)
+                      html=body)
 
     mailer.send_immediately(message)

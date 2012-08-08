@@ -69,9 +69,7 @@ QueuedItems = {
                 }
 
                 if (!el.hasClass(class_name)) {
-                    el.removeClass('alert-info');
-                    el.addClass(class_name);
-                    el.children('.logs').html(queued_item.log);
+                    el.replaceWith(queued_item.html);
                 }
             }
         });
