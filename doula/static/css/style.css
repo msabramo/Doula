@@ -378,6 +378,24 @@ body {
   text-shadow: none;
   line-height: 19px;
 }
+/* overriding bootstrap default colors */
+#mainnav .dropdown-menu li > a:hover,
+#mainnav .dropdown-menu .active > a,
+#mainnav .dropdown-menu .active > a:hover {
+  color: #ffffff;
+  text-decoration: none;
+  background-color: #609C9D;
+}
+#mainnav .dropdown-menu a.active {
+  color: #ffffff;
+  text-decoration: none;
+  background-color: #6eafaf;
+}
+#mainnav .nav li.active {
+  color: white;
+  text-decoration: none;
+  background-color: #222;
+}
 /* Title actions */
 .title-bar {
   background: #F7F7F9;

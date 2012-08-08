@@ -9,10 +9,12 @@ Settings = {
         this.radios = $('input[name=\'notify_me\']');
         this.radios.on('click', this.click);
     },
+
     click: function(e) {
         var url = '/settings';
         this.post('switch notify_me setting', url, {'notify_me': $(e.target).val()}, this.success);
     },
+
     success: function() {
 
     }
