@@ -74,13 +74,16 @@ def cycle_services(job_dict):
     """
     log = create_logger(job_dict['id'])
     load_config()
+
     try:
+        log.info('Cycling service %s' % job_dict['name'])
+
         for ip in job_dict['nodes']:
             for name in job_dict['supervisor_service_names']:
                 log.info('Cycling service %s on IP http://%s' % (name, ip))
                 Service.cycle(xmlrpclib.ServerProxy('http://' + ip), name)
 
-        log.info('Done cycling services')
+        log.info('Done cycling %s' % job_dict['name'])
     except Exception as e:
         log.error(e.message)
         log.error(traceback.format_exc())

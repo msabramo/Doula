@@ -686,6 +686,9 @@ a.side_tab {
   vertical-align: baseline;
   border-radius: 3px;
 }
+.queued_items {
+  margin-bottom: 15px;
+}
 .queued_items .latest_notifications {
   margin-bottom: 5px;
   display: none;
@@ -693,11 +696,12 @@ a.side_tab {
 .queued_items .latest_notifications:hover {
   cursor: pointer;
 }
+.queued_items .like-a-link:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
 .queued_items .queued_item {
   margin-bottom: 5px;
-}
-.queued_items .queued_item:hover {
-  cursor: pointer;
 }
 .queued_items .queued_item .logs {
   margin-top: 0px;
