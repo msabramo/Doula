@@ -2,6 +2,7 @@ import json
 import requests
 from velruse import login_url
 from doula.cache import Cache
+from doula.config import Config
 from pyramid.view import (
     view_config,
     forbidden_view_config
@@ -66,8 +67,9 @@ def login_complete_view(request):
     return  HTTPFound(location='/')
 
 
-@view_config(context='velruse.AuthenticationDenied', renderer='doula:templates/error/exception.mako', permission=NO_PERMISSION_REQUIRED)
+@view_config(context='velruse.AuthenticationDenied', renderer='doula:templates/error/exception.html', permission=NO_PERMISSION_REQUIRED)
 def login_denied_view(request):
     return {
         'result': 'denied',
+        'config': Config
     }
