@@ -477,6 +477,8 @@ a.side_tab {
 }
 
 .queued_items {
+	margin-bottom: 15px;
+
     .latest_notifications {
         margin-bottom: 5px;
         display: none;
@@ -486,12 +488,13 @@ a.side_tab {
         }
     }
 
+    .like-a-link:hover {
+    	cursor: pointer;
+        text-decoration: underline;
+    }
+
     .queued_item {
         margin-bottom: 5px;
-
-        &:hover {
-            cursor: pointer;
-        }
 
         .logs {
             margin-top: 0px;

@@ -181,12 +181,12 @@ def validate_token(request):
 def service_cycle(request):
     service = SiteDAL.get_service(request.matchdict['site_id'], request.matchdict['serv_id'])
     nodes = SiteDAL.nodes(service.site_name)
-    job_id = enqueue_cycle_services(nodes, service)
+    job_id = enqueue_cycle_services(request, nodes, service)
 
     return dumps({'success': True, 'job_id': job_id})
 
 
-def enqueue_cycle_services(nodes, service):
+def enqueue_cycle_services(request, nodes, service):
     """
     Enqueue the job onto the queue
     """
