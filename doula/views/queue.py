@@ -65,6 +65,9 @@ def update_queue(request):
     new_queued_items = []
     for queued_item in queued_items:
         queued_item = queued_items[i]
+        # render the queued_item
+        queued_item['html'] = render('doula:templates/queue/queued_item.html',
+                                     {'queued_item': queued_item})
 
         # If job is already completed/failed
         if queued_item['status'] in ['complete', 'failed']:
@@ -72,8 +75,6 @@ def update_queue(request):
 
         # If the job has not been displayed on the interface yet
         if queued_item['time_started'] > int(last_updated):
-            queued_item['html'] = render('doula:templates/queue/queued_item.html',
-                                         {'queued_item': queued_item})
             new_queued_items.append(queued_item)
         i += 1
 
