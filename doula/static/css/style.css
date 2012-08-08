@@ -267,6 +267,7 @@ pre {
   color: #FFF;
   text-shadow: none;
 }
+/* HTML ELEMENTS */
 body {
   background: url(/images/noise.jpg);
   font-size: 13px;
@@ -274,6 +275,8 @@ body {
   margin: 25px 0px;
   overflow-y: scroll;
 }
+/* END HTML ELEMENTS */
+/* COMMON MIXINS AND VARIABLES */
 .box-shadow {
   -webkit-box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 8px;
   -moz-box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 8px;
@@ -297,6 +300,7 @@ body {
   clear: both;
   height: 0;
 }
+/* END COMMON MIXINS */
 .container {
   height: auto !important;
   height: 100%;
@@ -370,6 +374,9 @@ body {
 .navbar .nav li a {
   padding-top: 12px;
   padding-bottom: 8px;
+  font-size: 16px;
+  text-shadow: none;
+  line-height: 19px;
 }
 /* Title actions */
 .title-bar {
@@ -385,18 +392,21 @@ body {
   -ms-border-radius: 3px 3px 0 0;
   -o-border-radius: 3px 3px 0 0;
   border-radius: 3px 3px 0 0;
-  text-transform: uppercase;
+}
+.title-bar a {
+  color: #383838;
 }
 .title-bar h1,
 .title-bar h2,
 .title-bar h3,
 .title-bar h4,
 .title-bar h5 {
-  margin: 0px 0px 10px 0px;
   float: left;
+  font-size: 22px;
+  margin: 0px 0px 10px 0px;
 }
 .title-bar ul {
-  margin: 0px;
+  margin: 3px 0px 0px 0px;
   float: right;
 }
 .title-bar li {
@@ -422,20 +432,6 @@ ul.sm-list li {
 }
 div.section {
   margin: 10px 0px;
-}
-.smwell {
-  min-height: 20px;
-  padding: 10px;
-  margin-bottom: 20px;
-  background-color: #daede4;
-  border: 1px solid #EEE;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
-  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
 }
 /* TABLE */
 td a.btn {
@@ -478,10 +474,6 @@ h3.commit-group-heading {
 .active-package {
   background: #FCF8E3 !important;
 }
-/*.commit-group-item:first-child {
-	border-top: none;
-}
-*/
 .commit-group-item:nth-child(2n+1) {
   background: white;
 }
@@ -565,6 +557,7 @@ h3.commit-group-heading {
 .sm-accordion-inner {
   margin-top: 10px;
 }
+/* Package */
 .dropdown-menu {
   padding: 5px;
 }
