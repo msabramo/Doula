@@ -8,10 +8,7 @@ from datetime import datetime
 import os
 import re
 import shutil
-
-import sys
-import traceback
-
+import logging
 
 
 class Package(object):
@@ -68,6 +65,7 @@ class Package(object):
         Update the setup.py with a new version, parent sha, branch and author
         """
         # todo, we still need to update the user who did the push
+        logging.info('Updating the version to %s' % new_version)
         try:
             setup_py_path = os.path.join(repo.working_dir, 'setup.py')
 
@@ -83,6 +81,7 @@ class Package(object):
             setup_dot_py.write(updated_setup_dot_py)
             setup_dot_py.close()
         finally:
+            logging.info('Updated the version.')
             if not setup_dot_py:
                 setup_dot_py.close()
 
@@ -113,17 +112,20 @@ class Package(object):
 
     def commit(self, repo, files, msg):
         # Commit change to repo
+        logging.info('Committing to code.corp.surveymonkey.com')
         index = repo.index
         index.add(files)
         index.commit(msg)
 
     def tag(self, repo, version):
         # Tag a version
+        logging.info('Tagging the new version.')
         version = re.sub(r'^v', '', str(version))
         repo.create_tag('v' + version)
 
     def push(self, repo, remote_name):
         # Push changes
+        logging.info('Pushing to code.corp.surveymonkey.com')
         remote = repo.remotes[remote_name]
         remote.pull()
         remote.push()
@@ -131,6 +133,8 @@ class Package(object):
 
     def upload(self, repo):
         # Call `python setup.py sdist upload` to put upload to cheeseprism
+        logging.info('Releasing to cheeseprism.')
         with lcd(repo.working_dir):
             url = Config.get('doula.cheeseprism_url') + '/simple'
-            local('python setup.py sdist upload -r ' + url)
+            s = local('python setup.py sdist upload -r ' + url, capture=True)
+            logging.info(s)
