@@ -111,6 +111,30 @@ body {
 	}
 }
 
+/* overriding bootstrap default colors */
+
+#mainnav {
+	.dropdown-menu li > a:hover,
+	.dropdown-menu .active > a,
+	.dropdown-menu .active > a:hover {
+	  color: #ffffff;
+	  text-decoration: none;
+	  background-color: #609C9D;
+	}
+
+	.dropdown-menu a.active {
+	  color: #ffffff;
+	  text-decoration: none;
+	  background-color: #6eafaf;
+	}
+
+	.nav li.active {
+		color: white;
+		text-decoration: none;
+		background-color: #222;
+	}
+}
+
 /* Title actions */
 
 .title-bar {
@@ -453,6 +477,8 @@ a.side_tab {
 }
 
 .queued_items {
+	margin-bottom: 15px;
+
     .latest_notifications {
         margin-bottom: 5px;
         display: none;
@@ -462,12 +488,13 @@ a.side_tab {
         }
     }
 
+    .like-a-link:hover {
+    	cursor: pointer;
+        text-decoration: underline;
+    }
+
     .queued_item {
         margin-bottom: 5px;
-
-        &:hover {
-            cursor: pointer;
-        }
 
         .logs {
             margin-top: 0px;

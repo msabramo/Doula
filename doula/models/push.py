@@ -21,6 +21,7 @@ class Push(object):
         self.cheeseprism_url = cheeseprism_url
         self.keyfile = keyfile
         env.host_string = node_dns_name_or_ip
+        self.debug = debug
         env.user = 'root'
         env.key_filename = self.keyfile
 
@@ -31,7 +32,7 @@ class Push(object):
         failures = []
         successes = []
         with cd(os.path.join(self.web_app_dir, self.service_name)):
-            with debuggable(debug):
+            with debuggable(self.debug):
                 with prefix('source bin/activate'):
                     with settings(warn_only=True):
                         for package in packages:
@@ -40,7 +41,7 @@ class Push(object):
                                 failures.append({'package': package, 'error': str(result).replace('\n', ', ')})
                             else:
                                 successes.append(package)
-        self._chown(debug)
+        self._chown()
         return (failures, successes)
 
 
@@ -53,14 +54,14 @@ class Push(object):
 
     We do all this to avoid merge conflicts
     """
-    def config(self, service_name, debug=False):
+    def config(self, service_name):
         self.service_name = service_name
         with cd(os.path.join(self.web_app_dir, self.service_name, 'etc')):
-            with debuggable(debug):
+            with debuggable(self.debug):
                 result = self._pull_config()
 
         if result.failed: raise Exception(str(result).replace('\n', ', '))
-        self._chown(debug)
+        self._chown()
         return result
 
 
@@ -74,15 +75,15 @@ class Push(object):
         return result
 
 
-    def _chown(self, debug=False):
-        with debuggable(debug):
+    def _chown(self):
+        with debuggable(self.debug):
             result = sudo('chown -R %suser:sm_users %s' % (self.service_name, os.path.join(self.web_app_dir, self.service_name)))
         if result.failed: raise Exception(str(result).replace('\n', ', '))
 
 
-    def commit(self, packages, debug=False):
+    def commit(self):
         with cd(os.path.join(self.web_app_dir, self.service_name)):
-            with debuggable(debug):
+            with debuggable(self.debug):
                 branch = run('git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3')
                 result = run('git add -a .')
                 if result.succeeded:
@@ -91,3 +92,9 @@ class Push(object):
                         result = run('git push origin %s' % branch)
         if result.failed:
             raise Exception(str(result))
+
+
+#def __init__(self, web_app_dir, cheeseprism_url, keyfile, node_dns_name_or_ip, debug=False):
+def get_test_obj():
+    return Push('/opt/webapp/', 'http:mtclone:6543/index', '/Users/timsabat/.ssh/id_rsa_doula_user', 'mtclone', True)
+

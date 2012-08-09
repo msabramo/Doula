@@ -4,6 +4,9 @@ from fabric.contrib.files import exists
 env.user = 'doula'
 env.key_filename = '~/.ssh/id_rsa_doula'
 
+# This command sets up the project for the first time
+# fab do_setup:doula -f setup/initial.py
+
 
 def _validate(project):
     valid_projects = ['bambino', 'doula']
@@ -47,11 +50,12 @@ def do_setup(project):
         sudo('chown doula:root %s' % path)
         sudo('chmod 0775 %s' % path)
 
+    _pull(project, path)
+
     supervisor_file = '/etc/supervisor/conf.d/%s.conf' % project
     sudo('rm %s' % supervisor_file)
-    sudo('ln -s %s/src/bambino/etc/supervisor.conf %s' % (path, supervisor_file))
+    sudo('ln -s %s/src/%s/etc/supervisor.conf %s' % (path, project, supervisor_file))
 
-    _pull(project, path)
 
 
 def _restart(project, port):

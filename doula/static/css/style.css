@@ -378,6 +378,24 @@ body {
   text-shadow: none;
   line-height: 19px;
 }
+/* overriding bootstrap default colors */
+#mainnav .dropdown-menu li > a:hover,
+#mainnav .dropdown-menu .active > a,
+#mainnav .dropdown-menu .active > a:hover {
+  color: #ffffff;
+  text-decoration: none;
+  background-color: #609C9D;
+}
+#mainnav .dropdown-menu a.active {
+  color: #ffffff;
+  text-decoration: none;
+  background-color: #6eafaf;
+}
+#mainnav .nav li.active {
+  color: white;
+  text-decoration: none;
+  background-color: #222;
+}
 /* Title actions */
 .title-bar {
   background: #F7F7F9;
@@ -668,6 +686,9 @@ a.side_tab {
   vertical-align: baseline;
   border-radius: 3px;
 }
+.queued_items {
+  margin-bottom: 15px;
+}
 .queued_items .latest_notifications {
   margin-bottom: 5px;
   display: none;
@@ -675,11 +696,12 @@ a.side_tab {
 .queued_items .latest_notifications:hover {
   cursor: pointer;
 }
+.queued_items .like-a-link:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
 .queued_items .queued_item {
   margin-bottom: 5px;
-}
-.queued_items .queued_item:hover {
-  cursor: pointer;
 }
 .queued_items .queued_item .logs {
   margin-top: 0px;
