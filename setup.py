@@ -21,7 +21,9 @@ requires = [
     'waitress',
     'retools',
     'pygments',
-    'pyyaml'
+    'pyyaml',
+    'pyramid_mailer',
+    'velruse==0.3b1'
     ]
 
 setup(name='Doula',

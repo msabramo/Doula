@@ -1,22 +1,40 @@
 {% extends 'layouts/base.html' %}
 {% block content %}
 <div>
-    <h2>Jayd3e's Settings</h2>
-    <p>Email: jd.dallago@gmail.com</p>
-    <form class="well">
-        Notify Me:
+    <div class="title-bar clearfix">
+        <h2>Settings</h2>
+    </div>
+
+    <form>
+        <p>Hi <strong>{{ request.user['username'] }}</strong>! Doula will send all email notifications to your Github Enterprise email <strong>{{ request.user['email'] }}</strong>.</p>
+
+        <p><b>Notify me about a job:</b></p>
+        {% set notify_me = request.user['settings']['notify_me'] %}
         <label for="notify_me">
-            <input type="radio" name="notify_me">
+            <input
+            {{ 'checked' if notify_me == 'always' else '' }}
+            type="radio" name="notify_me" value="always">
             Always
         </label>
         <label for="notify_me">
-            <input type="radio" name="notify_me">
-            On Failure
+            <input
+            {{ 'checked' if notify_me == 'failure' else '' }}
+            type="radio" name="notify_me" value="failure">
+            On failure
         </label>
-        <label for="irc">
-            <input type="checkbox" name="irc"/>
-            Notify me on IRC
+        <label for="notify_me">
+            <input
+            {{ 'checked' if notify_me == 'never' else '' }}
+            type="radio" name="notify_me" value="never">
+            Never
         </label>
     </form>
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{ [
+'/js/common/util.js',
+'/js/site/settings.js'
+]|js_script|safe }}
 {% endblock %}

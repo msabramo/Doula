@@ -1,7 +1,10 @@
 {% extends 'layouts/base.html' %}
 {% block content %}
-<div class="title">
-  <h2>{{ site.name|upper }}</h2>
+<div class="title-bar clearfix">
+  <h2>
+    <a href="/sites">Sites</a> /
+    <a href="/sites/{{site.name_url}}">{{ site.name }}</a>
+  </h2>
 </div>
 <div class="accordion group" id="sites-accordion">
 

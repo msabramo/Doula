@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="page-wrap">
-  
+
 <h1 class="cap">{{ site.name }}</h1>
 
  <div id="accordion" class="accordion">
@@ -10,15 +10,15 @@
     <div id="stat_{{ app.name_url }}" class="key {{ app.get_status()|get_stat_class }}">
 
       <header>
-         <a id="deploy_{{ app.name_url }}" app-id="{{ app.name_url }}" 
+         <a id="deploy_{{ app.name_url }}" app-id="{{ app.name_url }}"
           class="deploy {% if app.get_status() != 'tagged'%}hide{% endif %}" href="#">
           <span class="icon">&#8658;</span> Deploy
          </a>
-         <span id="status_{{ app.name_url }}" app-id="{{ app.name_url }}" 
+         <span id="status_{{ app.name_url }}" app-id="{{ app.name_url }}"
          class="{{ app.get_status()|get_status_class }}">&#x25BA;</span>
          <a href="/sites/{{ site.name_url }}/{{ app.name_url }}"><span class="icon">⚙</span> Details</a>
          <h3>
-           <a id="panel_{{ app.name_url }}" href="#panel{{ loop.index }}" 
+           <a id="panel_{{ app.name_url }}" href="#panel{{ loop.index }}"
            class="{% if app.get_status() != 'uncommitted_changes' %}keyOpener{% else %}keyCloser{% endif %}">
              {{ app.name }}
              <strong>{{ app.get_status()|get_pretty_status }}</strong>
@@ -55,15 +55,15 @@
     {% endfor %}
 
     {% set last_index = site.services|length + 1 %}
-    
+
     <!-- details for tag of tags -->
     <div id="stat_site" class="site_accord key {{ site.get_status()|get_stat_class }}">
 
       <header>
-         <span id="status_site" app-id="site" 
+         <span id="status_site" app-id="site"
          class="{{ site.get_status()|get_status_class }}">&#x25BA;</span>
          <h3>
-           <a id="panel_site" href="#panel{{ last_index + 1 }}" 
+           <a id="panel_site" href="#panel{{ last_index + 1 }}"
            class="keyOpener">
              {{ site.name }} {{ last_index }}
              <strong>{{ site.get_status()|get_pretty_status }}</strong>
@@ -111,15 +111,15 @@
 </script>
 
 {{ [
-'/js/libs/global-min.js', 
-'/js/libs/global-pro-min.js', 
+'/js/libs/global-min.js',
+'/js/libs/global-pro-min.js',
 '/js/libs/accordions.js',
 '/js/libs/site-tabs.js',
 '/js/libs/jquery.colorbox.js',
 '/js/common/util.js',
 '/js/common/ajax_util.js',
-'/js/site/ui.js', 
-'/js/site/site_data.js', 
+'/js/site/ui.js',
+'/js/site/site_data.js',
 '/js/site/site.js'
 ]|js_script|safe }}
 {% endblock %}

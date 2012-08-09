@@ -1,4 +1,4 @@
-<header class="jumbotron subhead" id="overview">
+<header class="jumbotron subhead" id="mainnav">
     <div class="navbar">
         <div class="navbar-inner">
             <div class="container">
@@ -13,25 +13,21 @@
                         <a href="/queue">Queue</a>
                     </li>
                 </ul>
-                {% if config.get('env') != 'prod' %}
                 <ul class="nav pull-right">
-                    <li {% if path.startswith('/settings') %}class="active"{% endif %}>
-                        <a href="/settings"
-                        class="dropdown-toggle"
-                        data-toggle="dropdown">
-                            <i class="icon-cog icon-white"></i>
-                            Settings
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/settings"
-                        class="dropdown-toggle">
+                    <li class="dropdown
+                        {% if path.startswith('/settings') %}active{% endif %}">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             <img class="avatar" src="{{ request.user['avatar_url'] }}" />
                             {{ request.user['username'] }}
+                            <b class="caret"></b>
                         </a>
+
+                        <ul class="dropdown-menu">
+                          <li><a href="/settings" {% if path.startswith('/settings') %}class="active"{% endif %}>Settings</a></li>
+                          <li><a href="signout">Sign out</a></li>
+                        </ul>
                     </li>
                 </ul>
-                {% endif %}
             </div>
         </div>
     </div>

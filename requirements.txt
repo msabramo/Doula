@@ -3,5 +3,4 @@ nose
 coverage
 mockredis
 mock
-velruse==0.3dev
 ./

@@ -4,6 +4,9 @@ from fabric.contrib.files import exists
 env.user = 'doula'
 env.key_filename = '~/.ssh/id_rsa_doula'
 
+# This command sets up the project for the first time
+# fab do_setup:doula -f setup/initial.py
+
 
 def _validate(project):
     valid_projects = ['bambino', 'doula']

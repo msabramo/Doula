@@ -25,7 +25,7 @@ def service(request):
     service = site.services[request.matchdict['serv_id']]
     other_packages = CheesePrism.other_packages(service.packages)
 
-    query = {'job_type': ['push_to_cheeseprism'],
+    query = {'job_type': ['push_to_cheeseprism', 'cycle_services'],
              'service': service.name}
     last_updated = datetime.now()
     last_updated = time.mktime(last_updated.timetuple())
@@ -78,7 +78,11 @@ def service_cheese_prism_push(request):
     errors = validate_release(package, branch, next_version)
 
     if len(errors) == 0:
-        job_dict = enqueue_push_package(service, remote, branch, next_version)
+        job_dict = enqueue_push_package(request.user['username'],
+                                        service,
+                                        remote,
+                                        branch,
+                                        next_version)
     else:
         msg = "There were errors attempting to release %s" % (service.name)
         html = render('doula:templates/services/release_package_error.html',
@@ -116,11 +120,12 @@ def validate_release(package, branch, next_version):
     return errors
 
 
-def enqueue_push_package(service, remote, branch, version):
+def enqueue_push_package(user_id, service, remote, branch, version):
     """
     Enqueue the job onto the queue
     """
     job_dict = {
+        'user_id': user_id,
         'service': service.name,
         'remote': remote,
         'branch': branch,
@@ -176,12 +181,12 @@ def validate_token(request):
 def service_cycle(request):
     service = SiteDAL.get_service(request.matchdict['site_id'], request.matchdict['serv_id'])
     nodes = SiteDAL.nodes(service.site_name)
-    job_id = enqueue_cycle_services(nodes, service)
+    job_id = enqueue_cycle_services(request, nodes, service)
 
     return dumps({'success': True, 'job_id': job_id})
 
 
-def enqueue_cycle_services(nodes, service):
+def enqueue_cycle_services(request, nodes, service):
     """
     Enqueue the job onto the queue
     """
@@ -196,8 +201,10 @@ def enqueue_cycle_services(nodes, service):
     queue = Queue()
 
     return queue.this({
+        'user_id': request.user['username'],
         'job_type': 'cycle_services',
         'nodes': ips,
+        'name': service.name,
         'supervisor_service_names': service.supervisor_service_names
     })
 
