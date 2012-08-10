@@ -12,7 +12,7 @@ Settings = {
 
     click: function(e) {
         var url = '/settings';
-        this.post('switch notify_me setting', url, {'notify_me': $(e.target).val()}, this.success);
+        this.post(url, {'notify_me': $(e.target).val()}, this.success);
     },
 
     success: function() {
