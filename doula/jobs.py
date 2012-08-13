@@ -142,7 +142,7 @@ def push_service_environment(job_dict=None):
                 Config.get('bambino.web_app_dir'),
                 Config.get('doula.cheeseprism_url'),
                 Config.get('doula.keyfile_path'),
-                job_dict['node_name_or_ip']
+                job_dict['site_name_or_node_ip']
             )
             successes, failures = push.packages(job_dict['service_name'], job_dict['packages'])
             push.config(job_dict['service_name'])
