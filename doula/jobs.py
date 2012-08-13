@@ -144,7 +144,7 @@ def push_service_environment(job_dict=None):
                 Config.get('doula.keyfile_path'),
                 job_dict['node_name_or_ip']
             )
-            successes, failures = push.packages(job_dict['service_name'])
+            successes, failures = push.packages(job_dict['service_name'], job_dict['packages'])
             push.config(job_dict['service_name'])
         except Exception as e:
             failures.append({'package': 'git', 'error': str(e)})

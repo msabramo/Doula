@@ -22,7 +22,7 @@ class Push(object):
         self.keyfile = keyfile
         env.host_string = node_dns_name_or_ip
         self.debug = debug
-        env.user = 'root'
+        env.user = 'doula'
         env.key_filename = self.keyfile
 
     def packages(self, service_name, packages):
@@ -36,9 +36,9 @@ class Push(object):
                 with prefix('source bin/activate'):
                     with settings(warn_only=True):
                         for package in packages:
-                            result = run('pip install -i %s %s' % (self.cheeseprism_url, package))
+                            result = sudo('pip install -i %s %s' % (self.cheeseprism_url, package))
                             if result.failed:
-                                failures.append({'package': package, 'error': str(result).replace('\n', ', ')})
+                                failures.append({'package': package, 'error': str(result).replace('\r\n', ', ')})
                             else:
                                 successes.append(package)
         self._chown()
