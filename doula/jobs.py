@@ -13,25 +13,13 @@ from datetime import datetime
 import os
 import json
 import logging
-import sys
 import traceback
 import xmlrpclib
 import time
 
 
 def create_logger(job_id):
-    log = logging.getLogger(__name__)
-    log.setLevel(logging.DEBUG)
-
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.DEBUG)
-    log.addHandler(ch)
-
-    fh = logging.FileHandler(os.path.join('/var/log/doula', str(job_id) + '.log'))
-    fh.setLevel(logging.DEBUG)
-    log.addHandler(fh)
-
-    return log
+    logging.basicConfig(filename=os.path.join('/var/log/doula', str(job_id) + '.log'), level=logging.DEBUG)
 
 
 def load_config():
@@ -50,18 +38,18 @@ def push_to_cheeseprism(job_dict=None):
     updated the version present in the setup.py of the repo, and release the
     package to cheeseprism.
     """
-    log = create_logger(job_dict['id'])
+    create_logger(job_dict['id'])
     try:
-        log.info("About to push package to cheese prism %s" % job_dict['remote'])
+        logging.info("About to push package to cheese prism %s" % job_dict['remote'])
         load_config()
 
         p = Package(job_dict['service'], '0', job_dict['remote'])
         p.distribute(job_dict['branch'], job_dict['version'])
 
-        log.info('Finished pushing package %s to CheesePrism' % job_dict['remote'])
+        logging.info('Finished pushing package %s to CheesePrism' % job_dict['remote'])
     except Exception as e:
-        log.error(e.message)
-        log.error(traceback.format_exc())
+        logging.error(e.message)
+        logging.error(traceback.format_exc())
         raise
 
 
@@ -72,7 +60,7 @@ def cycle_services(job_dict):
     the necessary supervisor processes to make the changes to the packages live
     on a specific site.
     """
-    log = create_logger(job_dict['id'])
+    create_logger(job_dict['id'])
     load_config()
 
     try:
@@ -80,13 +68,13 @@ def cycle_services(job_dict):
 
         for ip in job_dict['nodes']:
             for name in job_dict['supervisor_service_names']:
-                log.info('Cycling service %s on IP http://%s' % (name, ip))
+                logging.info('Cycling service %s on IP http://%s' % (name, ip))
                 Service.cycle(xmlrpclib.ServerProxy('http://' + ip), name)
 
-        log.info('Done cycling %s' % job_dict['name'])
+        logging.info('Done cycling %s' % job_dict['name'])
     except Exception as e:
-        log.error(e.message)
-        log.error(traceback.format_exc())
+        logging.error(e.message)
+        logging.error(traceback.format_exc())
         raise
 
 
@@ -94,9 +82,9 @@ def pull_cheeseprism_data(job_dict=None):
     """
     Ping Cheese Prism and pull the latest packages and all of their versions.
     """
-    log = create_logger(job_dict['id'])
+    create_logger(job_dict['id'])
     try:
-        log.info('Started pulling cheeseprism data')
+        logging.info('Started pulling cheeseprism data')
         load_config()
 
         cache = Cache.cache()
@@ -111,10 +99,10 @@ def pull_cheeseprism_data(job_dict=None):
 
         pipeline.execute()
 
-        log.info('Done pulling data from cheeseprism')
+        logging.info('Done pulling data from cheeseprism')
     except Exception as e:
-        log.error(e.message)
-        log.error(traceback.format_exc())
+        logging.error(e.message)
+        logging.error(traceback.format_exc())
         raise
 
 
@@ -123,18 +111,18 @@ def pull_github_data(job_dict=None):
     Pull the github data for every python package.
     Pull commit history, tags, branches. Everything.
     """
-    log = create_logger(job_dict['id'])
+    create_logger(job_dict['id'])
     try:
-        log.info('pulling github data')
+        logging.info('pulling github data')
         load_config()
         repos = pull_devmonkeys_repos()
         cache = Cache.cache()
         cache.set("devmonkeys_repos", dumps(repos))
 
-        log.info('Done pulling github data')
+        logging.info('Done pulling github data')
     except Exception as e:
-        log.error(e.message)
-        log.error(traceback.format_exc())
+        logging.error(e.message)
+        logging.error(traceback.format_exc())
         raise
 
 
@@ -142,10 +130,10 @@ def push_service_environment(job_dict=None):
     """
     Pip install the packages sent
     """
-    log = create_logger(job_dict['id'])
+    create_logger(job_dict['id'])
     try:
         #TODO: verbose statemenet
-        log.info('pushing code to environment')
+        logging.info('pushing code to environment')
         load_config()
         failures = []
 
@@ -159,24 +147,25 @@ def push_service_environment(job_dict=None):
             successes, failures = push.packages(job_dict['service_name'])
             push.config(job_dict['service_name'])
         except Exception as e:
-            failures.append({'package':'git', 'error':str(e)})
+            failures.append({'package': 'git', 'error': str(e)})
 
         if failures:
             raise Exception(json.dumps(failures))
 
-        log.info('Done installing packages.')
+        logging.info('Done installing packages.')
     except Exception as e:
-        log.error(e.message)
-        log.error(traceback.format_exc())
+        logging.error(e.message)
+        logging.error(traceback.format_exc())
         raise
+
 
 def pull_bambino_data(job_dict=None):
     """
     Pull the data from all the bambino's
     """
-    log = create_logger(job_dict['id'])
+    create_logger(job_dict['id'])
     try:
-        log.info('Pulling bambino data')
+        logging.info('Pulling bambino data')
         load_config()
 
         cache = Cache.cache()
@@ -193,10 +182,10 @@ def pull_bambino_data(job_dict=None):
                 pipeline.set('node_services_' + node.name_url, services_as_json)
 
         pipeline.execute()
-        log.info('Done pulling bambino data')
+        logging.info('Done pulling bambino data')
     except Exception as e:
-        log.error(e.message)
-        log.error(traceback.format_exc())
+        logging.error(e.message)
+        logging.error(traceback.format_exc())
         raise
 
 
@@ -204,9 +193,9 @@ def cleanup_queue(job_dict=None):
     """
     Cleanup unneeded jobs stored in our queueing system.
     """
-    log = create_logger(job_dict['id'])
+    create_logger(job_dict['id'])
     try:
-        log.info('Cleaning up the queue')
+        logging.info('Cleaning up the queue')
 
         now = datetime.now()
         now = time.mktime(now.timetuple())
@@ -225,8 +214,8 @@ def cleanup_queue(job_dict=None):
         for id in ids:
             os.remove(os.path.join('/var/log/doula', id + '.log'))
 
-        log.info('Done cleaning up the queue')
+        logging.info('Done cleaning up the queue')
     except Exception as e:
-        log.error(e.message)
-        log.error(traceback.format_exc())
+        logging.error(e.message)
+        logging.error(traceback.format_exc())
         raise

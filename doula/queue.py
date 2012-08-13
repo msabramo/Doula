@@ -5,6 +5,7 @@ import json
 import redis
 import time
 import traceback
+import logging
 from jinja2 import Environment, PackageLoader
 from pyramid_mailer.mailer import Mailer
 from pyramid_mailer.message import Message
@@ -272,6 +273,8 @@ def add_failure(job=None, exc=None):
     Subscriber that gets called when a job fails.
     """
     exc = traceback.format_exc()
+    logging.error(exc)
+
     queue = Queue()
     queue.update({'id': job.kwargs['job_dict']['id'], 'status': 'failed', 'exc': exc})
 
@@ -289,8 +292,7 @@ def add_failure(job=None, exc=None):
                          recipients=[user['email']],
                          body=template.render({'job_dict': job.kwargs['job_dict'],
                                                'user': user,
-                                               'log': get_log(job.kwargs['job_dict']['id']),
-                                               'tb': highlight(exc, BashLexer(), HtmlFormatter())}))
+                                               'log': get_log(job.kwargs['job_dict']['id'])}))
 
 
 def send_message(subject=None, recipients=None, body=None):
