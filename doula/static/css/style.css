@@ -414,14 +414,11 @@ body {
 .title-bar a {
   color: #383838;
 }
-.title-bar h1,
-.title-bar h2,
-.title-bar h3,
-.title-bar h4,
-.title-bar h5 {
+.title-bar h2 {
   float: left;
   font-size: 22px;
   margin: 0px 0px 10px 0px;
+  word-spacing: 0px;
 }
 .title-bar ul {
   margin: 3px 0px 0px 0px;
@@ -429,7 +426,7 @@ body {
 }
 .title-bar li {
   display: inline;
-  padding: 5px 0px 10px 10px;
+  padding: 5px 0px 10px 3px;
   list-style-type: none;
 }
 .tag-app-form-title {
@@ -731,6 +728,33 @@ a.side_tab {
   list-style: circle;
 }
 /* End Queue Pages */
+/* settings */
+ul.search-list {
+  margin: 0px;
+  width: 100%;
+  list-style-type: none;
+}
+ul.search-list li {
+  background-color: #F7F7F9;
+  border: 1px solid #DDD;
+  float: left;
+  font-size: 16px;
+  height: 18px;
+  margin: 0px 2px 3px 0px;
+  padding: 4px 3px;
+  width: 23%;
+}
+ul.search-list li:hover {
+  color: white;
+  cursor: pointer;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #79afaf;
+}
+ul.search-list li.active {
+  color: white;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #6EAFAF;
+}
 /* Progress Bar */
 section {
   width: 400px;

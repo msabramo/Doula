@@ -86,7 +86,6 @@ class Queue(object):
         'packages': []
     }.items() + common_dict.items())
 
-
     push_to_cheeseprism_dict = dict({
         'remote': '',
         'branch': 'master',

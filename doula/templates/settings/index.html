@@ -35,14 +35,16 @@
         you can subscribe to an mt environment or to a service
          -->
         <label>
-            Subscribe to notifications for services and test sites. You're currently subscribed to the following services.
+            You can subscribe to notifications to any of the sites and services. Subscribe by selecting the services you want notifications from from the grid.
         </label>
-        <p>
-            search drop down, you type, i search
-        </p>
-        <p>
-            show existing services.
-        </p>
+        <input type="text" placeholder="Filter sites and services" />
+
+        <ul class="search-list">
+        {% for ss in sites_and_services %}
+        <li class="">{{ss}}</li>
+        {% endfor %}
+        </ul>
+
     </form>
 </div>
 {% endblock %}
@@ -50,6 +52,6 @@
 {% block scripts %}
 {{ [
 '/js/common/util.js',
-'/js/site/settings.js'
+'/js/settings/settings.js'
 ]|js_script|safe }}
 {% endblock %}
