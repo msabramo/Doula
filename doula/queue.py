@@ -80,6 +80,13 @@ class Queue(object):
         'exc': ''
     }
 
+    push_service_environment_dict = dict({
+        'node_name_or_ip': '',
+        'service_name': '',
+        'packages': []
+    }.items() + common_dict.items())
+
+
     push_to_cheeseprism_dict = dict({
         'remote': '',
         'branch': 'master',
