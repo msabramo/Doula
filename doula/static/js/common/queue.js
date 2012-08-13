@@ -48,7 +48,7 @@ QueuedItems = {
     poll: function() {
         var url = '/queue';
         this.kwargs.last_updated = this.data.lastUpdated;
-        this.get('poll', url, this.kwargs, this.handle_updates);
+        this.get(url, this.kwargs, this.handle_updates, null, false);
     },
 
     handle_updates: function(data) {

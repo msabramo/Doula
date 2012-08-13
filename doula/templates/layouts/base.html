@@ -21,10 +21,20 @@
   <!-- end of container -->
   {% include 'old/feedback_tab.html' %}
 
-  <script language="javascript" type="text/javascript" src="/js/libs/jquery.js"></script>
-  <script language="javascript" type="text/javascript" src="/js/libs/bootstrap.js"></script>
+  {{ [
+  '/js/libs/jquery.js',
+  '/js/libs/bootstrap.js'
+  ]|js_script|safe }}
+
   {% block scripts %}
   {% endblock %}
+
+  <section id="progress-section" class="hide">
+    <div class="progress-bar">
+      <div class="polyfill"></div>
+    </div>
+  </section>
+
 </body>
 
 </html>
