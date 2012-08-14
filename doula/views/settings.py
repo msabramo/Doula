@@ -10,6 +10,7 @@ from pyramid.view import view_config
 # SETTINGS VIEWS
 @view_config(route_name='settings', renderer='settings/index.html')
 def show_settings(request):
+    # alextodo, figure out how to subscribe to a specific service here
     sites_and_services = []
 
     for s, site in SiteDAL.get_sites().iteritems():
