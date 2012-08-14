@@ -16,7 +16,7 @@ from pyramid.httpexceptions import HTTPFound
 
 
 @view_config(name='login', permission=NO_PERMISSION_REQUIRED)
-@forbidden_view_config(renderer='clusterflunk:templates/login.mako')
+@forbidden_view_config()
 def login_view(request):
     return HTTPFound(location=login_url(request, 'github'))
 
@@ -67,9 +67,6 @@ def login_complete_view(request):
     return  HTTPFound(location='/')
 
 
-@view_config(context='velruse.AuthenticationDenied', renderer='doula:templates/error/exception.html', permission=NO_PERMISSION_REQUIRED)
+@view_config(context='velruse.AuthenticationDenied', permission=NO_PERMISSION_REQUIRED)
 def login_denied_view(request):
-    return {
-        'result': 'denied',
-        'config': Config
-    }
+    return HTTPFound(location='/login')
