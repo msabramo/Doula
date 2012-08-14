@@ -335,7 +335,7 @@ body {
   height: 100%;
   /* IE6: treaded as min-height*/
 
-  min-height: 400px;
+  min-height: 500px;
   /* real browsers */
 
   background-color: white;

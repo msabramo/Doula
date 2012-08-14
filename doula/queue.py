@@ -296,6 +296,7 @@ def add_failure(job=None, exc=None):
         user = json.loads(user)
 
         notify_me = user['settings']['notify_me']
+
         if notify_me in ['always', 'failure']:
             template = env.get_template('emails/job_failure.html')
             send_message(subject="Epic Doula Failure",
