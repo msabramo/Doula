@@ -10,6 +10,7 @@ from pyramid.view import view_config
 @view_config(route_name='settings', renderer='settings/index.html')
 def show_settings(request):
     sites_and_services = SiteDAL.list_of_sites_and_services()
+    sites_and_services.sort()
 
     return {
         'config': Config,

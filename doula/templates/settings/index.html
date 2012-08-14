@@ -4,7 +4,7 @@
     <div class="title-bar clearfix">
         <h2>Settings</h2>
     </div>
-
+    <div class="clearfix">
     <form>
         <p>Hi <strong>{{ request.user['username'] }}</strong>! Doula will send all email notifications to your Github Enterprise email <strong>{{ request.user['email'] }}</strong>.</p>
 
@@ -46,6 +46,7 @@
         </ul>
 
     </form>
+    </div>
 </div>
 {% endblock %}
 
