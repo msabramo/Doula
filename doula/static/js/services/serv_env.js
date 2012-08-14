@@ -59,7 +59,7 @@ var ServiceEnv = {
 		this.disableCycleButton();
 
 		var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/cycle';
-		this.get('cycle', url, {}, this.doneCycleService);
+		this.get(url, {}, this.doneCycleService);
 
 		return false;
 	},
@@ -105,7 +105,7 @@ var ServiceEnv = {
 		var url = '/sites/' + Data.site_name + '/';
 		url += Data.name_url + '/cheese_prism_modal';
 
-		this.get('pull', url, {'name': name}, this.doneShowPushPackageModal);
+		this.get(url, {'name': name}, this.doneShowPushPackageModal);
 
 		return false;
 	},
@@ -154,7 +154,7 @@ var ServiceEnv = {
 			'next_version': $('#push_package_version').val()
 		};
 
-		this.get('Releasing package to Cheese Prism', url, params, this.donePushPackage, this.failedPushPackage);
+		this.get(url, params, this.donePushPackage, this.failedPushPackage);
 	},
 
 	donePushPackage: function(rslt) {

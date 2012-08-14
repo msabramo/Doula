@@ -99,16 +99,17 @@ _withoutArray = function(array, key, attribute) {
 // get or post for this application
 var AJAXUtil = {
 
-    post: function(msg, url, params, onDone, onFail) {
-        this._send(msg, 'POST', url, params, onDone, onFail);
+    post: function(url, params, onDone, onFail, showProgressBar) {
+        this._send('POST', url, params, onDone, onFail, showProgressBar);
     },
 
-    get: function(msg, url, params, onDone, onFail) {
-        this._send(msg, 'GET', url, params, onDone, onFail);
+    get: function(url, params, onDone, onFail, showProgressBar) {
+        this._send('GET', url, params, onDone, onFail, showProgressBar);
     },
 
-    _send: function(msg, type, url, params, onDone, onFail) {
+    _send: function(type, url, params, onDone, onFail, showProgressBar) {
         onDone = _bind(onDone, this);
+        if(showProgressBar !== false) $('#progress-section').show();
 
         $.ajax({
               url: url,
@@ -116,6 +117,17 @@ var AJAXUtil = {
               data: this._getDataValues(params),
               success: function(response) {
                   try {
+                    // Progress the progress bar to the end
+                    setTimeout(function() {
+                      $('.polyfill')[0].style.animationDuration = '1300ms';
+                      $('.polyfill')[0].style.mozAnimationDuration = '1300ms';
+                      $('.polyfill')[0].style.webkitAnimationDuration = '1300ms';
+                    }, 200);
+
+                    setTimeout(function() {
+                      if(showProgressBar !== false) $('#progress-section').fadeOut('slow');
+                    }, 400);
+
                     rslt = (typeof(response) == 'string') ?
                     $.parseJSON(response) : response;
 
