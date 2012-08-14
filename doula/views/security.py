@@ -23,7 +23,7 @@ def login_view(request):
 @view_config(name='logout', permission=NO_PERMISSION_REQUIRED)
 def logout_view(request):
     forget(request)
-    return HTTPFound(location='/login')
+    return HTTPFound(location='http://code.corp.surveymonkey.com')
 
 
 @view_config(context='velruse.AuthenticationComplete', permission=NO_PERMISSION_REQUIRED)

@@ -24,12 +24,6 @@ def show_home(request):
     return show_sites(request)
 
 
-@view_config(route_name='signout')
-def signout(request):
-    request.session.invalidate()
-    return HTTPFound(location='http://code.corp.surveymonkey.com')
-
-
 @view_config(route_name='sites', renderer='sites/index.html')
 def show_sites(request):
     """
