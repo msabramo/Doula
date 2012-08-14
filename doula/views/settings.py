@@ -31,6 +31,6 @@ def change_settings(request):
     user = json.loads(user)
     for key, value in kwargs.items():
         user['settings'][key] = value
-    cache.set('doula:user:%s' % request.user['username'], json.dumps(user))
+    cache.set('doula:user:%s' % request.user['username'], json.dumps(user, sort_keys=True))
 
     return {'success': 1}
