@@ -37,7 +37,7 @@
         <!-- alextodo, roll through the notifications -->
         <ul class="search-list">
             <li id="my_jobs" data-value="my_jobs" class="active">My jobs</li>
-        {% for ss in sites_and_services %}
+        {% for ss in sites_and_services|sort %}
             <li data-value="{{ss}}"
                 {% if ss in request.user['settings']['subscribed_to'] %}class="active"{% endif %}>
                 {{ss}}
