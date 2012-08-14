@@ -23,7 +23,7 @@ def login_view(request):
 @view_config(name='logout', permission=NO_PERMISSION_REQUIRED)
 def logout_view(request):
     forget(request)
-    return HTTPFound(location='http://code.corp.surveymonkey.com')
+    return HTTPFound(location='code.corp.surveymonkey.com')
 
 
 @view_config(context='velruse.AuthenticationComplete', permission=NO_PERMISSION_REQUIRED)
@@ -49,21 +49,31 @@ def login_complete_view(request):
 
     username = profile['preferredUsername']
     user_exists = cache.get('doula:user:%s' % username)
-    if not user_exists:
-        r = requests.get('https://api.github.com/users/%s' % username,
-                         params={'auth_token': credentials['oauthAccessToken']})
-        info = r.json
+    r = requests.get('https://api.github.com/users/%s' % username,
+                     params={'auth_token': credentials['oauthAccessToken']})
+    info = r.json
 
+    if not user_exists:
         user = {
             'username': username,
             'oauth_token': credentials['oauthAccessToken'],
             'avatar_url': info['avatar_url'],
             'email': profile['emails'][0]['value'],
             'settings': {
-                'notify_me': 'always'
+                'notify_me': 'failure'
             }
         }
-        cache.set('doula:user:%s' % user['username'], json.dumps(user, sort_keys=True))
+    else:
+        current_user = json.loads(user_exists)
+        user = {
+            'username': current_user['username'],
+            'oauth_token': current_user['oauth_token'],
+            'avatar_url': info['avatar_url'],
+            'email': profile['emails'][0]['value'],
+            'settings': current_user['settings']
+        }
+
+    cache.set('doula:user:%s' % user['username'], json.dumps(user, sort_keys=True))
     remember(request, username)
     return  HTTPFound(location='/')
 
