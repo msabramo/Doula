@@ -49,7 +49,8 @@ def main(global_config, **settings):
     config.add_route('favicon', '/favicon.ico')
     config.add_route('home', '/')
     config.add_route('sites', '/sites')
-    config.add_route('signout', '/signout')
+    config.add_route('login', '/login')
+    config.add_route('logout', '/logout')
 
     config.add_route('site', '/sites/{site_id}')
     config.add_route('site_tag', '/sites/{site_id}/tag')

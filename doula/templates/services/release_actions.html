@@ -10,9 +10,10 @@
   </h2>
   <ul>
     <li>
-      <a id="push-to-site" class="hide btn sm-btn" href="#">
-        <i class="icon-chevron-right icon-black"></i>
-        Release to Site
+      <a id="push-to-site"
+      class="{% if config.get('env') == 'prod' %}hide{% endif %} btn sm-btn" href="#">
+        <i class="icon-arrow-up icon-black"></i>
+        Release Service
       </a>
     </li>
     <li>

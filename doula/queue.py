@@ -18,8 +18,13 @@ env = Environment(loader=PackageLoader('doula', 'templates'))
 
 
 def get_log(job_id):
+    """
+    Grabs a log file for a job and highlights the text with Pygments
+    for display to the user
+    """
     log = ''
     log_name = os.path.join('/var/log/doula', job_id + '.log')
+
     with open(log_name) as log_file:
         log = log_file.read()
 
@@ -80,6 +85,12 @@ class Queue(object):
         'exc': ''
     }
 
+    push_service_environment_dict = dict({
+        'site_name_or_node_ip': '',
+        'service_name': '',
+        'packages': []
+    }.items() + common_dict.items())
+
     push_to_cheeseprism_dict = dict({
         'remote': '',
         'branch': 'master',
@@ -106,6 +117,9 @@ class Queue(object):
         self.qm.subscriber('job_failure', handler='doula.queue:add_failure')
 
     def this(self, attrs):
+        """
+        Enqueues a job onto the retools queue
+        """
         if 'job_type' in attrs and attrs['job_type'] in \
             ['push_to_cheeseprism', 'cycle_services', 'pull_cheeseprism_data', 'pull_github_data', 'pull_bambino_data', 'cleanup_queue']:
             _type = attrs['job_type']
@@ -123,24 +137,16 @@ class Queue(object):
         job_type = job_dict['job_type']
         p = self.rdb.pipeline()
 
-        if job_type is 'push_to_cheeseprism':
-            self.qm.enqueue('doula.jobs:push_to_cheeseprism', job_dict=job_dict)
-        elif job_type is 'cycle_services':
-            self.qm.enqueue('doula.jobs:cycle_services', job_dict=job_dict)
-        elif job_type is 'pull_cheeseprism_data':
-            self.qm.enqueue('doula.jobs:pull_cheeseprism_data', job_dict=job_dict)
-        elif job_type is 'pull_github_data':
-            self.qm.enqueue('doula.jobs:pull_github_data', job_dict=job_dict)
-        elif job_type is 'pull_bambino_data':
-            self.qm.enqueue('doula.jobs:pull_bambino_data', job_dict=job_dict)
-        elif job_type is 'cleanup_queue':
-            self.qm.enqueue('doula.jobs:cleanup_queue', job_dict=job_dict)
+        self.qm.enqueue('doula.jobs:%s' % job_type, job_dict=job_dict)
 
         self._save(p, job_dict)
         p.execute()
         return job_dict['id']
 
     def get(self, job_dict={}):
+        """
+        Find the jobs that meet criteria sent in the job_dict
+        """
         jobs = self._get_jobs()
 
         # Loop through each criteria, throw out the jobs that don't meet
@@ -255,12 +261,15 @@ def add_result(job=None, result=None):
     # notify our user of a success
     cache = Cache.cache()
     user_id = job.kwargs['job_dict']['user_id']
+
     if user_id:
         user = cache.get('doula:user:%s' % user_id)
         user = json.loads(user)
 
         notify_me = user['settings']['notify_me']
-        if notify_me == 'always':
+
+        # alextodo break out the code here into a notifications module
+        if notify_me in ['always']:
             template = env.get_template('emails/job_success.html')
             send_message(subject="Epic Doula Success",
                          recipients=[user['email']],
@@ -276,6 +285,7 @@ def add_failure(job=None, exc=None):
     logging.error(exc)
 
     queue = Queue()
+    # exc means exception
     queue.update({'id': job.kwargs['job_dict']['id'], 'status': 'failed', 'exc': exc})
 
     # notify our user of a failure
@@ -286,7 +296,7 @@ def add_failure(job=None, exc=None):
         user = json.loads(user)
 
         notify_me = user['settings']['notify_me']
-        if notify_me == 'always' or notify_me == 'failure':
+        if notify_me in ['always', 'failure']:
             template = env.get_template('emails/job_failure.html')
             send_message(subject="Epic Doula Failure",
                          recipients=[user['email']],

@@ -2,7 +2,6 @@ import json
 import requests
 from velruse import login_url
 from doula.cache import Cache
-from doula.config import Config
 from pyramid.view import (
     view_config,
     forbidden_view_config
@@ -16,7 +15,7 @@ from pyramid.httpexceptions import HTTPFound
 
 
 @view_config(name='login', permission=NO_PERMISSION_REQUIRED)
-@forbidden_view_config(renderer='clusterflunk:templates/login.mako')
+@forbidden_view_config()
 def login_view(request):
     return HTTPFound(location=login_url(request, 'github'))
 
@@ -24,12 +23,14 @@ def login_view(request):
 @view_config(name='logout', permission=NO_PERMISSION_REQUIRED)
 def logout_view(request):
     forget(request)
-    return HTTPFound(location='/login')
+    return HTTPFound(location='code.corp.surveymonkey.com')
 
 
 @view_config(context='velruse.AuthenticationComplete', permission=NO_PERMISSION_REQUIRED)
 def login_complete_view(request):
     """
+    Example user object:
+
     doula:user:jayd3e
     {
         'username': '',
@@ -37,7 +38,8 @@ def login_complete_view(request):
         'avatar_url': '',
         'email': '',
         'settings': {
-            'notify_me': 'always'
+            'notify_me': 'always',
+            'subscribed_to': ['my_jobs']
         }
     }
     """
@@ -48,28 +50,36 @@ def login_complete_view(request):
 
     username = profile['preferredUsername']
     user_exists = cache.get('doula:user:%s' % username)
-    if not user_exists:
-        r = requests.get('https://api.github.com/users/%s' % username,
-                         params={'auth_token': credentials['oauthAccessToken']})
-        info = r.json
+    r = requests.get('https://api.github.com/users/%s' % username,
+                     params={'auth_token': credentials['oauthAccessToken']})
+    info = r.json
 
+    if not user_exists:
         user = {
             'username': username,
             'oauth_token': credentials['oauthAccessToken'],
             'avatar_url': info['avatar_url'],
             'email': profile['emails'][0]['value'],
             'settings': {
-                'notify_me': 'always'
+                'notify_me': 'failure',
+                'subscribe_to': ['my_jobs']
             }
         }
-        cache.set('doula:user:%s' % user['username'], json.dumps(user))
+    else:
+        current_user = json.loads(user_exists)
+        user = {
+            'username': current_user['username'],
+            'oauth_token': current_user['oauth_token'],
+            'avatar_url': info['avatar_url'],
+            'email': profile['emails'][0]['value'],
+            'settings': current_user['settings']
+        }
+
+    cache.set('doula:user:%s' % user['username'], json.dumps(user, sort_keys=True))
     remember(request, username)
     return  HTTPFound(location='/')
 
 
-@view_config(context='velruse.AuthenticationDenied', renderer='doula:templates/error/exception.html', permission=NO_PERMISSION_REQUIRED)
+@view_config(context='velruse.AuthenticationDenied', permission=NO_PERMISSION_REQUIRED)
 def login_denied_view(request):
-    return {
-        'result': 'denied',
-        'config': Config
-    }
+    return HTTPFound(location='/login')

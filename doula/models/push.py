@@ -16,13 +16,13 @@ def debuggable(debug=False):
 
 class Push(object):
 
-    def __init__(self, web_app_dir, cheeseprism_url, keyfile, node_dns_name_or_ip, debug=False):
+    def __init__(self, web_app_dir, cheeseprism_url, keyfile, site_name_or_node_ip, debug=False):
         self.web_app_dir = web_app_dir
         self.cheeseprism_url = cheeseprism_url
         self.keyfile = keyfile
-        env.host_string = node_dns_name_or_ip
+        env.host_string = site_name_or_node_ip
         self.debug = debug
-        env.user = 'root'
+        env.user = 'doula'
         env.key_filename = self.keyfile
 
     def packages(self, service_name, packages):
@@ -36,9 +36,9 @@ class Push(object):
                 with prefix('source bin/activate'):
                     with settings(warn_only=True):
                         for package in packages:
-                            result = run('pip install -i %s %s' % (self.cheeseprism_url, package))
+                            result = sudo('pip install -i %s %s' % (self.cheeseprism_url, package))
                             if result.failed:
-                                failures.append({'package': package, 'error': str(result).replace('\n', ', ')})
+                                failures.append({'package': package, 'error': str(result).replace('\r\n', ', ')})
                             else:
                                 successes.append(package)
         self._chown()
@@ -94,7 +94,6 @@ class Push(object):
             raise Exception(str(result))
 
 
-#def __init__(self, web_app_dir, cheeseprism_url, keyfile, node_dns_name_or_ip, debug=False):
 def get_test_obj():
     return Push('/opt/webapp/', 'http:mtclone:6543/index', '/Users/timsabat/.ssh/id_rsa_doula_user', 'mtclone', True)
 

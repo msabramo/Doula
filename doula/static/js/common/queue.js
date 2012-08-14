@@ -76,7 +76,7 @@ QueuedItems = {
 
         if (data.new_queued_items.length > 0) {
             this.latest_notifications.show();
-
+            // alextodo redo this.
             if(data.new_queued_items.length == 1) {
                 this.latest_notifications.html('There is 1 new job to be displayed.');
             }

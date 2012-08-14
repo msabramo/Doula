@@ -9,7 +9,6 @@ from pyramid.events import subscriber
 from pyramid.response import FileResponse
 from pyramid.view import view_config
 from pyramid.security import NO_PERMISSION_REQUIRED
-from pyramid.httpexceptions import HTTPFound
 import json
 import logging
 import os
@@ -22,12 +21,6 @@ log = logging.getLogger(__name__)
 @view_config(route_name='home', renderer='sites/index.html')
 def show_home(request):
     return show_sites(request)
-
-
-@view_config(route_name='signout')
-def signout(request):
-    request.session.invalidate()
-    return HTTPFound(location='http://code.corp.surveymonkey.com')
 
 
 @view_config(route_name='sites', renderer='sites/index.html')

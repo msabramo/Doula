@@ -117,9 +117,16 @@ var AJAXUtil = {
               data: this._getDataValues(params),
               success: function(response) {
                   try {
+                    // Progress the progress bar to the end
+                    setTimeout(function() {
+                      $('.polyfill')[0].style.animationDuration = '1300ms';
+                      $('.polyfill')[0].style.mozAnimationDuration = '1300ms';
+                      $('.polyfill')[0].style.webkitAnimationDuration = '1300ms';
+                    }, 200);
+
                     setTimeout(function() {
                       if(showProgressBar !== false) $('#progress-section').fadeOut('slow');
-                    }, 800);
+                    }, 400);
 
                     rslt = (typeof(response) == 'string') ?
                     $.parseJSON(response) : response;

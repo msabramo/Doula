@@ -28,6 +28,23 @@
             type="radio" name="notify_me" value="never">
             Never
         </label>
+
+        <hr />
+
+        <label>
+        <strong>Subscribe to notifications for:</strong>
+        </label>
+        <!-- alextodo, roll through the notifications -->
+        <ul class="search-list">
+            <li id="my_jobs" data-value="my_jobs" class="active">My jobs</li>
+        {% for ss in sites_and_services %}
+            <li data-value="{{ss}}"
+                {% if ss in request.user['settings']['subscribed_to'] %}class="active"{% endif %}>
+                {{ss}}
+            </li>
+        {% endfor %}
+        </ul>
+
     </form>
 </div>
 {% endblock %}
@@ -35,6 +52,6 @@
 {% block scripts %}
 {{ [
 '/js/common/util.js',
-'/js/site/settings.js'
+'/js/settings/settings.js'
 ]|js_script|safe }}
 {% endblock %}
