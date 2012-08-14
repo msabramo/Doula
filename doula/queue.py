@@ -134,18 +134,7 @@ class Queue(object):
         job_type = job_dict['job_type']
         p = self.rdb.pipeline()
 
-        if job_type is 'push_to_cheeseprism':
-            self.qm.enqueue('doula.jobs:push_to_cheeseprism', job_dict=job_dict)
-        elif job_type is 'cycle_services':
-            self.qm.enqueue('doula.jobs:cycle_services', job_dict=job_dict)
-        elif job_type is 'pull_cheeseprism_data':
-            self.qm.enqueue('doula.jobs:pull_cheeseprism_data', job_dict=job_dict)
-        elif job_type is 'pull_github_data':
-            self.qm.enqueue('doula.jobs:pull_github_data', job_dict=job_dict)
-        elif job_type is 'pull_bambino_data':
-            self.qm.enqueue('doula.jobs:pull_bambino_data', job_dict=job_dict)
-        elif job_type is 'cleanup_queue':
-            self.qm.enqueue('doula.jobs:cleanup_queue', job_dict=job_dict)
+        self.qm.enqueue('doula.jobs:%s' % job_type, job_dict=job_dict)
 
         self._save(p, job_dict)
         p.execute()
