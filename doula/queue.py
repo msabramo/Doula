@@ -268,6 +268,7 @@ def add_result(job=None, result=None):
 
         notify_me = user['settings']['notify_me']
 
+        # alextodo break out the code here into a notifications module
         if notify_me == 'always':
             template = env.get_template('emails/job_success.html')
             send_message(subject="Epic Doula Success",
@@ -284,6 +285,7 @@ def add_failure(job=None, exc=None):
     logging.error(exc)
 
     queue = Queue()
+    # exc means exception
     queue.update({'id': job.kwargs['job_dict']['id'], 'status': 'failed', 'exc': exc})
 
     # notify our user of a failure
