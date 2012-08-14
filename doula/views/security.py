@@ -64,7 +64,7 @@ def login_complete_view(request):
                 'notify_me': 'always'
             }
         }
-        cache.set('doula:user:%s' % user['username'], json.dumps(user))
+        cache.set('doula:user:%s' % user['username'], json.dumps(user, sort_keys=True))
     remember(request, username)
     return  HTTPFound(location='/')
 
