@@ -9,7 +9,6 @@ from pyramid.events import subscriber
 from pyramid.response import FileResponse
 from pyramid.view import view_config
 from pyramid.security import NO_PERMISSION_REQUIRED
-from pyramid.httpexceptions import HTTPFound
 import json
 import logging
 import os

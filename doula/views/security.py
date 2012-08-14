@@ -38,7 +38,8 @@ def login_complete_view(request):
         'avatar_url': '',
         'email': '',
         'settings': {
-            'notify_me': 'always'
+            'notify_me': 'always',
+            'subscribed_to': ['my_jobs']
         }
     }
     """
@@ -60,7 +61,8 @@ def login_complete_view(request):
             'avatar_url': info['avatar_url'],
             'email': profile['emails'][0]['value'],
             'settings': {
-                'notify_me': 'failure'
+                'notify_me': 'failure',
+                'subscribe_to': ['my_jobs']
             }
         }
     else:

@@ -2,32 +2,36 @@ Settings = {
     init: function() {
         _mixin(this, AJAXUtil);
 
-        // Class event handlers
-        this.click = $.proxy(this, 'click');
-        this.success = $.proxy(this, 'success');
-
-        this.radios = $('input[name=\'notify_me\']');
-        this.radios.on('click', this.click);
-
         this.bindToDataActions();
     },
 
     bindToDataActions: function() {
-        $('.search-list li').on('click', _bind(this.subscribeToSiteOrService, this));
+        $('input[name=\'notify_me\']').on('click', $.proxy(this.saveSettings, this));
+        $('.search-list li').on('click', $.proxy(this.subscribeToNotification, this));
     },
 
-    subscribeToSiteOrService: function(event) {
-        $(event.target).toggleClass('active');
-        // this.post('/active url');
+    subscribeToNotification: function(event) {
+        if($(event.target).attr('id') != 'my_jobs') {
+            $(event.target).toggleClass('active');
+            this.saveSettings();
+        }
     },
 
-    click: function(e) {
-        var url = '/settings';
-        this.post(url, {'notify_me': $(e.target).val()}, this.success);
+    saveSettings: function() {
+        var notifyMe = $('input[name=notify_me]:checked').val();
+        var subscribed_to = [];
+
+        $('.search-list li.active').each(function(index, el) {
+            var val = $(el).attr('data-value');
+            if(val != 'my_jobs') subscribed_to.push(val);
+        });
+
+        var params = {'notify_me': notifyMe, subscribed_to: subscribed_to};
+        this.post('/settings', params, this.doneSaveSettings);
     },
 
-    success: function() {
-
+    doneSaveSettings: function(rslt) {
+        // Done
     }
 };
 
