@@ -1,4 +1,3 @@
---extra-index-url http://jayd3e.com:6543/index/
 nose
 coverage
 mockredis
