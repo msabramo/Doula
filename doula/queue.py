@@ -117,6 +117,9 @@ class Queue(object):
         self.qm.subscriber('job_failure', handler='doula.queue:add_failure')
 
     def this(self, attrs):
+        """
+        Enqueues a job onto the retools queue
+        """
         if 'job_type' in attrs and attrs['job_type'] in \
             ['push_to_cheeseprism', 'cycle_services', 'pull_cheeseprism_data', 'pull_github_data', 'pull_bambino_data', 'cleanup_queue']:
             _type = attrs['job_type']
@@ -141,6 +144,9 @@ class Queue(object):
         return job_dict['id']
 
     def get(self, job_dict={}):
+        """
+        Find the jobs that meet criteria sent in the job_dict
+        """
         jobs = self._get_jobs()
 
         # Loop through each criteria, throw out the jobs that don't meet
@@ -255,11 +261,13 @@ def add_result(job=None, result=None):
     # notify our user of a success
     cache = Cache.cache()
     user_id = job.kwargs['job_dict']['user_id']
+
     if user_id:
         user = cache.get('doula:user:%s' % user_id)
         user = json.loads(user)
 
         notify_me = user['settings']['notify_me']
+
         if notify_me == 'always':
             template = env.get_template('emails/job_success.html')
             send_message(subject="Epic Doula Success",

@@ -30,6 +30,8 @@ def logout_view(request):
 @view_config(context='velruse.AuthenticationComplete', permission=NO_PERMISSION_REQUIRED)
 def login_complete_view(request):
     """
+    Example user object:
+
     doula:user:jayd3e
     {
         'username': '',
