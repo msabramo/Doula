@@ -1,11 +1,11 @@
-from pyramid.config import Configurator
-from pyramid_jinja2 import renderer_factory
-from pyramid.authentication import SessionAuthenticationPolicy
-from pyramid.authorization import ACLAuthorizationPolicy
-from pyramid.session import UnencryptedCookieSessionFactoryConfig
+from doula.models.user import get_user
 from doula.resources import Site
 from doula.security import groupfinder
-from doula.request import get_user
+from pyramid.authentication import SessionAuthenticationPolicy
+from pyramid.authorization import ACLAuthorizationPolicy
+from pyramid.config import Configurator
+from pyramid.session import UnencryptedCookieSessionFactoryConfig
+from pyramid_jinja2 import renderer_factory
 
 
 def main(global_config, **settings):

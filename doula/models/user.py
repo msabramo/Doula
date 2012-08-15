@@ -1,4 +1,5 @@
 from doula.cache import Cache
+from pyramid.security import unauthenticated_userid
 import json
 
 
@@ -22,3 +23,10 @@ class User(object):
 
         cache = Cache.cache()
         cache.set('doula:user:%s' % user['username'], json_user)
+
+
+def get_user(request):
+    try:
+        return User.find(unauthenticated_userid(request))
+    except:
+        return None

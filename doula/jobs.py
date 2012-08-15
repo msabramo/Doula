@@ -64,7 +64,7 @@ def cycle_services(job_dict):
     load_config()
 
     try:
-        log.info('Cycling service %s' % job_dict['name'])
+        logging.info('Cycling service %s' % job_dict['name'])
 
         for ip in job_dict['nodes']:
             for name in job_dict['supervisor_service_names']:
