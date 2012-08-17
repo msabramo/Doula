@@ -67,7 +67,7 @@ def login_complete_view(request):
         }
     else:
         # If a user exists we still pull the latest users avatar url and email
-        # because those are updated in
+        # because those are updated by the user in Github Enterprise.
         user['avatar_url'] = info['avatar_url']
         user['email'] = profile['emails'][0]['value']
 
