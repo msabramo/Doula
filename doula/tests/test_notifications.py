@@ -83,6 +83,23 @@ class NotificationsTests(unittest.TestCase):
 
         self.assertEqual(len(email_list), 0)
 
+        job_dict = {
+            'status': 'complete',
+            'user_id': 'testuser2',
+            'exc': '',
+            'service': 'billweb',
+            'job_type': 'cycle_services',
+            'site': 'alexs-macbook-pro-4.local',
+            'time_started': 1345244421.622244,
+            'nodes': ['192.168.104.109'],
+            'id': '525ef351e8bf11e1aa30b8f6b1191577',
+            'supervisor_service_names': []
+        }
+
+        email_list = build_email_list(job_dict)
+
+        self.assertEqual(len(email_list), 1)
+
 
 if __name__ == '__main__':
     unittest.main()

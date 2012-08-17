@@ -51,7 +51,6 @@ def email_fail(email_list, job_dict, exception):
 
 def email(subject=None, recipients=None, body=None):
     mailer = Mailer(host='192.168.101.5')
-
     message = Message(subject=subject,
                       sender='doulabot@surveymonkey.com',
                       recipients=recipients,
@@ -93,7 +92,10 @@ def send_notification(job_dict, exception=None):
     which are push to cheese prism, cycle services and release service
     """
     if job_dict['job_type'] in ['push_to_cheeseprism', 'cycle_services']:
-        if job_dict['status'] == 'complete':
-            email_success(build_email_list(job_dict), job_dict)
-        elif job_dict['status'] == 'failed':
-            email_fail(build_email_list(job_dict), job_dict, exception)
+        email_list = build_email_list(job_dict)
+
+        if len(email_list) > 0:
+            if job_dict['status'] == 'complete':
+                email_success(email_list, job_dict)
+            elif job_dict['status'] == 'failed':
+                email_fail(email_list, job_dict, exception)
