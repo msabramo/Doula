@@ -10,17 +10,31 @@
   </h2>
   <ul>
     <li>
-      <a id="push-to-site"
-      class="{% if config.get('env') == 'prod' %}hide{% endif %} btn sm-btn" href="#">
-        <i class="icon-arrow-up icon-black"></i>
-        Release Service
-      </a>
-    </li>
-    <li>
-      <a id="cycle" class="btn sm-btn" href="#">
+      <a id="cycle" class="btn sm-btn" href="#" style="float: left;">
         <i class="icon-repeat icon-black"></i>
         Cycle
       </a>
+    </li>
+    <li>
+      <div class="btn-group hide {% if config.get('env') != 'prod' %}hide{% endif %}"
+      style="display: inline; float: right;">
+        <a id="release-service" style="display: none;" href="#"
+        class="hide {% if config.get('env') == 'prod' %}hide{% endif %} btn sm-btn">
+          <i class="hide icon-arrow-up icon-black"></i> Release Service
+        </a>
+        <a class="hide btn sm-btn dropdown-toggle"
+        data-toggle="dropdown" href="#">
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="#"><i class="icon-pencil"></i> Edit</a></li>
+          <li><a href="#"><i class="icon-trash"></i> Delete</a></li>
+          <li><a href="#"><i class="icon-ban-circle"></i> Ban</a></li>
+          <li class="divider"></li>
+          <li><a href="#"><i class="i"></i> Make admin</a></li>
+        </ul>
+      </div>
+
     </li>
   </ul>
 </div>
@@ -41,7 +55,8 @@
     <div class="accordion-heading group sm-accordion-title">
       <a href="#" onclick="return false;" data-toggle="collapse"
       data-target="#sm_packages_table">
-        Survey Monkey Packages</a>
+        Survey Monkey Packages
+      </a>
     </div>
   </div>
 

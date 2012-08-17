@@ -19,10 +19,10 @@ def login_view(request):
     return HTTPFound(location=login_url(request, 'github'))
 
 
-@view_config(name='logout', permission=NO_PERMISSION_REQUIRED)
+@view_config(route_name='logout', permission=NO_PERMISSION_REQUIRED)
 def logout_view(request):
     forget(request)
-    return HTTPFound(location='code.corp.surveymonkey.com')
+    return HTTPFound(location='http://code.corp.surveymonkey.com')
 
 
 @view_config(context='velruse.AuthenticationComplete', permission=NO_PERMISSION_REQUIRED)

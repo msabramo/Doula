@@ -172,6 +172,11 @@ def service_deploy(request):
     return dumps({'success': True, 'service': service})
 
 
+@view_config(route_name='service_release', renderer="string")
+def service_release(request):
+    pass
+
+
 def validate_token(request):
     # Validate security token
     if(request.POST['token'] != Config.get('token')):

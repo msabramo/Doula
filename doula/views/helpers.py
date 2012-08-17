@@ -5,7 +5,9 @@ from pyramid.httpexceptions import HTTPNotFound
 from pyramid.view import view_config
 from pyramid.renderers import render_to_response
 import traceback
-
+from pyramid.security import (
+    NO_PERMISSION_REQUIRED
+)
 import logging
 
 log = logging.getLogger('doula')
@@ -25,20 +27,20 @@ def get_site(site_name):
 ##################
 
 
-@view_config(context=HTTPNotFound, renderer='error/404.html')
-def not_found(self, request):
-    request.response.status = 404
-    log_error(request.exception, request)
-
-    return {'msg': request.exception.message, 'config': Config}
-
-
 def log_error(e, request):
     tb = traceback.format_exc()
     print "TRACEBACK\n" + str(tb)
 
     log_vals = {'url': request.url, 'error': e.message, 'stacktrace': tb}
     log.error(to_log_msg(log_vals))
+
+
+@view_config(context=HTTPNotFound, renderer='error/404.html', permission=NO_PERMISSION_REQUIRED)
+def not_found(request):
+    request.response.status = 404
+    log_error(request.exception, request)
+
+    return {'msg': request.exception.message, 'config': Config}
 
 
 def handle_json_exception(e, request):
