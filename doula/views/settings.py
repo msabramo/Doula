@@ -25,7 +25,12 @@ def change_settings(request):
     user = User.find(request.user['username'])
 
     for key, value in kwargs.items():
-        user['settings'][key] = value
+        if key == 'notify_me':
+            user['settings'] = value
+        elif key == 'subscribed_to':
+            subscription_list = value.split(',')
+            subscription_list.append('my_jobs')
+            user['settings'] = {'subscribed_to': subscription_list}
 
     User.save(user)
 

@@ -62,7 +62,7 @@ def login_complete_view(request):
             'email': profile['emails'][0]['value'],
             'settings': {
                 'notify_me': 'failure',
-                'subscribe_to': ['my_jobs']
+                'subscribed_to': ['my_jobs']
             }
         }
     else:
