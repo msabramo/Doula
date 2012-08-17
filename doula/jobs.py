@@ -19,7 +19,9 @@ import time
 
 
 def create_logger(job_id):
-    logging.basicConfig(filename=os.path.join('/var/log/doula', str(job_id) + '.log'), level=logging.DEBUG)
+    logging.basicConfig(filename=os.path.join('/var/log/doula', str(job_id) + '.log'),
+                        format='%(asctime)s %(levelname)-4s %(message)s',
+                        level=logging.DEBUG)
 
 
 def load_config():
