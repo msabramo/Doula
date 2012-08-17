@@ -10,7 +10,6 @@ from pyramid.security import (
 )
 from pyramid.httpexceptions import HTTPFound
 from velruse import login_url
-import json
 import requests
 
 
@@ -54,6 +53,7 @@ def login_complete_view(request):
                      params={'auth_token': credentials['oauthAccessToken']})
     info = r.json
 
+    # If user doesn't exist
     if not user:
         user = {
             'username': username,
@@ -66,14 +66,10 @@ def login_complete_view(request):
             }
         }
     else:
-        current_user = json.loads(user)
-        user = {
-            'username': current_user['username'],
-            'oauth_token': current_user['oauth_token'],
-            'avatar_url': info['avatar_url'],
-            'email': profile['emails'][0]['value'],
-            'settings': current_user['settings']
-        }
+        # If a user exists we still pull the latest users avatar url and email
+        # because those are updated in
+        user['avatar_url'] = info['avatar_url']
+        user['email'] = profile['emails'][0]['value']
 
     User.save(user)
     remember(request, username)
