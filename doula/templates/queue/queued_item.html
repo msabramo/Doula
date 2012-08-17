@@ -27,11 +27,11 @@
             {% elif queued_item['job_type'] == 'cycle_services' %}
                 <!-- joetodo, queue doesn't update the text with the updated text -->
                 {% if queued_item['status'] == 'failed' %}
-                    Failed to cycle service <strong>{{ queued_item['name'] }}</strong>
+                    Failed to cycle service <strong>{{ queued_item['service'] }}</strong>
                 {% elif queued_item['status'] == 'complete' %}
-                    Finished cycling <strong>{{ queued_item['name'] }}</strong>
+                    Finished cycling <strong>{{ queued_item['service'] }}</strong>
                 {% elif queued_item['status'] == 'queued' %}
-                    Waiting to cycle <strong>{{ queued_item['name'] }}</strong>
+                    Waiting to cycle <strong>{{ queued_item['service'] }}</strong>
                 {% endif %}
             {% endif %}
         </div>
