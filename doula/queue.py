@@ -1,29 +1,11 @@
+from doula.notifications import send_notification
 from retools.queue import QueueManager
-import os
-import uuid
 import json
+import logging
 import redis
 import time
 import traceback
-import logging
-from jinja2 import Environment, PackageLoader
-from pyramid_mailer.mailer import Mailer
-from pyramid_mailer.message import Message
-from doula.cache import Cache
-from pygments import highlight
-from pygments.lexers import BashLexer
-from pygments.formatters import HtmlFormatter
-
-env = Environment(loader=PackageLoader('doula', 'templates'))
-
-
-def get_log(job_id):
-    log = ''
-    log_name = os.path.join('/var/log/doula', job_id + '.log')
-    with open(log_name) as log_file:
-        log = log_file.read()
-
-    return highlight(log, BashLexer(), HtmlFormatter())
+import uuid
 
 
 class Queue(object):
@@ -88,7 +70,6 @@ class Queue(object):
         'packages': []
     }.items() + common_dict.items())
 
-
     push_to_cheeseprism_dict = dict({
         'remote': '',
         'branch': 'master',
@@ -115,8 +96,18 @@ class Queue(object):
         self.qm.subscriber('job_failure', handler='doula.queue:add_failure')
 
     def this(self, attrs):
-        if 'job_type' in attrs and attrs['job_type'] in \
-            ['push_to_cheeseprism', 'cycle_services', 'pull_cheeseprism_data', 'pull_github_data', 'pull_bambino_data', 'cleanup_queue']:
+        """
+        Enqueues a job onto the retools queue
+        """
+        job_types = [
+            'push_to_cheeseprism',
+            'cycle_services',
+            'pull_cheeseprism_data',
+            'pull_github_data',
+            'pull_bambino_data',
+            'cleanup_queue']
+
+        if 'job_type' in attrs and attrs['job_type'] in job_types:
             _type = attrs['job_type']
             job_dict = self.base_dicts[_type].copy()
         else:
@@ -132,24 +123,17 @@ class Queue(object):
         job_type = job_dict['job_type']
         p = self.rdb.pipeline()
 
-        if job_type is 'push_to_cheeseprism':
-            self.qm.enqueue('doula.jobs:push_to_cheeseprism', job_dict=job_dict)
-        elif job_type is 'cycle_services':
-            self.qm.enqueue('doula.jobs:cycle_services', job_dict=job_dict)
-        elif job_type is 'pull_cheeseprism_data':
-            self.qm.enqueue('doula.jobs:pull_cheeseprism_data', job_dict=job_dict)
-        elif job_type is 'pull_github_data':
-            self.qm.enqueue('doula.jobs:pull_github_data', job_dict=job_dict)
-        elif job_type is 'pull_bambino_data':
-            self.qm.enqueue('doula.jobs:pull_bambino_data', job_dict=job_dict)
-        elif job_type is 'cleanup_queue':
-            self.qm.enqueue('doula.jobs:cleanup_queue', job_dict=job_dict)
+        self.qm.enqueue('doula.jobs:%s' % job_type, job_dict=job_dict)
 
         self._save(p, job_dict)
         p.execute()
+
         return job_dict['id']
 
     def get(self, job_dict={}):
+        """
+        Find the jobs that meet criteria sent in the job_dict
+        """
         jobs = self._get_jobs()
 
         # Loop through each criteria, throw out the jobs that don't meet
@@ -172,8 +156,10 @@ class Queue(object):
             raise Exception('Must pass an id into the update function.')
 
         p = self.rdb.pipeline()
-        self._update(p, job_dict)
+        job_dict = self._update(p, job_dict)
         p.execute()
+
+        return job_dict
 
     def remove(self, job_dict_ids):
         if isinstance(job_dict_ids, basestring):
@@ -198,6 +184,7 @@ class Queue(object):
 
         # Created a list of all of the jobs(dict)
         jobs = []
+
         for job_json in jobs_json:
             job = json.loads(job_json)
             jobs.append(job)
@@ -219,6 +206,7 @@ class Queue(object):
             if job['id'] == id:
                 p.srem(k['jobs'], json.dumps(job, sort_keys=True))
                 return job
+
         return None
 
     def _remove_jobs(self, p, ids):
@@ -246,7 +234,10 @@ class Queue(object):
         if job_dict:
             for key, val in attrs.items():
                 job_dict[key] = val
+
             p.sadd(k['jobs'], json.dumps(job_dict, sort_keys=True))
+
+            return job_dict
         else:
             return False
 
@@ -259,56 +250,27 @@ def add_result(job=None, result=None):
     Subscriber that gets called right after the job gets run, and is successful.
     """
     queue = Queue()
-    queue.update({'id': job.kwargs['job_dict']['id'], 'status': 'complete'})
+    job_dict = queue.update({'id': job.kwargs['job_dict']['id'], 'status': 'complete'})
+    print "\n SUCCESSULF JOB\N"
+    print job_dict
 
-    # notify our user of a success
-    cache = Cache.cache()
-    user_id = job.kwargs['job_dict']['user_id']
-    if user_id:
-        user = cache.get('doula:user:%s' % user_id)
-        user = json.loads(user)
-
-        notify_me = user['settings']['notify_me']
-        if notify_me == 'always':
-            template = env.get_template('emails/job_success.html')
-            send_message(subject="Epic Doula Success",
-                         recipients=[user['email']],
-                         body=template.render({'job_dict': job.kwargs['job_dict'],
-                                               'user': user}))
+    # Notify user of successful job
+    send_notification(job_dict)
 
 
 def add_failure(job=None, exc=None):
     """
     Subscriber that gets called when a job fails.
     """
-    exc = traceback.format_exc()
-    logging.error(exc)
+    exception = traceback.format_exc()
+    logging.error(exception)
 
     queue = Queue()
-    queue.update({'id': job.kwargs['job_dict']['id'], 'status': 'failed', 'exc': exc})
+    job_dict = queue.update({
+        'exc': exception,
+        'status': 'failed',
+        'id': job.kwargs['job_dict']['id']
+    })
 
-    # notify our user of a failure
-    cache = Cache.cache()
-    user_id = job.kwargs['job_dict']['user_id']
-    if user_id:
-        user = cache.get('doula:user:%s' % user_id)
-        user = json.loads(user)
-
-        notify_me = user['settings']['notify_me']
-        if notify_me == 'always' or notify_me == 'failure':
-            template = env.get_template('emails/job_failure.html')
-            send_message(subject="Epic Doula Failure",
-                         recipients=[user['email']],
-                         body=template.render({'job_dict': job.kwargs['job_dict'],
-                                               'user': user,
-                                               'log': get_log(job.kwargs['job_dict']['id'])}))
-
-
-def send_message(subject=None, recipients=None, body=None):
-    mailer = Mailer(host='192.168.101.5')
-    message = Message(subject=subject,
-                      sender='doulabot@surveymonkey.com',
-                      recipients=recipients,
-                      html=body)
-
-    mailer.send_immediately(message)
+    # Notify user of failed job
+    send_notification(job_dict, exception)

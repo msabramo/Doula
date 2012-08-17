@@ -4,7 +4,7 @@
     <div class="title-bar clearfix">
         <h2>Settings</h2>
     </div>
-
+    <div class="clearfix">
     <form>
         <p>Hi <strong>{{ request.user['username'] }}</strong>! Doula will send all email notifications to your Github Enterprise email <strong>{{ request.user['email'] }}</strong>.</p>
 
@@ -28,13 +28,30 @@
             type="radio" name="notify_me" value="never">
             Never
         </label>
+
+        <hr />
+
+        <label>
+        <strong>Subscribe notifications for:</strong>
+        </label>
+        <ul class="search-list">
+            <li id="my_jobs" data-value="my_jobs" class="active">My jobs</li>
+        {% for ss in sites_and_services|sort %}
+            <li data-value="{{ss}}"
+                {% if ss in request.user['settings']['subscribed_to'] %}class="active"{% endif %}>
+                {{ss}}
+            </li>
+        {% endfor %}
+        </ul>
+
     </form>
+    </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 {{ [
 '/js/common/util.js',
-'/js/site/settings.js'
+'/js/settings/settings.js'
 ]|js_script|safe }}
 {% endblock %}

@@ -16,6 +16,19 @@ class SiteDAL(object):
         pass
 
     @staticmethod
+    def list_of_sites_and_services():
+        sites_and_services = []
+
+        for s, site in SiteDAL.get_sites().iteritems():
+            sites_and_services.append(s)
+
+            for name, service in site.services.iteritems():
+                if not name in sites_and_services:
+                    sites_and_services.append(str(name))
+
+        return sites_and_services
+
+    @staticmethod
     def save_service_as_deployed(app, tag):
         SiteDAL._add_to_deploy_set(app, tag)
         SiteDAL._set_app_tag_as_deployed(app, tag)

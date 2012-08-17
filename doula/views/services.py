@@ -126,6 +126,7 @@ def enqueue_push_package(user_id, service, remote, branch, version):
     """
     job_dict = {
         'user_id': user_id,
+        'site': service.site_name,
         'service': service.name,
         'remote': remote,
         'branch': branch,
@@ -171,6 +172,11 @@ def service_deploy(request):
     return dumps({'success': True, 'service': service})
 
 
+@view_config(route_name='service_release', renderer="string")
+def service_release(request):
+    pass
+
+
 def validate_token(request):
     # Validate security token
     if(request.POST['token'] != Config.get('token')):
@@ -193,6 +199,7 @@ def enqueue_cycle_services(request, nodes, service):
     # alextodo, make sure to account for the problem where
     # a service could be spread across several boxes
     # you would need to be able to restart all of them, do we abstract this?
+    # make sure all the nodes service's are in the supervisord_service_names
     ips = []
 
     for node_name in nodes:
@@ -203,8 +210,9 @@ def enqueue_cycle_services(request, nodes, service):
     return queue.this({
         'user_id': request.user['username'],
         'job_type': 'cycle_services',
+        'site': service.site_name,
         'nodes': ips,
-        'name': service.name,
+        'service': service.name,
         'supervisor_service_names': service.supervisor_service_names
     })
 

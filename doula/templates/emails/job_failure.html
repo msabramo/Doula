@@ -5,15 +5,20 @@
     {% if queued_item['job_type'] == 'push_to_cheeseprism' %}
         failed to release <strong>{{ queued_item['version'] }}</strong>
         of <strong>{{ queued_item['branch'] }}</strong>
-        at <strong>{{ queued_item['remote'] }}</strong>
+        at <strong>{{ queued_item['remote'] }}</strong>.
     {% elif queued_item['job_type'] == 'cycle_services' %}
-        Failed to cycle service <strong>{{ queued_item['name'] }}</strong>
+        Failed to cycle service
+        <strong>{{ queued_item['service'] }}</strong> on
+        <strong>{{ queued_item['site'] }}</strong>.
     {% endif %}
     </br>
+
     Here are the logs:</br>
+
     {% if log: %}
          {{ log }}
     {% endif %}
+
 {%- endmacro %}
 
 {% if job_dict: %}

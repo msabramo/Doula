@@ -48,7 +48,7 @@ QueuedItems = {
     poll: function() {
         var url = '/queue';
         this.kwargs.last_updated = this.data.lastUpdated;
-        this.get('poll', url, this.kwargs, this.handle_updates);
+        this.get(url, this.kwargs, this.handle_updates, null, false);
     },
 
     handle_updates: function(data) {
@@ -76,7 +76,7 @@ QueuedItems = {
 
         if (data.new_queued_items.length > 0) {
             this.latest_notifications.show();
-
+            // alextodo redo this.
             if(data.new_queued_items.length == 1) {
                 this.latest_notifications.html('There is 1 new job to be displayed.');
             }

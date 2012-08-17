@@ -1,13 +1,11 @@
-import os.path
-import time
 from datetime import datetime
-
 from doula.config import Config
-from doula.views.helpers import *
+from doula.log import get_log
 from doula.queue import Queue
-from doula.queue import get_log
-from pyramid.view import view_config
+from doula.views.helpers import *
 from pyramid.renderers import render
+from pyramid.view import view_config
+import time
 
 
 # QUEUE VIEWS
