@@ -1,7 +1,4 @@
-import json
-import requests
-from velruse import login_url
-from doula.cache import Cache
+from doula.models.user import User
 from pyramid.view import (
     view_config,
     forbidden_view_config
@@ -12,6 +9,9 @@ from pyramid.security import (
     forget
 )
 from pyramid.httpexceptions import HTTPFound
+from velruse import login_url
+import json
+import requests
 
 
 @view_config(name='login', permission=NO_PERMISSION_REQUIRED)
@@ -43,18 +43,18 @@ def login_complete_view(request):
         }
     }
     """
-    cache = Cache.cache()
     context = request.context
     profile = context.profile
     credentials = context.credentials
 
     username = profile['preferredUsername']
-    user_exists = cache.get('doula:user:%s' % username)
+    user = User.find(username)
+
     r = requests.get('https://api.github.com/users/%s' % username,
                      params={'auth_token': credentials['oauthAccessToken']})
     info = r.json
 
-    if not user_exists:
+    if not user:
         user = {
             'username': username,
             'oauth_token': credentials['oauthAccessToken'],
@@ -66,7 +66,7 @@ def login_complete_view(request):
             }
         }
     else:
-        current_user = json.loads(user_exists)
+        current_user = json.loads(user)
         user = {
             'username': current_user['username'],
             'oauth_token': current_user['oauth_token'],
@@ -75,8 +75,9 @@ def login_complete_view(request):
             'settings': current_user['settings']
         }
 
-    cache.set('doula:user:%s' % user['username'], json.dumps(user, sort_keys=True))
+    User.save(user)
     remember(request, username)
+
     return  HTTPFound(location='/')
 
 

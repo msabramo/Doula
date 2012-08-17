@@ -4,6 +4,19 @@ import json
 
 
 class User(object):
+    """
+    Example user object:
+    {
+        'username': '',
+        'oauth_token': '',
+        'avatar_url': '',
+        'email': '',
+        'settings': {
+            'notify_me': 'always',
+            'subscribed_to': ['my_jobs']
+        }
+    }
+    """
     def __init__(self):
         pass
 
@@ -13,9 +26,9 @@ class User(object):
         user_as_json = cache.get('doula:user:%s' % username)
 
         if not user_as_json:
-            raise "Unable to find user"
-
-        return json.loads(user_as_json)
+            return None
+        else:
+            return json.loads(user_as_json)
 
     @staticmethod
     def save(user):
@@ -23,6 +36,23 @@ class User(object):
 
         cache = Cache.cache()
         cache.set('doula:user:%s' % user['username'], json_user)
+        cache.sadd('doula:users', user['username'])
+
+    @staticmethod
+    def users():
+        """
+        Return all the users
+        """
+        cache = Cache.cache()
+        users = []
+
+        for username in cache.smembers('doula:users'):
+            user = User.find(username)
+
+            if user:
+                users.append(user)
+
+        return users
 
 
 def get_user(request):

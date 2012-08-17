@@ -64,14 +64,16 @@ def cycle_services(job_dict):
     load_config()
 
     try:
-        logging.info('Cycling service %s' % job_dict['name'])
+        logging.info('Cycling service %s' % job_dict['service'])
 
         for ip in job_dict['nodes']:
+            logging.info('Cycling supervisord services: %s' % job_dict['supervisor_service_names'])
+
             for name in job_dict['supervisor_service_names']:
                 logging.info('Cycling service %s on IP http://%s' % (name, ip))
                 Service.cycle(xmlrpclib.ServerProxy('http://' + ip), name)
 
-        logging.info('Done cycling %s' % job_dict['name'])
+        logging.info('Done cycling %s' % job_dict['service'])
     except Exception as e:
         logging.error(e.message)
         logging.error(traceback.format_exc())
@@ -191,7 +193,7 @@ def pull_bambino_data(job_dict=None):
 
 def cleanup_queue(job_dict=None):
     """
-    Cleanup unneeded jobs stored in our queueing system.
+    Cleanup old jobs stored in our queueing system.
     """
     create_logger(job_dict['id'])
     try:
