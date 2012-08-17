@@ -64,6 +64,8 @@ class Queue(object):
 
     push_service_environment_dict = dict({
         'site_name_or_node_ip': '',
+        'username': '',
+        'email': '',
         'service_name': '',
         'packages': []
     }.items() + common_dict.items())
