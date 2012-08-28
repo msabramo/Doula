@@ -1,2 +1,2 @@
-git+git@code.corp.surveymonkey.com:DevOps/velruse@master#egg=velruse
+git+http://code.corp.surveymonkey.com/DevOps/velruse#egg=velruse
 ./
