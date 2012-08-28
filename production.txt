@@ -1,2 +1,3 @@
-git+http://code.corp.surveymonkey.com/DevOps/velruse#egg=velruse
+-e git+git@github.com:Doula/Doula.git#egg=doula
+-e git+http://code.corp.surveymonkey.com/DevOps/velruse#egg=velruse
 ./
