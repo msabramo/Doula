@@ -155,7 +155,7 @@ def pull_appenv_github_data(config={}, job_dict={}, debug=False):
         raise
 
 
-def push_service_environment(config={}, job_dict={}):
+def push_service_environment(config={}, job_dict={}, debug=False):
     """
     Pip install the packages sent
     """
