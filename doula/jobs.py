@@ -132,7 +132,7 @@ def pull_github_data(config={}, job_dict={}):
         raise
 
 
-def pull_appenv_github_data(config={}, job_dict={}):
+def pull_appenv_github_data(config={}, job_dict={}, debug=False):
     """
     Pull the github data for every App environment
     """
@@ -166,22 +166,27 @@ def push_service_environment(config={}, job_dict={}):
         #TODO: verbose statemenet
         logging.info('pushing code to environment')
         failures = []
-
+        successes = []
         try:
             push = Push(
                 job_dict['service_name'],
                 job_dict['username'],
                 job_dict['email'],
-                Config.get('bambino.web_app_dir'),
-                Config.get('doula.cheeseprism_url'),
-                Config.get('doula.keyfile_path'),
-                job_dict['site_name_or_node_ip']
+                config['bambino.web_app_dir'],
+                config['doula.cheeseprism_url'],
+                config['doula.keyfile_path'],
+                job_dict['site_name_or_node_ip'],
+                debug
             )
             successes, failures = push.packages(job_dict['packages'])
         except Exception as e:
             failures.append({'package': 'git', 'error': str(e)})
 
+        if failures:
+            raise Exception(','.join(failures))
+
         logging.info('Done installing packages.')
+        return successes, failures
     except Exception as e:
         logging.error(e.message)
         logging.error(traceback.format_exc())
