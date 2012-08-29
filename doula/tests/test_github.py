@@ -10,7 +10,6 @@ class GithubTests(unittest.TestCase):
             'doula.github.appenvs.org': 'AppEnv'
         }
         Config.load_config(settings)
-        pass
 
     def tearDown(self):
         pass

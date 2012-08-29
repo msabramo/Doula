@@ -11,7 +11,6 @@ from doula.models.sites_dal import SiteDAL
 from doula.queue import Queue
 from doula.services.cheese_prism import CheesePrism
 from doula.util import *
-import json
 import logging
 import os
 import time
@@ -25,16 +24,14 @@ def create_logger(job_id):
                         level=logging.DEBUG)
 
 
-def load_config():
+def load_config(config):
     """
-    Load the config from redis
+    Load the config as a global
     """
-    cache = Cache.cache()
-    settings_as_json = cache.get('doula_settings')
-    Config.load_config(json.loads(settings_as_json))
+    Config.load_config(config)
 
 
-def push_to_cheeseprism(job_dict=None):
+def push_to_cheeseprism(config={}, job_dict={}):
     """
     This function will be enqueued by Queue upon receiving a job dict that
     has a job_type of 'push_to_cheeseprism'.  Upon being called, it will
@@ -42,9 +39,10 @@ def push_to_cheeseprism(job_dict=None):
     package to cheeseprism.
     """
     create_logger(job_dict['id'])
+    load_config(config)
+
     try:
         logging.info("About to push package to cheese prism %s" % job_dict['remote'])
-        load_config()
 
         p = Package(job_dict['service'], '0', job_dict['remote'])
         p.distribute(job_dict['branch'], job_dict['version'])
@@ -56,7 +54,7 @@ def push_to_cheeseprism(job_dict=None):
         raise
 
 
-def cycle_services(job_dict):
+def cycle_services(config={}, job_dict={}):
     """
     This function will be enqueued by Queue upon receiving a job dict that
     has a job_type of 'cycle_services'.  Upon being called, it will restart
@@ -64,7 +62,7 @@ def cycle_services(job_dict):
     on a specific site.
     """
     create_logger(job_dict['id'])
-    load_config()
+    load_config(config)
 
     try:
         logging.info('Cycling service %s' % job_dict['service'])
@@ -83,14 +81,15 @@ def cycle_services(job_dict):
         raise
 
 
-def pull_cheeseprism_data(job_dict=None):
+def pull_cheeseprism_data(config={}, job_dict={}):
     """
     Ping Cheese Prism and pull the latest packages and all of their versions.
     """
     create_logger(job_dict['id'])
+    load_config(config)
+
     try:
         logging.info('Started pulling cheeseprism data')
-        load_config()
 
         cache = Cache.cache()
         pipeline = cache.pipeline()
@@ -111,15 +110,17 @@ def pull_cheeseprism_data(job_dict=None):
         raise
 
 
-def pull_github_data(job_dict=None):
+def pull_github_data(config={}, job_dict={}):
     """
     Pull the github data for every python package.
     Pull commit history, tags, branches. Everything.
     """
     create_logger(job_dict['id'])
+    load_config(config)
+
     try:
         logging.info('pulling github data')
-        load_config()
+
         repos = pull_devmonkeys_repos()
         cache = Cache.cache()
         cache.set("repos:devmonkeys", dumps(repos))
@@ -131,15 +132,15 @@ def pull_github_data(job_dict=None):
         raise
 
 
-def pull_appenv_github_data(job_dict=None):
+def pull_appenv_github_data(config={}, job_dict={}):
     """
     Pull the github data for every App environment
     """
     create_logger(job_dict['id'])
+    load_config(config)
 
     try:
         logging.info('Pulling github appenv data')
-        load_config()
 
         cache = Cache.cache()
 
@@ -154,15 +155,16 @@ def pull_appenv_github_data(job_dict=None):
         raise
 
 
-def push_service_environment(job_dict=None):
+def push_service_environment(config={}, job_dict={}):
     """
     Pip install the packages sent
     """
     create_logger(job_dict['id'])
+    load_config(config)
+
     try:
         #TODO: verbose statemenet
         logging.info('pushing code to environment')
-        load_config()
         failures = []
 
         try:
@@ -186,14 +188,15 @@ def push_service_environment(job_dict=None):
         raise
 
 
-def pull_bambino_data(job_dict=None):
+def pull_bambino_data(config={}, job_dict={}):
     """
     Pull the data from all the bambino's
     """
     create_logger(job_dict['id'])
+    load_config(config)
+
     try:
         logging.info('Pulling bambino data')
-        load_config()
 
         cache = Cache.cache()
         pipeline = cache.pipeline()
@@ -216,11 +219,13 @@ def pull_bambino_data(job_dict=None):
         raise
 
 
-def cleanup_queue(job_dict=None):
+def cleanup_queue(config={}, job_dict={}):
     """
     Cleanup old jobs stored in our queueing system.
     """
     create_logger(job_dict['id'])
+    load_config(config)
+
     try:
         logging.info('Cleaning up the queue')
 

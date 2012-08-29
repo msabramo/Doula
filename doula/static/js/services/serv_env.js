@@ -58,8 +58,29 @@ var ServiceEnv = {
 		// cheese prism.
 		console.log('HELLO THERE');
 		console.log(release);
+		// alextodo, run some code to add originally selected to dropdown
+		// alextodo highlight the option you select
 
-		return false;
+		for(i=0; i < release.packages.length; i++) {
+			var pckg = release.packages[i];
+
+			var safeID = pckg.name.toLowerCase().replace('.', '\\.');
+			var select = $('#pckg_select_' + safeID);
+			var val = $.trim(select.val());
+
+			// alextodo. make sure it's a real change.
+			if(val != pckg.version) {
+				if(val != 'undefined') {
+					console.log("CHANGE: " + pckg.name + ' VER: -' +
+					select.val() + '- VER2: -' + pckg.version);
+					select.val(pckg.version);
+					select.addClass('warning');
+				}
+				else {
+					console.log('hello there');
+				}
+			}
+		}
 	},
 
 	bindToDataActions: function() {
