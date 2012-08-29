@@ -37,12 +37,37 @@ var ServiceEnv = {
 			$(this).parent().removeClass('shown').addClass('hidden');
 		});
 
+		// Dropdown packages
+
+		this.addOriginalVersionToPackageSelects();
+
 		$('a.release').on('click', $.proxy(this.selectReleasePackages, this));
+		$('select.package-select').
+			on('change', $.proxy(this.updatePackageDropdownOnChange, this));
+	},
+
+	/*******************
+	PACKAGE DROPDOWN RELATED
+	********************/
+
+	addOriginalVersionToPackageSelects: function() {
+		$('.package-select').each(function(i, select) {
+			select = $(select);
+			select.attr('data-original-val', select.val());
+
+			var safeID = select.attr('id').
+				replace('pckg_select_', '').
+				replace('.', '\\.');
+			$('#pckg_select_msg_' + safeID).
+				html('Current version <strong>' + select.val() + '</strong>.');
+		});
 	},
 
 	selectReleasePackages: function(event) {
-		// alextodo i'll need to compare against an attribute on the drop down
-		var releaseDate = $(event.target).attr('data-date');
+		var target = $(event.target);
+		this.makeReleaseLinkActive(target);
+
+		var releaseDate = target.attr('data-date');
 		var release;
 
 		for(var i = 0; i < this.releases.length; i++) {
@@ -52,36 +77,55 @@ var ServiceEnv = {
 			}
 		}
 
-		// alextodo, update the dropdown from here and
-		// figure out why the fuck the options don't match what the release was
-		// what happens then?, oh probably on prod. cause we don't match
-		// cheese prism.
-		console.log('HELLO THERE');
-		console.log(release);
-		// alextodo, run some code to add originally selected to dropdown
-		// alextodo highlight the option you select
-
 		for(i=0; i < release.packages.length; i++) {
 			var pckg = release.packages[i];
 
 			var safeID = pckg.name.toLowerCase().replace('.', '\\.');
-			var select = $('#pckg_select_' + safeID);
-			var val = $.trim(select.val());
-
-			// alextodo. make sure it's a real change.
-			if(val != pckg.version) {
-				if(val != 'undefined') {
-					console.log("CHANGE: " + pckg.name + ' VER: -' +
-					select.val() + '- VER2: -' + pckg.version);
-					select.val(pckg.version);
-					select.addClass('warning');
-				}
-				else {
-					console.log('hello there');
-				}
-			}
+			this.updatePackageDropdown(safeID, pckg.version);
 		}
 	},
+
+	updatePackageDropdownOnChange: function(event) {
+		var target = $(event.target);
+		var name = target.attr('id').replace('pckg_select_', '');
+
+		this.updatePackageDropdown(name, target.val());
+	},
+
+	updatePackageDropdown: function(name, version) {
+		var safeID = name.toLowerCase().replace('.', '\\.');
+		var select = $('#pckg_select_' + safeID);
+		var message = $('#pckg_select_msg_' + safeID);
+		var originalVal = $.trim(select.attr('data-original-val'));
+
+		if(originalVal != version && originalVal != 'undefined') {
+			select.val(version);
+			select.addClass('warning');
+			message.addClass('warning');
+
+			var html = 'New version <strong>' + version + '</strong>. ';
+			html += 'Current version <strong>' + originalVal + '</strong>.';
+			message.html(html);
+		}
+		else {
+			select.val(version);
+			select.removeClass('warning');
+			message.removeClass('warning');
+			message.html('Current version <strong>' + originalVal + '</strong>.');
+		}
+	},
+
+	makeReleaseLinkActive: function(el) {
+		$('#release-dropdown li').each(function(i, li) {
+			$(li).removeClass('active');
+		});
+
+		el.parent().addClass('active');
+	},
+
+	/*******************
+	DATA ACTIONS
+	********************/
 
 	bindToDataActions: function() {
 		$('#add-pckg').on('click', function() {
@@ -93,7 +137,9 @@ var ServiceEnv = {
 		$('#cycle').on('click', _bind(this.cycle, this));
 		$('.new-version-btn').on('click', _bind(this.showPushPackageModal, this));
 
-		QueuedItems.subscribe('queue-item-changed', _bind(this.queueItemChanged, this));
+		QueuedItems.subscribe(
+			'queue-item-changed',
+			_bind(this.queueItemChanged, this));
 	},
 
 	/****************
