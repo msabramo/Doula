@@ -7,7 +7,10 @@ var ServiceEnv = {
 	*****************/
 
 	init: function() {
+		this.releases = __releases;
+
 		_mixin(this, AJAXUtil);
+
 		Data.init();
 
 		this.bindToUIActions();
@@ -33,6 +36,51 @@ var ServiceEnv = {
 		$('.commit-accordion').on('hide', function () {
 			$(this).parent().removeClass('shown').addClass('hidden');
 		});
+
+		$('a.release').on('click', $.proxy(this.selectReleasePackages, this));
+	},
+
+	selectReleasePackages: function(event) {
+		// alextodo i'll need to compare against an attribute on the drop down
+		var releaseDate = $(event.target).attr('data-date');
+		var release;
+
+		for(var i = 0; i < this.releases.length; i++) {
+			if(this.releases[i].date == releaseDate) {
+				release = this.releases[i];
+				break;
+			}
+		}
+
+		// alextodo, update the dropdown from here and
+		// figure out why the fuck the options don't match what the release was
+		// what happens then?, oh probably on prod. cause we don't match
+		// cheese prism.
+		console.log('HELLO THERE');
+		console.log(release);
+		// alextodo, run some code to add originally selected to dropdown
+		// alextodo highlight the option you select
+
+		for(i=0; i < release.packages.length; i++) {
+			var pckg = release.packages[i];
+
+			var safeID = pckg.name.toLowerCase().replace('.', '\\.');
+			var select = $('#pckg_select_' + safeID);
+			var val = $.trim(select.val());
+
+			// alextodo. make sure it's a real change.
+			if(val != pckg.version) {
+				if(val != 'undefined') {
+					console.log("CHANGE: " + pckg.name + ' VER: -' +
+					select.val() + '- VER2: -' + pckg.version);
+					select.val(pckg.version);
+					select.addClass('warning');
+				}
+				else {
+					console.log('hello there');
+				}
+			}
+		}
 	},
 
 	bindToDataActions: function() {

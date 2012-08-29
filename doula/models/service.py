@@ -1,16 +1,17 @@
 from doula.models.audit import Audit
 from doula.models.package import Package
+from doula.models.release import Release
 from doula.models.sites_dal import SiteDAL
+from doula.models.tag import Tag
 from doula.util import *
 from fabric.api import *
-from git import *
 from socket import error as socket_error
+import json
 import logging
 import operator
 import re
 import requests
 import xmlrpclib
-import json
 
 # Defines the Data Models for Doula and Bambino.
 #
@@ -78,7 +79,7 @@ class Service(object):
         a.add_packages(app['packages'])
         a.add_tags_from_dict(app['tags'])
         a.last_tag = a.get_last_tag()
-        # a.supervisor_service_names = app['supervisor_service_names']
+        a.supervisor_service_names = app['supervisor_service_names']
 
         return a
 
@@ -102,6 +103,12 @@ class Service(object):
         # exceptions are weird with xmlrpc: http://betabug.ch/blogs/ch-athens/1012
         except (socket_error, xmlrpclib.Fault, xmlrpclib.ProtocolError, xmlrpclib.ResponseError), error_code:
             raise  CycleServiceException(error_code)
+
+    def get_releases(self):
+        """
+        Return the releases for this service to this site
+        """
+        return Release.get_releases(self.site_name, self.name)
 
     def add_packages(self, pckgs):
         for name, pckg in pckgs.iteritems():

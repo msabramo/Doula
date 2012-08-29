@@ -93,7 +93,7 @@ def load_config(event):
     Load the Service config settings
     """
     Config.load_config(event.app.registry.settings)
-    Cache.cache().set('doula_settings', dumps(event.app.registry.settings))
+    Cache.cache().set('doula:settings', dumps(event.app.registry.settings))
 
     start_task_scheduling()
 
