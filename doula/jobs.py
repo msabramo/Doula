@@ -1,21 +1,22 @@
+from datetime import datetime
 from doula.cache import Cache
+from doula.config import Config
+from doula.github.github import pull_appenv_repos
 from doula.github.github import pull_devmonkeys_repos
 from doula.models.node import Node
 from doula.models.package import Package
+from doula.models.push import Push
 from doula.models.service import Service
 from doula.models.sites_dal import SiteDAL
-from doula.models.push import Push
+from doula.queue import Queue
 from doula.services.cheese_prism import CheesePrism
 from doula.util import *
-from doula.config import Config
-from doula.queue import Queue
-from datetime import datetime
-import os
 import json
 import logging
+import os
+import time
 import traceback
 import xmlrpclib
-import time
 
 
 def create_logger(job_id):
@@ -121,9 +122,32 @@ def pull_github_data(job_dict=None):
         load_config()
         repos = pull_devmonkeys_repos()
         cache = Cache.cache()
-        cache.set("devmonkeys_repos", dumps(repos))
+        cache.set("repos:devmonkeys", dumps(repos))
 
         logging.info('Done pulling github data')
+    except Exception as e:
+        logging.error(e.message)
+        logging.error(traceback.format_exc())
+        raise
+
+
+def pull_appenv_github_data(job_dict=None):
+    """
+    Pull the github data for every App environment
+    """
+    create_logger(job_dict['id'])
+
+    try:
+        logging.info('Pulling github appenv data')
+        load_config()
+
+        cache = Cache.cache()
+
+        for branch in ['mt1', 'mt2', 'mt3']:
+            repos = pull_appenv_repos(branch)
+            cache.set("repos:appenv:%s" % branch, dumps(repos))
+
+        logging.info('Done pulling github appenv data')
     except Exception as e:
         logging.error(e.message)
         logging.error(traceback.format_exc())

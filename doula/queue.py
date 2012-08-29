@@ -82,6 +82,7 @@ class Queue(object):
         'cycle_services': common_dict,
         'pull_cheeseprism_data': common_dict,
         'pull_github_data': common_dict,
+        'pull_appenv_github_data': common_dict,
         'pull_bambino_data': common_dict,
         'cleanup_queue': common_dict
     }
@@ -104,6 +105,7 @@ class Queue(object):
             'cycle_services',
             'pull_cheeseprism_data',
             'pull_github_data',
+            'pull_appenv_github_data',
             'pull_bambino_data',
             'cleanup_queue']
 

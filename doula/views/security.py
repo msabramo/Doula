@@ -71,6 +71,16 @@ def login_complete_view(request):
         user['avatar_url'] = info.get('avatar_url', '')
         user['email'] = get_email_from_profile(profile)
 
+    # Ensure the keys settings exist
+    if not user['settings']:
+        user['settings'] = {}
+
+    if not user['settings'].get('notify_me'):
+        user['settings']['notify_me'] = 'failure'
+
+    if not user['settings'].get('subscribed_to'):
+        user['settings']['subscribed_to'] = ['my_jobs']
+
     User.save(user)
     remember(request, username)
 

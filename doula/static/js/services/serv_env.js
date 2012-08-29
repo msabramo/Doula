@@ -7,7 +7,10 @@ var ServiceEnv = {
 	*****************/
 
 	init: function() {
+		this.releases = __releases;
+
 		_mixin(this, AJAXUtil);
+
 		Data.init();
 
 		this.bindToUIActions();
@@ -33,6 +36,30 @@ var ServiceEnv = {
 		$('.commit-accordion').on('hide', function () {
 			$(this).parent().removeClass('shown').addClass('hidden');
 		});
+
+		$('a.release').on('click', $.proxy(this.selectReleasePackages, this));
+	},
+
+	selectReleasePackages: function(event) {
+		// alextodo i'll need to compare against an attribute on the drop down
+		var releaseDate = $(event.target).attr('data-date');
+		var release;
+
+		for(var i = 0; i < this.releases.length; i++) {
+			if(this.releases[i].date == releaseDate) {
+				release = this.releases[i];
+				break;
+			}
+		}
+
+		// alextodo, update the dropdown from here and
+		// figure out why the fuck the options don't match what the release was
+		// what happens then?, oh probably on prod. cause we don't match
+		// cheese prism.
+		console.log('HELLO THERE');
+		console.log(release);
+
+		return false;
 	},
 
 	bindToDataActions: function() {

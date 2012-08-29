@@ -35,6 +35,7 @@ def service(request):
         'service': service,
         'config': Config,
         'service_json': dumps(service),
+        'releases_json': dumps(service.get_releases()),
         'other_packages': other_packages,
         'queued_items': [],
         'last_updated': last_updated,

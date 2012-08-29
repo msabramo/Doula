@@ -24,11 +24,19 @@ def relative_datetime(date):
     date - a date formatted as a string (ex. "2012-02-15T10:12:01+02:00")
     """
     datetime_only = date.split('+')[0]
+    date_only = datetime.strptime(datetime_only.split('T')[0], "%Y-%m-%d")
+
     dt = datetime.strptime(datetime_only, "%Y-%m-%dT%X")
     delta = datetime.now() - dt
 
+    today_datetime_only = datetime.now().isoformat().split('T')[0]
+    today_only = datetime.strptime(today_datetime_only, "%Y-%m-%d")
+
     if delta.days == 0:
-        return 'Today at %s' % dt.strftime("%I:%M %p")
+        if date_only == today_only:
+            return 'Today at %s' % dt.strftime("%I:%M %p")
+        else:
+            return 'Yesterday at %s' % dt.strftime("%I:%M %p")
     elif delta.days == 1:
         return 'Yesterday at %s' % dt.strftime("%I:%M %p")
     elif delta.days > 1 and delta.days < 30:
