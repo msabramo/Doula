@@ -51,6 +51,7 @@ class Push(object):
         failures = []
         successes = []
 
+
         #for safety, on systems that don't have group write permissions
         self._chown()
         with workon(self._webapp(), self.debug):
@@ -78,7 +79,7 @@ class Push(object):
         if failures:
             raise Exception(json.dumps(failures))
 
-
+        return successes, failures
     """
     This call does the following:
         * gets the branch name

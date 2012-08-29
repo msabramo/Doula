@@ -130,7 +130,7 @@ def pull_github_data(job_dict=None):
         raise
 
 
-def push_service_environment(job_dict=None):
+def push_service_environment(config, job_dict=None, debug=False):
     """
     Pip install the packages sent
     """
@@ -138,24 +138,28 @@ def push_service_environment(job_dict=None):
     try:
         #TODO: verbose statemenet
         logging.info('pushing code to environment')
-        load_config()
         failures = []
-
+        successes = []
         try:
             push = Push(
                 job_dict['service_name'],
                 job_dict['username'],
                 job_dict['email'],
-                Config.get('bambino.web_app_dir'),
-                Config.get('doula.cheeseprism_url'),
-                Config.get('doula.keyfile_path'),
-                job_dict['site_name_or_node_ip']
+                config['bambino.web_app_dir'],
+                config['doula.cheeseprism_url'],
+                config['doula.keyfile_path'],
+                job_dict['site_name_or_node_ip'],
+                debug
             )
             successes, failures = push.packages(job_dict['packages'])
         except Exception as e:
             failures.append({'package': 'git', 'error': str(e)})
 
+        if failures:
+            raise Exception(','.join(failures))
+
         logging.info('Done installing packages.')
+        return successes, failures
     except Exception as e:
         logging.error(e.message)
         logging.error(traceback.format_exc())
