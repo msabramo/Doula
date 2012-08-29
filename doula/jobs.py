@@ -155,7 +155,7 @@ def pull_appenv_github_data(config={}, job_dict={}, debug=False):
         raise
 
 
-def push_service_environment(config={}, job_dict={}):
+def push_service_environment(config={}, job_dict={}, debug=False):
     """
     Pip install the packages sent
     """
@@ -176,6 +176,7 @@ def push_service_environment(config={}, job_dict={}):
                 config['doula.cheeseprism_url'],
                 config['doula.keyfile_path'],
                 job_dict['site_name_or_node_ip'],
+                debug
             )
             successes, failures = push.packages(job_dict['packages'])
         except Exception as e:
