@@ -167,11 +167,21 @@ def push_service_environment(config={}, job_dict={}, debug=False):
         logging.info('pushing code to environment')
         failures = []
         successes = []
+
+        print 'service_name', job_dict['service_name']
+        print 'user_id', job_dict['user_id']
+        print 'web_app_dir', config['bambino.webapp_dir']
+        print 'cheese_url', config['doula.cheeseprism_url']
+        print 'keyfile', config['doula.keyfile_path']
+        print 'node_name', job_dict['site_name_or_node_ip']
+
+        print job_dict
+
         try:
             push = Push(
                 job_dict['service_name'],
                 job_dict['user_id'],
-                config['bambino.web_app_dir'],
+                config['bambino.webapp_dir'],
                 config['doula.cheeseprism_url'],
                 config['doula.keyfile_path'],
                 job_dict['site_name_or_node_ip'],
