@@ -32,15 +32,18 @@ def workon(path, debug):
 
 class Push(object):
 
-    def __init__(self, service_name, username, web_app_dir, cheeseprism_url, keyfile, site_name_or_node_ip, debug=False):
+    def __init__(self, service_name, username, web_app_dir, 
+            cheeseprism_url, keyfile, site_name_or_node_ip, user_id, debug=False):
+
         self.service_name = service_name
         self.username = username
 
-        user = User.find(job_dict['user_id'])
+        user = User.find(username)
         self.email = user['email']
 
         self.web_app_dir = web_app_dir
-        self.cheeseprism_url = cheeseprism_url
+        self.cheeseprism_url = os.path.join(cheeseprism_url, 'index')
+        print 'url:', self.cheeseprism_url
         self.keyfile = keyfile
         env.host_string = site_name_or_node_ip
         self.debug = debug
@@ -81,7 +84,8 @@ class Push(object):
 
         self.config()
         if failures:
-            raise Exception(json.dumps(failures))
+            print 'failing!', failures
+            raise Exception(failures)
 
         return successes, failures
     """

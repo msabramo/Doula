@@ -164,7 +164,8 @@ def push_service_environment(config={}, job_dict={}, debug=False):
 
     try:
         #TODO: verbose statemenet
-        logging.info('pushing code to environment')
+        logging.info('%s the following packages to %s: [%s]', 
+                (job_dict['user_id'], job_dict['service_name'], ','.join(job_dict['packages'])))
         failures = []
         successes = []
 
@@ -174,8 +175,7 @@ def push_service_environment(config={}, job_dict={}, debug=False):
         print 'cheese_url', config['doula.cheeseprism_url']
         print 'keyfile', config['doula.keyfile_path']
         print 'node_name', job_dict['site_name_or_node_ip']
-
-        print job_dict
+        print 'packages', job_dict['packages']
 
         try:
             push = Push(
