@@ -14,7 +14,7 @@ var Service = {
 
     bindToUIActions: function() {
         $('#compare_dropdown1,#compare_dropdown2').
-            bind('click change blur keydown', _bind(this.updateCompareURL, this));
+            bind('click change blur keydown', $.proxy(this.updateCompareURL, this));
 
         this.updateCompareURL();
     },

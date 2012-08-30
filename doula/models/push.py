@@ -7,6 +7,8 @@ from fabric.context_managers import prefix
 from fabric.context_managers import settings
 import os
 
+import logging
+
 
 @contextmanager
 def debuggable(debug=False):
@@ -50,6 +52,7 @@ class Push(object):
         env.user = 'doula'
         env.key_filename = self.keyfile
         self.pip_freeze = ''
+        logging.getLogger().setLevel(logging.INFO)
 
     def packages(self, packages, action='install'):
         assert(action in ['install', 'uninstall'])

@@ -164,10 +164,12 @@ def push_service_environment(config={}, job_dict={}, debug=False):
 
     try:
         #TODO: verbose statemenet
-        logging.info('%s the following packages to %s: [%s]', 
+        logging.info('%s pushed the following packages to %s: [%s]' %
                 (job_dict['user_id'], job_dict['service_name'], ','.join(job_dict['packages'])))
         failures = []
         successes = []
+
+        logging.getLogger().setLevel(logging.ERROR)
 
         print 'service_name', job_dict['service_name']
         print 'user_id', job_dict['user_id']
@@ -201,9 +203,11 @@ def push_service_environment(config={}, job_dict={}, debug=False):
             # raise Exception(','.join(failures['error']))
             raise Exception(failures[0]['error'])
 
+        logging.getLogger().setLevel(logging.DEBUG)
         logging.info('Done installing packages.')
         return successes, failures
     except Exception as e:
+        logging.getLogger().setLevel(logging.DEBUG)
         logging.error(e.message)
         logging.error(traceback.format_exc())
         raise
