@@ -132,12 +132,14 @@ var AJAXUtil = {
     },
 
     _showStandardErrorMessage: function(rslt) {
-        // alextodo, show standard error message too
-        // no modals
-        console.log('standard message');
-        console.log(rslt.msg);
-        $('#modal-error-msg').modal({
-          show: true
+        $('#modal-error').on('show', function () {
+          $('#modal-error-msg').html(rslt.msg);
+          $('#modal-error-close').on('click', function() {
+            $('#modal-error').modal('hide');
+            return false;
+          });
         });
+
+        $('#modal-error').modal();
     }
 };
