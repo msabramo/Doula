@@ -52,7 +52,7 @@ class Push(object):
         env.user = 'doula'
         env.key_filename = self.keyfile
         self.pip_freeze = ''
-        logging.getLogger().setLevel(logging.INFO)
+        logging.getLogger().setLevel(logging.ERROR)
 
     def packages(self, packages, action='install'):
         assert(action in ['install', 'uninstall'])

@@ -17,11 +17,25 @@ import time
 import traceback
 import xmlrpclib
 
+class ContextFilter(logging.Filter):
+    """
+    This is a filter which removes the shit
 
-def create_logger(job_id):
+    """
+
+    def filter(self, record):
+        print record.getMessage()
+
+        if "Secsh channel" in record.getMessage():
+            return False
+        return True
+
+
+def create_logger(job_id, level=logging.DEBUG):
     logging.basicConfig(filename=os.path.join('/var/log/doula', str(job_id) + '.log'),
                         format='%(asctime)s %(levelname)-4s %(message)s',
-                        level=logging.DEBUG)
+                        level=level)
+    return logging.getLogger()
 
 
 def load_config(config):
@@ -159,25 +173,17 @@ def push_service_environment(config={}, job_dict={}, debug=False):
     """
     Pip install the packages sent
     """
-    create_logger(job_dict['id'])
+    log = create_logger(job_dict['id'])
     load_config(config)
 
     try:
         #TODO: verbose statemenet
-        logging.info('%s pushed the following packages to %s: [%s]' %
+        f = ContextFilter()
+        log.addFilter(f)
+        log.info('%s pushed the following packages to %s: [%s]' %
                 (job_dict['user_id'], job_dict['service_name'], ','.join(job_dict['packages'])))
         failures = []
         successes = []
-
-        logging.getLogger().setLevel(logging.ERROR)
-
-        print 'service_name', job_dict['service_name']
-        print 'user_id', job_dict['user_id']
-        print 'web_app_dir', config['bambino.webapp_dir']
-        print 'cheese_url', config['doula.cheeseprism_url']
-        print 'keyfile', config['doula.keyfile_path']
-        print 'node_name', job_dict['site_name_or_node_ip']
-        print 'packages', job_dict['packages']
 
         try:
             push = Push(
@@ -204,6 +210,7 @@ def push_service_environment(config={}, job_dict={}, debug=False):
             raise Exception(failures[0]['error'])
 
         logging.getLogger().setLevel(logging.DEBUG)
+        create_logger(job_dict['id'])
         logging.info('Done installing packages.')
         return successes, failures
     except Exception as e:
