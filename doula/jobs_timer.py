@@ -9,7 +9,7 @@ from doula.queue import Queue
 
 def pull_github_data():
     """
-
+    Pull the data for the dev monkeys org
     """
     job_dict = {
         'job_type': 'pull_github_data'

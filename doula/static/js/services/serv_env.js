@@ -160,13 +160,25 @@ var ServiceEnv = {
 	*****************/
 
 	releaseService: function() {
-		this.disableReleaseServiceButton();
-
-		var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/release';
 		var packages = this.getActiveReleasePackages();
-		var params = {packages: JSON.stringify(packages)};
 
-		this.post(url, params, this.doneReleaseService);
+		if(this.hasChanges(packages)) {
+			this.disableReleaseServiceButton();
+
+			var params = {packages: JSON.stringify(packages)};
+			var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/release';
+			this.post(url, params, this.doneReleaseService);
+		}
+
+		return false;
+	},
+
+	hasChanges: function(packages) {
+		for(var name in packages) {
+			return true;
+		}
+
+		return false;
 	},
 
 	disableReleaseServiceButton: function() {
@@ -184,8 +196,11 @@ var ServiceEnv = {
 			select = $(select);
 			var name = select.attr('id').replace('pckg_select_', '');
 			var version = select.val();
+			var originalVal = $.trim(select.attr('data-original-val'));
 
-			packages[name] = version;
+			if(originalVal != version && originalVal != 'undefined') {
+				packages[name] = version;
+			}
 		});
 
 		return packages;
@@ -193,6 +208,11 @@ var ServiceEnv = {
 
 	doneReleaseService: function(rslt) {
 		this.enableReleaseServiceButton();
+	},
+
+	failedReleaseService: function(rslt) {
+		this.enableReleaseServiceButton();
+		this._showStandardErrorMessage(rslt);
 	},
 
 	/****************
