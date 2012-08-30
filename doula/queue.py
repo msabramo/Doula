@@ -266,7 +266,7 @@ def add_result(job=None, result=None):
     queue = Queue()
 
     job_dict = queue.update({'id': job.kwargs['job_dict']['id'], 'status': 'complete'})
-    print "\n SUCCESSULF JOB\N"
+    print "\n SUCCESSFUL JOB\N"
     print job_dict
 
     # Notify user of successful job
@@ -279,6 +279,10 @@ def add_failure(job=None, exc=None):
     """
     tb = traceback.format_exc()
     logging.error(exc)
+
+    print "\n FAILED JOB\N"
+    print exc
+    print tb
 
     queue = Queue()
     job_dict = queue.update({
