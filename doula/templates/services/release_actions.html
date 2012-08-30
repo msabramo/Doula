@@ -18,7 +18,8 @@
     <li>
       <div class="btn-group {% if config.get('env') == 'prod' %}hide2{% endif %}"
       style="display: inline; float: right;">
-        <a id="release-service" href="#"
+        <a id="release-service" href="#" rel="popover" delay="500"
+        title="Release Error" data-content="You must make a change to make new release."
         class="{% if config.get('env') == 'prod' %}hide2{% endif %} btn sm-btn">
           <i class="icon-arrow-up icon-black"></i> Release Service
         </a>
@@ -40,6 +41,7 @@
     </li>
   </ul>
 </div>
+
 
 <div class="queued_items" data-last-updated="{{ last_updated }}">
   <div class="latest_notifications alert">

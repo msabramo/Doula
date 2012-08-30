@@ -41,6 +41,7 @@ var ServiceEnv = {
 
 		this.addOriginalVersionToPackageSelects();
 
+		$('#release-service').popover();
 		$('a.release').on('click', $.proxy(this.selectReleasePackages, this));
 		$('select.package-select').
 			on('change', $.proxy(this.updatePackageDropdownOnChange, this));
@@ -168,6 +169,12 @@ var ServiceEnv = {
 			var params = {packages: JSON.stringify(packages)};
 			var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/release';
 			this.post(url, params, this.doneReleaseService, this.failedReleaseService);
+		}
+		else {
+			// No changes made. Show error message in popover
+			setTimeout(function() {
+				$('#release-service').popover('hide');
+			}, 2500);
 		}
 
 		return false;

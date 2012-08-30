@@ -2,13 +2,14 @@ from doula.cache import Cache
 from doula.config import Config
 from doula.jobs_timer import start_task_scheduling
 from doula.models.sites_dal import SiteDAL
+from doula.queue import Queue
 from doula.util import *
 from doula.views.helpers import *
 from pyramid.events import ApplicationCreated
 from pyramid.events import subscriber
 from pyramid.response import FileResponse
-from pyramid.view import view_config
 from pyramid.security import NO_PERMISSION_REQUIRED
+from pyramid.view import view_config
 import json
 import logging
 import os
@@ -81,6 +82,28 @@ def bambino_ips(request):
     """
     ips = SiteDAL.get_node_ips()
     return json.dumps({'success': True, 'ip_addresses': ips})
+
+
+@view_config(route_name='updatedoula', renderer="updatedoula.html")
+def updatedoula(request):
+    """
+    Update Doula makes calls to update all the data Doula depends on
+    e.g.
+    """
+    q = Queue()
+
+    html = ''
+    jobs = [
+        'pull_github_data',
+        'pull_appenv_github_data',
+        'pull_cheeseprism_data',
+        'pull_bambino_data']
+
+    for job in jobs:
+        q.this({'job_type': job})
+        html += job + ', '
+
+    return {'jobs_html': html.rstrip(', ')}
 
 
 ####################
