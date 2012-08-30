@@ -195,11 +195,17 @@ def enqueue_service_release(request, nodes, service, packages):
     """
     Enqueue the job onto the queue
     """
-    ips = []
-    # alextodo, take a look at this. is it ever more than one?
-    # if not deal with that
-    for node_name in nodes:
-        ips.append(nodes[node_name]['ip'])
+
+    if Config.get('env') == 'prod':
+        ip = ''
+
+        # alextodo, take a look at this. is it ever more than one?
+        # if not deal with that
+        for node_name in nodes:
+            nodes[node_name]['ip']
+            break
+    else:
+        ip = Config.get('doula.deploy.site')
 
     pckgs = []
 
@@ -209,13 +215,15 @@ def enqueue_service_release(request, nodes, service, packages):
     # alextodo. make a call to
     # UPDATE THE SERVICES FOR THE RELEASES
     # make a call to pull_appenv_github_data
+    print 'IP OR SITE NAME'
+    print ip
 
     queue = Queue()
 
     return queue.this({
         'user_id': request.user['username'],
         'job_type': 'push_service_environment',
-        'site_name_or_node_ip': ips[0],
+        'site_name_or_node_ip': ip,
         'service_name': service.name,
         'packages': pckgs
     })
