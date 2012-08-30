@@ -127,9 +127,6 @@ class Queue(object):
         job_type = job_dict['job_type']
 
         p = self.rdb.pipeline()
-        print 'JOB TYPE'
-        print attrs['job_type']
-        print "\n"
 
         self.qm.enqueue('doula.jobs:%s' % job_type, config=self.get_config(), job_dict=job_dict)
         self._save(p, job_dict)
