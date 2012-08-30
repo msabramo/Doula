@@ -48,7 +48,7 @@ var ServiceEnv = {
 		// Queue stuff
 		QueuedItems.subscribe(
 			'queue-item-changed',
-			_bind(this.queueItemChanged, this));
+			$.proxy(this.queueItemChanged, this));
 	},
 
 	/*******************
@@ -149,10 +149,10 @@ var ServiceEnv = {
 			$('#add-packages').modal();
 		});
 
-		$('#cycle').on('click', _bind(this.cycle, this));
-		$('.new-version-btn').on('click', _bind(this.showPushPackageModal, this));
+		$('#cycle').on('click', $.proxy(this.cycle, this));
+		$('.new-version-btn').on('click', $.proxy(this.showPushPackageModal, this));
 
-		$('#release-service').on('click', _bind(this.releaseService, this));
+		$('#release-service').on('click', $.proxy(this.releaseService, this));
 	},
 
 	/****************
@@ -167,7 +167,7 @@ var ServiceEnv = {
 
 			var params = {packages: JSON.stringify(packages)};
 			var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/release';
-			this.post(url, params, this.doneReleaseService);
+			this.post(url, params, this.doneReleaseService, this.failedReleaseService);
 		}
 
 		return false;
@@ -270,7 +270,7 @@ var ServiceEnv = {
 	enableButton: function(id, func) {
 		$('#'+id)
 			.removeClass('disabled')
-			.on('click', _bind(func, this));
+			.on('click', $.proxy(func, this));
 	},
 
 	/****************
@@ -299,7 +299,7 @@ var ServiceEnv = {
 				.on('keyup', ServiceEnv.validateShowPushPackageModal)
 				.on('mouseup', ServiceEnv.validateShowPushPackageModal);
 
-			$('#push_package').on('click', _bind(ServiceEnv.pushPackage, ServiceEnv));
+			$('#push_package').on('click', $.proxy(ServiceEnv.pushPackage, ServiceEnv));
 		});
 
 		$('#push-to-cheese-modal')
