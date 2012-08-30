@@ -44,6 +44,7 @@ def pull_url(url):
     """
     Pull the URL text. Always raise the status error.
     """
+    print 'url', url
     r = requests.get(url)
     # If the response is non 200, we raise an error
     r.raise_for_status()
