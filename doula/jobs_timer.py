@@ -72,7 +72,7 @@ def start_task_scheduling():
     sched = Scheduler()
     sched.start()
 
-    interval = int(Config.get('task_interval'))
+    interval = int(Config.get('task_interval_pull_bambino'))
     sched.add_interval_job(pull_bambino_data, seconds=interval)
 
     cheeseprism_interval = int(Config.get('task_interval_pull_cheesprism_data'))
