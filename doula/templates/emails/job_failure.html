@@ -10,6 +10,10 @@
         Failed to cycle service
         <strong>{{ queued_item['service'] }}</strong> on
         <strong>{{ queued_item['site'] }}</strong>.
+    {% elif queued_item['job_type'] == 'push_service_environment' %}
+        Failed to release service
+        <strong>{{ queued_item['service_name'] }}</strong> on
+        <strong>{{ queued_item['site_name_or_node_ip'] }}</strong>.
     {% endif %}
 
     </br><br />

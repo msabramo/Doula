@@ -44,6 +44,11 @@ var ServiceEnv = {
 		$('a.release').on('click', $.proxy(this.selectReleasePackages, this));
 		$('select.package-select').
 			on('change', $.proxy(this.updatePackageDropdownOnChange, this));
+
+		// Queue stuff
+		QueuedItems.subscribe(
+			'queue-item-changed',
+			_bind(this.queueItemChanged, this));
 	},
 
 	/*******************
@@ -68,14 +73,7 @@ var ServiceEnv = {
 		this.makeReleaseLinkActive(target);
 
 		var releaseDate = target.attr('data-date');
-		var release;
-
-		for(var i = 0; i < this.releases.length; i++) {
-			if(this.releases[i].date == releaseDate) {
-				release = this.releases[i];
-				break;
-			}
-		}
+		var release = this.findReleaseByDate(releaseDate);
 
 		for(i=0; i < release.packages.length; i++) {
 			var pckg = release.packages[i];
@@ -83,6 +81,23 @@ var ServiceEnv = {
 			var safeID = pckg.name.toLowerCase().replace('.', '\\.');
 			this.updatePackageDropdown(safeID, pckg.version);
 		}
+
+		// Close the button dropdown menu
+		target.closest('div.btn-group').removeClass('open');
+
+		return false;
+	},
+
+	findReleaseByDate: function(releaseDate) {
+		var release;
+
+		for(var i = 0; i < this.releases.length; i++) {
+			if(this.releases[i].date == releaseDate) {
+				return this.releases[i];
+			}
+		}
+
+		return false;
 	},
 
 	updatePackageDropdownOnChange: function(event) {
@@ -137,9 +152,47 @@ var ServiceEnv = {
 		$('#cycle').on('click', _bind(this.cycle, this));
 		$('.new-version-btn').on('click', _bind(this.showPushPackageModal, this));
 
-		QueuedItems.subscribe(
-			'queue-item-changed',
-			_bind(this.queueItemChanged, this));
+		$('#release-service').on('click', _bind(this.releaseService, this));
+	},
+
+	/****************
+	RELEASE SERVICE
+	*****************/
+
+	releaseService: function() {
+		this.disableReleaseServiceButton();
+
+		var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/release';
+		var packages = this.getActiveReleasePackages();
+		var params = {packages: JSON.stringify(packages)};
+
+		this.post(url, params, this.doneReleaseService);
+	},
+
+	disableReleaseServiceButton: function() {
+		this.disableButton('release-service');
+	},
+
+	enableReleaseServiceButton: function() {
+		this.enableButton('release-service', this.releaseService);
+	},
+
+	getActiveReleasePackages: function() {
+		var packages = {};
+
+		$('select.package-select').each(function(i, select) {
+			select = $(select);
+			var name = select.attr('id').replace('pckg_select_', '');
+			var version = select.val();
+
+			packages[name] = version;
+		});
+
+		return packages;
+	},
+
+	doneReleaseService: function(rslt) {
+		this.enableReleaseServiceButton();
 	},
 
 	/****************
@@ -176,16 +229,28 @@ var ServiceEnv = {
 	},
 
 	disableCycleButton: function() {
-		$('#cycle')
+		this.disableButton('cycle');
+	},
+
+	enableCycleButton: function() {
+		this.enableButton('cycle', this.cycle);
+	},
+
+	/****************
+	COMMON
+	*****************/
+
+	disableButton: function(id) {
+		$('#'+id)
 			.unbind()
 			.addClass('disabled')
 			.bind('click', function() { return false; });
 	},
 
-	enableCycleButton: function() {
-		$('#cycle')
+	enableButton: function(id, func) {
+		$('#'+id)
 			.removeClass('disabled')
-			.on('click', _bind(this.cycle, this));
+			.on('click', _bind(func, this));
 	},
 
 	/****************

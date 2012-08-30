@@ -1,5 +1,6 @@
 from datetime import datetime
 from doula.util import comparable_name
+import math
 
 
 def formatted_day(date):
@@ -49,7 +50,7 @@ def relative_datetime(date):
         else:
             return str(months) + ' months ago'
     else:
-        years = delta.days / 365
+        years = math.fabs(delta.days / 365)
 
         if years == 1:
             return '1 year ago'

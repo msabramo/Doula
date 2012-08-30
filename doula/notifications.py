@@ -22,6 +22,9 @@ def email_success(email_list, job_dict):
         subject = 'Doula Success: Pushed %s to Cheese Prism on %s' % package
     elif job_dict['job_type'] == 'cycle_services':
         subject = 'Doula Success: Cycled %s on %s' % (job_dict['service'], job_dict['site'])
+    elif job_dict['job_type'] == 'push_service_environment':
+        vals = (job_dict['service_name'], job_dict['site_name_or_node_ip'])
+        subject = 'Doula Success: Released service %s on %s' % vals
     else:
         subject = 'Doula Success'
 
@@ -43,6 +46,9 @@ def email_fail(email_list, job_dict, exception):
         subject = 'Doula Failure: Push %s to Cheese Prism on %s failed' % package
     elif job_dict['job_type'] == 'cycle_services':
         subject = 'Doula Failure: Cycle %s on %s failed' % (job_dict['service'], job_dict['site'])
+    elif job_dict['job_type'] == 'push_service_environment':
+        vals = (job_dict['service_name'], job_dict['site_name_or_node_ip'])
+        subject = 'Doula Failure: Release service %s on %s' % vals
     else:
         subject = 'Doula Failure'
 
@@ -91,7 +97,7 @@ def send_notification(job_dict, exception=None):
     We only send out notifications for jobs initiated by users
     which are push to cheese prism, cycle services and release service
     """
-    if job_dict['job_type'] in ['push_to_cheeseprism', 'cycle_services']:
+    if job_dict['job_type'] in ['push_to_cheeseprism', 'cycle_services', 'push_service_environment']:
         email_list = build_email_list(job_dict)
 
         if len(email_list) > 0:

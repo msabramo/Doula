@@ -13,7 +13,7 @@ import time
 def show_queue(request):
     queue = Queue()
 
-    query = {'job_type': ['push_to_cheeseprism', 'cycle_services']}
+    query = {'job_type': ['push_to_cheeseprism', 'cycle_services', 'push_service_environment']}
     sort_by = request.params.get('sort_by')
     if sort_by == 'complete' or sort_by == 'failed' or sort_by == 'queued':
         query['status'] = sort_by
@@ -45,7 +45,7 @@ def update_queue(request):
     queue = Queue()
     last_updated = request.GET['last_updated']
 
-    query = {'job_type': ['push_to_cheeseprism', 'cycle_services']}
+    query = {'job_type': ['push_to_cheeseprism', 'cycle_services', 'push_service_environment']}
     queued_items = queue.get(query)
 
     i = 0

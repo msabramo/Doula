@@ -65,7 +65,6 @@ class Queue(object):
 
     push_service_environment_dict = dict({
         'site_name_or_node_ip': '',
-        'username': '',
         'email': '',
         'service_name': '',
         'packages': []
@@ -80,6 +79,7 @@ class Queue(object):
     base_dicts = {
         'base': common_dict,
         'push_to_cheeseprism': push_to_cheeseprism_dict,
+        'push_service_environment': push_service_environment_dict,
         'cycle_services': common_dict,
         'pull_cheeseprism_data': common_dict,
         'pull_github_data': common_dict,
@@ -103,6 +103,7 @@ class Queue(object):
         """
         job_types = [
             'push_to_cheeseprism',
+            'push_service_environment',
             'cycle_services',
             'pull_cheeseprism_data',
             'pull_github_data',
@@ -126,6 +127,9 @@ class Queue(object):
         job_type = job_dict['job_type']
 
         p = self.rdb.pipeline()
+        print 'JOB TYPE'
+        print attrs['job_type']
+        print "\n"
 
         self.qm.enqueue('doula.jobs:%s' % job_type, config=self.get_config(), job_dict=job_dict)
         self._save(p, job_dict)

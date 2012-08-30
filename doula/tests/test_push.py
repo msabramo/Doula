@@ -1,13 +1,7 @@
 import os
 import unittest
-import os
-import json
-
-from mock import patch
-from mock import call
-
-from doula.models.push import Push
 from doula import jobs as jobs
+
 
 class PushTests(unittest.TestCase):
 
@@ -20,7 +14,6 @@ class PushTests(unittest.TestCase):
         }
 
     def test_push(self):
-
         #push = Push(
                 #job_dict['service_name'],
                 #job_dict['username'],
@@ -29,16 +22,14 @@ class PushTests(unittest.TestCase):
                 #Config.get('doula.cheeseprism_url'),
                 #Config.get('doula.keyfile_path'),
                 #job_dict['site_name_or_node_ip']
-
-
         config = self.get_config()
         job_dict = {
             'id': 111,
+            'user_id': 'tbone',
             'service_name': 'anonweb',
-            'username': 'tbone',
-            'email': 'tims@surveymonkey.com',
             'site_name_or_node_ip': 'mt-99',
             'packages': ['requests']
         }
+
         successes, failures = jobs.push_service_environment(config, job_dict, True)
         print successes, failures

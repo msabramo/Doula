@@ -170,8 +170,7 @@ def push_service_environment(config={}, job_dict={}, debug=False):
         try:
             push = Push(
                 job_dict['service_name'],
-                job_dict['username'],
-                job_dict['email'],
+                job_dict['user_id'],
                 config['bambino.web_app_dir'],
                 config['doula.cheeseprism_url'],
                 config['doula.keyfile_path'],
@@ -180,10 +179,17 @@ def push_service_environment(config={}, job_dict={}, debug=False):
             )
             successes, failures = push.packages(job_dict['packages'])
         except Exception as e:
+            print 'EXCEPTIN IN JOB:'
+            # getting this message. sequence item 0: exp
+            print e.message
             failures.append({'package': 'git', 'error': str(e)})
 
         if failures:
-            raise Exception(','.join(failures))
+            # timtodo. this used to use join, failures returns this
+            # [{'error': "'bambino.web_app_dir'", 'package': 'git'}]
+            # Old call. this is here
+            # raise Exception(','.join(failures['error']))
+            raise Exception(failures[0]['error'])
 
         logging.info('Done installing packages.')
         return successes, failures

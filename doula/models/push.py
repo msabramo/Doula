@@ -1,10 +1,11 @@
-import os
+from contextlib import contextmanager
+from doula.models.user import User
 from fabric.api import *
 from fabric.context_managers import cd
+from fabric.context_managers import hide
 from fabric.context_managers import prefix
 from fabric.context_managers import settings
-from fabric.context_managers import hide
-from contextlib import contextmanager
+import os
 
 
 @contextmanager
@@ -31,10 +32,13 @@ def workon(path, debug):
 
 class Push(object):
 
-    def __init__(self, service_name, username, email, web_app_dir, cheeseprism_url, keyfile, site_name_or_node_ip, debug=False):
+    def __init__(self, service_name, username, web_app_dir, cheeseprism_url, keyfile, site_name_or_node_ip, debug=False):
         self.service_name = service_name
         self.username = username
-        self.email = email
+
+        user = User.find(job_dict['user_id'])
+        self.email = user['email']
+
         self.web_app_dir = web_app_dir
         self.cheeseprism_url = cheeseprism_url
         self.keyfile = keyfile
@@ -51,9 +55,9 @@ class Push(object):
         failures = []
         successes = []
 
-
         #for safety, on systems that don't have group write permissions
         self._chown()
+
         with workon(self._webapp(), self.debug):
             for package in packages:
                 with prefix('. bin/activate'):
@@ -102,15 +106,14 @@ class Push(object):
         self._chown()
         return result
 
-
     def _chown(self):
         with debuggable(self.debug):
             path = os.path.join(self.web_app_dir, self.service_name)
             result = sudo('chown -R %suser:sm_users %s' % (self.service_name, path))
             if result.succeeded:
                 sudo('chmod -R g+rwx %s' % path)
-        if result.failed: raise Exception(str(result).replace('\n', ', '))
-
+        if result.failed:
+            raise Exception(str(result).replace('\n', ', '))
 
     def commit(self, message):
         with workon(self._webapp(), self.debug):
@@ -126,7 +129,6 @@ class Push(object):
             if result.failed:
                 raise Exception(str(result))
 
-
     def get_pip_freeze(self):
         with workon(self._webapp(), self.debug):
             # pip freeze's standard out is weird, so we do the following
@@ -136,22 +138,18 @@ class Push(object):
             # * delete $f, sending stdout to dev null, so it does not show up on output
             freeze = run('f="/tmp/$RANDOM.txt" && pip freeze -l ./ > $f && cat $f && rm -rf $f > /dev/null 2>&1')
             hashes = "#################\n"
-            freeze = "%s%s%s%s" %(hashes, "pip freeze:\n", hashes, freeze)
+            freeze = "%s%s%s%s" % (hashes, "pip freeze:\n", hashes, freeze)
             return freeze
-
 
     def _branch(self):
         return run('git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3')
 
-
     def _webapp(self):
         return os.path.join(self.web_app_dir, self.service_name)
-
 
     def _etc(self):
         return os.path.join(self.web_app_dir, self.service_name, 'etc')
 
 
-
 def get_test_obj(service):
-    return Push(service, 'tbone', 'tims@surveymonkey.com', '/opt/webapp/', 'http://mtclone:6543/index', '/Users/timsabat/.ssh/id_rsa_doula_user', 'mt-99', True)
+    return Push(service, 'tbone', '/opt/webapp/', 'http://mtclone:6543/index', '/Users/timsabat/.ssh/id_rsa_doula_user', 'mt-99', True)
