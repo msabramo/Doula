@@ -85,6 +85,7 @@ def service_cheese_prism_push(request):
     if len(errors) == 0:
         job_dict = enqueue_push_package(request.user['username'],
                                         service,
+                                        package,
                                         remote,
                                         branch,
                                         next_version)
@@ -125,7 +126,7 @@ def validate_release(package, branch, next_version):
     return errors
 
 
-def enqueue_push_package(user_id, service, remote, branch, version):
+def enqueue_push_package(user_id, service, package, remote, branch, version):
     """
     Enqueue the job onto the queue
     """
@@ -133,6 +134,7 @@ def enqueue_push_package(user_id, service, remote, branch, version):
         'user_id': user_id,
         'site': service.site_name,
         'service': service.name,
+        'package_name': package.name,
         'remote': remote,
         'branch': branch,
         'version': version,
