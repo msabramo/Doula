@@ -2,7 +2,7 @@ from fabric.api import cd
 from fabric.api import *
 from fabric.contrib.files import exists
 
-env.hosts = ['doula.corp.surveymonkey.com']
+env.hosts = ['mt-99.corp.surveymonkey.com']
 env.user = 'doula'
 env.key_filename = ['~/.ssh/id_rsa_doula']
 doula_dir = '/opt/doula'
