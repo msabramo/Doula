@@ -30,6 +30,8 @@ def _pull(project, path):
             run('virtualenv .')
         with prefix('. bin/activate'):
             run('echo $VIRTUAL_ENV')
+            if project == 'doula':
+                run('pip install -e git+http://code.corp.surveymonkey.com/DevOps/velruse#egg=velruse')
             run('pip install -e git+git://github.com/Doula/%s.git@master#egg=%s' % (project.title(), project))
         with cd('src/%s' % project):
             run('git submodule init')
