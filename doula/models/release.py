@@ -34,8 +34,6 @@ class Release(object):
             ]
         }
         """
-        # alextodo. update once tim pulls the branch here
-        # can i pull that? any way?
         packages = []
         start_looking_for_packages = False
 
