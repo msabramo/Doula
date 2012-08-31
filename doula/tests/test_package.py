@@ -17,6 +17,21 @@ class PackageTests(unittest.TestCase):
     def make_one(self):
         return Package("dummycode", "0.1.3", "git@code.corp.surveymonkey.com:joed")
 
+    def test_distribute(self):
+        job_dict = {
+        'status': 'queued',
+        'user_id': 'alexv',
+        'service': 'anweb',
+        'package_name': 'anweb',
+        'job_type': 'push_to_cheeseprism',
+        'site': 'mt99',
+        'version': '2.96',
+        'branch': 'mt99',
+        'remote': 'git@code.corp.surveymonkey.com:devmonkeys/AnWeb.git'}
+
+        p = Package(job_dict['package_name'], '0', job_dict['remote'])
+        p.distribute(job_dict['branch'], job_dict['version'])
+
     def test_repo(self):
         package = self.make_one()
         with package.repo() as repo:

@@ -64,8 +64,9 @@ class Package(object):
         """
         Update the setup.py with a new version, parent sha, branch and author
         """
-        # todo, we still need to update the user who did the push
         logging.info('Updating the version to %s' % new_version)
+        setup_dot_py = None
+
         try:
             setup_py_path = os.path.join(repo.working_dir, 'setup.py')
 

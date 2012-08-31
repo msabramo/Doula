@@ -44,7 +44,7 @@ def push_to_cheeseprism(config={}, job_dict={}):
     try:
         logging.info("About to push package to cheese prism %s" % job_dict['remote'])
 
-        p = Package(job_dict['service'], '0', job_dict['remote'])
+        p = Package(job_dict['package_name'], '0', job_dict['remote'])
         p.distribute(job_dict['branch'], job_dict['version'])
 
         logging.info('Finished pushing package %s to CheesePrism' % job_dict['remote'])

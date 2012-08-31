@@ -42,8 +42,8 @@ def email_fail(email_list, job_dict, exception):
     })
 
     if job_dict['job_type'] == 'push_to_cheeseprism':
-        package = job_dict['service'] + ' ' + job_dict['version']
-        subject = 'Doula Failure: Push %s to Cheese Prism on %s failed' % package
+        vals = (job_dict['service'], job_dict['remote'])
+        subject = 'Doula Failure: Push %s to Cheese Prism on %s failed' % vals
     elif job_dict['job_type'] == 'cycle_services':
         subject = 'Doula Failure: Cycle %s on %s failed' % (job_dict['service'], job_dict['site'])
     elif job_dict['job_type'] == 'push_service_environment':
