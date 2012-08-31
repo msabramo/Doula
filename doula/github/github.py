@@ -31,16 +31,39 @@ def get_devmonkeys_repos():
         return []
 
 
-def get_appenv_repos(branch='mt1'):
+def get_appenv_releases(name, branch):
     """
-    Get the Application Envs repos from redis
+    Get the service releases. Each release is a commit
+    to the repo
+    Github data is in the format
+    {
+        "name of service": {
+            "branches": {
+                "mtx": {
+                    "commits": {
+                        [{
+                            "date": "",
+                            "message": "",
+                            "author": ""
+                        }]
+                    }
+                }
+            }
+        }
+    }
     """
-    repos_as_json = cache.get("repos:appenv:%s" % branch)
+    json_text = cache.get("repos:appenvs")
 
-    if repos_as_json:
-        return json.loads(repos_as_json)
-    else:
-        return {}
+    if json_text:
+        github_appenv_data = json.loads(json_text)
+
+        if name in github_appenv_data:
+            branches = github_appenv_data[name]["branches"]
+
+            if branch in branches:
+                return branches[branch]["commits"]
+
+    return {}
 
 
 ######################
@@ -99,8 +122,8 @@ def pull_branches(git_repo):
     """
     Pull the branches from the github repo
     """
-    vals = (domain, Config.get('doula.github.packages.org'), git_repo['name'])
-    url = "%s/repos/%s/%s/branches" % vals
+    url = "%s/repos/%s/%s/branches" % \
+        (domain, Config.get('doula.github.packages.org'), git_repo['name'])
     github_branches = json.loads(pull_url(url))
     branches = []
 
@@ -108,8 +131,8 @@ def pull_branches(git_repo):
         branch = {"name": b["name"], "sha": b["commit"]["sha"]}
 
         # Pull the last 50 sha's for each branch
-        vals = (domain, Config.get('doula.github.packages.org'), git_repo['name'], branch["sha"])
-        url = "%s/repos/%s/%s/commits?per_page=50&sha=%s" % vals
+        url = "%s/repos/%s/%s/commits?per_page=50&sha=%s" % \
+            (domain, Config.get('doula.github.packages.org'), git_repo['name'], branch["sha"])
 
         commits_for_branch = json.loads(pull_url(url))
         shas = []
@@ -307,61 +330,80 @@ def is_doula_appenv_commit(message):
     return re.search(r'#+pipfreeze:#+', message, re.I)
 
 
-def pull_appenv_commits(git_repo, branch, per_page):
+def pull_appenv_branches(git_repo):
     """
-    Pull the latest commits for this application.
-    We'll only pull the commits that have data related the packages
+    Pull the commits for the appenvs for every one of their branches
+    Format of response:
+        "mt1": {
+            "commits": [
+                    {
+                        "date": "2012-06-04T20:14:01+00:00",
+                        "message": "Pushed autocompletesvc==0.2.2"
+                    }
+                ]
+        }
     """
-    vals = (domain, Config.get('doula.github.appenvs.org'), git_repo['name'], str(per_page))
-    url = "%s/repos/%s/%s/commits?per_page=%s" % vals
+    vals = (domain, Config.get('doula.github.appenvs.org'), git_repo['name'])
+    url = "%s/repos/%s/%s/branches" % vals
+    github_branches = json.loads(pull_url(url))
+    branches = {}
 
-    commits = []
-    git_commits = json.loads(pull_url(url))
+    for b in github_branches:
+        branches[b["name"]] = {
+            "commits": []
+        }
 
-    for cmt in git_commits:
-        message = cmt["commit"]["message"]
+        # Pull the last 10 sha's for each branch
+        url = "%s/repos/%s/%s/commits?per_page=10&sha=%s" % \
+            (domain,
+             Config.get('doula.github.appenvs.org'),
+             git_repo['name'],
+             b["commit"]["sha"])
 
-        if is_doula_appenv_commit(message):
-            commit = {
-                "date": cmt["commit"]["author"]["date"],
-                "message": cmt["commit"]["message"]
-            }
+        commits_for_branch = json.loads(pull_url(url))
 
-            commits.append(commit)
+        for cmt in commits_for_branch:
+            message = cmt["commit"]["message"]
 
-    return commits
+            if is_doula_appenv_commit(message):
+                commit = {
+                    "author": cmt["commit"]["author"]["email"],
+                    "date": cmt["commit"]["author"]["date"],
+                    "message": cmt["commit"]["message"]
+                }
+
+                branches[b["name"]]["commits"].append(commit)
+
+    return branches
 
 
-def pull_appenv_repos(branch):
+def pull_appenv_repos():
     """
     Pull the appenv repos in this format.
     [
     {
-        "commits": [
-            {
-                "date": "2012-06-04T20:14:01+00:00",
-                "message": "Pushed autocompletesvc==0.2.2"
+        "branches": {
+            "mt1": {
+                "commits": [
+                        {
+                            "date": "2012-06-04T20:14:01+00:00",
+                            "message": "Pushed autocompletesvc==0.2.2"
+                        }
+                    ]
             }
-        ],
+        },
         "name": "acsvc"
-    }
+    },
     ]
     """
     repos = {}
     url = domain + '/orgs/' + Config.get('doula.github.appenvs.org') + '/repos'
     git_repos = json.loads(pull_url(url))
 
-    # alextodo need to pull data for every branch
-    # once tim adds everything to the branch u can do it
-    # alextodo, can i count on matching my service to an app environment?
-
     for git_repo in git_repos:
-        repo = {
+        repos[git_repo["name"]] = {
             "name": git_repo["name"],
-            # Pull the latest five commits for this repo
-            "commits": pull_appenv_commits(git_repo, branch, 5)
+            "branches": pull_appenv_branches(git_repo)
         }
-
-        repos[str(repo["name"])] = repo
 
     return repos
