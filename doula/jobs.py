@@ -143,10 +143,8 @@ def pull_appenv_github_data(config={}, job_dict={}, debug=False):
         logging.info('Pulling github appenv data')
 
         cache = Cache.cache()
-
-        for branch in ['mt1', 'mt2', 'mt3']:
-            repos = pull_appenv_repos(branch)
-            cache.set("repos:appenv:%s" % branch, dumps(repos))
+        repos = pull_appenv_repos()
+        cache.set("repos:appenvs", dumps(repos))
 
         logging.info('Done pulling github appenv data')
     except Exception as e:

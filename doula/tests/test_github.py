@@ -7,7 +7,7 @@ class GithubTests(unittest.TestCase):
     def setUp(self):
         settings = {
             'doula.github.packages.org': 'doulaweb',
-            'doula.github.appenvs.org': 'AppEnv'
+            'doula.github.appenvs.org': 'FakeAppEnvs'
         }
         Config.load_config(settings)
 
@@ -22,7 +22,7 @@ class GithubTests(unittest.TestCase):
             self.assertTrue(repo['name'])
 
     def test_pull_appenv_repos(self):
-        repos = pull_appenv_repos('mt1')
+        repos = pull_appenv_repos()
 
         for name, repo in repos.iteritems():
             # Ensure the name is true

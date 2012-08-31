@@ -1,26 +1,25 @@
 from doula.config import Config
-from doula.github.github import get_appenv_repos
+from doula.github.github import get_appenv_releases
 from doula.models.package import Package
 import re
 
 
 class Release(object):
-    def __init__(self, name, date, branch, packages):
-        # alextodo change this too. a release should not have a name
-        # it's identified by it's date stupid
-        self.name = name
+    def __init__(self, author, date, branch, packages):
+        self.author = author
         self.date = date
         self.branch = branch
         self.packages = packages
 
     @staticmethod
-    def build_release_from_repo(repo, commit):
+    def build_release_from_repo(branch, service_name, commit):
         """
         Build a release object from an app env repo with the format
         and a commit that is a single commit of this repo object
             {
             'commits': [
                 {
+                    'author': 'test@surveymonkey.com',
                     'date': '2012-08-27T22: 59: 17+00: 00',
                     'message': "Pushedpanel==1.0.24
                         ##################
@@ -32,8 +31,7 @@ class Release(object):
                         JSTools==0.5
                         "
                 }
-            ],
-            'name': 'panel'
+            ]
         }
         """
         # alextodo. update once tim pulls the branch here
@@ -53,22 +51,21 @@ class Release(object):
                 if m:
                     packages.append(Package(m.group(1), m.group(2), ''))
 
-        return Release(repo['name'], commit['date'], 'mt3', packages)
+        return Release(commit["author"], commit['date'], branch, packages)
 
     @staticmethod
     def get_releases(branch, service_name):
-        # Dev pulls from mt3 by default
+        # Dev pulls from mt3 by default because otherwise it's
+        # the name of the local machine
         if Config.get('env') == 'dev':
-            repos = get_appenv_repos('mt3')
+            commits = get_appenv_releases(service_name, 'mt3')
         else:
-            repos = get_appenv_repos(branch)
+            commits = get_appenv_releases(service_name, branch)
 
         releases = []
 
-        for name, repo in repos.iteritems():
-            if service_name == name:
-                for commit in repo["commits"]:
-                    release = Release.build_release_from_repo(repo, commit)
-                    releases.append(release)
+        for cmt in commits:
+            release = Release.build_release_from_repo(branch, service_name, cmt)
+            releases.append(release)
 
         return releases
