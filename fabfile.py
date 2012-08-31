@@ -18,7 +18,7 @@ def update():
         with prefix('. bin/activate'):
             run('echo $VIRTUAL_ENV')
             run('pip install -e git+http://code.corp.surveymonkey.com/DevOps/velruse#egg=velruse')
-            run('pip install -e git+git@github.com:Doula/Doula.git#egg=doula')
+            run('pip install -e git+git@github.com:Doula/Doula.git@stage#egg=doula')
         with cd('src/doula'):
             run('git submodule init')
             run('git submodule update')
