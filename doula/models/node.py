@@ -67,7 +67,7 @@ class Node(object):
         Bambinos
         """
         cache = Cache.cache()
-        services_as_json = cache.get('node_services_' + self.name_url)
+        services_as_json = cache.get('node:services:' + self.name_url)
 
         if services_as_json:
             return services_as_json

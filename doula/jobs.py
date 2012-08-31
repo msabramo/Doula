@@ -95,11 +95,10 @@ def pull_cheeseprism_data(config={}, job_dict={}):
         pipeline = cache.pipeline()
 
         packages = CheesePrism.pull_all_packages()
-        pipeline.set("cheeseprism_packages", dumps(packages))
+        pipeline.set("cheeseprism:packages", dumps(packages))
 
         for pckg in packages:
-            pckg.pull_versions()
-            pipeline.set('cheeseprism_pckg_' + pckg.clean_name, dumps(pckg))
+            pipeline.set('cheeseprism:package:' + pckg.clean_name, dumps(pckg))
 
         pipeline.execute()
 
@@ -232,7 +231,7 @@ def pull_bambino_data(config={}, job_dict={}):
             for name, n in simple_nodes.iteritems():
                 node = Node(name, n['site'], n['url'])
                 services_as_json = node.pull_services()
-                pipeline.set('node_services_' + node.name_url, services_as_json)
+                pipeline.set('node:services:' + node.name_url, services_as_json)
 
         pipeline.execute()
         logging.info('Done pulling bambino data')
