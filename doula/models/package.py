@@ -83,7 +83,7 @@ class Package(object):
             setup_dot_py.close()
         finally:
             logging.info('Updated the version.')
-            if not setup_dot_py:
+            if setup_dot_py:
                 setup_dot_py.close()
 
     def get_updated_setup_dot_py(self, lines, version, branch, remote_url, parent_sha, user=''):
