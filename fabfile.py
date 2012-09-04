@@ -23,8 +23,8 @@ def update():
             run('git submodule init')
             run('git submodule update')
         with cd('src/doula/etc'):
-            run('git checkout master')
-            run('git pull origin master')
+            run('git checkout stage')
+            run('git pull origin stage')
         restart()
 
 
