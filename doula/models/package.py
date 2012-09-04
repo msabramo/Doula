@@ -57,7 +57,7 @@ class Package(object):
             yield repo
         finally:
             # Clean up repo directory
-            if repo:
+            if repo and os.path.isdir(repo.working_dir):
                 shutil.rmtree(repo.working_dir)
 
     def update_version(self, repo, new_version):

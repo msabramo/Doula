@@ -1,15 +1,18 @@
-import os
-import unittest
-
-from mock import patch
-from mock import call
-
+from doula.config import Config
 from doula.models.package import Package
+from mock import call
+from mock import patch
+import os
+import uuid
+import unittest
 
 
 class PackageTests(unittest.TestCase):
     def setUp(self):
-        pass
+        settings = {
+            'doula.cheeseprism_url': 'http://mt-99:6789'
+        }
+        Config.load_config(settings)
 
     def testDown(self):
         pass
@@ -19,15 +22,16 @@ class PackageTests(unittest.TestCase):
 
     def test_distribute(self):
         job_dict = {
-        'status': 'queued',
-        'user_id': 'alexv',
-        'service': 'anweb',
-        'package_name': 'anweb',
-        'job_type': 'push_to_cheeseprism',
-        'site': 'mt99',
-        'version': '2.96',
-        'branch': 'mt99',
-        'remote': 'git@code.corp.surveymonkey.com:devmonkeys/AnWeb.git'}
+            'version': uuid.uuid1(),
+            'user_id': 'alexv',
+            'package_name': 'billweb',
+            'service': 'billweb',
+            'branch': 'stwopay',
+            'remote': 'git@code.corp.surveymonkey.com:devmonkeys/BillWeb.git',
+            'job_type': 'push_to_cheeseprism',
+            'site': 'alexs-macbook-pro-4.local',
+            'id': 'bc255ebaf6da11e1b07fb8f6b1191577'
+        }
 
         p = Package(job_dict['package_name'], '0', job_dict['remote'])
         p.distribute(job_dict['branch'], job_dict['version'])

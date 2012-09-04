@@ -127,7 +127,7 @@ class Queue(object):
         job_type = job_dict['job_type']
 
         p = self.rdb.pipeline()
-
+        print 'GOING TO ENQUEUE THIS JOB: ' + job_type
         self.qm.enqueue('doula.jobs:%s' % job_type, config=self.get_config(), job_dict=job_dict)
         self._save(p, job_dict)
         p.execute()
@@ -277,7 +277,7 @@ def add_failure(job=None, exc=None):
     tb = traceback.format_exc()
     logging.error(exc)
 
-    print "\n FAILED JOB\N"
+    print "\n FAILED JOB"
     print exc
     print tb
 
