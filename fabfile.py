@@ -14,7 +14,7 @@ print env.key_filename
 def update():
     with cd(doula_dir):
         if not exists('bin'):
-            run('virtualenv .')
+            run('virtualenv -p /usr/local/bin/python2.7 .')
         with prefix('. bin/activate'):
             run('echo $VIRTUAL_ENV')
             run('pip install -e git+git@github.com:Doula/Doula.git#egg=doula')
