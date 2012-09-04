@@ -1,14 +1,22 @@
 from contextlib import contextmanager
+from datetime import datetime
 from doula.config import Config
 from doula.github.github import get_package_github_info
 from doula.services.cheese_prism import CheesePrism
 from fabric.api import *
 from git import *
-from datetime import datetime
+import logging
 import os
+import pwd
 import re
 import shutil
-import logging
+
+"""
+Git-Python makes a call to os.getlogin that fails
+in a non-terminal env. This call here patches that error
+with a valid call to getlogin
+"""
+os.getlogin = lambda: pwd.getpwuid(os.getuid())[0]
 
 
 class Package(object):
