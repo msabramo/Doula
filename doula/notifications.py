@@ -1,9 +1,10 @@
+from doula.log import get_log
 from doula.models.user import User
 from jinja2 import Environment, PackageLoader
 from pyramid_mailer.mailer import Mailer
 from pyramid_mailer.message import Message
-from doula.log import get_log
 from sets import Set
+import traceback
 
 env = Environment(loader=PackageLoader('doula', 'templates'))
 
@@ -97,11 +98,18 @@ def send_notification(job_dict, exception=None):
     We only send out notifications for jobs initiated by users
     which are push to cheese prism, cycle services and release service
     """
-    if job_dict['job_type'] in ['push_to_cheeseprism', 'cycle_services', 'push_service_environment']:
-        email_list = build_email_list(job_dict)
+    try:
+        if job_dict['job_type'] in ['push_to_cheeseprism', 'cycle_services', 'push_service_environment']:
+            email_list = build_email_list(job_dict)
 
-        if len(email_list) > 0:
-            if job_dict['status'] == 'complete':
-                email_success(email_list, job_dict)
-            elif job_dict['status'] == 'failed':
-                email_fail(email_list, job_dict, exception)
+            if len(email_list) > 0:
+                if job_dict['status'] == 'complete':
+                    email_success(email_list, job_dict)
+                elif job_dict['status'] == 'failed':
+                    email_fail(email_list, job_dict, exception)
+    except Exception as e:
+        # error trying to notify user
+        subject = 'Error notifying user: ' + e.message
+        email_list = ['alexv@surveymonkey.com']
+        body = traceback.format_exc()
+        email(subject, email_list, body)
