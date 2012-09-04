@@ -41,7 +41,7 @@ var ServiceEnv = {
 
 		this.addOriginalVersionToPackageSelects();
 
-		$('#release-service').popover();
+		$('#release-service').popover({placement: "bottom"});
 		$('a.release').on('click', $.proxy(this.selectReleasePackages, this));
 		$('select.package-select').
 			on('change', $.proxy(this.updatePackageDropdownOnChange, this));
@@ -174,7 +174,7 @@ var ServiceEnv = {
 			// No changes made. Show error message in popover
 			setTimeout(function() {
 				$('#release-service').popover('hide');
-			}, 2500);
+			}, 3500);
 		}
 
 		return false;
@@ -226,9 +226,6 @@ var ServiceEnv = {
 	CYCLE SERVICE
 	*****************/
 
-	// alextodo, last thing to do is initially allow us to cycle the services
-	// disable the button if there is currently someone trying to cycle this service
-	// does this query for everyone else too?
 	cycle: function(event) {
 		this.disableCycleButton();
 

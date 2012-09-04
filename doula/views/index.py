@@ -118,6 +118,10 @@ def load_config(event):
     Config.load_config(event.app.registry.settings)
     Cache.cache().set('doula:settings', dumps(event.app.registry.settings))
 
+    # When the service starts we'll make sure Doula updates it self pulling
+    # all the latest data
+    updatedoula(None)
+
     start_task_scheduling()
 
 
