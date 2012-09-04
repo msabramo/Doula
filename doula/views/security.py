@@ -58,8 +58,8 @@ def login_complete_view(request):
         user = {
             'username': username,
             'oauth_token': credentials['oauthAccessToken'],
-            'avatar_url': info['avatar_url'],
-            'email': profile['emails'][0]['value'],
+            'avatar_url': info.get('avatar_url', ''),
+            'email': get_email_from_profile(profile),
             'settings': {
                 'notify_me': 'failure',
                 'subscribed_to': ['my_jobs']
@@ -68,13 +68,23 @@ def login_complete_view(request):
     else:
         # If a user exists we still pull the latest users avatar url and email
         # because those are updated by the user in Github Enterprise.
-        user['avatar_url'] = info['avatar_url']
-        user['email'] = profile['emails'][0]['value']
+        user['avatar_url'] = info.get('avatar_url', '')
+        user['email'] = get_email_from_profile(profile)
 
     User.save(user)
     remember(request, username)
 
     return  HTTPFound(location='/')
+
+
+def get_email_from_profile(profile):
+    """
+    Find the email address. It may not be there, so we wrap the check
+    """
+    try:
+        return profile['emails'][0]['value']
+    except:
+        return 'no-reply@surveymonkey.com'
 
 
 @view_config(context='velruse.AuthenticationDenied', permission=NO_PERMISSION_REQUIRED)

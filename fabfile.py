@@ -17,6 +17,7 @@ def update():
             run('virtualenv -p /usr/local/bin/python2.7 .')
         with prefix('. bin/activate'):
             run('echo $VIRTUAL_ENV')
+            run('pip install -e git+http://code.corp.surveymonkey.com/DevOps/velruse#egg=velruse')
             run('pip install -e git+git@github.com:Doula/Doula.git#egg=doula')
         with cd('src/doula'):
             run('git submodule init')
