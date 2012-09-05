@@ -74,7 +74,7 @@ def bambino_register(request):
     return {'success': 'true'}
 
 
-@view_config(route_name='bambino_ips', renderer="string")
+@view_config(route_name='bambino_ips', renderer="string", permission=NO_PERMISSION_REQUIRED)
 def bambino_ips(request):
     """
     Return all the IP addresses for the Bambinos.
