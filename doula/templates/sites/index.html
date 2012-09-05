@@ -7,10 +7,11 @@
 	{% if sites|length > 0 %}
 	  {% for name, site in sites.iteritems()|sort %}
 	  <li>
-			<a href="/sites/{{ site.name_url }}">
-	    	<span class="{{ site.get_status()|get_status_class }}"></span>
-	    	<strong>{{ site.name|upper }}</strong>
-	  	</a>
+			<a href="/sites/{{ site.name_url }}" rel="tooltip"
+			title="{{ site.get_status()|get_friendly_status_explanation('site') }}">
+	    		<span class="{{ site.get_status()|get_status_class }}"></span>
+	    		<strong>{{ site.name|upper }}</strong>
+	  		</a>
 		</li>
 	  {% endfor %}
   {% else %}
@@ -19,4 +20,9 @@
     </li>
   {% endif %}
 </ul>
+{% endblock %}
+{% block scripts %}
+{{ [
+'/js/site/index.js'
+]|js_script|safe }}
 {% endblock %}

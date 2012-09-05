@@ -77,6 +77,24 @@ def clean(text):
     return comparable_name(text)
 
 
+def get_friendly_status_explanation(status, site_or_service='service'):
+    """Get a friendly explanation of a status"""
+    if status == 'deployed':
+        return "This %s has been tagged on Github and \
+            been deployed to production" % site_or_service
+    elif status == 'tagged':
+        return 'This %s has been comitted to Github \
+            and tagged' % site_or_service
+    elif status == 'uncommitted_changes':
+        return "This %s's MT environment has changes that \
+            have not been committed to Github" % site_or_service
+    elif status == 'unknown':
+        return 'The status of this %s is unknown' % site_or_service
+    else:
+        return "This %s has been committed to Github \
+            but the latest commit has not been tagged" % site_or_service
+
+
 def get_status_class(status):
     return get_class('status', status)
 

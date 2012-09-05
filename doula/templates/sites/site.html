@@ -14,19 +14,13 @@
   <div class="accordion-group">
     <div class="accordion-heading group">
       <a id="link_{{ service.name_url }}" class="accordion-toggle accord-title"
+      title="{{ service.get_status()|get_friendly_status_explanation }}" rel="tooltip"
+      data-parent="#sites-accordion" href="#collapse_{{ service.name_url }}"
       {% if service.status.startswith('change_to') %}
-        title="{{ service.name }} has already been tagged ({{ service.last_tag.name }})"
-        data-toggle="collapse" data-parent="#sites-accordion"
+        data-toggle="collapse"
       {% else %}
-        data-toggle="do_not_collapse" rel="tooltip"
-        {% if service.status == 'tagged' %}
-          title="{{ service.name }} has already been tagged ({{ service.last_tag.name }})"
-        {% elif service.status == 'uncommitted_changes' %}
-          title="{{ service.name }} has uncommitted changes. See the details for what's been changed."
-        {% endif %}
-      {% endif %}
-
-      href="#collapse_{{ service.name_url }}">
+        data-toggle="do_not_collapse"
+      {% endif %} >
         <span class="{{ service.get_status()|get_status_class }}"></span>
         {{ service.name }}
       </a>
