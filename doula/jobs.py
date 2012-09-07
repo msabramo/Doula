@@ -136,8 +136,15 @@ def pull_github_data(config={}, job_dict={}):
         logging.info('pulling github data')
 
         repos = pull_devmonkeys_repos()
+
         cache = Cache.cache()
-        cache.set("repos:devmonkeys", dumps(repos))
+        pipeline = cache.pipeline()
+
+        for name, repo in repos.iteritems():
+            key = "repo.devmonkeys:" + name
+            pipeline.set(key, dumps(repo))
+
+        pipeline.execute()
 
         logging.info('Done pulling github data')
     except Exception as e:

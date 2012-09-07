@@ -19,16 +19,13 @@ html_domain = "http://code.corp.surveymonkey.com"
 ######################
 
 
-def get_devmonkeys_repos():
-    """
-    Get the Dev Monkey repos from redis
-    """
-    repos_as_json = cache.get("repos:devmonkeys")
+def get_devmonkey_repo(name):
+    repo_as_json = cache.get("repo.devmonkeys:" + comparable_name(name))
 
-    if repos_as_json:
-        return json.loads(repos_as_json)
-    else:
-        return []
+    if repo_as_json:
+        return json.loads(repo_as_json)
+
+    return False
 
 
 def get_appenv_releases(name, branch):
@@ -74,13 +71,7 @@ def get_package_github_info(name):
     """
     Get the github repo details for a particular package
     """
-    all_repos = get_devmonkeys_repos()
-
-    for repo in all_repos:
-        if comparable_name(repo['name']) == comparable_name(name):
-            return repo
-
-    return False
+    return get_devmonkey_repo(name)
 
 
 def get_service_github_repos(service):
@@ -88,13 +79,13 @@ def get_service_github_repos(service):
     Get the github repo details for the services packages
     """
     github_repos = {}
-    all_repos = get_devmonkeys_repos()
 
     for pckg in service.packages:
-        for r in all_repos:
-            if comparable_name(r['name']) == comparable_name(pckg.name):
-                github_repos[comparable_name(r['name'])] = r
-                break
+        clean_name = comparable_name(pckg.name)
+        repo = get_devmonkey_repo(clean_name)
+
+        if repo:
+            github_repos[clean_name] = repo
 
     return github_repos
 
@@ -251,7 +242,8 @@ def pull_devmonkeys_repos():
     """
     Pull Dev Monkey repos
     Returns datastructure:
-        [{
+        {
+        "name": {
         "name":[name of project],
         "html_url":[url to github page of project],
         "ssh_url":[git ssh url],
@@ -284,9 +276,9 @@ def pull_devmonkeys_repos():
                 "package_version": "0.2.3"
             }
             ]
-        ]
+        }
     """
-    repos = []
+    repos = {}
     url = domain + '/orgs/' + Config.get('doula.github.packages.org') + '/repos'
     git_repos = json.loads(pull_url(url))
 
@@ -307,7 +299,7 @@ def pull_devmonkeys_repos():
             "commits": commits
         }
 
-        repos.append(repo)
+        repos[comparable_name(repo["name"])] = repo
 
     return repos
 
