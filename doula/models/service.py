@@ -241,4 +241,4 @@ class CycleServiceException(Exception):
         self.results = results
 
     def __str__(self):
-        return json.dumps({'message': self.message, 'results': self.results})
+        return dumps({'message': self.message, 'results': self.results})
