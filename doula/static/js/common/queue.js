@@ -28,21 +28,52 @@ QueuedItems = {
     },
 
     selectActiveLabel: function() {
-        var searchArray = document.location.search.split('=');
-        var type = 'all';
-
-        if(searchArray[1]) {
-            type = searchArray[1];
-        }
+        var params = this.getQueryStringParams();
+        var sortBy = params.sort_by ? params.sort_by : 'all';
+        var filterBy =  params.filter_by ? params.filter_by : 'allusers';
 
         $('ul.sort_by a').each(function(index, el) {
-            if($(el).html().toLowerCase() == type) {
-                $(el).addClass('active');
+            el = $(el);
+
+            if (el.hasClass('sort_by')) {
+                if (el.attr('data-val') == sortBy) {
+                    el.addClass('active');
+                }
+                else {
+                    el.removeClass('active');
+                }
+
+                el.attr('href', '/queue?sort_by='+
+                    el.attr('data-val')+'&filter_by='+filterBy);
             }
             else {
-                $(el).removeClass('active');
+                if (el.attr('data-val') == filterBy) {
+                    el.addClass('active');
+                }
+                else {
+                    el.removeClass('active');
+                }
+
+                el.attr('href', '/queue?sort_by='+
+                    sortBy+'&filter_by='+el.attr('data-val'));
             }
         });
+    },
+
+    getQueryStringParams: function() {
+        var params = {};
+        var q = document.URL.split('?')[1];
+
+        if (q !== undefined) {
+            var vals = q.split('&');
+
+            for(var i=0; i < vals.length; i++) {
+                hash = vals[i].split('=');
+                params[hash[0]] = hash[1];
+            }
+        }
+
+        return params;
     },
 
     poll: function() {

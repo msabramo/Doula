@@ -164,6 +164,8 @@ var ServiceEnv = {
 		var packages = this.getActiveReleasePackages();
 
 		if(this.hasChanges(packages)) {
+			$('#release-service').popover('hide');
+
 			this.disableReleaseServiceButton();
 
 			var params = {packages: JSON.stringify(packages)};

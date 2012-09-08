@@ -30,20 +30,40 @@
         </label>
 
         <hr />
-
-        <label>
-        <strong>Subscribe notifications for:</strong>
-        </label>
-        <ul class="search-list">
-            <li id="my_jobs" data-value="my_jobs" class="active">My jobs</li>
-        {% for ss in sites_and_services|sort %}
-            <li data-value="{{ss}}"
-                {% if ss in request.user['settings']['subscribed_to'] %}class="active"{% endif %}>
-                {{ss}}
-            </li>
-        {% endfor %}
-        </ul>
-
+        <div>
+            <label>
+            <strong>Subscribe to notifications for:</strong>
+            </label>
+            <ul class="search-list">
+                <li id="my_jobs" data-value="my_jobs" class="active">My jobs</li>
+            </ul>
+        </div>
+        <div class="subscribe-to-block">
+            <label>
+            <strong>Sites:</strong>
+            </label>
+            <ul class="search-list">
+                {% for site in sas['sites']|sort %}
+                <li data-value="{{site}}"
+                    {% if site in request.user['settings']['subscribed_to'] %}class="active"{% endif %}>
+                    {{site}}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="subscribe-to-block">
+            <label>
+            <strong>Services:</strong>
+            </label>
+            <ul class="search-list">
+                {% for service in sas['services']|sort %}
+                <li data-value="{{service}}"
+                    {% if service in request.user['settings']['subscribed_to'] %}class="active"{% endif %}>
+                    {{service}}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
     </form>
     </div>
 </div>

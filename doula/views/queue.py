@@ -17,6 +17,13 @@ def show_queue(request):
     sort_by = request.params.get('sort_by')
     if sort_by == 'complete' or sort_by == 'failed' or sort_by == 'queued':
         query['status'] = sort_by
+
+    # Filter by filters by username, or all users
+    filter_by = request.params.get('filter_by')
+
+    if filter_by != 'allusers' and filter_by:
+        query['user_id'] = request.user['username']
+
     last_updated = datetime.now()
     queued_items = queue.get(query)
 

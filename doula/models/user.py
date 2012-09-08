@@ -17,12 +17,10 @@ class User(object):
         }
     }
     """
-    def __init__(self):
-        pass
 
     @staticmethod
     def find(username):
-        cache = Cache.cache()
+        cache = Cache.cache(1)
         user_as_json = cache.get('doula:user:%s' % username)
 
         if not user_as_json:
@@ -34,7 +32,8 @@ class User(object):
     def save(user):
         json_user = json.dumps(user, sort_keys=True)
 
-        cache = Cache.cache()
+        cache = Cache.cache(1)
+
         cache.set('doula:user:%s' % user['username'], json_user)
         cache.sadd('doula:users', user['username'])
 
@@ -43,7 +42,7 @@ class User(object):
         """
         Return all the users
         """
-        cache = Cache.cache()
+        cache = Cache.cache(1)
         users = []
 
         for username in cache.smembers('doula:users'):
