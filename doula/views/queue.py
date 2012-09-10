@@ -13,14 +13,22 @@ import time
 def show_queue(request):
     queue = Queue()
 
-    query = {'job_type': ['push_to_cheeseprism', 'cycle_services']}
+    query = {'job_type': ['push_to_cheeseprism', 'cycle_services', 'push_service_environment']}
     sort_by = request.params.get('sort_by')
     if sort_by == 'complete' or sort_by == 'failed' or sort_by == 'queued':
         query['status'] = sort_by
+
+    # Filter by filters by username, or all users
+    filter_by = request.params.get('filter_by')
+
+    if filter_by == 'myjobs' or not filter_by:
+        query['user_id'] = request.user['username']
+
     last_updated = datetime.now()
     queued_items = queue.get(query)
 
     i = 0
+
     for queued_item in queued_items:
         queued_items[i]['log'] = ''
         # If job is already completed/failed
@@ -43,13 +51,25 @@ def show_queue(request):
 @view_config(route_name='queue', request_param='last_updated', renderer='json', xhr=True)
 def update_queue(request):
     queue = Queue()
-    last_updated = request.GET['last_updated']
 
-    query = {'job_type': ['push_to_cheeseprism', 'cycle_services']}
+    last_updated = request.GET['last_updated']
+    filter_by = request.GET['filter_by']
+
+    query = {
+        'job_type': [
+            'push_to_cheeseprism',
+            'cycle_services',
+            'push_service_environment']
+        }
+
+    if filter_by == 'myjobs' or not filter_by:
+        query['user_id'] = request.user['username']
+
     queued_items = queue.get(query)
 
     i = 0
     new_queued_items = []
+
     for queued_item in queued_items:
         queued_item = queued_items[i]
 

@@ -3,71 +3,49 @@ from doula.config import Config
 from doula.util import *
 import json
 import logging
-import re
 
 log = logging.getLogger('doula')
 cache = Cache.cache()
 
 
 class PythonPackage(object):
-    def __init__(self, url, versions=[]):
-        self.url = url
-        self.name = url.split('/').pop()
+    def __init__(self, name, versions=[]):
+        self.name = name
         self.clean_name = comparable_name(self.name)
         self.versions = versions
-
-    def pull_versions(self):
-        """
-        Pull the versions for this package off the CheesePrism site
-        """
-        if len(self.versions) == 0:
-            self.versions = CheesePrism.pull_package_versions(self.url)
-
-        return self.versions
-
-    def get_versions(self):
-        """
-        Read the CheesePrism index for all available versions
-        """
-        this_pckg = json.loads(cache.get('cheeseprism_pckg_' + self.clean_name))
-        return this_pckg['versions']
 
 
 class CheesePrism(object):
     """
     Provides an interface to CheesePrism, Survey Monkey's PyPi
     """
-
     @staticmethod
     def find_package_by_name(name):
         """
         Package URL's are case sensitive so we need to find the exact URL
         """
-        # redis key == cheeseprism_pckg_(cleaned name) = all versions of a pckg
-        # also cull together the data for a package, commits, log history
-        # all that ish.
-        packages = CheesePrism.all_packages()
-        name = comparable_name(name)
+        text = cache.get('cheeseprism:package:' + comparable_name(name))
 
-        for p in packages:
-            if name == comparable_name(p.name):
-                return p
-
-        return False
+        if text:
+            p = json.loads(text)
+            return PythonPackage(p['name'], p['versions'])
+        else:
+            log.info('Returning an empty package %s' % name)
+            return PythonPackage(name, [])
 
     @staticmethod
     def all_packages():
         """
-        Return all packages from our data store
+        Return all packages from our cache
         """
         all_packages = []
-        packages_as_json = cache.get('cheeseprism_packages')
+        packages_as_json = cache.get('cheeseprism:packages')
 
         if packages_as_json:
             json_packages = json.loads(packages_as_json)
 
             for jpckg in json_packages:
-                pckg = PythonPackage(jpckg['url'], jpckg['versions'])
+                pckg = PythonPackage(jpckg['name'], jpckg['versions'])
                 all_packages.append(pckg)
 
         return all_packages
@@ -75,28 +53,31 @@ class CheesePrism(object):
     @staticmethod
     def pull_all_packages():
         """
-        Return all the packages from the Cheese Prism site.
+        Return all the packages and their versions from Cheese Prism site
         """
+        packages = {}
+
         url = Config.get('doula.cheeseprism_url')
-        text = pull_url(url + '/index/')
-        matches = re.findall(r'a.+href="(.+)"', text, re.M)
+        text = pull_url(url + '/index/index.json')
+        packages_on_cheeseprism = json.loads(text)
 
-        return [PythonPackage(m) for m in matches]
+        for sha1 in packages_on_cheeseprism:
+            pckg = packages_on_cheeseprism[sha1]
 
-    @staticmethod
-    def pull_package_versions(url):
-        text = pull_url(url)
-        matches = re.findall(r'a.+href="(.+)"', text, re.M)
+            if pckg['name'] in packages:
+                packages[pckg['name']]['versions'].append(pckg['version'])
+            else:
+                packages[pckg['name']] = {
+                    'name': pckg['name'],
+                    'versions': [pckg['version']]
+                }
 
-        versions = []
+        all_packages = []
 
-        for m in matches:
-            match = re.search(r'-([.\d]+).tar.gz', m)
+        for name, pckg in packages.iteritems():
+            all_packages.append(PythonPackage(name, pckg['versions']))
 
-            if match:
-                versions.append(match.group(1))
-
-        return versions
+        return all_packages
 
     @staticmethod
     def other_packages(packages):

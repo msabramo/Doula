@@ -2,7 +2,10 @@ from fabric.api import cd
 from fabric.api import *
 from fabric.contrib.files import exists
 
+# For production
 env.hosts = ['doula.corp.surveymonkey.com']
+# For stage
+#env.hosts = ['mt-99.corp.surveymonkey.com']
 env.user = 'doula'
 env.key_filename = ['~/.ssh/id_rsa_doula']
 doula_dir = '/opt/doula'
@@ -18,13 +21,13 @@ def update():
         with prefix('. bin/activate'):
             run('echo $VIRTUAL_ENV')
             run('pip install -e git+http://code.corp.surveymonkey.com/DevOps/velruse#egg=velruse')
-            run('pip install -e git+git@github.com:Doula/Doula.git#egg=doula')
+            run('pip install -e git+git@github.com:Doula/Doula.git@stage#egg=doula')
         with cd('src/doula'):
             run('git submodule init')
             run('git submodule update')
         with cd('src/doula/etc'):
-            run('git checkout master')
-            run('git pull origin master')
+            run('git checkout stage')
+            run('git pull origin stage')
         restart()
 
 

@@ -1,5 +1,6 @@
 from datetime import datetime
 from doula.util import comparable_name
+import math
 
 
 def formatted_day(date):
@@ -24,11 +25,19 @@ def relative_datetime(date):
     date - a date formatted as a string (ex. "2012-02-15T10:12:01+02:00")
     """
     datetime_only = date.split('+')[0]
+    date_only = datetime.strptime(datetime_only.split('T')[0], "%Y-%m-%d")
+
     dt = datetime.strptime(datetime_only, "%Y-%m-%dT%X")
     delta = datetime.now() - dt
 
+    today_datetime_only = datetime.now().isoformat().split('T')[0]
+    today_only = datetime.strptime(today_datetime_only, "%Y-%m-%d")
+
     if delta.days == 0:
-        return 'Today at %s' % dt.strftime("%I:%M %p")
+        if date_only == today_only:
+            return 'Today at %s' % dt.strftime("%I:%M %p")
+        else:
+            return 'Yesterday at %s' % dt.strftime("%I:%M %p")
     elif delta.days == 1:
         return 'Yesterday at %s' % dt.strftime("%I:%M %p")
     elif delta.days > 1 and delta.days < 30:
@@ -41,7 +50,7 @@ def relative_datetime(date):
         else:
             return str(months) + ' months ago'
     else:
-        years = delta.days / 365
+        years = math.fabs(delta.days / 365)
 
         if years == 1:
             return '1 year ago'
@@ -66,6 +75,24 @@ def branches_text(branches):
 
 def clean(text):
     return comparable_name(text)
+
+
+def get_friendly_status_explanation(status, site_or_service='service'):
+    """Get a friendly explanation of a status"""
+    if status == 'deployed':
+        return "This %s has been tagged on Github and \
+            been deployed to production" % site_or_service
+    elif status == 'tagged':
+        return 'This %s has been comitted to Github \
+            and tagged' % site_or_service
+    elif status == 'uncommitted_changes':
+        return "This %s's MT environment has changes that \
+            have not been committed to Github" % site_or_service
+    elif status == 'unknown':
+        return 'The status of this %s is unknown' % site_or_service
+    else:
+        return "This %s has been committed to Github \
+            but the latest commit has not been tagged" % site_or_service
 
 
 def get_status_class(status):

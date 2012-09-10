@@ -12,6 +12,8 @@ log = logging.getLogger('doula')
 class Cache(object):
     env = 'prod'
     redis = None
+    # redis_store holds onto the permanent data for Doula
+    redis_store = None
 
     @staticmethod
     def clear_cache():
@@ -20,14 +22,22 @@ class Cache(object):
         r.flushdb()
 
     @staticmethod
-    def cache():
+    def cache(db=0):
         try:
-            if not Cache.redis:
-                Cache.redis = redis.StrictRedis(HOST, PORT, db=0)
-                # Excercise redis to make sure we have a connection
-                Cache.redis.set('__test__', '')
+            if db == 0:
+                if not Cache.redis:
+                    Cache.redis = redis.StrictRedis(HOST, PORT, db)
+                    # Excercise redis to make sure we have a connection
+                    Cache.redis.ping()
 
-            return Cache.redis
+                return Cache.redis
+            elif db == 1:
+                if not Cache.redis_store:
+                    Cache.redis_store = redis.StrictRedis(HOST, PORT, db)
+                    # Excercise redis to make sure we have a connection
+                    Cache.redis_store.ping()
+
+                return Cache.redis_store
         except:
             if Cache.env == 'prod':
                 raise

@@ -7,36 +7,71 @@ from doula.cache import Cache
 from doula.config import Config
 from doula.util import *
 import json
+import re
 
 cache = Cache.cache()
 # alextodo put this into the INI
 domain = "http://api.code.corp.surveymonkey.com"
 html_domain = "http://code.corp.surveymonkey.com"
 
+######################
+# PULL FROM CACHE
+######################
 
-def get_devmonkeys_repos():
+
+def get_devmonkey_repo(name):
+    repo_as_json = cache.get("repo.devmonkeys:" + comparable_name(name))
+
+    if repo_as_json:
+        return json.loads(repo_as_json)
+
+    return False
+
+
+def get_appenv_releases(name, branch):
     """
-    Get the Dev Monkey repos from redis
+    Get the service releases. Each release is a commit
+    to the repo
+    Github data is in the format
+    {
+        "name of service": {
+            "branches": {
+                "mtx": {
+                    "commits": {
+                        [{
+                            "date": "",
+                            "message": "",
+                            "author": ""
+                        }]
+                    }
+                }
+            }
+        }
+    }
     """
-    repos_as_json = cache.get("devmonkeys_repos")
+    json_text = cache.get("repos:appenvs")
 
-    if repos_as_json:
-        return json.loads(repos_as_json)
-    else:
-        return []
+    if json_text:
+        github_appenv_data = json.loads(json_text)
 
+        if name in github_appenv_data:
+            branches = github_appenv_data[name]["branches"]
+
+            if branch in branches:
+                return branches[branch]["commits"]
+
+    return {}
+
+
+######################
+# PULL DEVMONKEY REPOS FROM GITHUB
+######################
 
 def get_package_github_info(name):
     """
     Get the github repo details for a particular package
     """
-    all_repos = get_devmonkeys_repos()
-
-    for repo in all_repos:
-        if comparable_name(repo['name']) == comparable_name(name):
-            return repo
-
-    return False
+    return get_devmonkey_repo(name)
 
 
 def get_service_github_repos(service):
@@ -44,13 +79,13 @@ def get_service_github_repos(service):
     Get the github repo details for the services packages
     """
     github_repos = {}
-    all_repos = get_devmonkeys_repos()
 
     for pckg in service.packages:
-        for r in all_repos:
-            if comparable_name(r['name']) == comparable_name(pckg.name):
-                github_repos[comparable_name(r['name'])] = r
-                break
+        clean_name = comparable_name(pckg.name)
+        repo = get_devmonkey_repo(clean_name)
+
+        if repo:
+            github_repos[clean_name] = repo
 
     return github_repos
 
@@ -59,7 +94,7 @@ def pull_tags(git_repo):
     """
     Pull the tags from git and they're corresponding sha's
     """
-    vals = (domain, Config.get('doula.github_org'), git_repo['name'])
+    vals = (domain, Config.get('doula.github.packages.org'), git_repo['name'])
     url = "%s/repos/%s/%s/tags" % vals
 
     git_tags = json.loads(pull_url(url))
@@ -78,8 +113,8 @@ def pull_branches(git_repo):
     """
     Pull the branches from the github repo
     """
-    vals = (domain, Config.get('doula.github_org'), git_repo['name'])
-    url = "%s/repos/%s/%s/branches" % vals
+    url = "%s/repos/%s/%s/branches" % \
+        (domain, Config.get('doula.github.packages.org'), git_repo['name'])
     github_branches = json.loads(pull_url(url))
     branches = []
 
@@ -87,8 +122,8 @@ def pull_branches(git_repo):
         branch = {"name": b["name"], "sha": b["commit"]["sha"]}
 
         # Pull the last 50 sha's for each branch
-        vals = (domain, Config.get('doula.github_org'), git_repo['name'], branch["sha"])
-        url = "%s/repos/%s/%s/commits?per_page=50&sha=%s" % vals
+        url = "%s/repos/%s/%s/commits?per_page=50&sha=%s" % \
+            (domain, Config.get('doula.github.packages.org'), git_repo['name'], branch["sha"])
 
         commits_for_branch = json.loads(pull_url(url))
         shas = []
@@ -158,8 +193,10 @@ def pull_commits(git_repo, tags, branches):
         "package_version": "0.2.3"
     }
     """
-    vals = (domain, Config.get('doula.github_org'), git_repo['name'])
+    vals = (domain, Config.get('doula.github.packages.org'), git_repo['name'])
     url = "%s/repos/%s/%s/commits" % vals
+
+    # alextodo pull fewer commits and less data
 
     commits = []
     git_commits = json.loads(pull_url(url))
@@ -180,6 +217,7 @@ def pull_commits(git_repo, tags, branches):
         }
 
         # if no date. use today's date
+        # alextodo. fix this. why do we do this?
         if not commit["date"]:
             commit["date"] = datetime.now().strftime("%a, %d %b %Y %H:%M:%S")
 
@@ -204,7 +242,8 @@ def pull_devmonkeys_repos():
     """
     Pull Dev Monkey repos
     Returns datastructure:
-        [{
+        {
+        "name": {
         "name":[name of project],
         "html_url":[url to github page of project],
         "ssh_url":[git ssh url],
@@ -237,10 +276,10 @@ def pull_devmonkeys_repos():
                 "package_version": "0.2.3"
             }
             ]
-        ]
+        }
     """
-    repos = []
-    url = domain + '/orgs/' + Config.get('doula.github_org') + '/repos'
+    repos = {}
+    url = domain + '/orgs/' + Config.get('doula.github.packages.org') + '/repos'
     git_repos = json.loads(pull_url(url))
 
     for git_repo in git_repos:
@@ -252,7 +291,7 @@ def pull_devmonkeys_repos():
             "name": git_repo["name"],
             "html_url": git_repo["html_url"],
             "ssh_url": git_repo["ssh_url"],
-            "org": Config.get('doula.github_org'),
+            "org": Config.get('doula.github.packages.org'),
             "domain": domain,
             "html_domain": html_domain,
             "tags": tags,
@@ -260,6 +299,103 @@ def pull_devmonkeys_repos():
             "commits": commits
         }
 
-        repos.append(repo)
+        repos[comparable_name(repo["name"])] = repo
+
+    return repos
+
+
+######################
+# PULL APPLICATION ENVS FROM GITHUB
+######################
+
+
+def is_doula_appenv_commit(message):
+    """
+    Match the commits message that start with:
+
+        Pushed AnWeb==2.0.95
+        ##################
+        pip freeze:
+        ##################
+    """
+    message = re.sub(r'\s', '', message)
+    return re.search(r'#+pipfreeze:#+', message, re.I)
+
+
+def pull_appenv_branches(git_repo):
+    """
+    Pull the commits for the appenvs for every one of their branches
+    Format of response:
+        "mt1": {
+            "commits": [
+                    {
+                        "date": "2012-06-04T20:14:01+00:00",
+                        "message": "Pushed autocompletesvc==0.2.2"
+                    }
+                ]
+        }
+    """
+    vals = (domain, Config.get('doula.github.appenvs.org'), git_repo['name'])
+    url = "%s/repos/%s/%s/branches" % vals
+    github_branches = json.loads(pull_url(url))
+    branches = {}
+
+    for b in github_branches:
+        branches[b["name"]] = {
+            "commits": []
+        }
+
+        # Pull the last 10 sha's for each branch
+        url = "%s/repos/%s/%s/commits?per_page=10&sha=%s" % \
+            (domain,
+             Config.get('doula.github.appenvs.org'),
+             git_repo['name'],
+             b["commit"]["sha"])
+
+        commits_for_branch = json.loads(pull_url(url))
+
+        for cmt in commits_for_branch:
+            message = cmt["commit"]["message"]
+
+            if is_doula_appenv_commit(message):
+                commit = {
+                    "author": cmt["commit"]["author"]["email"],
+                    "date": cmt["commit"]["author"]["date"],
+                    "message": cmt["commit"]["message"]
+                }
+
+                branches[b["name"]]["commits"].append(commit)
+
+    return branches
+
+
+def pull_appenv_repos():
+    """
+    Pull the appenv repos in this format.
+    [
+    {
+        "branches": {
+            "mt1": {
+                "commits": [
+                        {
+                            "date": "2012-06-04T20:14:01+00:00",
+                            "message": "Pushed autocompletesvc==0.2.2"
+                        }
+                    ]
+            }
+        },
+        "name": "acsvc"
+    },
+    ]
+    """
+    repos = {}
+    url = domain + '/orgs/' + Config.get('doula.github.appenvs.org') + '/repos'
+    git_repos = json.loads(pull_url(url))
+
+    for git_repo in git_repos:
+        repos[git_repo["name"]] = {
+            "name": git_repo["name"],
+            "branches": pull_appenv_branches(git_repo)
+        }
 
     return repos

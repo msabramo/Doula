@@ -17,16 +17,16 @@ class SiteDAL(object):
 
     @staticmethod
     def list_of_sites_and_services():
-        sites_and_services = []
+        sas = {'sites': [], 'services': []}
 
         for s, site in SiteDAL.get_sites().iteritems():
-            sites_and_services.append(s)
+            sas['sites'].append(s)
 
             for name, service in site.services.iteritems():
-                if not name in sites_and_services:
-                    sites_and_services.append(str(name))
+                if not name in sas['services']:
+                    sas['services'].append(str(name))
 
-        return sites_and_services
+        return sas
 
     @staticmethod
     def save_service_as_deployed(app, tag):

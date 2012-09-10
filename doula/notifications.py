@@ -1,9 +1,10 @@
+from doula.log import get_log
 from doula.models.user import User
 from jinja2 import Environment, PackageLoader
 from pyramid_mailer.mailer import Mailer
 from pyramid_mailer.message import Message
-from doula.log import get_log
 from sets import Set
+import traceback
 
 env = Environment(loader=PackageLoader('doula', 'templates'))
 
@@ -22,6 +23,9 @@ def email_success(email_list, job_dict):
         subject = 'Doula Success: Pushed %s to Cheese Prism on %s' % package
     elif job_dict['job_type'] == 'cycle_services':
         subject = 'Doula Success: Cycled %s on %s' % (job_dict['service'], job_dict['site'])
+    elif job_dict['job_type'] == 'push_service_environment':
+        vals = (job_dict['service_name'], job_dict['site_name_or_node_ip'])
+        subject = 'Doula Success: Released service %s on %s' % vals
     else:
         subject = 'Doula Success'
 
@@ -39,10 +43,13 @@ def email_fail(email_list, job_dict, exception):
     })
 
     if job_dict['job_type'] == 'push_to_cheeseprism':
-        package = job_dict['service'] + ' ' + job_dict['version']
-        subject = 'Doula Failure: Push %s to Cheese Prism on %s failed' % package
+        vals = (job_dict['service'], job_dict['remote'])
+        subject = 'Doula Failure: Push %s to Cheese Prism on %s failed' % vals
     elif job_dict['job_type'] == 'cycle_services':
         subject = 'Doula Failure: Cycle %s on %s failed' % (job_dict['service'], job_dict['site'])
+    elif job_dict['job_type'] == 'push_service_environment':
+        vals = (job_dict['service_name'], job_dict['site_name_or_node_ip'])
+        subject = 'Doula Failure: Release service %s on %s' % vals
     else:
         subject = 'Doula Failure'
 
@@ -91,11 +98,18 @@ def send_notification(job_dict, exception=None):
     We only send out notifications for jobs initiated by users
     which are push to cheese prism, cycle services and release service
     """
-    if job_dict['job_type'] in ['push_to_cheeseprism', 'cycle_services']:
-        email_list = build_email_list(job_dict)
+    try:
+        if job_dict['job_type'] in ['push_to_cheeseprism', 'cycle_services', 'push_service_environment']:
+            email_list = build_email_list(job_dict)
 
-        if len(email_list) > 0:
-            if job_dict['status'] == 'complete':
-                email_success(email_list, job_dict)
-            elif job_dict['status'] == 'failed':
-                email_fail(email_list, job_dict, exception)
+            if len(email_list) > 0:
+                if job_dict['status'] == 'complete':
+                    email_success(email_list, job_dict)
+                elif job_dict['status'] == 'failed':
+                    email_fail(email_list, job_dict, exception)
+    except Exception as e:
+        # error trying to notify user
+        subject = 'Error notifying user: ' + e.message
+        email_list = ['alexv@surveymonkey.com']
+        body = traceback.format_exc()
+        email(subject, email_list, body)

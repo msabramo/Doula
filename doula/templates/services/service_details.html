@@ -14,11 +14,22 @@
     </tr>
     <tr>
         <td><strong>Last Tag</strong></td>
-        <td>{{ service.last_tag.name }}</td>
+        <td>
+          {% if service.last_tag.name %}
+            {{ service.last_tag.name }}
+          {% else %}
+            No tags exist for this service
+          {% endif %}
+        </td>
     </tr>
     <tr>
         <td><strong>Last Tag Message</strong></td>
-        <td>{{ service.last_tag.message }}</td>
+        <td>
+          {% if service.last_tag.message %}
+            {{ service.last_tag.message }}
+          {% else %}
+            No tag messages exist for this service
+          {% endif %}
     </tr>
     <tr>
         <td><strong>Compare View</strong></td>
@@ -79,7 +90,7 @@
         <td valign="top" align="left">
           <table>
             <tr>
-              <td colspan="3" style="border-top: 0px;">
+              <td colspan="4" style="border-top: 0px;">
                 Download a <a href="http://www.pip-installer.org/en/latest/requirements.html" target="_blank">pip</a>
                 <a href="/sites/{{ site.name_url }}/{{ service.name_url }}/freeze" >
                 requirements file</a>.
@@ -94,11 +105,11 @@
 
               <td><strong>{{ pack.name }}</strong> {{ pack.version }}</td>
 
-            {% if count == 3 %}
+            {% if count == 4 %}
             </tr>
             {% endif %}
 
-            {% if count == 3 %}{% set count = 1 %}{% else %}{% set count = count + 1 %}{% endif %}
+            {% if count == 4 %}{% set count = 1 %}{% else %}{% set count = count + 1 %}{% endif %}
 
             {% endfor %}
           </table>

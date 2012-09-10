@@ -16,28 +16,32 @@
       </a>
     </li>
     <li>
-      <div class="btn-group hide {% if config.get('env') != 'prod' %}hide{% endif %}"
+      <div class="btn-group {% if config.get('env') == 'prod' %}hide2{% endif %}"
       style="display: inline; float: right;">
-        <a id="release-service" style="display: none;" href="#"
-        class="hide {% if config.get('env') == 'prod' %}hide{% endif %} btn sm-btn">
-          <i class="hide icon-arrow-up icon-black"></i> Release Service
+        <a id="release-service" href="#" rel="popover" delay="500"
+        title="Release Error" data-content="You must make a change to make new release."
+        class="{% if config.get('env') == 'prod' %}hide2{% endif %} btn sm-btn">
+          <i class="icon-arrow-up icon-black"></i> Release Service
         </a>
-        <a class="hide btn sm-btn dropdown-toggle"
+        <a class="btn sm-btn dropdown-toggle"
         data-toggle="dropdown" href="#">
           <span class="caret"></span>
         </a>
-        <ul class="dropdown-menu">
-          <li><a href="#"><i class="icon-pencil"></i> Edit</a></li>
-          <li><a href="#"><i class="icon-trash"></i> Delete</a></li>
-          <li><a href="#"><i class="icon-ban-circle"></i> Ban</a></li>
-          <li class="divider"></li>
-          <li><a href="#"><i class="i"></i> Make admin</a></li>
+        <ul id="release-dropdown" class="dropdown-menu">
+            {% for release in service.get_releases() %}
+              <li class="release {% if loop.index == 1 %}active{% endif %}">
+                <a class="release" data-date="{{release.date}}" href="#">
+                {{release.date|relative_datetime}}
+                </a>
+              </li>
+            {% endfor %}
         </ul>
       </div>
 
     </li>
   </ul>
 </div>
+
 
 <div class="queued_items" data-last-updated="{{ last_updated }}">
   <div class="latest_notifications alert">
@@ -77,15 +81,15 @@
       {% if git_info %}
       <tr>
         <td width="20%">
-          <!-- alextodo, add a tooltip to this thing a ma bobber -->
           <a href="#" onclick="return false;" rel="tooltip"
           title="Click to see the Git commit history"
-          data-toggle="collapse" data-target="#{{ pckg.name|replace(".", "") }}_git_info">
+          data-toggle="collapse"
+          data-target="#{{ pckg.name|replace(".", "") }}_git_info">
           {{ pckg.name }}
         </a>
         </td>
         <td width="80%">
-          <select id="pckg_select_{{ pckg.name }}">
+          <select id="pckg_select_{{ pckg.name }}" class="package-select">
             {% for version in pckg.get_versions()|sort(reverse=True, case_sensitive=False) %}
               <option value="{{ version }}"
               {% if pckg.version == version %}selected="selected"{% endif %} >
@@ -96,13 +100,12 @@
           <a class="btn sm-btn-success new-version-btn" data-name="{{pckg.name}}" href="#">
             <i class="icon-chevron-right icon-white"></i> Release New Version
           </a>
+          <span id="pckg_select_msg_{{ pckg.name }}" class="help-block">
+            Current version 1.4.5
+          </span>
         </td>
       </tr>
       <tr class="git-info-row">
-          <!--
-            alextodo, after click add class show, remove hidden
-            show the commit log right here.
-          -->
           <td colspan="2" class="hidden">
             <div id="{{ pckg.name|replace(".", "") }}_git_info"
             class="commit-accordion accordion-body collapse hide-on-load"
@@ -141,7 +144,7 @@
       <tr>
         <td width="20%">{{ pckg.name }}</td>
         <td width="80%">
-          <select id="pckg_select_{{ pckg.name }}">
+          <select id="pckg_select_{{ pckg.name }}" class="package-select">
             {% for version in pckg.get_versions()|sort(reverse=True, case_sensitive=False) %}
               <option value="{{ version }}"
               {% if pckg.version == version %}selected="selected"{% endif %} >
@@ -149,6 +152,9 @@
               </option>
             {% endfor %}
           </select>
+          <span id="pckg_select_msg_{{ pckg.name }}" class="help-block">
+            Current version 1.4.5
+          </span>
         </td>
       </tr>
       {% endif %}
@@ -172,10 +178,9 @@
 {% block scripts %}
 <script>
 var __service = {{service_json|safe}};
+var __releases = {{releases_json|safe}};
 var __job_dict = {{job_dict|safe}};
 </script>
-<script language="javascript" type="text/javascript" src=""></script>
-<script language="javascript" type="text/javascript" src=""></script>
 {{ [
 '/js/common/util.js',
 '/js/common/queue.js',

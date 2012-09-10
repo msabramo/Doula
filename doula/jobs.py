@@ -1,39 +1,52 @@
+from datetime import datetime
 from doula.cache import Cache
+from doula.config import Config
+from doula.github.github import pull_appenv_repos
 from doula.github.github import pull_devmonkeys_repos
 from doula.models.node import Node
 from doula.models.package import Package
+from doula.models.push import Push
 from doula.models.service import Service
 from doula.models.sites_dal import SiteDAL
-from doula.models.push import Push
+from doula.queue import Queue
 from doula.services.cheese_prism import CheesePrism
 from doula.util import *
-from doula.config import Config
-from doula.queue import Queue
-from datetime import datetime
-import os
-import json
 import logging
+import os
+import time
 import traceback
 import xmlrpclib
-import time
 
 
-def create_logger(job_id):
+class ContextFilter(logging.Filter):
+    """
+    This is a filter which removes the shit
+
+    """
+
+    def filter(self, record):
+        print record.getMessage()
+
+        if "Secsh channel" in record.getMessage():
+            return False
+        return True
+
+
+def create_logger(job_id, level=logging.DEBUG):
     logging.basicConfig(filename=os.path.join('/var/log/doula', str(job_id) + '.log'),
                         format='%(asctime)s %(levelname)-4s %(message)s',
-                        level=logging.DEBUG)
+                        level=level)
+    return logging.getLogger()
 
 
-def load_config():
+def load_config(config):
     """
-    Load the config from redis
+    Load the config as a global
     """
-    cache = Cache.cache()
-    settings_as_json = cache.get('doula_settings')
-    Config.load_config(json.loads(settings_as_json))
+    Config.load_config(config)
 
 
-def push_to_cheeseprism(job_dict=None):
+def push_to_cheeseprism(config={}, job_dict={}):
     """
     This function will be enqueued by Queue upon receiving a job dict that
     has a job_type of 'push_to_cheeseprism'.  Upon being called, it will
@@ -41,11 +54,12 @@ def push_to_cheeseprism(job_dict=None):
     package to cheeseprism.
     """
     create_logger(job_dict['id'])
+    load_config(config)
+
     try:
         logging.info("About to push package to cheese prism %s" % job_dict['remote'])
-        load_config()
 
-        p = Package(job_dict['service'], '0', job_dict['remote'])
+        p = Package(job_dict['package_name'], '0', job_dict['remote'])
         p.distribute(job_dict['branch'], job_dict['version'])
 
         logging.info('Finished pushing package %s to CheesePrism' % job_dict['remote'])
@@ -55,7 +69,7 @@ def push_to_cheeseprism(job_dict=None):
         raise
 
 
-def cycle_services(job_dict):
+def cycle_services(config={}, job_dict={}):
     """
     This function will be enqueued by Queue upon receiving a job dict that
     has a job_type of 'cycle_services'.  Upon being called, it will restart
@@ -63,7 +77,7 @@ def cycle_services(job_dict):
     on a specific site.
     """
     create_logger(job_dict['id'])
-    load_config()
+    load_config(config)
 
     try:
         logging.info('Cycling service %s' % job_dict['service'])
@@ -82,24 +96,24 @@ def cycle_services(job_dict):
         raise
 
 
-def pull_cheeseprism_data(job_dict=None):
+def pull_cheeseprism_data(config={}, job_dict={}):
     """
     Ping Cheese Prism and pull the latest packages and all of their versions.
     """
     create_logger(job_dict['id'])
+    load_config(config)
+
     try:
         logging.info('Started pulling cheeseprism data')
-        load_config()
 
         cache = Cache.cache()
         pipeline = cache.pipeline()
 
         packages = CheesePrism.pull_all_packages()
-        pipeline.set("cheeseprism_packages", dumps(packages))
+        pipeline.set("cheeseprism:packages", dumps(packages))
 
         for pckg in packages:
-            pckg.pull_versions()
-            pipeline.set('cheeseprism_pckg_' + pckg.clean_name, dumps(pckg))
+            pipeline.set('cheeseprism:package:' + pckg.clean_name, dumps(pckg))
 
         pipeline.execute()
 
@@ -110,18 +124,27 @@ def pull_cheeseprism_data(job_dict=None):
         raise
 
 
-def pull_github_data(job_dict=None):
+def pull_github_data(config={}, job_dict={}):
     """
     Pull the github data for every python package.
     Pull commit history, tags, branches. Everything.
     """
     create_logger(job_dict['id'])
+    load_config(config)
+
     try:
         logging.info('pulling github data')
-        load_config()
+
         repos = pull_devmonkeys_repos()
+
         cache = Cache.cache()
-        cache.set("devmonkeys_repos", dumps(repos))
+        pipeline = cache.pipeline()
+
+        for name, repo in repos.iteritems():
+            key = "repo.devmonkeys:" + name
+            pipeline.set(key, dumps(repo))
+
+        pipeline.execute()
 
         logging.info('Done pulling github data')
     except Exception as e:
@@ -130,46 +153,87 @@ def pull_github_data(job_dict=None):
         raise
 
 
-def push_service_environment(job_dict=None):
+def pull_appenv_github_data(config={}, job_dict={}, debug=False):
     """
-    Pip install the packages sent
+    Pull the github data for every App environment
     """
     create_logger(job_dict['id'])
+    load_config(config)
+
     try:
-        #TODO: verbose statemenet
-        logging.info('pushing code to environment')
-        load_config()
-        failures = []
+        logging.info('Pulling github appenv data')
 
-        try:
-            push = Push(
-                job_dict['service_name'],
-                job_dict['username'],
-                job_dict['email'],
-                Config.get('bambino.web_app_dir'),
-                Config.get('doula.cheeseprism_url'),
-                Config.get('doula.keyfile_path'),
-                job_dict['site_name_or_node_ip']
-            )
-            successes, failures = push.packages(job_dict['packages'])
-        except Exception as e:
-            failures.append({'package': 'git', 'error': str(e)})
+        cache = Cache.cache()
+        repos = pull_appenv_repos()
+        cache.set("repos:appenvs", dumps(repos))
 
-        logging.info('Done installing packages.')
+        logging.info('Done pulling github appenv data')
     except Exception as e:
         logging.error(e.message)
         logging.error(traceback.format_exc())
         raise
 
 
-def pull_bambino_data(job_dict=None):
+def push_service_environment(config={}, job_dict={}, debug=False):
+    """
+    Pip install the packages sent
+    """
+    log = create_logger(job_dict['id'])
+    load_config(config)
+
+    try:
+        #TODO: verbose statemenet
+        f = ContextFilter()
+        log.addFilter(f)
+        log.info('%s pushed the following packages to %s: [%s]' %
+                (job_dict['user_id'], job_dict['service_name'], ','.join(job_dict['packages'])))
+        failures = []
+        successes = []
+
+        try:
+            push = Push(
+                job_dict['service_name'],
+                job_dict['user_id'],
+                config['bambino.webapp_dir'],
+                config['doula.cheeseprism_url'],
+                config['doula.keyfile_path'],
+                job_dict['site_name_or_node_ip'],
+                debug
+            )
+            successes, failures = push.packages(job_dict['packages'])
+        except Exception as e:
+            print 'EXCEPTIN IN JOB:'
+            # getting this message. sequence item 0: exp
+            print e.message
+            failures.append({'package': 'git', 'error': str(e)})
+
+        if failures:
+            # timtodo. this used to use join, failures returns this
+            # [{'error': "'bambino.web_app_dir'", 'package': 'git'}]
+            # Old call. this is here
+            # raise Exception(','.join(failures['error']))
+            raise Exception(failures[0]['error'])
+
+        logging.getLogger().setLevel(logging.DEBUG)
+        create_logger(job_dict['id'])
+        logging.info('Done installing packages.')
+        return successes, failures
+    except Exception as e:
+        logging.getLogger().setLevel(logging.DEBUG)
+        logging.error(e.message)
+        logging.error(traceback.format_exc())
+        raise
+
+
+def pull_bambino_data(config={}, job_dict={}):
     """
     Pull the data from all the bambino's
     """
     create_logger(job_dict['id'])
+    load_config(config)
+
     try:
         logging.info('Pulling bambino data')
-        load_config()
 
         cache = Cache.cache()
         pipeline = cache.pipeline()
@@ -182,7 +246,7 @@ def pull_bambino_data(job_dict=None):
             for name, n in simple_nodes.iteritems():
                 node = Node(name, n['site'], n['url'])
                 services_as_json = node.pull_services()
-                pipeline.set('node_services_' + node.name_url, services_as_json)
+                pipeline.set('node:services:' + node.name_url, services_as_json)
 
         pipeline.execute()
         logging.info('Done pulling bambino data')
@@ -192,11 +256,13 @@ def pull_bambino_data(job_dict=None):
         raise
 
 
-def cleanup_queue(job_dict=None):
+def cleanup_queue(config={}, job_dict={}):
     """
     Cleanup old jobs stored in our queueing system.
     """
     create_logger(job_dict['id'])
+    load_config(config)
+
     try:
         logging.info('Cleaning up the queue')
 

@@ -18,8 +18,11 @@
     {% endblock %}
     </div>
   </div>
+
   <!-- end of container -->
-  {% include 'old/feedback_tab.html' %}
+  {% include 'parts/feedback_tab.html' %}
+
+  {% include 'error/modal_error.html' %}
 
   {{ [
   '/js/libs/jquery.js',

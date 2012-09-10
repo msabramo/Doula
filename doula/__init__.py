@@ -14,7 +14,7 @@ def main(global_config, **settings):
     """
     authentication_policy = SessionAuthenticationPolicy(callback=groupfinder)
     authorization_policy = ACLAuthorizationPolicy()
-    session_factory = UnencryptedCookieSessionFactoryConfig(settings['doula.session_secret'],
+    session_factory = UnencryptedCookieSessionFactoryConfig(settings['doula.session.secret'],
                                                             cookie_max_age=2592000)
     config = Configurator(settings=settings,
                           root_factory=Site,
@@ -51,6 +51,7 @@ def main(global_config, **settings):
     config.add_route('sites', '/sites')
     config.add_route('login', '/login')
     config.add_route('logout', '/logout')
+    config.add_route('updatedoula', '/updatedoula')
 
     config.add_route('site', '/sites/{site_id}')
     config.add_route('site_tag', '/sites/{site_id}/tag')

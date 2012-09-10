@@ -1,14 +1,22 @@
 from contextlib import contextmanager
+from datetime import datetime
 from doula.config import Config
 from doula.github.github import get_package_github_info
 from doula.services.cheese_prism import CheesePrism
 from fabric.api import *
 from git import *
-from datetime import datetime
+import logging
 import os
+import pwd
 import re
 import shutil
-import logging
+
+"""
+Git-Python makes a call to os.getlogin that fails
+in a non-terminal env. This call here patches that error
+with a valid call to getlogin
+"""
+os.getlogin = lambda: pwd.getpwuid(os.getuid())[0]
 
 
 class Package(object):
@@ -28,7 +36,7 @@ class Package(object):
 
     def get_versions(self):
         pypackage = CheesePrism.find_package_by_name(self.name)
-        versions = pypackage.get_versions() if pypackage else []
+        versions = pypackage.versions
 
         if not self.version in versions:
             versions.append(self.version)
@@ -57,15 +65,16 @@ class Package(object):
             yield repo
         finally:
             # Clean up repo directory
-            if repo:
+            if repo and os.path.isdir(repo.working_dir):
                 shutil.rmtree(repo.working_dir)
 
     def update_version(self, repo, new_version):
         """
         Update the setup.py with a new version, parent sha, branch and author
         """
-        # todo, we still need to update the user who did the push
         logging.info('Updating the version to %s' % new_version)
+        setup_dot_py = None
+
         try:
             setup_py_path = os.path.join(repo.working_dir, 'setup.py')
 
@@ -82,7 +91,7 @@ class Package(object):
             setup_dot_py.close()
         finally:
             logging.info('Updated the version.')
-            if not setup_dot_py:
+            if setup_dot_py:
                 setup_dot_py.close()
 
     def get_updated_setup_dot_py(self, lines, version, branch, remote_url, parent_sha, user=''):

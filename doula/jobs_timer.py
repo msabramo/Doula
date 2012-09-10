@@ -9,10 +9,19 @@ from doula.queue import Queue
 
 def pull_github_data():
     """
-
+    Pull the data for the dev monkeys org
     """
     job_dict = {
         'job_type': 'pull_github_data'
+    }
+
+    q = Queue()
+    q.this(job_dict)
+
+
+def pull_appenv_github_data():
+    job_dict = {
+        'job_type': 'pull_appenv_github_data'
     }
 
     q = Queue()
@@ -63,7 +72,7 @@ def start_task_scheduling():
     sched = Scheduler()
     sched.start()
 
-    interval = int(Config.get('task_interval'))
+    interval = int(Config.get('task_interval_pull_bambino'))
     sched.add_interval_job(pull_bambino_data, seconds=interval)
 
     cheeseprism_interval = int(Config.get('task_interval_pull_cheesprism_data'))
@@ -71,6 +80,9 @@ def start_task_scheduling():
 
     git_interval = int(Config.get('task_interval_pull_github_data'))
     sched.add_interval_job(pull_github_data, seconds=git_interval)
+
+    interval = int(Config.get('task_interval_pull_appenv_github_data'))
+    sched.add_interval_job(pull_appenv_github_data, seconds=interval)
 
     cleanup_interval = int(Config.get('task_interval_cleanup_queue'))
     sched.add_interval_job(cleanup_queue, seconds=cleanup_interval)

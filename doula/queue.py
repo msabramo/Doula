@@ -1,3 +1,4 @@
+from doula.cache import Cache
 from doula.notifications import send_notification
 from retools.queue import QueueManager
 import json
@@ -64,7 +65,6 @@ class Queue(object):
 
     push_service_environment_dict = dict({
         'site_name_or_node_ip': '',
-        'username': '',
         'email': '',
         'service_name': '',
         'packages': []
@@ -79,9 +79,11 @@ class Queue(object):
     base_dicts = {
         'base': common_dict,
         'push_to_cheeseprism': push_to_cheeseprism_dict,
+        'push_service_environment': push_service_environment_dict,
         'cycle_services': common_dict,
         'pull_cheeseprism_data': common_dict,
         'pull_github_data': common_dict,
+        'pull_appenv_github_data': common_dict,
         'pull_bambino_data': common_dict,
         'cleanup_queue': common_dict
     }
@@ -101,9 +103,11 @@ class Queue(object):
         """
         job_types = [
             'push_to_cheeseprism',
+            'push_service_environment',
             'cycle_services',
             'pull_cheeseprism_data',
             'pull_github_data',
+            'pull_appenv_github_data',
             'pull_bambino_data',
             'cleanup_queue']
 
@@ -121,14 +125,21 @@ class Queue(object):
         job_dict['status'] = 'queued'
         job_dict['time_started'] = time.time()
         job_type = job_dict['job_type']
+
         p = self.rdb.pipeline()
-
-        self.qm.enqueue('doula.jobs:%s' % job_type, job_dict=job_dict)
-
+        print 'GOING TO ENQUEUE THIS JOB: ' + job_type
+        self.qm.enqueue('doula.jobs:%s' % job_type, config=self.get_config(), job_dict=job_dict)
         self._save(p, job_dict)
         p.execute()
 
         return job_dict['id']
+
+    def get_config(self):
+        """
+        Load the config from redis
+        """
+        cache = Cache.cache()
+        return json.loads(cache.get('doula:settings'))
 
     def get(self, job_dict={}):
         """
@@ -250,8 +261,9 @@ def add_result(job=None, result=None):
     Subscriber that gets called right after the job gets run, and is successful.
     """
     queue = Queue()
+
     job_dict = queue.update({'id': job.kwargs['job_dict']['id'], 'status': 'complete'})
-    print "\n SUCCESSULF JOB\N"
+    print "\n SUCCESSFUL JOB\N"
     print job_dict
 
     # Notify user of successful job
@@ -262,15 +274,19 @@ def add_failure(job=None, exc=None):
     """
     Subscriber that gets called when a job fails.
     """
-    exception = traceback.format_exc()
-    logging.error(exception)
+    tb = traceback.format_exc()
+    logging.error(exc)
+
+    print "\n FAILED JOB"
+    print exc
+    print tb
 
     queue = Queue()
     job_dict = queue.update({
-        'exc': exception,
+        'exc': tb,
         'status': 'failed',
         'id': job.kwargs['job_dict']['id']
     })
 
     # Notify user of failed job
-    send_notification(job_dict, exception)
+    send_notification(job_dict, tb)

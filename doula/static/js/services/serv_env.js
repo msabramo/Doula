@@ -7,7 +7,10 @@ var ServiceEnv = {
 	*****************/
 
 	init: function() {
+		this.releases = __releases;
+
 		_mixin(this, AJAXUtil);
+
 		Data.init();
 
 		this.bindToUIActions();
@@ -33,7 +36,112 @@ var ServiceEnv = {
 		$('.commit-accordion').on('hide', function () {
 			$(this).parent().removeClass('shown').addClass('hidden');
 		});
+
+		// Dropdown packages
+
+		this.addOriginalVersionToPackageSelects();
+
+		$('#release-service').popover({placement: "bottom"});
+		$('a.release').on('click', $.proxy(this.selectReleasePackages, this));
+		$('select.package-select').
+			on('change', $.proxy(this.updatePackageDropdownOnChange, this));
+
+		// Queue stuff
+		QueuedItems.subscribe(
+			'queue-item-changed',
+			$.proxy(this.queueItemChanged, this));
 	},
+
+	/*******************
+	PACKAGE DROPDOWN RELATED
+	********************/
+
+	addOriginalVersionToPackageSelects: function() {
+		$('.package-select').each(function(i, select) {
+			select = $(select);
+			select.attr('data-original-val', select.val());
+
+			var safeID = select.attr('id').
+				replace('pckg_select_', '').
+				replace('.', '\\.');
+			$('#pckg_select_msg_' + safeID).
+				html('Current version <strong>' + select.val() + '</strong>.');
+		});
+	},
+
+	selectReleasePackages: function(event) {
+		var target = $(event.target);
+		this.makeReleaseLinkActive(target);
+
+		var releaseDate = target.attr('data-date');
+		var release = this.findReleaseByDate(releaseDate);
+
+		for(i=0; i < release.packages.length; i++) {
+			var pckg = release.packages[i];
+
+			var safeID = pckg.name.toLowerCase().replace('.', '\\.');
+			this.updatePackageDropdown(safeID, pckg.version);
+		}
+
+		// Close the button dropdown menu
+		target.closest('div.btn-group').removeClass('open');
+
+		return false;
+	},
+
+	findReleaseByDate: function(releaseDate) {
+		var release;
+
+		for(var i = 0; i < this.releases.length; i++) {
+			if(this.releases[i].date == releaseDate) {
+				return this.releases[i];
+			}
+		}
+
+		return false;
+	},
+
+	updatePackageDropdownOnChange: function(event) {
+		var target = $(event.target);
+		var name = target.attr('id').replace('pckg_select_', '');
+
+		this.updatePackageDropdown(name, target.val());
+	},
+
+	updatePackageDropdown: function(name, version) {
+		var safeID = name.toLowerCase().replace('.', '\\.');
+		var select = $('#pckg_select_' + safeID);
+		var message = $('#pckg_select_msg_' + safeID);
+		var originalVal = $.trim(select.attr('data-original-val'));
+
+		if(originalVal != version && originalVal != 'undefined') {
+			select.val(version);
+			select.addClass('warning');
+			message.addClass('warning');
+
+			var html = 'New version <strong>' + version + '</strong>. ';
+			html += 'Current version <strong>' + originalVal + '</strong>.';
+			message.html(html);
+		}
+		else {
+			select.val(version);
+			select.removeClass('warning');
+			message.removeClass('warning');
+			message.html('Current version <strong>' + originalVal + '</strong>.');
+		}
+	},
+
+	makeReleaseLinkActive: function(el) {
+		$('#release-dropdown li').each(function(i, li) {
+			$(li).removeClass('active');
+		});
+
+		el.parent().addClass('active');
+	},
+
+	/*******************
+	DATA ACTIONS
+	********************/
 
 	bindToDataActions: function() {
 		$('#add-pckg').on('click', function() {
@@ -42,19 +150,84 @@ var ServiceEnv = {
 			$('#add-packages').modal();
 		});
 
-		$('#cycle').on('click', _bind(this.cycle, this));
-		$('.new-version-btn').on('click', _bind(this.showPushPackageModal, this));
+		$('#cycle').on('click', $.proxy(this.cycle, this));
+		$('.new-version-btn').on('click', $.proxy(this.showPushPackageModal, this));
 
-		QueuedItems.subscribe('queue-item-changed', _bind(this.queueItemChanged, this));
+		$('#release-service').on('click', $.proxy(this.releaseService, this));
+	},
+
+	/****************
+	RELEASE SERVICE
+	*****************/
+
+	releaseService: function() {
+		var packages = this.getActiveReleasePackages();
+
+		if(this.hasChanges(packages)) {
+			$('#release-service').popover('hide');
+
+			this.disableReleaseServiceButton();
+
+			var params = {packages: JSON.stringify(packages)};
+			var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/release';
+			this.post(url, params, this.doneReleaseService, this.failedReleaseService);
+		}
+		else {
+			// No changes made. Show error message in popover
+			setTimeout(function() {
+				$('#release-service').popover('hide');
+			}, 3500);
+		}
+
+		return false;
+	},
+
+	hasChanges: function(packages) {
+		for(var name in packages) {
+			return true;
+		}
+
+		return false;
+	},
+
+	disableReleaseServiceButton: function() {
+		this.disableButton('release-service');
+	},
+
+	enableReleaseServiceButton: function() {
+		this.enableButton('release-service', this.releaseService);
+	},
+
+	getActiveReleasePackages: function() {
+		var packages = {};
+
+		$('select.package-select').each(function(i, select) {
+			select = $(select);
+			var name = select.attr('id').replace('pckg_select_', '');
+			var version = select.val();
+			var originalVal = $.trim(select.attr('data-original-val'));
+
+			if(originalVal != version && originalVal != 'undefined') {
+				packages[name] = version;
+			}
+		});
+
+		return packages;
+	},
+
+	doneReleaseService: function(rslt) {
+		this.enableReleaseServiceButton();
+	},
+
+	failedReleaseService: function(rslt) {
+		this.enableReleaseServiceButton();
+		this._showStandardErrorMessage(rslt);
 	},
 
 	/****************
 	CYCLE SERVICE
 	*****************/
 
-	// alextodo, last thing to do is initially allow us to cycle the services
-	// disable the button if there is currently someone trying to cycle this service
-	// does this query for everyone else too?
 	cycle: function(event) {
 		this.disableCycleButton();
 
@@ -82,16 +255,28 @@ var ServiceEnv = {
 	},
 
 	disableCycleButton: function() {
-		$('#cycle')
+		this.disableButton('cycle');
+	},
+
+	enableCycleButton: function() {
+		this.enableButton('cycle', this.cycle);
+	},
+
+	/****************
+	COMMON
+	*****************/
+
+	disableButton: function(id) {
+		$('#'+id)
 			.unbind()
 			.addClass('disabled')
 			.bind('click', function() { return false; });
 	},
 
-	enableCycleButton: function() {
-		$('#cycle')
+	enableButton: function(id, func) {
+		$('#'+id)
 			.removeClass('disabled')
-			.on('click', _bind(this.cycle, this));
+			.on('click', $.proxy(func, this));
 	},
 
 	/****************
@@ -120,7 +305,7 @@ var ServiceEnv = {
 				.on('keyup', ServiceEnv.validateShowPushPackageModal)
 				.on('mouseup', ServiceEnv.validateShowPushPackageModal);
 
-			$('#push_package').on('click', _bind(ServiceEnv.pushPackage, ServiceEnv));
+			$('#push_package').on('click', $.proxy(ServiceEnv.pushPackage, ServiceEnv));
 		});
 
 		$('#push-to-cheese-modal')
