@@ -28,60 +28,51 @@ def logout_view(request):
 @view_config(context='velruse.AuthenticationComplete', permission=NO_PERMISSION_REQUIRED)
 def login_complete_view(request):
     """
-    Example user object:
+    Log the user in and update their user values.
+    If the user doesn't exist create the user
 
-    doula:user:jayd3e
-    {
-        'username': '',
-        'oauth_token': '',
-        'avatar_url': '',
-        'email': '',
-        'settings': {
-            'notify_me': 'always',
-            'subscribed_to': ['my_jobs']
-        }
-    }
-    """
-    context = request.context
-    profile = context.profile
-    credentials = context.credentials
-
-    username = profile['preferredUsername']
-    user = User.find(username)
-
-    r = requests.get('https://api.github.com/users/%s' % username,
-                     params={'auth_token': credentials['oauthAccessToken']})
-    info = r.json
-
-    # If user doesn't exist
-    if not user:
-        user = {
-            'username': username,
-            'oauth_token': credentials['oauthAccessToken'],
-            'avatar_url': info.get('avatar_url', ''),
-            'email': get_email_from_profile(profile),
+    Example user dict:
+        doula:user:jayd3e
+        {
+            'username': '',
+            'oauth_token': '',
+            'avatar_url': '',
+            'email': '',
             'settings': {
-                'notify_me': 'failure',
+                'notify_me': 'always',
                 'subscribed_to': ['my_jobs']
             }
         }
-    else:
-        # If a user exists we still pull the latest users avatar url and email
-        # because those are updated by the user in Github Enterprise.
-        user['avatar_url'] = info.get('avatar_url', '')
+    """
+    profile = request.context.profile
+    credentials = request.context.credentials
+    username = profile['preferredUsername']
+
+    r = requests.get('https://api.github.com/users/%s' % username,
+                     params={'auth_token': credentials['oauthAccessToken']})
+    github_user_info = r.json
+
+    user = User.find(username)
+
+    # If a user exists we still pull the latest users avatar url and email
+    # because those are updated by the user in Github Enterprise.
+    if user:
+        user['avatar_url'] = github_user_info.get('avatar_url', '')
         user['email'] = get_email_from_profile(profile)
-
-    # Ensure the keys settings exist
-    if not user['settings']:
-        user['settings'] = {}
-
-    if not user['settings'].get('notify_me'):
-        user['settings']['notify_me'] = 'failure'
-
-    if not user['settings'].get('subscribed_to'):
-        user['settings']['subscribed_to'] = ['my_jobs']
+    else:
+        user = {
+            'username': username,
+            'oauth_token': credentials['oauthAccessToken'],
+            'avatar_url': github_user_info.get('avatar_url', ''),
+            'email': get_email_from_profile(profile),
+            'settings': {
+                'notify_me': 'failed',
+                'subscribed_to': ['my_jobs']
+            }
+        }
 
     User.save(user)
+
     remember(request, username)
 
     return  HTTPFound(location='/')

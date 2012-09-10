@@ -38,7 +38,6 @@ var ServiceEnv = {
 		});
 
 		// Dropdown packages
-
 		this.addOriginalVersionToPackageSelects();
 
 		$('#release-service').popover({placement: "bottom"});
@@ -340,6 +339,8 @@ var ServiceEnv = {
 		};
 
 		this.get(url, params, this.donePushPackage, this.failedPushPackage);
+
+		return false;
 	},
 
 	donePushPackage: function(rslt) {
