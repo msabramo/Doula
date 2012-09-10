@@ -10,7 +10,6 @@ else:
     env.hosts = ['doula.corp.surveymonkey.com']
     branch = 'master'
 
-
 env.user = 'doula'
 env.key_filename = ['~/.ssh/id_rsa_doula']
 doula_dir = '/opt/doula'
