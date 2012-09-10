@@ -99,9 +99,10 @@ def send_notification(job_dict, exception=None):
     which are push to cheese prism, cycle services and release service
     """
     try:
+        print 'ABOUT TO SEND EMAIL'
         if job_dict['job_type'] in ['push_to_cheeseprism', 'cycle_services', 'push_service_environment']:
             email_list = build_email_list(job_dict)
-
+            print 'EMAIL LIST LENGTH: ' + str(len(email_list))
             if len(email_list) > 0:
                 if job_dict['status'] == 'complete':
                     email_success(email_list, job_dict)
@@ -109,7 +110,9 @@ def send_notification(job_dict, exception=None):
                     email_fail(email_list, job_dict, exception)
     except Exception as e:
         # error trying to notify user
+        print 'ERROR SENDING EMAIL'
         subject = 'Error notifying user: ' + e.message
         email_list = ['alexv@surveymonkey.com']
         body = traceback.format_exc()
+        print body
         email(subject, email_list, body)
