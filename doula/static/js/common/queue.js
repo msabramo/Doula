@@ -23,14 +23,14 @@ QueuedItems = {
         this.latest_notifications.on('click', this.show_latest_notifications);
 
         this.data = $('.queued_items').data();
-        window.setInterval(this.poll, 2000);
+        window.setInterval(this.poll, 4000);
         this.selectActiveLabel();
     },
 
     selectActiveLabel: function() {
         var params = this.getQueryStringParams();
         var sortBy = params.sort_by ? params.sort_by : 'all';
-        var filterBy =  params.filter_by ? params.filter_by : 'allusers';
+        var filterBy =  params.filter_by ? params.filter_by : 'myjobs';
 
         $('ul.sort_by a').each(function(index, el) {
             el = $(el);
@@ -78,8 +78,17 @@ QueuedItems = {
 
     poll: function() {
         var url = '/queue';
-        this.kwargs.last_updated = this.data.lastUpdated;
-        this.get(url, this.kwargs, this.handle_updates, null, false);
+
+        // Pull the two get params: lastUpdated and filter_by
+        var params = {
+            "last_updated": this.data.lastUpdated
+        };
+
+        var queryParams = this.getQueryStringParams();
+        params["filter_by"] = queryParams.filter_by ?
+            queryParams.filter_by : 'myjobs';
+
+        this.get(url, params, this.handle_updates, null, false);
     },
 
     handle_updates: function(data) {
