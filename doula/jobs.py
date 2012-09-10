@@ -18,18 +18,6 @@ import traceback
 import xmlrpclib
 
 
-class ContextFilter(logging.Filter):
-    """
-    This is a filter which removes the shit
-    """
-    def filter(self, record):
-        print record.getMessage()
-
-        if "Secsh channel" in record.getMessage():
-            return False
-        return True
-
-
 def create_logger(job_id, level=logging.DEBUG):
     logging.basicConfig(filename=os.path.join('/var/log/doula', str(job_id) + '.log'),
                         format='%(asctime)s %(levelname)-4s %(message)s',
@@ -86,7 +74,7 @@ def cycle_services(config={}, job_dict={}):
 
             for name in job_dict['supervisor_service_names']:
                 logging.info('Cycling service %s on IP http://%s' % (name, ip))
-                Service.cycle(xmlrpclib.ServerProxy('http://' + ip), name)
+                Service.cycle(xmlrpclib.ServerProxy('http://' + ip + ':9001'), name)
 
         logging.info('Done cycling %s' % job_dict['service'])
     except Exception as e:
@@ -181,9 +169,6 @@ def push_service_environment(config={}, job_dict={}, debug=False):
     load_config(config)
 
     try:
-        #TODO: verbose statemenet
-        f = ContextFilter()
-        log.addFilter(f)
         log.info('%s pushed the following packages to %s: [%s]' %
                 (job_dict['user_id'], job_dict['service_name'],
                 ','.join(job_dict['packages'])))
