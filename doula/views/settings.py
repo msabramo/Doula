@@ -24,11 +24,11 @@ def change_settings(request):
 
     for key, value in kwargs.items():
         if key == 'notify_me':
-            user['settings'] = value
+            user['settings']['notify_me'] = value
         elif key == 'subscribed_to':
             subscription_list = value.split(',')
             subscription_list.append('my_jobs')
-            user['settings'] = {'subscribed_to': subscription_list}
+            user['settings']['subscribed_to'] = subscription_list
 
     User.save(user)
 
