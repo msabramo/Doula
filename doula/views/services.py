@@ -76,11 +76,7 @@ def service_cheese_prism_push(request):
     next_version = request.GET['next_version']
     branch = request.GET['branch']
 
-    # alextodo, use a validation for the branch and version right here
-    # no empty values, no duplicates, make sure the branch exist
-    # alextodo, verification will also require that we don't allow
-    # another version number that is already being pushed onto the queue
-    errors = validate_release(package, branch, next_version)
+    errors = validate_package_release(package, branch, next_version)
 
     if len(errors) == 0:
         job_dict = enqueue_push_package(request.user['username'],
@@ -99,12 +95,10 @@ def service_cheese_prism_push(request):
     return dumps({'success': True, 'job': job_dict})
 
 
-def validate_release(package, branch, next_version):
+def validate_package_release(package, branch, next_version):
     """
     Validate that:
         The version number does not already exist
-        alextodo, we need to figure out if the version number has already
-        been added to the queue, check against that too
     """
     errors = []
     git_info = package.get_github_info()

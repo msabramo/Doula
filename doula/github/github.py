@@ -10,9 +10,6 @@ import json
 import re
 
 cache = Cache.cache()
-# alextodo put this into the INI
-domain = "http://api.code.corp.surveymonkey.com"
-html_domain = "http://code.corp.surveymonkey.com"
 
 ######################
 # PULL FROM CACHE
@@ -94,6 +91,7 @@ def pull_tags(git_repo):
     """
     Pull the tags from git and they're corresponding sha's
     """
+    domain = Config.get('doula.github.api.domain')
     vals = (domain, Config.get('doula.github.packages.org'), git_repo['name'])
     url = "%s/repos/%s/%s/tags" % vals
 
@@ -113,6 +111,7 @@ def pull_branches(git_repo):
     """
     Pull the branches from the github repo
     """
+    domain = Config.get('doula.github.api.domain')
     url = "%s/repos/%s/%s/branches" % \
         (domain, Config.get('doula.github.packages.org'), git_repo['name'])
     github_branches = json.loads(pull_url(url))
@@ -193,10 +192,9 @@ def pull_commits(git_repo, tags, branches):
         "package_version": "0.2.3"
     }
     """
+    domain = Config.get('doula.github.api.domain')
     vals = (domain, Config.get('doula.github.packages.org'), git_repo['name'])
     url = "%s/repos/%s/%s/commits" % vals
-
-    # alextodo pull fewer commits and less data
 
     commits = []
     git_commits = json.loads(pull_url(url))
@@ -216,8 +214,7 @@ def pull_commits(git_repo, tags, branches):
             "package_version": ""
         }
 
-        # if no date. use today's date
-        # alextodo. fix this. why do we do this?
+        # if no date. use today's date cause we can't have a blank for this field
         if not commit["date"]:
             commit["date"] = datetime.now().strftime("%a, %d %b %Y %H:%M:%S")
 
@@ -279,6 +276,8 @@ def pull_devmonkeys_repos():
         }
     """
     repos = {}
+    domain = Config.get('doula.github.api.domain')
+    html_domain = Config.get('doula.github.html.domain')
     url = domain + '/orgs/' + Config.get('doula.github.packages.org') + '/repos'
     git_repos = json.loads(pull_url(url))
 
@@ -335,6 +334,7 @@ def pull_appenv_branches(git_repo):
                 ]
         }
     """
+    domain = Config.get('doula.github.api.domain')
     vals = (domain, Config.get('doula.github.appenvs.org'), git_repo['name'])
     url = "%s/repos/%s/%s/branches" % vals
     github_branches = json.loads(pull_url(url))
@@ -389,6 +389,7 @@ def pull_appenv_repos():
     ]
     """
     repos = {}
+    domain = Config.get('doula.github.api.domain')
     url = domain + '/orgs/' + Config.get('doula.github.appenvs.org') + '/repos'
     git_repos = json.loads(pull_url(url))
 

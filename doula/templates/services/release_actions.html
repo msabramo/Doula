@@ -28,13 +28,19 @@
           <span class="caret"></span>
         </a>
         <ul id="release-dropdown" class="dropdown-menu">
-            {% for release in service.get_releases() %}
-              <li class="release {% if loop.index == 1 %}active{% endif %}">
-                <a class="release" data-date="{{release.date}}" href="#">
-                {{release.date|relative_datetime}}
-                </a>
+            {% if service.get_releases()|length > 0 %}
+              {% for release in service.get_releases() %}
+                <li class="release {% if loop.index == 1 %}active{% endif %}">
+                  <a class="release" data-date="{{release.date}}" href="#">
+                  {{release.date|relative_datetime}}
+                  </a>
+                </li>
+              {% endfor %}
+            {% else %}
+              <li class="release">
+                No release information available
               </li>
-            {% endfor %}
+            {% endif %}
         </ul>
       </div>
 
@@ -125,7 +131,7 @@
     <div class="accordion-heading group sm-accordion-title">
       <a href="#" onclick="return false;" data-toggle="collapse"
       data-target="#other_packages_table">
-        Other packages</a>
+        Other packages in this service</a>
     </div>
   </div>
 

@@ -104,7 +104,7 @@ class SiteTagHistory(object):
 
         # Just need to do specify the name of the log file
         cmd = 'cd ' + path + ' && ' + cmd + ' >> ' + self.log_path
-        # alextodo, still need to figure out how to putput result, this works
+        # alextodo, still need to figure out how to output the result, this works
         g = Git()
         rslt = g.execute(cmd_list, output_stream=f)
         print 'RSLT: ' + str(rslt)

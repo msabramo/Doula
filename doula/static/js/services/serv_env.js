@@ -312,8 +312,6 @@ var ServiceEnv = {
 			.modal();
 	},
 
-	// alextodo, what about checking against an existing package number?
-	// have that happen on the backend
 	validateShowPushPackageModal: function() {
 		var branch = $.trim($('#push_package_branch').val());
 		var version = $.trim($('#push_package_version').val());
@@ -345,7 +343,6 @@ var ServiceEnv = {
 
 	donePushPackage: function(rslt) {
 		$('#push-to-cheese-modal').modal('hide');
-		// alextodo make a call to update the queue
 	},
 
 	failedPushPackage: function(rslt) {
