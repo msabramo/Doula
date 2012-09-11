@@ -1,4 +1,4 @@
-from doula.models.user import get_user
+from doula.models.user import User
 from doula.resources import Site
 from doula.security import groupfinder
 from pyramid.authentication import SessionAuthenticationPolicy
@@ -33,7 +33,7 @@ def main(global_config, **settings):
     config.add_tween('doula.views.helpers.exception_tween_factory')
 
     # Request
-    config.set_request_property(get_user, 'user', reify=True)
+    config.set_request_property(User.find_user_for_request, 'user', reify=True)
 
     # Jinja2 config
     config.add_renderer('.html', renderer_factory)

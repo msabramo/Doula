@@ -179,3 +179,16 @@ def get_pretty_status(status):
         return statuses[status]
     else:
         return 'Unknown'
+
+def show_sites_not_on_blacklist(site, user):
+    """
+    We only want Doula developers to see mtclone and mt99
+    (our test accounts) for now
+    """
+    if site in ['mtclone', 'mt99']:
+        if user in ['tbone', 'alexv', 'whit', 'stefanien']:
+            return True
+        else:
+            return False
+
+    return True

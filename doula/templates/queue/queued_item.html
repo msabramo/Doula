@@ -16,7 +16,7 @@
                     of <strong>{{ queued_item['branch'] }}</strong>
                     at <strong>{{ queued_item['remote'] }}</strong>
                 {% elif queued_item['status'] == 'complete' %}
-                    Released version <strong>{{ queued_item['version'] }}</strong>
+                    Pushed version <strong>{{ queued_item['version'] }}</strong>
                     of <strong>{{ queued_item['branch'] }}</strong>
                     at <strong>{{ queued_item['remote'] }}</strong>
                 {% elif queued_item['status'] == 'queued' %}

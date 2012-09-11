@@ -28,13 +28,19 @@
           <span class="caret"></span>
         </a>
         <ul id="release-dropdown" class="dropdown-menu">
-            {% for release in service.get_releases() %}
-              <li class="release {% if loop.index == 1 %}active{% endif %}">
-                <a class="release" data-date="{{release.date}}" href="#">
-                {{release.date|relative_datetime}}
-                </a>
+            {% if service.get_releases()|length > 0 %}
+              {% for release in service.get_releases() %}
+                <li class="release {% if loop.index == 1 %}active{% endif %}">
+                  <a class="release" data-date="{{release.date}}" href="#">
+                  {{release.date|relative_datetime}}
+                  </a>
+                </li>
+              {% endfor %}
+            {% else %}
+              <li class="release">
+                No prior releases exist
               </li>
-            {% endfor %}
+            {% endif %}
         </ul>
       </div>
 
@@ -98,7 +104,7 @@
             {% endfor %}
           </select>
           <a class="btn sm-btn-success new-version-btn" data-name="{{pckg.name}}" href="#">
-            <i class="icon-chevron-right icon-white"></i> Release New Version
+            <i class="icon-chevron-right icon-white"></i> Push New Package
           </a>
           <span id="pckg_select_msg_{{ pckg.name }}" class="help-block">
             Current version 1.4.5
@@ -125,7 +131,7 @@
     <div class="accordion-heading group sm-accordion-title">
       <a href="#" onclick="return false;" data-toggle="collapse"
       data-target="#other_packages_table">
-        Other packages</a>
+        Other packages in this service</a>
     </div>
   </div>
 
@@ -170,7 +176,7 @@
 <div id="add-packages" class="modal hide">
   <!-- fill in -->
 </div>
-<div id="push-to-cheese-modal" class="modal hide">
+<div id="push-to-cheese-modal" class="modal hide" style="width: 600px;">
   <!-- fill in -->
 </div>
 {% endblock %}

@@ -18,20 +18,6 @@ import traceback
 import xmlrpclib
 
 
-class ContextFilter(logging.Filter):
-    """
-    This is a filter which removes the shit
-
-    """
-
-    def filter(self, record):
-        print record.getMessage()
-
-        if "Secsh channel" in record.getMessage():
-            return False
-        return True
-
-
 def create_logger(job_id, level=logging.DEBUG):
     logging.basicConfig(filename=os.path.join('/var/log/doula', str(job_id) + '.log'),
                         format='%(asctime)s %(levelname)-4s %(message)s',
@@ -72,7 +58,7 @@ def push_to_cheeseprism(config={}, job_dict={}):
 def cycle_services(config={}, job_dict={}):
     """
     This function will be enqueued by Queue upon receiving a job dict that
-    has a job_type of 'cycle_services'.  Upon being called, it will restart
+    has a job_type of 'cycle_services'. Upon being called, it will restart
     the necessary supervisor processes to make the changes to the packages live
     on a specific site.
     """
@@ -83,11 +69,12 @@ def cycle_services(config={}, job_dict={}):
         logging.info('Cycling service %s' % job_dict['service'])
 
         for ip in job_dict['nodes']:
-            logging.info('Cycling supervisord services: %s' % job_dict['supervisor_service_names'])
+            logging.info('Cycling supervisord services: %s' %
+                job_dict['supervisor_service_names'])
 
             for name in job_dict['supervisor_service_names']:
                 logging.info('Cycling service %s on IP http://%s' % (name, ip))
-                Service.cycle(xmlrpclib.ServerProxy('http://' + ip), name)
+                Service.cycle(xmlrpclib.ServerProxy('http://' + ip + ':9001'), name)
 
         logging.info('Done cycling %s' % job_dict['service'])
     except Exception as e:
@@ -182,11 +169,9 @@ def push_service_environment(config={}, job_dict={}, debug=False):
     load_config(config)
 
     try:
-        #TODO: verbose statemenet
-        f = ContextFilter()
-        log.addFilter(f)
         log.info('%s pushed the following packages to %s: [%s]' %
-                (job_dict['user_id'], job_dict['service_name'], ','.join(job_dict['packages'])))
+                (job_dict['user_id'], job_dict['service_name'],
+                ','.join(job_dict['packages'])))
         failures = []
         successes = []
 
@@ -256,6 +241,20 @@ def pull_bambino_data(config={}, job_dict={}):
         raise
 
 
+def job_expired(job):
+    """
+    Determines if a job on the queue has expired and needs to be
+    pulled off the queue. For completed jobs it's 3 days, for failed
+    jobs it's 5 days
+    """
+    if job['status'] == 'complete' and job['time_started'] < now - 4320:
+        return True
+    elif job['status'] == 'failed' and job['time_started'] < now - 7200:
+        return True
+    else:
+        return False
+
+
 def cleanup_queue(config={}, job_dict={}):
     """
     Cleanup old jobs stored in our queueing system.
@@ -272,9 +271,9 @@ def cleanup_queue(config={}, job_dict={}):
         queue = Queue()
         jobs = queue.get()
         # Get completed jobs that need to be deleted
-        complete_job_ids = [job['id'] for job in jobs if job['time_started'] < now - 7200 and job['status'] == 'complete']
+        complete_job_ids = [job['id'] for job in jobs if job_expired(job)]
         # Get failed jobs that need to be deleted
-        failed_job_ids = [job['id'] for job in jobs if job['time_started'] < now - 14400 and job['status'] == 'failed']
+        failed_job_ids = [job['id'] for job in jobs if job_expired(job)]
 
         ids = complete_job_ids + failed_job_ids
         # Remove completed jobs and failed jobs that are unneeded

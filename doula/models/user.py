@@ -5,36 +5,58 @@ import json
 
 class User(object):
     """
+    The user represents a user that has logged into Doula via Github
+
     Example user object:
-    {
+    user = {
         'username': '',
         'oauth_token': '',
         'avatar_url': '',
         'email': '',
         'settings': {
-            'notify_me': 'always',
+            'notify_me': 'failed',
             'subscribed_to': ['my_jobs']
         }
     }
     """
-    def __init__(self):
-        pass
-
     @staticmethod
     def find(username):
-        cache = Cache.cache()
+        """
+        Find the user in the redis db by username
+        Users are stored in redis with the key:
+            'doula:user:[username]'
+        """
+        cache = Cache.cache(1)
         user_as_json = cache.get('doula:user:%s' % username)
 
-        if not user_as_json:
-            return None
-        else:
+        if user_as_json:
             return json.loads(user_as_json)
+        else:
+            return None
 
     @staticmethod
     def save(user):
+        """
+        Save the user object to redis and make sure the user
+        has all right key values
+        """
+        if not 'email' in user:
+            user['email'] = 'no-reply@surveymonkey.com'
+
+        # Ensure the keys settings exist
+        if not 'settings' in user:
+            user['settings'] = {}
+
+        if not 'notify_me' in user['settings']:
+            user['settings']['notify_me'] = 'failed'
+
+        if not 'subscribed_to' in user['settings']:
+            user['settings']['subscribed_to'] = ['my_jobs']
+
         json_user = json.dumps(user, sort_keys=True)
 
-        cache = Cache.cache()
+        cache = Cache.cache(1)
+
         cache.set('doula:user:%s' % user['username'], json_user)
         cache.sadd('doula:users', user['username'])
 
@@ -43,7 +65,7 @@ class User(object):
         """
         Return all the users
         """
-        cache = Cache.cache()
+        cache = Cache.cache(1)
         users = []
 
         for username in cache.smembers('doula:users'):
@@ -54,9 +76,13 @@ class User(object):
 
         return users
 
-
-def get_user(request):
-    try:
-        return User.find(unauthenticated_userid(request))
-    except:
-        return None
+    @staticmethod
+    def find_user_for_request(request):
+        """
+        Find the user that will be passed into the request object
+        of every view callable
+        """
+        try:
+            return User.find(unauthenticated_userid(request))
+        except:
+            return None

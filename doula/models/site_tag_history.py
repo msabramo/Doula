@@ -104,7 +104,7 @@ class SiteTagHistory(object):
 
         # Just need to do specify the name of the log file
         cmd = 'cd ' + path + ' && ' + cmd + ' >> ' + self.log_path
-        # alextodo, still need to figure out how to putput result, this works
+        # alextodo, still need to figure out how to output the result, this works
         g = Git()
         rslt = g.execute(cmd_list, output_stream=f)
         print 'RSLT: ' + str(rslt)
@@ -123,7 +123,7 @@ class SiteTagHistory(object):
 
     def _checkout_repo(self, path, remote):
         """
-        Check if the repo already exist, if it doesn't create it and return repo obj.
+        Check if the repo already exists, if it doesn't create it and return repo obj.
         Do an update on the repo as well after pulling down.
         Switch the head to the selected branch.
         """

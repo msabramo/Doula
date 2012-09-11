@@ -38,7 +38,6 @@ var ServiceEnv = {
 		});
 
 		// Dropdown packages
-
 		this.addOriginalVersionToPackageSelects();
 
 		$('#release-service').popover({placement: "bottom"});
@@ -164,6 +163,8 @@ var ServiceEnv = {
 		var packages = this.getActiveReleasePackages();
 
 		if(this.hasChanges(packages)) {
+			$('#release-service').popover('hide');
+
 			this.disableReleaseServiceButton();
 
 			var params = {packages: JSON.stringify(packages)};
@@ -311,8 +312,6 @@ var ServiceEnv = {
 			.modal();
 	},
 
-	// alextodo, what about checking against an existing package number?
-	// have that happen on the backend
 	validateShowPushPackageModal: function() {
 		var branch = $.trim($('#push_package_branch').val());
 		var version = $.trim($('#push_package_version').val());
@@ -338,11 +337,12 @@ var ServiceEnv = {
 		};
 
 		this.get(url, params, this.donePushPackage, this.failedPushPackage);
+
+		return false;
 	},
 
 	donePushPackage: function(rslt) {
 		$('#push-to-cheese-modal').modal('hide');
-		// alextodo make a call to update the queue
 	},
 
 	failedPushPackage: function(rslt) {

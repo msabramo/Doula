@@ -8,10 +8,6 @@ var Service = {
         this.bindToDataActions();
     },
 
-    /*
-    * UI ACTIONS
-    */
-
     bindToUIActions: function() {
         $('#compare_dropdown1,#compare_dropdown2').
             bind('click change blur keydown', $.proxy(this.updateCompareURL, this));
@@ -40,14 +36,6 @@ var Service = {
             $('#compare_url').attr('href', "http://code.corp.surveymonkey.com/");
             $('#compare_url').html('Comparison not available for this service.');
         }
-    },
-
-    /*
-    * DATA ACTIONS
-    */
-
-    bindToDataActions: function() {
-
     }
 };
 

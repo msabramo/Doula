@@ -64,10 +64,6 @@ class Site(object):
         return all_logs
 
     def tag(self, tag_history_path, tag_history_remote, tag, msg, user):
-        # alextodo, need to move this logic into the site object
-        # alextodo, figure out the output.log file, where should
-        # it actually go? will you read it?
-        # create a global config object. this will also allow me to test. config[]
         sth = SiteTagHistory(tag_history_path, tag_history_remote, self.name_url, 'output.log')
         sth.tag_site(tag, msg, self.services)
 

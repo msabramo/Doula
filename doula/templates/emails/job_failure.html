@@ -1,5 +1,5 @@
 {% macro render_job_failure(queued_item) -%}
-    Hi {{ user['username'] }}!</br></br>
+    Howdy!</br></br>
 
     Unfortunately, Doula
     {% if queued_item['job_type'] == 'push_to_cheeseprism' %}
@@ -20,9 +20,11 @@
 
     Here are the logs:</br>
 
+    <pre><code>
     {% if log: %}
          {{ log }}
     {% endif %}
+    </code></pre>
 
 {%- endmacro %}
 

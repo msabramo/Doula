@@ -23,32 +23,72 @@ QueuedItems = {
         this.latest_notifications.on('click', this.show_latest_notifications);
 
         this.data = $('.queued_items').data();
-        window.setInterval(this.poll, 2000);
+        window.setInterval(this.poll, 4000);
         this.selectActiveLabel();
     },
 
     selectActiveLabel: function() {
-        var searchArray = document.location.search.split('=');
-        var type = 'all';
-
-        if(searchArray[1]) {
-            type = searchArray[1];
-        }
+        var params = this.getQueryStringParams();
+        var sortBy = params.sort_by ? params.sort_by : 'all';
+        var filterBy =  params.filter_by ? params.filter_by : 'myjobs';
 
         $('ul.sort_by a').each(function(index, el) {
-            if($(el).html().toLowerCase() == type) {
-                $(el).addClass('active');
+            el = $(el);
+
+            if (el.hasClass('sort_by')) {
+                if (el.attr('data-val') == sortBy) {
+                    el.addClass('active');
+                }
+                else {
+                    el.removeClass('active');
+                }
+
+                el.attr('href', '/queue?sort_by='+
+                    el.attr('data-val')+'&filter_by='+filterBy);
             }
             else {
-                $(el).removeClass('active');
+                if (el.attr('data-val') == filterBy) {
+                    el.addClass('active');
+                }
+                else {
+                    el.removeClass('active');
+                }
+
+                el.attr('href', '/queue?sort_by='+
+                    sortBy+'&filter_by='+el.attr('data-val'));
             }
         });
     },
 
+    getQueryStringParams: function() {
+        var params = {};
+        var q = document.URL.split('?')[1];
+
+        if (q !== undefined) {
+            var vals = q.split('&');
+
+            for(var i=0; i < vals.length; i++) {
+                hash = vals[i].split('=');
+                params[hash[0]] = hash[1];
+            }
+        }
+
+        return params;
+    },
+
     poll: function() {
         var url = '/queue';
-        this.kwargs.last_updated = this.data.lastUpdated;
-        this.get(url, this.kwargs, this.handle_updates, null, false);
+
+        // Pull the two get params: lastUpdated and filter_by
+        var params = {
+            "last_updated": this.data.lastUpdated
+        };
+
+        var queryParams = this.getQueryStringParams();
+        params["filter_by"] = queryParams.filter_by ?
+            queryParams.filter_by : 'myjobs';
+
+        this.get(url, params, this.handle_updates, null, false);
     },
 
     handle_updates: function(data) {
@@ -76,7 +116,7 @@ QueuedItems = {
 
         if (data.new_queued_items.length > 0) {
             this.latest_notifications.show();
-            // alextodo redo this.
+
             if(data.new_queued_items.length == 1) {
                 this.latest_notifications.html('There is 1 new job to be displayed.');
             }

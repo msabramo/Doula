@@ -9,12 +9,10 @@ from pyramid.view import view_config
 # SETTINGS VIEWS
 @view_config(route_name='settings', renderer='settings/index.html')
 def show_settings(request):
-    sites_and_services = SiteDAL.list_of_sites_and_services()
-
     return {
         'config': Config,
         'user': request.user,
-        'sites_and_services': sites_and_services
+        'sas': SiteDAL.list_of_sites_and_services()
     }
 
 
@@ -26,11 +24,11 @@ def change_settings(request):
 
     for key, value in kwargs.items():
         if key == 'notify_me':
-            user['settings'] = value
+            user['settings']['notify_me'] = value
         elif key == 'subscribed_to':
             subscription_list = value.split(',')
             subscription_list.append('my_jobs')
-            user['settings'] = {'subscribed_to': subscription_list}
+            user['settings']['subscribed_to'] = subscription_list
 
     User.save(user)
 
