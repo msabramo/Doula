@@ -19,8 +19,8 @@ def email_success(email_list, job_dict):
         })
 
     if job_dict['job_type'] == 'push_to_cheeseprism':
-        package = job_dict['service'] + ' ' + job_dict['version']
-        subject = 'Doula Success: Pushed %s to Cheese Prism on %s' % package
+        vals = (job_dict['service'] + ' ' + job_dict['version'], job_dict['service'])
+        subject = 'Doula Success: Pushed %s to Cheese Prism on %s' % vals
     elif job_dict['job_type'] == 'cycle_services':
         subject = 'Doula Success: Cycled %s on %s' % (job_dict['service'], job_dict['site'])
     elif job_dict['job_type'] == 'push_service_environment':
