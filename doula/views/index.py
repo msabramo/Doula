@@ -30,7 +30,7 @@ def show_sites(request):
     Show the testing sites
     """
     sites = SiteDAL.get_sites()
-    return {'sites': sites, 'config': Config}
+    return {'sites': sites, 'config': Config, 'username': request.user['username']}
 
 
 @view_config(route_name='site', renderer="sites/site.html")

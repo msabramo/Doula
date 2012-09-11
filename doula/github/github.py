@@ -197,7 +197,13 @@ def pull_commits(git_repo, tags, branches):
     url = "%s/repos/%s/%s/commits" % vals
 
     commits = []
-    git_commits = json.loads(pull_url(url))
+    git_commits = []
+
+    try:
+        git_commits = json.loads(pull_url(url))
+    except:
+        # Some repos may not have the details, ignore and move on
+        pass
 
     for cmt in git_commits:
         commit = {
