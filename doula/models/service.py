@@ -6,7 +6,6 @@ from doula.models.tag import Tag
 from doula.util import *
 from fabric.api import *
 from socket import error as socket_error
-import json
 import logging
 import operator
 import re
