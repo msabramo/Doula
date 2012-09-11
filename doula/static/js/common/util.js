@@ -29,7 +29,7 @@ var DataEventManager = {
 };
 
 // Extends the string object with function in to check
-// if the string exist in the array, or as an attribute of the array
+// if the string exists in the array, or as an attribute of the array
 _inArray = function(key, array, attribute) {
   for(var i = 0; i < array.length; i++) {
     var item = array[i];

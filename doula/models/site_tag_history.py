@@ -123,7 +123,7 @@ class SiteTagHistory(object):
 
     def _checkout_repo(self, path, remote):
         """
-        Check if the repo already exist, if it doesn't create it and return repo obj.
+        Check if the repo already exists, if it doesn't create it and return repo obj.
         Do an update on the repo as well after pulling down.
         Switch the head to the selected branch.
         """

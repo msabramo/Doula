@@ -35,7 +35,7 @@
                 Compare the tag
                 <select id="compare_dropdown1">
                   {% for tag in app.tags|sort(attribute='date',reverse=True) %}
-                    <option value="{{ tag.name }}" 
+                    <option value="{{ tag.name }}"
                     {% if loop.index == 2 %}selected="selected"{% endif %}>
                       {{ tag.name }}
                     </option>
@@ -44,7 +44,7 @@
                 to the tag
                 <select id="compare_dropdown2">
                   {% for tag in app.tags|sort(attribute='date', reverse=True) %}
-                    <option value="{{ tag.name }}" 
+                    <option value="{{ tag.name }}"
                     {% if loop.index == 1 %}selected="selected"{% endif %}>
                     {{ tag.name }}
                     </option>
@@ -93,7 +93,7 @@
               </div>
               <table>
                 {% set count = 1 %}
-                
+
                 {% for pack in app.packages|sort(attribute='name') %}
                 {% if count == 1 %}
                 <tr>

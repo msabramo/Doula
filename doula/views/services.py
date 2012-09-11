@@ -98,7 +98,7 @@ def service_cheese_prism_push(request):
 def validate_package_release(package, branch, next_version):
     """
     Validate that:
-        The version number does not already exist
+        The version number does not already exists
     """
     errors = []
     git_info = package.get_github_info()
@@ -112,7 +112,7 @@ def validate_package_release(package, branch, next_version):
         tag_name = re.sub(r'^v', '', str(tag['name']))
 
         if tag_name == next_version:
-            msg = "This package version (%s) already exist. "
+            msg = "This package version (%s) already exists. "
             msg += "Try another version."
             msg = msg % next_version
             errors.append(msg)
