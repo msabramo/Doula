@@ -48,6 +48,7 @@ def main(global_config, **settings):
     # routes for doula
     config.add_route('favicon', '/favicon.ico')
     config.add_route('home', '/')
+    config.add_route('docs', '/docs')
     config.add_route('sites', '/sites')
     config.add_route('login', '/login')
     config.add_route('logout', '/logout')

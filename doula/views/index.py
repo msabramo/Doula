@@ -7,6 +7,7 @@ from doula.util import *
 from doula.views.helpers import *
 from pyramid.events import ApplicationCreated
 from pyramid.events import subscriber
+from pyramid.httpexceptions import HTTPFound
 from pyramid.response import FileResponse
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
@@ -104,6 +105,11 @@ def updatedoula(request):
         html += job + ', '
 
     return {'jobs_html': html.rstrip(', ')}
+
+
+@view_config(route_name='docs', permission=NO_PERMISSION_REQUIRED)
+def docs_view(request):
+    return HTTPFound(location='http://code.corp.surveymonkey.com/pages/DevOps/Doula/')
 
 
 ####################
