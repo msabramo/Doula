@@ -17,7 +17,7 @@
       title="{{ service.get_status()|get_friendly_status_explanation }}" rel="tooltip"
       data-parent="#sites-accordion" href="#collapse_{{ service.name_url }}"
       {% if service.status.startswith('change_to') %}
-        data-toggle="collapse"
+        data-toggle="do_not_collapse"
       {% else %}
         data-toggle="do_not_collapse"
       {% endif %} >
