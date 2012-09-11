@@ -200,6 +200,11 @@ def enqueue_service_release(request, service, packages):
     """
     if Config.get('env') == 'prod':
         nodes = SiteDAL.nodes(service.site_name)
+        print 'sitename'
+        print service.site_name
+        print 'nodes: '
+        print nodes
+        print "\n"
         ip = nodes[service.site_name]['ip']
     else:
         ip = Config.get('doula.deploy.site')
