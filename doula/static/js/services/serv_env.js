@@ -169,7 +169,9 @@ var ServiceEnv = {
 
 			var params = {packages: JSON.stringify(packages)};
 			var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/release';
-			this.post(url, params, this.doneReleaseService, this.failedReleaseService);
+			var msg = 'Releasing the service '+Data.name+' to '+Data.site_name+
+					'. Please be patient and stay awesome.';
+			this.post(url, params, this.doneReleaseService, this.failedReleaseService, msg);
 		}
 		else {
 			// No changes made. Show error message in popover
@@ -231,7 +233,8 @@ var ServiceEnv = {
 		this.disableCycleButton();
 
 		var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/cycle';
-		this.get(url, {}, this.doneCycleService);
+		var msg = 'Cycling this service. Please be patient and stay awesome.';
+		this.get(url, {}, this.doneCycleService, false, msg);
 
 		return false;
 	},
@@ -335,8 +338,10 @@ var ServiceEnv = {
 			'branch': $('#push_package_branch').val(),
 			'next_version': $('#push_package_version').val()
 		};
+		var msg = 'Pushing package '+params.name+' version '+params.next_version+
+				'. Please be patient and stay awesome.';
 
-		this.get(url, params, this.donePushPackage, this.failedPushPackage);
+		this.get(url, params, this.donePushPackage, this.failedPushPackage, msg);
 
 		return false;
 	},

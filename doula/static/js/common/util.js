@@ -7,7 +7,6 @@ _mixin = function(target, source) {
 };
 
 var EventUtil = {
-
     onclick: function(selector, func) {
         $(selector).on('click', $.proxy(function(event) {
             func = $.proxy(func, this);
@@ -66,18 +65,19 @@ _withoutArray = function(array, key, attribute) {
 // get or post for this application
 var AJAXUtil = {
 
-    post: function(url, params, onDone, onFail, showProgressBar) {
-        this._send('POST', url, params, onDone, onFail, showProgressBar);
+    post: function(url, params, onDone, onFail, msg) {
+        this._send('POST', url, params, onDone, onFail, msg);
     },
 
-    get: function(url, params, onDone, onFail, showProgressBar) {
-        this._send('GET', url, params, onDone, onFail, showProgressBar);
+    get: function(url, params, onDone, onFail, msg) {
+        this._send('GET', url, params, onDone, onFail, msg);
     },
 
-    _send: function(type, url, params, onDone, onFail, showProgressBar) {
+    _send: function(type, url, params, onDone, onFail, msg) {
         onDone = $.proxy(onDone, this);
         if(typeof(onFail) == 'function') onFail = $.proxy(onFail, this);
-        if(showProgressBar !== false) $('#progress-section').show();
+
+        if(msg) Notifier.info(msg, false);
 
         $.ajax({
               url: url,
@@ -85,16 +85,11 @@ var AJAXUtil = {
               data: this._getDataValues(params),
               success: function(response) {
                   try {
-                    // Progress the progress bar to the end
-                    setTimeout(function() {
-                      $('.polyfill')[0].style.animationDuration = '1300ms';
-                      $('.polyfill')[0].style.mozAnimationDuration = '1300ms';
-                      $('.polyfill')[0].style.webkitAnimationDuration = '1300ms';
-                    }, 200);
-
-                    setTimeout(function() {
-                      if(showProgressBar !== false) $('#progress-section').fadeOut('slow');
-                    }, 400);
+                    if(msg) {
+                      setTimeout(function() {
+                        Notifier.hide();
+                      }, 1500);
+                    }
 
                     rslt = (typeof(response) == 'string') ?
                     $.parseJSON(response) : response;

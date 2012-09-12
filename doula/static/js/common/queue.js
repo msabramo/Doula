@@ -23,7 +23,7 @@ QueuedItems = {
         this.latest_notifications.on('click', this.show_latest_notifications);
 
         this.data = $('.queued_items').data();
-        window.setInterval(this.poll, 4000);
+        window.setInterval(this.poll, 2000);
         this.selectActiveLabel();
     },
 

@@ -18,8 +18,8 @@ var Data = {
     tagService: function(service, tag, tag_msg) {
         var url = ['/sites', Data.name_url, service.name_url, 'tag'].join('/');
         var params = { 'tag' : tag, 'msg' : tag_msg };
-
-        this.post(url, params, this.doneTagService);
+        var msg = 'Tagging service. Please be patient and stay awesome.';
+        this.post(url, params, this.doneTagService, false, msg);
     },
 
     doneTagService: function(rlst) {
@@ -36,7 +36,9 @@ var Data = {
             'msg'         : tag_msg
         };
 
-        this.post(url, params, this.donetagSite, this.failedtagSite);
+        var msg = 'Tagging site. Please be patient and stay awesome.';
+
+        this.post(url, params, this.donetagSite, this.failedtagSite, msg);
     },
 
     donetagSite: function(rslt) {

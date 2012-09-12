@@ -26,17 +26,12 @@
 
   {{ [
   '/js/libs/jquery.js',
-  '/js/libs/bootstrap.js'
+  '/js/libs/bootstrap.js',
+  '/js/libs/notifier.js'
   ]|js_script|safe }}
 
   {% block scripts %}
   {% endblock %}
-
-  <section id="progress-section" class="hide">
-    <div class="progress-bar">
-      <div class="polyfill"></div>
-    </div>
-  </section>
 
 </body>
 

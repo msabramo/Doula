@@ -27,7 +27,8 @@ Settings = {
         });
 
         var params = {'notify_me': notifyMe, subscribed_to: subscribed_to};
-        this.post('/settings', params, this.doneSaveSettings);
+        var msg = 'Saving your settings. Please be patient and stay awesome.';
+        this.post('/settings', params, this.doneSaveSettings, false, msg);
     },
 
     doneSaveSettings: function(rslt) {
