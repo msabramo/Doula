@@ -139,11 +139,6 @@ def enqueue_push_package(user_id, service, package, remote, branch, version):
     job_id = q.this(job_dict)
     job_dict['id'] = job_id
 
-    # After we add a package to cheese prism update our cheese prism data
-    q.this({
-        'job_type': 'pull_cheeseprism_data'
-    })
-
     return job_dict
 
 

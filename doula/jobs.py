@@ -11,6 +11,7 @@ from doula.models.sites_dal import SiteDAL
 from doula.queue import Queue
 from doula.services.cheese_prism import CheesePrism
 from doula.util import *
+import json
 import logging
 import os
 import time
@@ -48,17 +49,18 @@ def push_to_cheeseprism(config={}, job_dict={}):
         p = Package(job_dict['package_name'], '0', job_dict['remote'])
         p.distribute(job_dict['branch'], job_dict['version'])
 
-        # alextodo. figure out what the fuck to do here.
-        # need to notify the front end that a new package is available.
-        # put the package onto the list of packages available
+        # Update the packages after an update. automatically add new version
+        cache = Cache.cache()
 
-        # "cheeseprism:package:smlibweb"
-        # get 'cheeseprism:package:smlibconfig'
-        # "{\"clean_name\": \"smlibconfig\", \"name\": \"smlib.config\",
-        # \"versions\": [\"0.1\", \"0.3\", \"0.2\"]}"
+        packages_as_json = cache.get('cheeseprism:package:' +
+            comparable_name(job_dict['package_name']))
 
-        # the front end will then want to listen for when a package update is update
-        # then we need to make sure we update it all.
+        if packages_as_json:
+            packages = json.loads(packages_as_json)
+            packages["versions"].append(job_dict['version'])
+            packages_as_json = dumps(packages)
+
+            cache.set('cheeseprism:package:' + job_dict['package_name'], packages_as_json)
 
         logging.info('Finished pushing package %s to CheesePrism' % job_dict['remote'])
     except Exception as e:

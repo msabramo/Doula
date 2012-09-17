@@ -254,6 +254,11 @@ var ServiceEnv = {
 				if(this.cycleServiceJobs.length === 0) this.enableCycleButton();
 			}
 		}
+		else if (item.job_type == 'push_to_cheeseprism') {
+			if (item.status == 'complete') {
+				this.updatePackagesDropdown(item.package_name, item.version);
+			}
+		}
 	},
 
 	disableCycleButton: function() {
@@ -348,6 +353,13 @@ var ServiceEnv = {
 
 	donePushPackage: function(rslt) {
 		$('#push-to-cheese-modal').modal('hide');
+	},
+
+	updatePackagesDropdown: function(package_name, version) {
+		$('#pckg_select_dummycode').
+			append('<option value="' + version + '">' + version + '</option>').
+			val(version).
+			change();
 	},
 
 	failedPushPackage: function(rslt) {
