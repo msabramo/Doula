@@ -109,7 +109,7 @@ def updatedoula(request):
 
 @view_config(route_name='docs', permission=NO_PERMISSION_REQUIRED)
 def docs_view(request):
-    return HTTPFound(location='http://code.corp.surveymonkey.com/pages/DevOps/Doula/')
+    return HTTPFound(location='http://code.corp.surveymonkey.com/pages/DevOps/DoulaDocs/home/')
 
 
 ####################

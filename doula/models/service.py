@@ -101,7 +101,7 @@ class Service(object):
 
         # exceptions are weird with xmlrpc: http://betabug.ch/blogs/ch-athens/1012
         except (socket_error, xmlrpclib.Fault, xmlrpclib.ProtocolError, xmlrpclib.ResponseError), error_code:
-            raise  CycleServiceException(error_code)
+            raise CycleServiceException(error_code)
 
     def get_releases(self):
         """

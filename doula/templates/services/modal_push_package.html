@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h3>Push a New Version of <strong>{{ package.name }}</strong> to CheesePrism</h3>
+  <h3>Build and Push a New Version of <strong>{{ package.name }}</strong> <br />to CheesePrism</h3>
 </div>
 <div class="modal-body">
   <form class="well">
@@ -25,7 +25,7 @@
     Latest Version <strong>{{ current_version }}</strong> on Cheese Prism
   </span>
   <span class="help-block">
-    Select the branch you want to package and send to Cheese Prism.
+    Select the branch you want to package and send to Cheese Prism. We'll automatically tack on the name of the <strong>branch</strong> to the version number so we'll always know where it came from.
   </span>
 </form>
 </div>
@@ -37,6 +37,6 @@
   <a href="#" class="btn" data-dismiss="modal">Close</a>
   <a id="push_package" class="btn disabled sm-btn-success" href="#">
   <i class="icon-plus icon-white"></i>
-    Push New Package
+    Build New Package
   </a>
 </div>

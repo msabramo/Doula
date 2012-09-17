@@ -48,6 +48,18 @@ def push_to_cheeseprism(config={}, job_dict={}):
         p = Package(job_dict['package_name'], '0', job_dict['remote'])
         p.distribute(job_dict['branch'], job_dict['version'])
 
+        # alextodo. figure out what the fuck to do here.
+        # need to notify the front end that a new package is available.
+        # put the package onto the list of packages available
+
+        # "cheeseprism:package:smlibweb"
+        # get 'cheeseprism:package:smlibconfig'
+        # "{\"clean_name\": \"smlibconfig\", \"name\": \"smlib.config\",
+        # \"versions\": [\"0.1\", \"0.3\", \"0.2\"]}"
+
+        # the front end will then want to listen for when a package update is update
+        # then we need to make sure we update it all.
+
         logging.info('Finished pushing package %s to CheesePrism' % job_dict['remote'])
     except Exception as e:
         logging.error(e.message)
@@ -58,9 +70,8 @@ def push_to_cheeseprism(config={}, job_dict={}):
 def cycle_services(config={}, job_dict={}):
     """
     This function will be enqueued by Queue upon receiving a job dict that
-    has a job_type of 'cycle_services'. Upon being called, it will restart
-    the necessary supervisor processes to make the changes to the packages live
-    on a specific site.
+    has a job_type of 'cycle_services'.
+    It restarts the supervisor processes for a specific site.
     """
     create_logger(job_dict['id'])
     load_config(config)
@@ -244,12 +255,14 @@ def pull_bambino_data(config={}, job_dict={}):
 def job_expired(job):
     """
     Determines if a job on the queue has expired and needs to be
-    pulled off the queue. For completed jobs it's 3 days, for failed
-    jobs it's 5 days
+    pulled off the queue. For completed jobs it's 3 days, for failed or
+    queued jobs it's 5 days
     """
     if job['status'] == 'complete' and job['time_started'] < now - 4320:
         return True
     elif job['status'] == 'failed' and job['time_started'] < now - 7200:
+        return True
+    elif job['status'] == 'queued' and job['time_started'] < now - 7200:
         return True
     else:
         return False

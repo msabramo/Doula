@@ -72,9 +72,9 @@ def service_cheese_prism_push(request):
     service = get_service_from_url(request)
     package = service.get_package_by_name(request.GET['name'])
 
-    remote = package.get_github_info()['ssh_url']
-    next_version = request.GET['next_version']
     branch = request.GET['branch']
+    next_version = request.GET['next_version'] + '.' + branch
+    remote = package.get_github_info()['ssh_url']
 
     errors = validate_package_release(package, branch, next_version)
 
@@ -244,10 +244,8 @@ def enqueue_cycle_services(request, nodes, service):
     """
     Enqueue the job onto the queue
     """
-    ips = []
-
-    for node_name in nodes:
-        ips.append(nodes[node_name]['ip'])
+    # Pull the ip address of the node where the service lives
+    ips = [nodes[service.node_name]["ip"]]
 
     return Queue().this({
         'user_id': request.user['username'],
