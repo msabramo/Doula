@@ -1,11 +1,15 @@
 <div class="modal-header">
-  <h3>Build and Push a New Version of <strong>{{ package.name }}</strong> <br />to CheesePrism</h3>
+  <h3>Build a New Version of <strong>{{ package.name }}</strong></h3>
 </div>
 <div class="modal-body">
   <form class="well">
-  <input id="push_package_name" type="hidden" value="{{ package.name }}" />
+  <span class="help-block">
+    Select the branch you want to package and the next version number. We'll append the <strong>branch</strong> to the <strong>version number</strong> so we'll always know where this build came from.
+  </span>
+
+  <input id="build_new_package_name" type="hidden" value="{{ package.name }}" />
   <label>Branch</label>
-  <select id="push_package_branch" required>
+  <select id="build_new_package_branch" required>
     <option value="" selected="selected">Select a branch</option>
     {% for branch in package.get_github_info()['branches']|sort %}
       {% if loop.length == 1 %}
@@ -18,14 +22,15 @@
   </select>
 
   <label>Next Version</label>
-  <input id="push_package_version" type="text" class="span3"
+  <input id="build_new_package_version" type="text" class="span3"
   value="{{ next_version }}" placeholder="Enter the next package version" required>
 
   <span class="help-block">
-    Latest Version <strong>{{ current_version }}</strong> on Cheese Prism
+    Latest Version <strong>{{ current_version }}</strong> on CheesePrism.
   </span>
+
   <span class="help-block">
-    Select the branch you want to package and send to Cheese Prism. We'll automatically tack on the name of the <strong>branch</strong> to the version number so we'll always know where it came from.
+    Next build version <strong id="next-full-version">{{ next_version }}</strong>.
   </span>
 </form>
 </div>
@@ -35,8 +40,8 @@
 
 <div class="modal-footer">
   <a href="#" class="btn" data-dismiss="modal">Close</a>
-  <a id="push_package" class="btn disabled sm-btn-success" href="#">
-  <i class="icon-plus icon-white"></i>
+  <a id="build_new_package" class="btn disabled sm-btn-success" href="#">
+  <i class="icon-chevron-right icon-white"></i>
     Build New Package
   </a>
 </div>

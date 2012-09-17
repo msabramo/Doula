@@ -73,6 +73,8 @@ def service_cheese_prism_push(request):
     package = service.get_package_by_name(request.GET['name'])
 
     branch = request.GET['branch']
+    # The next version number is a combination of the actual version
+    # number and the name of the actual branch
     next_version = request.GET['next_version'] + '.' + branch
     remote = package.get_github_info()['ssh_url']
 

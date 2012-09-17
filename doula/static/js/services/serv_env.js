@@ -306,13 +306,13 @@ var ServiceEnv = {
 		$('#push-to-cheese-modal').on('shown', function() {
 			ServiceEnv.validateShowPushPackageModal();
 
-			$('#push_package_branch')
+			$('#build_new_package_branch')
 				.on('change', ServiceEnv.validateShowPushPackageModal);
-			$('#push_package_version')
+			$('#build_new_package_version')
 				.on('keyup', ServiceEnv.validateShowPushPackageModal)
 				.on('mouseup', ServiceEnv.validateShowPushPackageModal);
 
-			$('#push_package').on('click', $.proxy(ServiceEnv.pushPackage, ServiceEnv));
+			$('#build_new_package').on('click', $.proxy(ServiceEnv.pushPackage, ServiceEnv));
 		});
 
 		$('#push-to-cheese-modal')
@@ -320,15 +320,19 @@ var ServiceEnv = {
 			.modal();
 	},
 
+	// Validate the show push package version number and
+	// update the next-full-version text
 	validateShowPushPackageModal: function() {
-		var branch = $.trim($('#push_package_branch').val());
-		var version = $.trim($('#push_package_version').val());
+		var branch = $.trim($('#build_new_package_branch').val());
+		var version = $.trim($('#build_new_package_version').val());
 
 		if (branch !== '' && version !== '') {
-			$('#push_package').removeClass('disabled');
+			$('#build_new_package').removeClass('disabled');
+			$('#next-full-version').html(version + '.' + branch);
 		}
 		else {
-			$('#push_package').addClass('disabled');
+			$('#build_new_package').addClass('disabled');
+			$('#next-full-version').html(version);
 		}
 	},
 
@@ -339,12 +343,13 @@ var ServiceEnv = {
 		url += Data.name_url + '/cheese_prism_push';
 
 		var params = {
-			'name': $('#push_package_name').val(),
-			'branch': $('#push_package_branch').val(),
-			'next_version': $('#push_package_version').val()
+			'name': $('#build_new_package_name').val(),
+			'branch': $('#build_new_package_branch').val(),
+			'next_version': $('#build_new_package_version').val()
 		};
-		var msg = 'Pushing package '+params.name+' version '+params.next_version+
-				'. Please be patient and stay awesome.';
+
+		var msg = 'Pushing package '+params.name+' version '+
+				params.next_version + '. Please be patient and stay awesome.';
 
 		this.get(url, params, this.donePushPackage, this.failedPushPackage, msg);
 
