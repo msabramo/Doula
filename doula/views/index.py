@@ -16,8 +16,6 @@ import logging
 import os
 import time
 
-from doula.github import pull_doula_admins
-
 log = logging.getLogger(__name__)
 
 
@@ -32,7 +30,6 @@ def show_sites(request):
     """
     Show the testing sites
     """
-    pull_doula_admins()
     sites = SiteDAL.get_sites()
     return {'sites': sites, 'config': Config, 'username': request.user['username']}
 
