@@ -1,3 +1,4 @@
+from doula.cache import Cache
 from doula.models.node import Node
 from doula.models.site_tag_history import SiteTagHistory
 from doula.util import dirify
@@ -111,3 +112,32 @@ class Site(object):
                 combined_services[app_name] = app
 
         return combined_services
+
+    def is_locked(self):
+        """
+        Returns true or false based on whether or not the site has been
+        locked by an Doula admin
+        """
+        cache = Cache.cache()
+        key = 'doula.site.locked:%s' % self.name_url
+
+        if cache.get(key) == 'true':
+            return True
+        else:
+            return False
+
+    def lock(self):
+        """
+        Lock down a site so no one except an admin can release to the site
+        """
+        cache = Cache.cache()
+        key = 'doula.site.locked:%s' % self.name_url
+        cache.set(key, 'true')
+
+    def unlock(self):
+        """
+        Unlock site so everyone can release to the site
+        """
+        cache = Cache.cache()
+        key = 'doula.site.locked:%s' % self.name_url
+        cache.set(key, 'false')

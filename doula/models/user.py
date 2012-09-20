@@ -53,6 +53,14 @@ class User(object):
         if not 'subscribed_to' in user['settings']:
             user['settings']['subscribed_to'] = ['my_jobs']
 
+        # Save whether or not this user is an admin
+        from doula.github import get_doula_admins
+
+        if user['username'] in get_doula_admins():
+            user['admin'] = True
+        else:
+            user['admin'] = False
+
         json_user = json.dumps(user, sort_keys=True)
 
         cache = Cache.cache(1)

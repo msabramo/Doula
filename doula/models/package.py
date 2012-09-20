@@ -1,10 +1,11 @@
 from contextlib import contextmanager
 from datetime import datetime
 from doula.config import Config
-from doula.github.github import get_package_github_info
-from doula.services.cheese_prism import CheesePrism
+from doula.github import get_package_github_info
+from doula.cheese_prism import CheesePrism
 from fabric.api import *
 from git import *
+from sets import Set
 import logging
 import os
 import pwd
@@ -41,7 +42,8 @@ class Package(object):
         if not self.version in versions:
             versions.append(self.version)
 
-        return versions
+        # Make sure no duplicates exist
+        return [ver for ver in Set(versions)]
 
     def distribute(self, branch, new_version):
         with self.repo() as repo:

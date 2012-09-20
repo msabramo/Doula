@@ -1,5 +1,5 @@
 from doula.config import Config
-from doula.github.github import get_appenv_releases
+from doula.github import get_appenv_releases
 from doula.models.package import Package
 import re
 

@@ -5,6 +5,32 @@
     <a href="/sites">Sites</a> /
     <a href="/sites/{{site.name_url}}">{{ site.name }}</a>
   </h2>
+  {% if user['admin'] %}
+  <ul>
+    <li>
+      {% if site.is_locked() %}
+      <a id="lock-site" class="btn sm-btn locked" href="#" style="float: left;">
+        <i class="icon-lock icon-black"></i>
+        Unlock Site
+      </a>
+      {% else %}
+      <a id="lock-site" class="btn sm-btn unlocked" href="#" style="float: left;">
+        <i class="icon-lock icon-black"></i>
+        Lock Site
+      </a>
+      {% endif %}
+    </li>
+  </ul>
+  {% elif site.is_locked() %}
+  <ul>
+    <li>
+      <a id="lock-site" class="btn sm-btn disabled locked" href="#" style="float: left;">
+        <i class="icon-lock icon-black"></i>
+        Site Locked
+      </a>
+    </li>
+  </ul>
+  {% endif %}
 </div>
 <div class="accordion group" id="sites-accordion">
 

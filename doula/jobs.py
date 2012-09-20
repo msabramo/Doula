@@ -1,15 +1,15 @@
 from datetime import datetime
 from doula.cache import Cache
 from doula.config import Config
-from doula.github.github import pull_appenv_repos
-from doula.github.github import pull_devmonkeys_repos
+from doula.github import pull_appenv_repos
+from doula.github import pull_devmonkeys_repos
 from doula.models.node import Node
 from doula.models.package import Package
 from doula.models.push import Push
 from doula.models.service import Service
 from doula.models.sites_dal import SiteDAL
 from doula.queue import Queue
-from doula.services.cheese_prism import CheesePrism
+from doula.cheese_prism import CheesePrism
 from doula.util import *
 import json
 import logging
@@ -135,6 +135,7 @@ def pull_github_data(config={}, job_dict={}):
     try:
         logging.info('pulling github data')
 
+        # PUll the dev monkey repos data
         repos = pull_devmonkeys_repos()
 
         cache = Cache.cache()

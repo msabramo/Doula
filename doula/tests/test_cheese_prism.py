@@ -1,6 +1,6 @@
 from doula.config import Config
-from doula.github.github import *
-from doula.services.cheese_prism import CheesePrism
+from doula.github import *
+from doula.cheese_prism import CheesePrism
 import unittest
 
 

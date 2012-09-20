@@ -118,7 +118,9 @@ var ServiceEnv = {
 			select.addClass('warning');
 			message.addClass('warning');
 
-			var html = 'New version <strong>' + version + '</strong>. ';
+			var html = (version) ?
+				'New version <strong>' + version + '</strong>. ' :
+				'Packaged will be removed. ';
 			html += 'Current version <strong>' + originalVal + '</strong>.';
 			message.html(html);
 		}
@@ -159,10 +161,11 @@ var ServiceEnv = {
 	RELEASE SERVICE
 	*****************/
 
-	releaseService: function() {
+	releaseService: function(event) {
+		var releaseButton = $(event.target);
 		var packages = this.getActiveReleasePackages();
 
-		if(this.hasChanges(packages)) {
+		if(this.canRelease(releaseButton, packages)) {
 			$('#release-service').popover('hide');
 
 			this.disableReleaseServiceButton();
@@ -174,13 +177,26 @@ var ServiceEnv = {
 			this.post(url, params, this.doneReleaseService, this.failedReleaseService, msg);
 		}
 		else {
-			// No changes made. Show error message in popover
-			setTimeout(function() {
+			if (releaseButton.hasClass('disabled')) {
 				$('#release-service').popover('hide');
-			}, 3500);
+			}
+			else {
+				// No changes made. Show error message in popover
+				setTimeout(function() {
+					$('#release-service').popover('hide');
+				}, 3500);
+			}
 		}
 
 		return false;
+	},
+
+	canRelease: function(releaseButton, packages) {
+		if (releaseButton.hasClass('disabled')) {
+			return false;
+		}
+
+		return this.hasChanges(packages);
 	},
 
 	hasChanges: function(packages) {

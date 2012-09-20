@@ -59,6 +59,7 @@ def login_complete_view(request):
     if user:
         user['avatar_url'] = github_user_info.get('avatar_url', '')
         user['email'] = get_email_from_profile(profile)
+        user['oauth_token'] = credentials['oauthAccessToken']
     else:
         user = {
             'username': username,
@@ -72,10 +73,9 @@ def login_complete_view(request):
         }
 
     User.save(user)
-
     remember(request, username)
 
-    return  HTTPFound(location='/')
+    return HTTPFound(location='/')
 
 
 def get_email_from_profile(profile):

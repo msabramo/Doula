@@ -1,5 +1,5 @@
 from doula.config import Config
-from doula.github.github import *
+from doula.github import *
 import unittest
 
 

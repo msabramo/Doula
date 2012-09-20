@@ -1,7 +1,7 @@
 from doula.config import Config
 from doula.models.sites_dal import SiteDAL
 from doula.queue import Queue
-from doula.services.cheese_prism import CheesePrism
+from doula.cheese_prism import CheesePrism
 from doula.util import *
 from doula.views.helpers import *
 from pyramid.renderers import render
@@ -183,6 +183,12 @@ def validate_token(request):
 
 @view_config(route_name='service_release', renderer="string")
 def service_release(request):
+    site = get_site(request.matchdict['site_id'])
+
+    if site.is_locked():
+        msg = "This site is locked. Contact devops@surveymonkey.com"
+        return dumps({'success': False, 'msg': msg})
+
     service = get_service_from_url(request)
     packages = json.loads(request.POST['packages'])
 

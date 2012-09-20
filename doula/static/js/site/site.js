@@ -1,8 +1,9 @@
-var Site = (function() {
-  // The main Site Module
-  var Site = {
+// The main Site Module
+var Site = {
 
     init: function() {
+        _mixin(this, AJAXUtil);
+
         Data.init();
         UI.init();
 
@@ -14,6 +15,7 @@ var Site = (function() {
         $('input.tag').on('change', this.validateTag);
         $('textarea.commit').on('change', this.validateMsg);
         $('a.deploy').on('click', this.deployService);
+        $('#lock-site').on('click', $.proxy(this.toggleSiteLock, this));
     },
 
     tag: function(event) {
@@ -56,12 +58,51 @@ var Site = (function() {
             Data.revertServiceTag(service, service.tag, '');
             UI.tagService(service);
       }
-    }
-  };
-  // This ends the main Site module
+    },
 
-  return Site;
-})();
+    /****************
+    SITE LOCK/UNLOCK
+    *****************/
+
+    toggleSiteLock: function(event) {
+        var lockButton = $(event.target);
+
+        if (!lockButton.hasClass('disabled')) {
+            // Default to lock the site since it's unlocked
+            var params = {'lock': 'true'};
+            var msg = 'Locking site. Please be patient and stay awesome.';
+
+            if (lockButton.hasClass('locked')) {
+                // unlock the site since it's locked
+                params = {'lock': 'false'};
+                msg = 'Unlocking site. Please be patient and stay awesome.';
+            }
+
+            var url = '/sites/' + Data.name_url + '/lock';
+            this.post(url, params, this.doneToggleSiteLock, false, msg);
+        }
+
+        return false;
+    },
+
+    doneToggleSiteLock: function(rslt) {
+        // toggle the current state of the button on round trip
+        var lockButton = $('#lock-site');
+
+        if (lockButton.hasClass('locked')) {
+            lockButton.
+                removeClass('locked').
+                addClass('unlocked').
+                html('<i class="icon-lock icon-black"></i> Lock Site');
+        }
+        else {
+            lockButton.
+                removeClass('unlocked').
+                addClass('locked').
+                html('<i class="icon-lock icon-black"></i> Unlock Site');
+        }
+    }
+};
 
 $(document).ready(function() {
   Site.init();

@@ -16,6 +16,8 @@ import logging
 import os
 import time
 
+from doula.github import pull_doula_admins
+
 log = logging.getLogger(__name__)
 
 
@@ -30,6 +32,7 @@ def show_sites(request):
     """
     Show the testing sites
     """
+    pull_doula_admins()
     sites = SiteDAL.get_sites()
     return {'sites': sites, 'config': Config, 'username': request.user['username']}
 
@@ -37,12 +40,30 @@ def show_sites(request):
 @view_config(route_name='site', renderer="sites/site.html")
 def site(request):
     site = get_site(request.matchdict['site_id'])
+
     return {
         'site': site,
+        'user': request.user,
         'site_json': dumps(site),
         'token': Config.get('token'),
         'config': Config
         }
+
+
+@view_config(route_name='site_lock', renderer="json")
+def site_lock(request):
+    # Ensure the user is an admin before taking any action
+    if not request.user['admin']:
+        return {'success': False, 'msg': 'You must be a Doula Admin to lock down a site.'}
+
+    site = get_site(request.matchdict['site_id'])
+
+    if request.POST['lock'] == 'true':
+        site.lock()
+    else:
+        site.unlock()
+
+    return {'success': True}
 
 
 @view_config(route_name='site_tag', renderer="string")
@@ -53,8 +74,8 @@ def site_tag(request):
         msg = request.POST['msg']
 
         site = get_site(request.POST['site_id'])
-        # once we have user from ldap, pass that in
         site.tag(tag_history_path, tag_history_remote, tag, msg, 'anonymous')
+
         return dumps({'success': True, 'site_id': site})
 
 

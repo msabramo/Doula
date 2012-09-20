@@ -16,12 +16,12 @@
       </a>
     </li>
     <li>
-      <div class="btn-group {% if config.get('env') == 'prod' %}hide2{% endif %}"
-      style="display: inline; float: right;">
+      <div class="btn-group" style="display: inline; float: right;">
         <a id="release-service" href="#" rel="popover" delay="500"
         title="Release Error" data-content="You must make a change to make new release."
-        class="{% if config.get('env') == 'prod' %}hide2{% endif %} btn sm-btn">
-          <i class="icon-arrow-up icon-black"></i> Release Service
+        class="{% if site.is_locked() %}disabled{% endif %} btn sm-btn">
+          <i class="icon-arrow-up icon-black"></i>
+          {% if site.is_locked() %}Site Locked{% else %}Release Service{% endif %}
         </a>
         <a class="btn sm-btn dropdown-toggle"
         data-toggle="dropdown" href="#">
@@ -43,7 +43,6 @@
             {% endif %}
         </ul>
       </div>
-
     </li>
   </ul>
 </div>
@@ -102,6 +101,9 @@
                 {{ version }}
               </option>
             {% endfor %}
+            {% if config.get('env') == 'dev' %}
+              <option value="">Remove Package</option>
+            {% endif %}
           </select>
           <a class="btn sm-btn-success new-version-btn" data-name="{{pckg.name}}" href="#">
             <i class="icon-chevron-right icon-white"></i> Build New Package
@@ -157,6 +159,9 @@
                 {{ version }}
               </option>
             {% endfor %}
+            {% if config.get('env') == 'dev' %}
+              <option value="">Remove Package</option>
+            {% endif %}
           </select>
           <span id="pckg_select_msg_{{ pckg.name }}" class="help-block">
             Current version 1.4.5
