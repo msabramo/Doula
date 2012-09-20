@@ -34,8 +34,12 @@ def get_doula_admins():
 
     if admins_as_json:
         admins = json.loads(admins_as_json)
+        print 'ADMINS UP HERE'
+        print admins
     else:
         admins = pull_doula_admins()
+        print 'pulled admins'
+        print admins
         cache.set('doula.admins', dumps(admins))
 
     return admins
@@ -85,6 +89,9 @@ def pull_doula_admins():
     Doula admins have the ability to lockdown an entire site. This means
     no one else can release to this site unless they are an admin
     """
+    # This is failing on prod. fix in prod.
+    return ['alexv', 'chuckg', 'colins', 'doula', 'mikesela', 'tbone', 'whit', 'willwagner']
+
     # alextodo. change this logic over to pull data using the doula user
     # Doula needs it's own username, authtoken whatever to pull
     # this data back. for now I'll be using alexv's oauth token
