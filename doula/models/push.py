@@ -35,7 +35,7 @@ def workon(path, debug):
 class Push(object):
 
     def __init__(self, service_name, username, web_app_dir, 
-            cheeseprism_url, keyfile, site_name_or_node_ip, user_id, debug=False):
+            cheeseprism_url, keyfile, site_name_or_node_ip, user_id, outdir, debug=False):
 
         self.service_name = service_name
         self.username = username
@@ -77,6 +77,11 @@ class Push(object):
                 else:
                     failures.append({'package': package, 'error': str(result).replace('\r\n', ', ')})
 
+        #assets like css, js
+        success, result = self.install_assets()
+        if not success:
+            failures.append({'service': self.service_name, 'error': str(result).replace('\r\n', ', ')})
+
         if not failures:
             #set a nice commit message
             message = "%s %sed %s package(s):\n%s\n\n" % \
@@ -112,6 +117,19 @@ class Push(object):
 
         self._chown()
         return result
+
+    def install_assets(self):
+        with workon(self._webapp()):
+            result = run('asset_check %s' % self.service_name):
+            if result.succeeded:
+                result = sudo('paster --plugin=smlib.assets bake etc/app.ini %s' %self.outdir)
+                if result.succeeded:
+                    return (True, True)
+            else:
+                #a non-success means that the plugin does not exist
+                #which means we do nothing, so we return success
+               return (True, True)
+        return (False, result)
 
     def _chown(self):
         with debuggable(self.debug):

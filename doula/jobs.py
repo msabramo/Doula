@@ -197,6 +197,7 @@ def push_service_environment(config={}, job_dict={}, debug=False):
                 config['doula.cheeseprism_url'],
                 config['doula.keyfile_path'],
                 job_dict['site_name_or_node_ip'],
+                config['doula.assets.dir'],
                 debug
             )
             successes, failures = push.packages(job_dict['packages'])
