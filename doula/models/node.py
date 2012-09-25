@@ -69,7 +69,8 @@ class Node(object):
         cache = Cache.cache()
         services_as_json = cache.get('node:services:' + self.name_url)
 
-        if services_as_json:
-            return services_as_json
-        else:
-            return self.pull_services()
+        if not services_as_json:
+            services_as_json = self.pull_services()
+            cache.set('node:services:' + self.name_url, services_as_json)
+
+        return services_as_json
