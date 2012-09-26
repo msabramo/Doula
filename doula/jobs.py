@@ -283,6 +283,8 @@ def cleanup_queue(config={}, job_dict={}):
 
     try:
         logging.info('Cleaning up the queue')
+        # alextodo. test this one out. seems to be clearing the queue.
+        return 0
 
         queue = Queue()
         jobs = queue.get()
