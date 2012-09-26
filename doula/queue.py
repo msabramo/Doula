@@ -67,6 +67,7 @@ class Queue(object):
         'site_name_or_node_ip': '',
         'email': '',
         'service_name': '',
+        'assets_outdir': '',
         'packages': []
     }.items() + common_dict.items())
 
