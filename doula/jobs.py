@@ -261,11 +261,14 @@ def job_expired(job):
     pulled off the queue. For completed jobs it's 3 days, for failed or
     queued jobs it's 5 days
     """
-    if job['status'] == 'complete' and job['time_started'] < now - 4320:
+    now = datetime.now()
+    now = time.mktime(now.timetuple())
+
+    if job['status'] == 'complete' and job['time_started'] < (now - 4320):
         return True
-    elif job['status'] == 'failed' and job['time_started'] < now - 7200:
+    elif job['status'] == 'failed' and job['time_started'] < (now - 7200):
         return True
-    elif job['status'] == 'queued' and job['time_started'] < now - 7200:
+    elif job['status'] == 'queued' and job['time_started'] < (now - 7200):
         return True
     else:
         return False
@@ -281,9 +284,6 @@ def cleanup_queue(config={}, job_dict={}):
     try:
         logging.info('Cleaning up the queue')
 
-        now = datetime.now()
-        now = time.mktime(now.timetuple())
-
         queue = Queue()
         jobs = queue.get()
         # Get completed jobs that need to be deleted
@@ -294,9 +294,13 @@ def cleanup_queue(config={}, job_dict={}):
         ids = complete_job_ids + failed_job_ids
         # Remove completed jobs and failed jobs that are unneeded
         queue.remove(ids)
+
         # Remove all completed and failed logs
         for id in ids:
-            os.remove(os.path.join('/var/log/doula', id + '.log'))
+            path_to_file = os.path.join('/var/log/doula', id + '.log')
+
+            if os.path.isfile(path_to_file):
+                os.remove(path_to_file)
 
         logging.info('Done cleaning up the queue')
     except Exception as e:

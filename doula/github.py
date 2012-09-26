@@ -34,12 +34,8 @@ def get_doula_admins():
 
     if admins_as_json:
         admins = json.loads(admins_as_json)
-        print 'ADMINS UP HERE'
-        print admins
     else:
         admins = pull_doula_admins()
-        print 'pulled admins'
-        print admins
         cache.set('doula.admins', dumps(admins))
 
     return admins
