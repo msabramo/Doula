@@ -83,16 +83,27 @@ class Service(object):
         return a
 
     @staticmethod
+    def report_status(results):
+        for result in results:
+            logging.info('port: %s, status: %s' % (result['name'], result['description']))
+
+    @staticmethod
     def cycle(proxy, service_name):
         try:
-            result = proxy.supervisor.stopProcessGroup(service_name)
+            logging.info('stopping %s' % service_name)
+            results = proxy.supervisor.stopProcessGroup(service_name)
+            Service.report_status(results)
+
+            logging.info('starting %s' % service_name)
             results = proxy.supervisor.startProcessGroup(service_name)
+            Service.report_status(results)
 
             success = True
 
             for result in results:
                 if(result['status'] != 80):
                     success = False
+
 
             if(success):
                 True
