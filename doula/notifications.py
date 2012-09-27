@@ -18,16 +18,23 @@ def email_success(email_list, job_dict):
             'job_dict': job_dict
         })
 
+    subject = 'Doula Success: '
+
     if job_dict['job_type'] == 'push_to_cheeseprism':
-        vals = (job_dict['service'] + ' ' + job_dict['version'], job_dict['service'])
-        subject = 'Doula Success: Pushed %s to Cheese Prism on %s' % vals
+        vals = (user['username'],
+                job_dict['package_name'],
+                job_dict['version'])
+
+        subject += '%s Built Package %s Version %s' % vals
     elif job_dict['job_type'] == 'cycle_services':
-        subject = 'Doula Success: Cycled %s on %s' % (job_dict['service'], job_dict['site'])
+        vals = (user['username'], job_dict['service'], job_dict['site'])
+        subject += '%s Cycled %s on %s' % vals
     elif job_dict['job_type'] == 'push_service_environment':
-        vals = (job_dict['service_name'], job_dict['site_name_or_node_ip'])
-        subject = 'Doula Success: Released service %s on %s' % vals
-    else:
-        subject = 'Doula Success'
+        vals = (user['username'],
+                job_dict['service_name'],
+                job_dict['site_name_or_node_ip'])
+
+        subject += '%s Released Service %s on %s' % vals
 
     email(subject, email_list, body)
 
@@ -42,16 +49,20 @@ def email_fail(email_list, job_dict, exception):
         'log': get_log(job_dict['id'])
     })
 
+    subject = 'Doula Failure: '
+
     if job_dict['job_type'] == 'push_to_cheeseprism':
-        vals = (job_dict['service'], job_dict['remote'])
-        subject = 'Doula Failure: Push %s to Cheese Prism on %s failed' % vals
+        vals = (user['username'], job_dict['package_name'])
+        subject += '%s\'s Job to Build Package %s Failed' % vals
     elif job_dict['job_type'] == 'cycle_services':
-        subject = 'Doula Failure: Cycle %s on %s failed' % (job_dict['service'], job_dict['site'])
+        vals = (user['username'], job_dict['service'], job_dict['site'])
+        subject += '%s\'s Job to Cycle %s on %s Failed' % vals
     elif job_dict['job_type'] == 'push_service_environment':
-        vals = (job_dict['service_name'], job_dict['site_name_or_node_ip'])
-        subject = 'Doula Failure: Release service %s on %s' % vals
-    else:
-        subject = 'Doula Failure'
+        vals = (user['username'],
+                job_dict['service_name'],
+                job_dict['site_name_or_node_ip'])
+
+        subject += '%s\'s Job to Release Service %s on %s Failed' % vals
 
     email(subject, email_list, body)
 

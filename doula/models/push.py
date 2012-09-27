@@ -34,7 +34,7 @@ def workon(path, debug):
 
 class Push(object):
 
-    def __init__(self, service_name, username, web_app_dir, 
+    def __init__(self, service_name, username, web_app_dir,
             cheeseprism_url, keyfile, site_name_or_node_ip, user_id, debug=False):
 
         self.service_name = service_name

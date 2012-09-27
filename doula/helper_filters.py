@@ -180,6 +180,7 @@ def get_pretty_status(status):
     else:
         return 'Unknown'
 
+
 def show_sites_not_on_blacklist(site, user):
     """
     We only want Doula developers to see mtclone and mt99
