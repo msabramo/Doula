@@ -323,7 +323,7 @@ var ServiceEnv = {
 			ServiceEnv.validateShowPushPackageModal();
 
 			$('#build_new_package_branch')
-				.on('change', ServiceEnv.validateShowPushPackageModal);
+				.on('change click', ServiceEnv.validateShowPushPackageModal);
 			$('#build_new_package_version')
 				.on('keyup', ServiceEnv.validateShowPushPackageModal)
 				.on('mouseup', ServiceEnv.validateShowPushPackageModal);
@@ -342,14 +342,11 @@ var ServiceEnv = {
 		var branch = $.trim($('#build_new_package_branch').val());
 		var version = $.trim($('#build_new_package_version').val());
 
-		if (branch !== '' && version !== '') {
-			$('#build_new_package').removeClass('disabled');
-			$('#next-full-version').html(version + '.' + branch);
-		}
-		else {
-			$('#build_new_package').addClass('disabled');
-			$('#next-full-version').html(version);
-		}
+		if (branch && version) $('#build_new_package').removeClass('disabled');
+		else $('#build_new_package').addClass('disabled');
+
+		var nextFullVersion = (version + '.' + branch).replace(/\.$/, '');
+		$('#next-full-version').html(nextFullVersion);
 	},
 
 	pushPackage: function(event) {

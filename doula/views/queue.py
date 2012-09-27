@@ -48,11 +48,12 @@ def show_queue(request):
             'last_updated': last_updated}
 
 
-@view_config(route_name='queue', request_param='last_updated', renderer='json', xhr=True)
-def update_queue(request):
-    queue = Queue()
+def pull_queued_items(request):
+    """
 
-    last_updated = request.GET['last_updated']
+    """
+    # alextodo. what does this actually return timewise?
+    # can we look for stuff in the last 10 minutes?
     filter_by = request.GET['filter_by']
 
     query = {
@@ -65,9 +66,15 @@ def update_queue(request):
     if filter_by == 'myjobs' or not filter_by:
         query['user_id'] = request.user['username']
 
-    queued_items = queue.get(query)
+    return Queue().get(query)
 
+
+@view_config(route_name='queue', request_param='last_updated', renderer='json', xhr=True)
+def update_queue(request):
+    # make sure the get requests are here and there.
     i = 0
+    last_updated = request.GET['last_updated']
+    queued_items = pull_queued_items(request)
     new_queued_items = []
 
     for queued_item in queued_items:
@@ -78,6 +85,7 @@ def update_queue(request):
             queued_item['log'] = get_log(queued_item['id'])
 
         # render the queued_item
+        # render the damn thing client side.
         queued_item['html'] = render('doula:templates/queue/queued_item.html',
                                      {'queued_item': queued_item})
 
@@ -90,5 +98,5 @@ def update_queue(request):
     new_queued_items = sorted(new_queued_items, key=lambda k: k['time_started'])
 
     return {'success': True,
-            'queued_items': queued_items,
-            'new_queued_items': new_queued_items}
+            'queuedItems': queued_items,
+            'newQueuedItems': new_queued_items}

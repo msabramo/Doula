@@ -15,6 +15,7 @@ requires = [
     'pyramid-jinja2',
     'pyramid_debugtoolbar',
     'redis',
+    'hiredis',
     'requests',
     'simplejson',
     'supervisor',

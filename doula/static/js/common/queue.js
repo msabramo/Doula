@@ -1,26 +1,21 @@
 QueuedItems = {
 
+    allExistingItems: false,
+
     init: function(kwargs) {
         _mixin(this, AJAXUtil);
         _mixin(this, DataEventManager);
 
         // Class event handlers
         this.poll = $.proxy(this, 'poll');
-        this.handle_updates = $.proxy(this, 'handle_updates');
-        this.show_latest_notifications = $.proxy(this, 'show_latest_notifications');
-
-        // "Job Dict" arguments
-        this.kwargs = {};
-        if (kwargs !== undefined) {
-            this.kwargs = kwargs;
-        }
+        this.handleUpdates = $.proxy(this, 'handleUpdates');
+        this.showLatestNotifications = $.proxy(this, 'showLatestNotifications');
 
         // Elements
-        this.latest_notifications = $('.latest_notifications');
-        this.queued_items =  $('.queued_items');
+        this.latestNotifications = $('.latest_notifications');
 
         // Events
-        this.latest_notifications.on('click', this.show_latest_notifications);
+        this.latestNotifications.on('click', this.showLatestNotifications);
 
         this.data = $('.queued_items').data();
         window.setInterval(this.poll, 2000);
@@ -88,15 +83,16 @@ QueuedItems = {
         params["filter_by"] = queryParams.filter_by ?
             queryParams.filter_by : 'myjobs';
 
-        this.get(url, params, this.handle_updates, null, false);
+        this.get(url, params, $.proxy(this.handleUpdates, this), null, false);
     },
 
-    handle_updates: function(data) {
-        this.new_queued_items = data.new_queued_items;
+    handleUpdates: function(data) {
+        this.newQueuedItems = data.newQueuedItems;
         this.publishQueueItemChangeEvents(data);
 
-        $.each(data.queued_items, function(index, queued_item) {
+        $.each(data.queuedItems, function(index, queued_item) {
             var el = $(".queued_items > .queued_item[data-id='" + queued_item.id + "']");
+
             if(el.length > 0) {
                 if (queued_item.status == 'complete') {
                     class_name = 'alert-success';
@@ -114,19 +110,17 @@ QueuedItems = {
             }
         });
 
-        if (data.new_queued_items.length > 0) {
-            this.latest_notifications.show();
+        if (data.newQueuedItems.length > 0) {
+            this.latestNotifications.show();
 
-            if(data.new_queued_items.length == 1) {
-                this.latest_notifications.html('There is 1 new job to be displayed.');
+            if(data.newQueuedItems.length == 1) {
+                this.latestNotifications.html('There is 1 new job to be displayed.');
             }
             else {
-                this.latest_notifications.html('There are ' + data.new_queued_items.length + ' jobs to be displayed.');
+                this.latestNotifications.html('There are ' + data.newQueuedItems.length + ' jobs to be displayed.');
             }
         }
     },
-
-    allExistingItems: false,
 
     publishQueueItemChangeEvents: function(data) {
         var allItems = this.getAllItems(data);
@@ -134,7 +128,7 @@ QueuedItems = {
         // on initial load, make the queued items existing items
         // because we don't want to report on those changes
         if(this.allExistingItems === false) {
-            this.allExistingItems = data.queued_items;
+            this.allExistingItems = data.queuedItems;
         }
 
         for(var i = 0; i < allItems.length; i++) {
@@ -164,7 +158,7 @@ QueuedItems = {
     getAllItems: function(data) {
         var ids = [];
         var uniqueItems = [];
-        var allItems = data.new_queued_items.concat(data.queued_items);
+        var allItems = data.newQueuedItems.concat(data.queuedItems);
 
         for(var i = 0; i < allItems.length; i++) {
             if(ids.indexOf(allItems[i].id) == -1) {
@@ -176,19 +170,19 @@ QueuedItems = {
         return uniqueItems;
     },
 
-    show_latest_notifications: function() {
-        var that = this;
-        $.each(this.new_queued_items, function(index, new_queued_item) {
-            that.latest_notifications.after(new_queued_item.html);
-        });
-        this.latest_notifications.hide();
+    showLatestNotifications: function() {
+        $.each(this.newQueuedItems, $.proxy(function(index, new_queued_item) {
+            this.latestNotifications.after(new_queued_item.html);
+        }, this));
 
-        // Update last_updated timestamp
+        this.latestNotifications.hide();
+
+        // Update lastUpdated timestamp
         timestamp = Math.round(new Date().getTime() / 1000);
-        this.queued_items.data('lastUpdated', timestamp);
+        $('.queued_items').data('lastUpdated', timestamp);
     }
 };
 
 $(document).ready(function() {
-    QueuedItems.init(__job_dict);
+    QueuedItems.init();
 });

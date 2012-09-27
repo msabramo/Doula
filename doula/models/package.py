@@ -46,7 +46,7 @@ class Package(object):
         return [ver for ver in Set(versions)]
 
     def distribute(self, branch, new_version):
-        with self.repo() as repo:
+        with self.repo(branch) as repo:
             self.update_version(repo, new_version)
             self.commit(repo, ['setup.py'], 'bump version')
             self.tag(repo, new_version)
@@ -54,8 +54,9 @@ class Package(object):
             self.upload(repo)
 
     @contextmanager
-    def repo(self):
+    def repo(self, branch):
         repo = None
+
         try:
             # Where all of the cloned repos are placed
             if not os.path.exists('repos'):
@@ -64,6 +65,17 @@ class Package(object):
 
             # Clone specified service's repo
             repo = Repo.clone_from(self.remote, repo_path)
+
+            # Pull the latest changes from the branch the user selected
+            vals = (repo_path, branch)
+
+            os.system('cd %s && git checkout -b %s' % vals)
+            os.system('cd %s && git fetch origin %s' % vals)
+            os.system('cd %s && git reset --hard origin/%s' % vals)
+
+            # Use the newest branch and commit as the newest repo
+            repo = Repo.init(repo_path)
+
             yield repo
         finally:
             # Clean up repo directory
@@ -138,13 +150,13 @@ class Package(object):
         # Push changes
         logging.info('Pushing to code.corp.surveymonkey.com')
         remote = repo.remotes[remote_name]
-        remote.pull()
         remote.push()
         remote.push(tags=True)
 
     def upload(self, repo):
         # Call `python setup.py sdist upload` to put upload to cheeseprism
         logging.info('Releasing to cheeseprism.')
+
         with lcd(repo.working_dir):
             url = Config.get('doula.cheeseprism_url') + '/simple'
             s = local('python setup.py sdist upload -r ' + url, capture=True)

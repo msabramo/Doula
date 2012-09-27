@@ -34,14 +34,25 @@ def workon(path, debug):
 
 class Push(object):
 
-    def __init__(self, service_name, username, web_app_dir, 
-            cheeseprism_url, keyfile, site_name_or_node_ip, user_id, debug=False):
+    def __init__(self,
+            service_name,
+            username,
+            web_app_dir,
+            cheeseprism_url,
+            keyfile,
+            site_name_or_node_ip,
+            outdir,
+            debug=False):
 
         self.service_name = service_name
         self.username = username
+        self.outdir = outdir
 
-        user = User.find(username)
-        self.email = user['email']
+        if debug:
+            self.email = 'tims@surveymonkey.com'
+        else:
+            user = User.find(username)
+            self.email = user['email']
 
         self.web_app_dir = web_app_dir
         self.cheeseprism_url = os.path.join(cheeseprism_url, 'index')
@@ -76,6 +87,11 @@ class Push(object):
                     successes.append(package)
                 else:
                     failures.append({'package': package, 'error': str(result).replace('\r\n', ', ')})
+
+        #assets like css, js
+        success, result = self.install_assets()
+        if not success:
+            failures.append({'service': self.service_name, 'error': str(result).replace('\r\n', ', ')})
 
         if not failures:
             #set a nice commit message
@@ -112,6 +128,19 @@ class Push(object):
 
         self._chown()
         return result
+
+    def install_assets(self):
+        with workon(self._webapp(), self.debug):
+            result = run('asset_check %s' % self.service_name)
+            if result.succeeded:
+                result = sudo('paster --plugin=smlib.assets bake etc/app.ini %s' %self.outdir)
+                if result.succeeded:
+                    return (True, True)
+            else:
+                #a non-success means that the plugin does not exist
+                #which means we do nothing, so we return success
+               return (True, True)
+        return (False, result)
 
     def _chown(self):
         with debuggable(self.debug):
@@ -159,4 +188,4 @@ class Push(object):
 
 
 def get_test_obj(service):
-    return Push(service, 'tbone', '/opt/webapp/', 'http://mtclone:6543/index', '/Users/timsabat/.ssh/id_rsa_doula_user', 'mt-99', True)
+    return Push(service, 'tbone', '/opt/webapp/', 'http://mtclone:6543/index', '/Users/timsabat/.ssh/id_rsa_doula_user', 'mt-99', '/opt/smassets', True)

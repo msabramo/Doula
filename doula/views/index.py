@@ -44,7 +44,7 @@ def site(request):
         'site_json': dumps(site),
         'token': Config.get('token'),
         'config': Config
-        }
+    }
 
 
 @view_config(route_name='site_lock', renderer="json")
@@ -113,6 +113,7 @@ def updatedoula(request):
 
     html = ''
     jobs = [
+        'cleanup_queue',
         'pull_github_data',
         'pull_appenv_github_data',
         'pull_cheeseprism_data',
