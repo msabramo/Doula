@@ -237,7 +237,6 @@ def enqueue_service_release(request, service, packages):
 @view_config(route_name='service_cycle', renderer="string")
 def service_cycle(request):
     service = get_service_from_url(request)
-    print 'service: ', service
     nodes = SiteDAL.nodes(service.site_name)
     job_id = enqueue_cycle_services(request, nodes, service)
 
