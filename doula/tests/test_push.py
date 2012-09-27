@@ -8,25 +8,19 @@ class PushTests(unittest.TestCase):
     def get_config(self):
         key = os.path.expanduser('~/.ssh/id_rsa_doula')
         return {
-            'bambino.web_app_dir': '/opt/webapp',
-            'doula.cheeseprism_url': 'http://mtclone:6543/index',
+            'bambino.webapp_dir': '/opt/webapp',
+            'doula.cheeseprism_url': 'http://mtclone:6543',
+            'doula.assets.dir': '/opt/smassets',
             'doula.keyfile_path': key
         }
 
     def test_push(self):
-        #push = Push(
-                #job_dict['service_name'],
-                #job_dict['username'],
-                #job_dict['email'],
-                #Config.get('bambino.web_app_dir'),
-                #Config.get('doula.cheeseprism_url'),
-                #Config.get('doula.keyfile_path'),
-                #job_dict['site_name_or_node_ip']
+
         config = self.get_config()
         job_dict = {
             'id': 111,
             'user_id': 'tbone',
-            'service_name': 'anonweb',
+            'service_name': 'createweb',
             'site_name_or_node_ip': 'mt-99',
             'packages': ['requests']
         }
