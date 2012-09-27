@@ -345,7 +345,7 @@ var ServiceEnv = {
 		if (branch && version) $('#build_new_package').removeClass('disabled');
 		else $('#build_new_package').addClass('disabled');
 
-		var nextFullVersion = (version + '.' + branch).replace(/\.$/, '');
+		var nextFullVersion = (version + '-' + branch).replace(/[\.-]$/, '');
 		$('#next-full-version').html(nextFullVersion);
 	},
 

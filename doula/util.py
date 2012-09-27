@@ -28,6 +28,11 @@ def next_version(version):
 
         next_version = str(part) + next_version
 
+    # Since we add the branch like this [version]-[branch]
+    # we remove it for the next auto version, because we'll
+    # tack it back on when we save it
+    next_version = next_version.split('-')[0]
+
     return next_version
 
 

@@ -63,6 +63,9 @@ class Package(object):
                 os.mkdir('repos')
             repo_path = os.path.join('repos', self.name)
 
+            # Make sure the repo dir does not exist
+            self.rm_repo_dir(repo_path)
+
             # Clone specified service's repo
             repo = Repo.clone_from(self.remote, repo_path)
 
@@ -78,9 +81,12 @@ class Package(object):
 
             yield repo
         finally:
-            # Clean up repo directory
-            if repo and os.path.isdir(repo.working_dir):
-                shutil.rmtree(repo.working_dir)
+            self.rm_repo_dir(repo_path)
+
+    def rm_repo_dir(self, repo_path):
+        # Clean up repo directory
+        if os.path.isdir(repo_path):
+            shutil.rmtree(repo_path)
 
     def update_version(self, repo, new_version):
         """

@@ -75,7 +75,7 @@ def service_cheese_prism_push(request):
     branch = request.GET['branch']
     # The next version number is a combination of the actual version
     # number and the name of the actual branch
-    next_version = request.GET['next_version'] + '.' + branch
+    next_version = request.GET['next_version'] + '-' + branch
     remote = package.get_github_info()['ssh_url']
 
     errors = validate_package_release(package, branch, next_version)
