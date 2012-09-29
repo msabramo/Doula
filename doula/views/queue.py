@@ -9,6 +9,8 @@ from pyramid.view import view_config
 # QUEUE VIEWS
 @view_config(route_name='queue', renderer='queue/index.html')
 def show_queue(request):
+    # alextodo. this is next to be rewritten
+
     query = {'job_type': ['push_to_cheeseprism', 'cycle_services', 'push_service_environment']}
     # alextodo. abstract this code into a single function, used in search queue
     sort_by = request.params.get('sort_by')
