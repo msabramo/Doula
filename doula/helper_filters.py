@@ -13,6 +13,15 @@ def formatted_day(date):
     return dt.strftime("%B %d, %Y")
 
 
+def relative_datetime_from_epoch_time(epoch_time):
+    """
+    Bring back relative_datetime using the epoch_time
+    """
+    timestamp = datetime.fromtimestamp(epoch_time)
+    formatted_timestamp = timestamp.strftime("%Y-%m-%dT%H:%M:%S")
+    return relative_datetime(formatted_timestamp)
+
+
 def relative_datetime(date):
     """
     Brings back a friendly date time.

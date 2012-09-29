@@ -51,12 +51,17 @@
 </div>
 
 
-<div class="queued_items" data-last-updated="{{ last_updated }}">
-  <div class="latest_notifications alert">
+<div class="queued_items">
+  <div>
+    <h5>Recent jobs for {{ service.name }}. View all jobs in the
+      <a href="/queue">queue</a>.
+    </h5>
   </div>
+  <div id="queue-jobs">
   {% for queued_item in queued_items %}
     {{ queued_item_tmpl.render_queued_item(queued_item) }}
   {% endfor %}
+  </div>
 </div>
 
 <div>
@@ -193,7 +198,14 @@
 <script>
 var __service = {{service_json|safe}};
 var __releases = {{releases_json|safe}};
-var __job_dict = {{job_dict|safe}};
+// alextodo. change the sortBy filter to status
+// then change filter by user_id or something
+var __queueFilters = {
+  "sortBy": "all",
+  "filterBy": "alljobs",
+  "service": "{{ service.name }}",
+  "jobsStartedAfter": {{jobs_started_after}}
+};
 </script>
 {{ [
 '/js/common/util.js',

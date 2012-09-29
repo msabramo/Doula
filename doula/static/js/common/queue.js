@@ -1,31 +1,32 @@
 QueuedItems = {
 
-    allExistingItems: false,
+    // The maximum number of jobs shown for a service
+    MAX_SERVICE_JOB_COUNT: 3,
+    jobQueueCount: 0,
+    jobsAndStatuses: {},
+    queueFilters: {},
 
     init: function(kwargs) {
         _mixin(this, AJAXUtil);
         _mixin(this, DataEventManager);
 
-        // Class event handlers
-        this.poll = $.proxy(this, 'poll');
-        this.handleUpdates = $.proxy(this, 'handleUpdates');
-        this.showLatestNotifications = $.proxy(this, 'showLatestNotifications');
-
-        // Elements
-        this.latestNotifications = $('.latest_notifications');
-
-        // Events
-        this.latestNotifications.on('click', this.showLatestNotifications);
-
-        this.data = $('.queued_items').data();
-        window.setInterval(this.poll, 2000);
-        this.selectActiveLabel();
+        this.queueFilters = __queueFilters;
+        this.bindToUIActions();
     },
 
-    selectActiveLabel: function() {
-        var params = this.getQueryStringParams();
-        var sortBy = params.sort_by ? params.sort_by : 'all';
-        var filterBy =  params.filter_by ? params.filter_by : 'myjobs';
+    bindToUIActions: function() {
+        this.selectFilterByAndSortByLabels();
+        // Poll every second for updates
+        window.setInterval($.proxy(this.poll, this), 1000);
+    },
+
+    /***************
+    SELECT LABELS ON QUERY PAGE
+    ****************/
+
+    selectFilterByAndSortByLabels: function() {
+        var sortBy = this.queueFilters.sortBy;
+        var filterBy = this.queueFilters.filterBy;
 
         $('ul.sort_by a').each(function(index, el) {
             el = $(el);
@@ -55,131 +56,60 @@ QueuedItems = {
         });
     },
 
-    getQueryStringParams: function() {
-        var params = {};
-        var q = document.URL.split('?')[1];
-
-        if (q !== undefined) {
-            var vals = q.split('&');
-
-            for(var i=0; i < vals.length; i++) {
-                hash = vals[i].split('=');
-                params[hash[0]] = hash[1];
-            }
-        }
-
-        return params;
-    },
+    /***************
+    POLL BACKEND FOR UPDATES
+    ****************/
 
     poll: function() {
-        var url = '/queue';
-
-        // Pull the two get params: lastUpdated and filter_by
         var params = {
-            "last_updated": this.data.lastUpdated
+            "service": this.queueFilters.service,
+            "sort_by": this.queueFilters.sort_by,
+            "filter_by": this.queueFilters.filterBy,
+            "jobs_started_after": this.queueFilters.jobsStartedAfter,
+            "jobs_and_statuses": JSON.stringify(this.jobsAndStatuses)
         };
 
-        var queryParams = this.getQueryStringParams();
-        params["filter_by"] = queryParams.filter_by ?
-            queryParams.filter_by : 'myjobs';
-
-        this.get(url, params, $.proxy(this.handleUpdates, this), null, false);
+        this.post('/queue', params, $.proxy(this.updateJobStatuses, this), null, false);
     },
 
-    handleUpdates: function(data) {
-        this.newQueuedItems = data.newQueuedItems;
-        this.publishQueueItemChangeEvents(data);
+    updateJobStatuses: function(data) {
+        var currentNumberOfJobs = $('#queue-jobs .queued_item').length;
 
-        $.each(data.queuedItems, function(index, queued_item) {
-            var el = $(".queued_items > .queued_item[data-id='" + queued_item.id + "']");
+        $.each(data.queuedItems.reverse(), $.proxy(function(index, item) {
+            var el = $("#queue-jobs .queued_item[data-id='" + item.id + "']");
 
-            if(el.length > 0) {
-                if (queued_item.status == 'complete') {
-                    class_name = 'alert-success';
+            if(el.length) {
+                // queue item already exist. just update the existing HTML
+                if(el.attr('data-status') != item.status) {
+                    el.replaceWith(item.html);
+                    QueuedItems.publish('queue-item-changed', item);
                 }
-                else if (queued_item.status == 'failed') {
-                    class_name = 'alert-danger';
-                }
-                else {
-                    class_name = 'alert-info';
-                }
-
-                if (!el.hasClass(class_name)) {
-                    el.replaceWith(queued_item.html);
-                }
-            }
-        });
-
-        if (data.newQueuedItems.length > 0) {
-            this.latestNotifications.show();
-
-            if(data.newQueuedItems.length == 1) {
-                this.latestNotifications.html('There is 1 new job to be displayed.');
             }
             else {
-                this.latestNotifications.html('There are ' + data.newQueuedItems.length + ' jobs to be displayed.');
-            }
-        }
-    },
+                // Adding the HTML for the first time
+                if (currentNumberOfJobs) {
+                    // Jobs already existed on the page. not the first job visually
+                    $('#queue-jobs').prepend(item.html);
+                    // Update jobs and statuses array
+                    this.jobsAndStatuses[item.id] = item.status;
+                }
+                else {
+                    // Adding jobs visually for the first time
+                    if (this.jobQueueCount < this.MAX_SERVICE_JOB_COUNT) {
+                        $('#queue-jobs').append(item.html);
+                        this.jobQueueCount += 1;
 
-    publishQueueItemChangeEvents: function(data) {
-        var allItems = this.getAllItems(data);
+                        // Update jobs and statuses array
+                        this.jobsAndStatuses[item.id] = item.status;
+                    }
+                }
 
-        // on initial load, make the queued items existing items
-        // because we don't want to report on those changes
-        if(this.allExistingItems === false) {
-            this.allExistingItems = data.queuedItems;
-        }
-
-        for(var i = 0; i < allItems.length; i++) {
-            var item = allItems[i];
-            var foundExistingItem = this.findExistingItem(item.id);
-
-            // New item
-            if(!foundExistingItem) {
                 QueuedItems.publish('queue-item-changed', item);
             }
-            else if(foundExistingItem.status != item.status) {
-                QueuedItems.publish('queue-item-changed', item);
-            }
-        }
-
-        this.allExistingItems = allItems;
-    },
-
-    findExistingItem: function(itemID) {
-        for(var i = 0; i < this.allExistingItems.length; i++) {
-            if(this.allExistingItems[i].id == itemID) return this.allExistingItems[i];
-        }
-
-        return false;
-    },
-
-    getAllItems: function(data) {
-        var ids = [];
-        var uniqueItems = [];
-        var allItems = data.newQueuedItems.concat(data.queuedItems);
-
-        for(var i = 0; i < allItems.length; i++) {
-            if(ids.indexOf(allItems[i].id) == -1) {
-                ids.push(allItems[i].id);
-                uniqueItems.push(allItems[i]);
-            }
-        }
-
-        return uniqueItems;
-    },
-
-    showLatestNotifications: function() {
-        $.each(this.newQueuedItems, $.proxy(function(index, new_queued_item) {
-            this.latestNotifications.after(new_queued_item.html);
         }, this));
 
-        this.latestNotifications.hide();
-
-        // Update lastUpdated timestamp
-        timestamp = Math.round(new Date().getTime() / 1000);
-        $('.queued_items').data('lastUpdated', timestamp);
+        // Update the timestamp
+        this.queueFilters.jobsStartedAfter = Math.round(new Date().getTime() / 1000);
     }
 };
 

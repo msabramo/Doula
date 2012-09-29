@@ -40,9 +40,11 @@
     </li>
 </ul>
 
-<div class="queued_items" data-last-updated="{{ last_updated }}">
-    <div class="latest_notifications alert">
+<div class="queued_items">
+    <div>
+        <h5></h5>
     </div>
+    <div id="queue-jobs">
     {% set items = [] %}
     {% for queued_item in queued_items %}
     	{% if items.append(1) %}{% endif %}
@@ -53,13 +55,27 @@
             <p>No queue items</p>
     	</div>
     {% endif %}
+    </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
 <script>
-__job_dict = {};
+
+var __queueFilters = {
+  "sortBy": {% if request.params.get('sort_by') %}
+                "{{request.params.get('sort_by')}}"
+              {% else %}
+                "all"
+              {% endif %},
+  "filterBy": {% if request.params.get('filter_by') %}
+                "{{request.params.get('filter_by')}}"
+              {% else %}
+                "alljobs"
+              {% endif %},
+  "service": false,
+  "jobsStartedAfter": {{jobs_started_after}}
+};
 </script>
+{% endblock %}
+{% block scripts %}
 {{ [
 '/js/common/util.js',
 '/js/common/queue.js'

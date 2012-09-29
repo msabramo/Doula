@@ -739,13 +739,14 @@ a.side_tab {
 }
 .queued_items {
   margin-bottom: 15px;
-}
-.queued_items .latest_notifications {
-  margin-bottom: 5px;
-  display: none;
-}
-.queued_items .latest_notifications:hover {
-  cursor: pointer;
+  border: 1px solid #E5E5E5;
+  padding: 0 5px;
+  -webkit-border-radius: 3px 3px 0 0;
+  -moz-border-radius: 3px 3px 0 0;
+  -ms-border-radius: 3px 3px 0 0;
+  -o-border-radius: 3px 3px 0 0;
+  border-radius: 3px 3px 0 0;
+  background-color: #F7F7F9;
 }
 .queued_items .like-a-link:hover {
   cursor: pointer;

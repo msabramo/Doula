@@ -1,5 +1,6 @@
 from doula.log import get_log
 from doula.models.user import User
+from doula.util import dumps
 from jinja2 import Environment, PackageLoader
 from pyramid_mailer.mailer import Mailer
 from pyramid_mailer.message import Message
@@ -74,7 +75,7 @@ def email(subject=None, recipients=None, body=None):
                       recipients=recipients,
                       html=body)
 
-    mailer.send_immediately(message)
+    #mailer.send_immediately(message)
 
 
 def build_email_list(job_dict):
@@ -122,5 +123,6 @@ def send_notification(job_dict, exception=None):
         # error trying to notify user
         subject = 'Error notifying user: ' + e.message
         email_list = ['alexv@surveymonkey.com']
-        body = traceback.format_exc()
+        body = dumps(job_dict) + "\n\n<br /><br />"
+        body += traceback.format_exc()
         email(subject, email_list, body)

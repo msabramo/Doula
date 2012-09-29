@@ -1,5 +1,6 @@
 {% macro render_queued_item(queued_item) -%}
     <div data-id={{ queued_item['id'] }}
+         data-status="{{queued_item['status']}}"
          class="queued_item alert
          {% if queued_item['status'] == 'queued' %}
              alert-info
@@ -12,41 +13,47 @@
         <div class="accordion-heading like-a-link" data-toggle="collapse" data-target="#item_{{ queued_item['id'] }}">
             {% if queued_item['job_type'] == 'push_to_cheeseprism' %}
                 {% if queued_item['status'] == 'failed' %}
-                    <strong>{{ queued_item['user_id'] }}'s</strong> job failed to build package
-                    <strong>{{ queued_item['version'] }}</strong>
-                    of <strong>{{ queued_item['branch'] }}</strong>
+                    <strong>{{ queued_item['user_id'] }}'s</strong> job failed to build
+                    <strong>{{ queued_item['package_name'] }}</strong> with the version number
+                    <strong>{{ queued_item['version'] }}</strong>.
                 {% elif queued_item['status'] == 'complete' %}
-                    <strong>{{ queued_item['user_id'] }}</strong> built package version
-                    <strong>{{ queued_item['version'] }}</strong>
-                    of <strong>{{ queued_item['branch'] }}</strong>
+                    <strong>{{ queued_item['user_id'] }}</strong> built
+                    <strong>{{ queued_item['package_name'] }}</strong> with the version number
+                    <strong>{{ queued_item['version'] }}</strong>.
                 {% elif queued_item['status'] == 'queued' %}
-                    <strong>{{ queued_item['user_id'] }}</strong> is waiting to build package
-                    <strong>{{ queued_item['version'] }}</strong>
-                    of <strong>{{ queued_item['branch'] }}</strong>
+                    <strong>{{ queued_item['user_id'] }}</strong> is waiting to build
+                    <strong>{{ queued_item['package_name'] }}</strong> with the version number
+                    <strong>{{ queued_item['version'] }}</strong>.
                 {% endif %}
             {% elif queued_item['job_type'] == 'cycle_services' %}
                 {% if queued_item['status'] == 'failed' %}
                     <strong>{{ queued_item['user_id'] }}'s</strong> job failed to cycle service
-                    <strong>{{ queued_item['service'] }}</strong>
+                    <strong>{{ queued_item['service'] }}</strong>.
                 {% elif queued_item['status'] == 'complete' %}
                     <strong>{{ queued_item['user_id'] }}</strong> cycled
-                    <strong>{{ queued_item['service'] }}</strong>
+                    <strong>{{ queued_item['service'] }}</strong>.
                 {% elif queued_item['status'] == 'queued' %}
                     <strong>{{ queued_item['user_id'] }}</strong> is waiting to cycle
-                    <strong>{{ queued_item['service'] }}</strong>
+                    <strong>{{ queued_item['service'] }}</strong>.
                 {% endif %}
             {% elif queued_item['job_type'] == 'push_service_environment' %}
                 {% if queued_item['status'] == 'failed' %}
                     <strong>{{ queued_item['user_id'] }}'s</strong> job failed to release service
-                    <strong>{{ queued_item['service_name'] }}</strong>
+                    <strong>{{ queued_item['service_name'] }}</strong>.
                 {% elif queued_item['status'] == 'complete' %}
                     <strong>{{ queued_item['user_id'] }}</strong> released service
-                    <strong>{{ queued_item['service_name'] }}</strong>
+                    <strong>{{ queued_item['service_name'] }}</strong>.
                 {% elif queued_item['status'] == 'queued' %}
                     <strong>{{ queued_item['user_id'] }}</strong> is waiting to release service
-                    <strong>{{ queued_item['service_name'] }}</strong>
+                    <strong>{{ queued_item['service_name'] }}</strong>.
                 {% endif %}
             {% endif %}
+            <span>
+                Job scheduled
+                <strong><time>
+                {{ queued_item['time_started']|relative_datetime_from_epoch_time }}
+                </time></strong>
+            </span>
         </div>
         <div id="item_{{ queued_item['id'] }}" class="logs accordion-body collapse">
             {{ queued_item['log']|safe }}

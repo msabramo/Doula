@@ -7,10 +7,10 @@ from doula.views.helpers import *
 from pyramid.renderers import render
 from pyramid.response import Response
 from pyramid.view import view_config
-from datetime import datetime
-import time
+import math
 import logging
 import re
+import time
 
 log = logging.getLogger(__name__)
 
@@ -24,16 +24,8 @@ def service(request):
     site = get_site(request.matchdict['site_id'])
     service = site.services[request.matchdict['serv_id']]
     other_packages = CheesePrism.other_packages(service.packages)
-
-    query = {
-        'job_type': [
-            'push_to_cheeseprism',
-            'cycle_services',
-            'push_service_environment'],
-        'service': service.name
-    }
-    last_updated = datetime.now()
-    last_updated = time.mktime(last_updated.timetuple())
+    # show jobs in the past hour
+    jobs_started_after = math.floor(time.time() - 60 * 60)
 
     return {
         'site': site,
@@ -43,8 +35,7 @@ def service(request):
         'releases_json': dumps(service.get_releases()),
         'other_packages': other_packages,
         'queued_items': [],
-        'last_updated': last_updated,
-        'job_dict': dumps(query)
+        'jobs_started_after': jobs_started_after
     }
 
 

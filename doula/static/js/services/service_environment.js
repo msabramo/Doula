@@ -1,7 +1,5 @@
 var ServiceEnv = {
 
-	cycleServiceJobs: [],
-
 	/****************
 	INITIAL SERVICE
 	*****************/
@@ -172,7 +170,7 @@ var ServiceEnv = {
 
 			var params = {packages: JSON.stringify(packages)};
 			var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/release';
-			var msg = 'Releasing the service '+Data.name+' to '+Data.site_name+
+			var msg = 'Releasing '+Data.name+' to '+Data.site_name+
 					'. Please be patient and stay awesome.';
 			this.post(url, params, this.doneReleaseService, this.failedReleaseService, msg);
 		}
@@ -187,6 +185,8 @@ var ServiceEnv = {
 				}, 3500);
 			}
 		}
+
+		event.preventDefault();
 
 		return false;
 	},
@@ -208,11 +208,11 @@ var ServiceEnv = {
 	},
 
 	disableReleaseServiceButton: function() {
-		this.disableButton('release-service');
+		$('#release-service').addClass('disabled');
 	},
 
 	enableReleaseServiceButton: function() {
-		this.enableButton('release-service', this.releaseService);
+		$('#release-service').removeClass('disabled');
 	},
 
 	getActiveReleasePackages: function() {
@@ -246,28 +246,28 @@ var ServiceEnv = {
 	*****************/
 
 	cycle: function(event) {
-		this.disableCycleButton();
+		if (!$(event.target).hasClass('disabled')) {
+			this.disableCycleButton();
 
-		var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/cycle';
-		var msg = 'Cycling this service. Please be patient and stay awesome.';
-		this.get(url, {}, this.doneCycleService, false, msg);
+			var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/cycle';
+			var msg = 'Cycling ' + Data.name + '. Please be patient and stay awesome.';
+			this.get(url, {}, this.doneCycleService, false, msg);
+		}
+
+		event.preventDefault();
 
 		return false;
 	},
 
-	// This here would have to listen for the pass or failure of the pen
-	// would be nice to be notified of an event
 	doneCycleService: function(rslt) {
-		this.cycleServiceJobs.push(rslt.job_id);
+		// done
 	},
 
 	queueItemChanged: function(event, item) {
 		// Cycle button gets enabled once
 		if(item.job_type == 'cycle_services') {
 			if(item.status == 'failed' || item.status == 'complete') {
-				this.cycleServiceJobs = _withoutArray(this.cycleServiceJobs, item.id, 'id');
-
-				if(this.cycleServiceJobs.length === 0) this.enableCycleButton();
+				this.enableCycleButton();
 			}
 		}
 		else if (item.job_type == 'push_to_cheeseprism') {
@@ -278,28 +278,11 @@ var ServiceEnv = {
 	},
 
 	disableCycleButton: function() {
-		this.disableButton('cycle');
+		$('#cycle').addClass('disabled');
 	},
 
 	enableCycleButton: function() {
-		this.enableButton('cycle', this.cycle);
-	},
-
-	/****************
-	COMMON
-	*****************/
-
-	disableButton: function(id) {
-		$('#'+id)
-			.unbind()
-			.addClass('disabled')
-			.bind('click', function() { return false; });
-	},
-
-	enableButton: function(id, func) {
-		$('#'+id)
-			.removeClass('disabled')
-			.on('click', $.proxy(func, this));
+		$('#cycle').removeClass('disabled');
 	},
 
 	/****************
