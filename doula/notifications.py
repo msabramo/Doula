@@ -75,7 +75,7 @@ def email(subject=None, recipients=None, body=None):
                       recipients=recipients,
                       html=body)
 
-    #mailer.send_immediately(message)
+    mailer.send_immediately(message)
 
 
 def build_email_list(job_dict):
