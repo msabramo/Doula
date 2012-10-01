@@ -73,39 +73,41 @@ QueuedItems = {
     },
 
     updateJobStatuses: function(data) {
-        var currentNumberOfJobs = $('#queue-jobs .queued_item').length;
+        var jobIDs = $.map(this.jobsAndStatuses, function(value, key) {
+            return key;
+        });
 
         $.each(data.queuedItems.reverse(), $.proxy(function(index, item) {
-            var el = $("#queue-jobs .queued_item[data-id='" + item.id + "']");
+            if (jobIDs.length) {
+                // We've already added the jobs to the web page. Only add new and updated jobs
 
-            if(el.length > 0) {
-                // queue item already exist. just update the existing HTML
-                if(el.attr('data-status') != item.status) {
-                    el.replaceWith(item.html);
-                    QueuedItems.publish('queue-item-changed', item);
-                }
-            }
-            else {
-                // Adding the HTML for the first time
-                if (currentNumberOfJobs) {
-                    // Jobs already existed on the page. not the first job visually
-                    $('#queue-jobs').prepend(item.html);
-                    // Update jobs and statuses array
-                    this.jobsAndStatuses[item.id] = item.status;
-                }
-                else {
-                    // Adding jobs to web page for the first time.
-                    if (this.jobQueueCount < this.MAX_SERVICE_JOB_COUNT) {
-                        $('#queue-jobs').append(item.html);
-                        this.jobQueueCount += 1;
-
-                        // Update jobs and statuses array
-                        this.jobsAndStatuses[item.id] = item.status;
+                if (jobIDs.indexOf(item.id) > -1) {
+                    // Job's been tracked. only add if the status has changed.
+                    if (this.jobsAndStatuses[item.id] != item.status) {
+                        $("#queue-jobs .queued_item[data-id='" + item.id + "']").replaceWith(item.html);
+                        QueuedItems.publish('queue-item-changed', item);
                     }
                 }
+                else {
+                    // Jobs never been tracked. Add it as a new job
+                    $('#queue-jobs').prepend(item.html);
+                }
 
-                QueuedItems.publish('queue-item-changed', item);
+                // Update jobs and statuses array
+                this.jobsAndStatuses[item.id] = item.status;
             }
+            else {
+                // Adding jobs to the web page for the first time.
+                if (this.jobQueueCount < this.MAX_SERVICE_JOB_COUNT) {
+                    $('#queue-jobs').append(item.html);
+                    this.jobQueueCount += 1;
+                }
+
+                // Update jobs and statuses array
+                this.jobsAndStatuses[item.id] = item.status;
+            }
+
+            QueuedItems.publish('queue-item-changed', item);
         }, this));
     }
 };
