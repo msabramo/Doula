@@ -1,11 +1,12 @@
-import os
-import unittest
-import time
+from datetime import datetime
+from doula.jobs import cleanup_queue
+from doula.jobs import find_expired_jobs
+from doula.queue import Queue
 from mock import patch
 from mockredis import MockRedis
-from datetime import datetime
-from doula.queue import Queue
-from doula.jobs import cleanup_queue
+import os
+import time
+import unittest
 
 
 class JobTests(unittest.TestCase):
@@ -17,6 +18,28 @@ class JobTests(unittest.TestCase):
     @patch('doula.queue.redis.Redis', new=MockRedis)
     def tearDown(self):
         self.queue.rdb.flushdb()
+
+    def test_find_expired_jobs(self):
+        now = datetime.now()
+        now = time.mktime(now.timetuple())
+
+        jobs = [
+            {
+                'id': 1,
+                'status': 'complete',
+                'time_started': now
+            },
+            {
+                'id': 2,
+                'status': 'complete',
+                'time_started': (now - 9000)
+            }
+        ]
+
+        expired_jobs = find_expired_jobs(jobs)
+
+        self.assertEqual(1, len(expired_jobs))
+        self.assertEqual(2, expired_jobs[0])
 
     @patch('doula.jobs.Queue')
     def test_cleanup_queue(self, Queue):
@@ -66,3 +89,6 @@ class JobTests(unittest.TestCase):
         self.assertIn('2', ids)
         self.assertNotIn('3', ids)
         self.assertIn('4', ids)
+
+if __name__ == '__main__':
+    unittest.main()

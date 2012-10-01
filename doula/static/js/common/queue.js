@@ -56,9 +56,9 @@ QueuedItems = {
         });
     },
 
-    /***************
+    /***********************
     POLL BACKEND FOR UPDATES
-    ****************/
+    ************************/
 
     poll: function() {
         var params = {
@@ -78,7 +78,7 @@ QueuedItems = {
         $.each(data.queuedItems.reverse(), $.proxy(function(index, item) {
             var el = $("#queue-jobs .queued_item[data-id='" + item.id + "']");
 
-            if(el.length) {
+            if(el.length > 0) {
                 // queue item already exist. just update the existing HTML
                 if(el.attr('data-status') != item.status) {
                     el.replaceWith(item.html);
@@ -94,7 +94,7 @@ QueuedItems = {
                     this.jobsAndStatuses[item.id] = item.status;
                 }
                 else {
-                    // Adding jobs visually for the first time
+                    // Adding jobs to web page for the first time.
                     if (this.jobQueueCount < this.MAX_SERVICE_JOB_COUNT) {
                         $('#queue-jobs').append(item.html);
                         this.jobQueueCount += 1;

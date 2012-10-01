@@ -49,9 +49,9 @@ var ServiceEnv = {
 			$.proxy(this.queueItemChanged, this));
 	},
 
-	/*******************
+	/***********************
 	PACKAGE DROPDOWN RELATED
-	********************/
+	************************/
 
 	addOriginalVersionToPackageSelects: function() {
 		$('.package-select').each(function(i, select) {

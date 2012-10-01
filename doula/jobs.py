@@ -267,12 +267,15 @@ def job_expired(job):
 
     if job['status'] == 'complete' and job['time_started'] < (now - 4320):
         return True
-    elif job['status'] == 'failed' and job['time_started'] < (now - 7200):
-        return True
-    elif job['status'] == 'queued' and job['time_started'] < (now - 7200):
+    elif job['time_started'] < (now - 7200):
         return True
     else:
         return False
+
+
+def find_expired_jobs(jobs):
+    """Find all the jobs on the queue that have expired"""
+    return [job['id'] for job in jobs if job_expired(job)]
 
 
 def cleanup_queue(config={}, job_dict={}):
@@ -284,23 +287,15 @@ def cleanup_queue(config={}, job_dict={}):
 
     try:
         logging.info('Cleaning up the queue')
-        # alextodo. test this one out. seems to be clearing the queue.
-        return 0
 
         queue = Queue()
-        jobs = queue.get()
-        # Get completed jobs that need to be deleted
-        complete_job_ids = [job['id'] for job in jobs if job_expired(job)]
-        # Get failed jobs that need to be deleted
-        failed_job_ids = [job['id'] for job in jobs if job_expired(job)]
+        expired_job_ids = find_expired_jobs(queue.get())
 
-        ids = complete_job_ids + failed_job_ids
-        # Remove completed jobs and failed jobs that are unneeded
-        queue.remove(ids)
+        queue.remove(expired_job_ids)
 
         # Remove all completed and failed logs
-        for id in ids:
-            path_to_file = os.path.join('/var/log/doula', id + '.log')
+        for expired_job_id in expired_job_ids:
+            path_to_file = os.path.join('/var/log/doula', expired_job_id + '.log')
 
             if os.path.isfile(path_to_file):
                 os.remove(path_to_file)
