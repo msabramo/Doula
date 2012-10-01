@@ -107,9 +107,6 @@ QueuedItems = {
                 QueuedItems.publish('queue-item-changed', item);
             }
         }, this));
-
-        // Update the timestamp
-        this.queueFilters.jobsStartedAfter = Math.round(new Date().getTime() / 1000);
     }
 };
 
