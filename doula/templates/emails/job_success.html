@@ -1,20 +1,16 @@
 {% macro render_job_success(queued_item) -%}
     Howdy!</br></br>
 
-    <strong>{{ queued_item['user_id'] }}</strong>
-
     {% if queued_item['job_type'] == 'push_to_cheeseprism' %}
-        pushed version <strong>{{ queued_item['version'] }}</strong>
-        of <strong>{{ queued_item['branch'] }}</strong>
-        at <strong>{{ queued_item['remote'] }}</strong>.
+        <strong>{{ queued_item['user_id'] }}</strong> built
+        <strong>{{ queued_item['package_name'] }}</strong> with the version number
+        <strong>{{ queued_item['version'] }}</strong>.
     {% elif queued_item['job_type'] == 'cycle_services' %}
-        cycled
-        <strong>{{ queued_item['service'] }}</strong> on
-        <strong>{{ queued_item['site'] }}</strong>.
+        <strong>{{ queued_item['user_id'] }}</strong> cycled
+        <strong>{{ queued_item['service'] }}</strong>.
     {% elif queued_item['job_type'] == 'push_service_environment' %}
-        released service
-        <strong>{{ queued_item['service_name'] }}</strong> on
-        <strong>{{ queued_item['site_name_or_node_ip'] }}</strong>.
+        <strong>{{ queued_item['user_id'] }}</strong> released service
+        <strong>{{ queued_item['service_name'] }}</strong>.
     {% endif %}
 {%- endmacro %}
 

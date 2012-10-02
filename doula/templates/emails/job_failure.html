@@ -1,25 +1,22 @@
 {% macro render_job_failure(queued_item) -%}
-    Howdy!</br></br>
-
-    Unfortunately, <strong>{{ queued_item['user_id'] }}'s</strong> job
+    Hi there.</br></br>
 
     {% if queued_item['job_type'] == 'push_to_cheeseprism' %}
-        failed to release <strong>{{ queued_item['version'] }}</strong>
-        of <strong>{{ queued_item['branch'] }}</strong>
-        at <strong>{{ queued_item['remote'] }}</strong>.
+        <strong>{{ queued_item['user_id'] }}'s</strong> job failed to build
+        <strong>{{ queued_item['package_name'] }}</strong> with the version number
+        <strong>{{ queued_item['version'] }}</strong>.
     {% elif queued_item['job_type'] == 'cycle_services' %}
-        failed to cycle service
-        <strong>{{ queued_item['service'] }}</strong> on
-        <strong>{{ queued_item['site'] }}</strong>.
+        <strong>{{ queued_item['user_id'] }}'s</strong> job failed to cycle service
+        <strong>{{ queued_item['service'] }}</strong>.
     {% elif queued_item['job_type'] == 'push_service_environment' %}
-        failed to release service
-        <strong>{{ queued_item['service_name'] }}</strong> on
-        <strong>{{ queued_item['site_name_or_node_ip'] }}</strong>.
+        <strong>{{ queued_item['user_id'] }}'s</strong> job failed to release service
+        <strong>{{ queued_item['service_name'] }}</strong>.
     {% endif %}
 
     </br><br />
 
-    Here are the logs:</br>
+    Below is the error log:
+    </br>
 
     <pre><code>
     {% if log: %}
