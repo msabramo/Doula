@@ -50,9 +50,13 @@
             {% endif %}
             <span>
                 Job scheduled
-                <strong><time>
-                {{ queued_item['time_started']|relative_datetime_from_epoch_time }}
-                </time></strong>
+                <strong>
+                <time>
+                    <a href="#{{queued_item['id']}}">
+                    {{ queued_item['time_started']|relative_datetime_from_epoch_time }}
+                    </a>
+                </time>
+                </strong>
             </span>
         </div>
         <div id="item_{{ queued_item['id'] }}" class="logs accordion-body collapse">

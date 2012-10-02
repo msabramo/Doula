@@ -1,7 +1,8 @@
 {% macro render_job_success(queued_item) -%}
     Howdy!</br></br>
 
-    Doula
+    <strong>{{ queued_item['user_id'] }}</strong>
+
     {% if queued_item['job_type'] == 'push_to_cheeseprism' %}
         pushed version <strong>{{ queued_item['version'] }}</strong>
         of <strong>{{ queued_item['branch'] }}</strong>

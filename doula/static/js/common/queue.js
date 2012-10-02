@@ -2,6 +2,7 @@ QueuedItems = {
 
     // The maximum number of jobs shown for a service
     MAX_SERVICE_JOB_COUNT: 3,
+    showInitialPollRequest: false,
     jobQueueCount: 0,
     jobsAndStatuses: {},
     queueFilters: {},
@@ -11,6 +12,11 @@ QueuedItems = {
         _mixin(this, DataEventManager);
 
         this.queueFilters = __queueFilters;
+
+        // The queue shows the jobs by default. No need to ajax.
+        // If a service name exist, then you'll need to show the first poll request
+        if (this.queueFilters.service) this.showInitialPollRequest = true;
+
         this.bindToUIActions();
     },
 
@@ -80,7 +86,6 @@ QueuedItems = {
         $.each(data.queuedItems.reverse(), $.proxy(function(index, item) {
             if (jobIDs.length) {
                 // We've already added the jobs to the web page. Only add new and updated jobs
-
                 if (jobIDs.indexOf(item.id) > -1) {
                     // Job's been tracked. only add if the status has changed.
                     if (this.jobsAndStatuses[item.id] != item.status) {
@@ -98,9 +103,14 @@ QueuedItems = {
             }
             else {
                 // Adding jobs to the web page for the first time.
-                if (this.jobQueueCount < this.MAX_SERVICE_JOB_COUNT) {
-                    $('#queue-jobs').append(item.html);
-                    this.jobQueueCount += 1;
+                // Only services show the initial poll request.
+                if (this.showInitialPollRequest) {
+                    if (this.jobQueueCount < this.MAX_SERVICE_JOB_COUNT) {
+                        if (!this.jobsAndStatuses[item.id]) {
+                            $('#queue-jobs').append(item.html);
+                            this.jobQueueCount += 1;
+                        }
+                    }
                 }
 
                 // Update jobs and statuses array
