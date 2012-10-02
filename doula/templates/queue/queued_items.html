@@ -3,18 +3,17 @@
 	<div>
 	  <h5>
 	  	{% if service %}
-	  	Recent jobs for {{ service.name }}. View all jobs in the
+	  	Recent jobs for <strong>{{ service.name }}</strong> on {{ site.name }}. View all jobs in the
 	    <a href="/queue">queue</a>.
 	    {% endif %}
 	  </h5>
 	</div>
 
     <div id="queue-jobs">
-
+    	{% if not service %}
 	    <div id="no-queue-items-warning" class="alert">
-	    	{% if not service %}
 	        <p>No jobs</p>
-	        {% endif %}
 	    </div>
+	    {% endif %}
     </div>
 </div>
