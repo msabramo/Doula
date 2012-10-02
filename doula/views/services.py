@@ -24,8 +24,8 @@ def service(request):
     site = get_site(request.matchdict['site_id'])
     service = site.services[request.matchdict['serv_id']]
     other_packages = CheesePrism.other_packages(service.packages)
-    # show jobs in the past hour
-    jobs_started_after = math.floor(time.time() - 60 * 60)
+    # show jobs in the past hour 8 hours
+    jobs_started_after = math.floor(time.time() - (60 * 60 * 8))
 
     return {
         'site': site,

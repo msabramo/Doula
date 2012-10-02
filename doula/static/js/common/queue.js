@@ -2,7 +2,7 @@ QueuedItems = {
 
     // The maximum number of jobs shown for a service
     MAX_SERVICE_JOB_COUNT: 3,
-    showInitialPollRequest: false,
+    limitInitialQueueItems: false,
     jobQueueCount: 0,
     jobsAndStatuses: {},
     queueFilters: {},
@@ -14,15 +14,18 @@ QueuedItems = {
         this.queueFilters = __queueFilters;
 
         // The queue shows the jobs by default. No need to ajax.
-        // If a service name exist, then you'll need to show the first poll request
-        if (this.queueFilters.service) this.showInitialPollRequest = true;
+        // If a service name exist, then you'll need to show all the jobs
+        // from the first poll request
+        if (this.queueFilters.service) this.limitInitialQueueItems = true;
 
         this.bindToUIActions();
     },
 
     bindToUIActions: function() {
         this.selectFilterByAndSortByLabels();
-        // Poll every second for updates
+
+        // Poll now and poll every second from now on
+        this.poll();
         window.setInterval($.proxy(this.poll, this), 1000);
     },
 
@@ -31,8 +34,8 @@ QueuedItems = {
     ****************/
 
     selectFilterByAndSortByLabels: function() {
-        var sortBy = this.queueFilters.sortBy;
-        var filterBy = this.queueFilters.filterBy;
+        var sortBy = this.queueFilters.sort_by;
+        var filterBy = this.queueFilters.filter_by;
 
         $('ul.sort_by a').each(function(index, el) {
             el = $(el);
@@ -67,21 +70,25 @@ QueuedItems = {
     ************************/
 
     poll: function() {
-        var params = {
-            "service": this.queueFilters.service,
-            "sort_by": this.queueFilters.sort_by,
-            "filter_by": this.queueFilters.filterBy,
-            "jobs_started_after": this.queueFilters.jobsStartedAfter,
-            "jobs_and_statuses": JSON.stringify(this.jobsAndStatuses)
-        };
-
-        this.post('/queue', params, $.proxy(this.updateJobStatuses, this), null, false);
+        this.queueFilters.job_ids = JSON.stringify(this.getJobIDs());
+        this.post('/queue', this.queueFilters, $.proxy(this.updateJobStatuses, this), null, false);
     },
 
+    /**
+    *   Return the id's of all the jobs we're tracking in jobsAndStatuses
+    */
+    getJobIDs: function() {
+        return $.map(this.jobsAndStatuses, function(value, key) {return key;} );
+    },
+
+    /**
+    *   Add new queue items to the web page. Here is where we update the queue-jobs element.
+    *   Any status changes to jobs will appear here.
+    */
     updateJobStatuses: function(data) {
-        var jobIDs = $.map(this.jobsAndStatuses, function(value, key) {
-            return key;
-        });
+        var jobIDs = this.getJobIDs();
+
+        if (data.queuedItems.length) $('#no-queue-items-warning').hide();
 
         $.each(data.queuedItems.reverse(), $.proxy(function(index, item) {
             if (jobIDs.length) {
@@ -104,12 +111,10 @@ QueuedItems = {
             else {
                 // Adding jobs to the web page for the first time.
                 // Only services show the initial poll request.
-                if (this.showInitialPollRequest) {
-                    if (this.jobQueueCount < this.MAX_SERVICE_JOB_COUNT) {
-                        if (!this.jobsAndStatuses[item.id]) {
-                            $('#queue-jobs').append(item.html);
-                            this.jobQueueCount += 1;
-                        }
+                if (this.jobQueueCount < this.MAX_SERVICE_JOB_COUNT || !this.limitInitialQueueItems) {
+                    if (!this.jobsAndStatuses[item.id]) {
+                        $('#queue-jobs').append(item.html);
+                        this.jobQueueCount += 1;
                     }
                 }
 

@@ -286,6 +286,10 @@ def cleanup_queue(config={}, job_dict={}):
     load_config(config)
 
     try:
+        # alextodo. something is going wrong on production.
+        # there are never any jobs in the queue when this runs.
+        return 0;
+
         logging.info('Cleaning up the queue')
 
         queue = Queue()

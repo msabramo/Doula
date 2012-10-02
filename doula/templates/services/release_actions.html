@@ -50,19 +50,7 @@
   </ul>
 </div>
 
-
-<div class="queued_items">
-  <div>
-    <h5>Recent jobs for {{ service.name }}. View all jobs in the
-      <a href="/queue">queue</a>.
-    </h5>
-  </div>
-  <div id="queue-jobs">
-  {% for queued_item in queued_items %}
-    {{ queued_item_tmpl.render_queued_item(queued_item) }}
-  {% endfor %}
-  </div>
-</div>
+{% include 'queue/queued_items.html' %}
 
 <div>
 
@@ -201,10 +189,11 @@ var __releases = {{releases_json|safe}};
 // alextodo. change the sortBy filter to status
 // then change filter by user_id or something
 var __queueFilters = {
-  "sortBy": "all",
-  "filterBy": "alljobs",
+  "site": "{{ site.name }}",
   "service": "{{ service.name }}",
-  "jobsStartedAfter": {{jobs_started_after}}
+  "jobs_started_after": {{jobs_started_after}},
+  "sort_by": "all",
+  "filter_by": "alljobs"
 };
 </script>
 {{ [

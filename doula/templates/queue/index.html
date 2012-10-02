@@ -40,38 +40,24 @@
     </li>
 </ul>
 
-<div class="queued_items">
-    <div>
-        <h5></h5>
-    </div>
-    <div id="queue-jobs">
-    {% set items = [] %}
-    {% for queued_item in queued_items %}
-    	{% if items.append(1) %}{% endif %}
-        {{ queued_item_tmpl.render_queued_item(queued_item) }}
-    {% endfor %}
-    {% if items|length == 0 %}
-    	<div class="alert">
-            <p>No queue items</p>
-    	</div>
-    {% endif %}
-    </div>
-</div>
-<script>
+{% include 'queue/queued_items.html' %}
 
+<script>
+// alextodo. fix fucking sortBy, make it status, filter by should be jobs - all or myjobs
 var __queueFilters = {
-  "sortBy": {% if request.params.get('sort_by') %}
+  "site": "",
+  "service": "",
+  "jobs_started_after": {{jobs_started_after}},
+  "sort_by": {% if request.params.get('sort_by') %}
                 "{{request.params.get('sort_by')}}"
               {% else %}
                 "all"
               {% endif %},
-  "filterBy": {% if request.params.get('filter_by') %}
+  "filter_by": {% if request.params.get('filter_by') %}
                 "{{request.params.get('filter_by')}}"
               {% else %}
                 "alljobs"
-              {% endif %},
-  "service": false,
-  "jobsStartedAfter": {{jobs_started_after}}
+              {% endif %}
 };
 </script>
 {% endblock %}
