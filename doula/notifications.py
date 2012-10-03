@@ -1,6 +1,7 @@
 from doula.log import get_log
 from doula.models.user import User
 from doula.util import dumps
+from doula.helper_filters import relative_datetime_from_epoch_time
 from jinja2 import Environment, PackageLoader
 from pyramid_mailer.mailer import Mailer
 from pyramid_mailer.message import Message
@@ -16,7 +17,8 @@ def email_success(email_list, job_dict):
 
     body = template.render({
             'user': user,
-            'job_dict': job_dict
+            'job_dict': job_dict,
+            'date_and_time': relative_datetime_from_epoch_time(job_dict['time_started'])
         })
 
     subject = 'Doula Success: '
@@ -47,7 +49,8 @@ def email_fail(email_list, job_dict, exception):
     body = template.render({
         'user': user,
         'job_dict': job_dict,
-        'log': get_log(job_dict['id'])
+        'log': get_log(job_dict['id']),
+        'date_and_time': relative_datetime_from_epoch_time(job_dict['time_started'])
     })
 
     subject = 'Doula Failure: '

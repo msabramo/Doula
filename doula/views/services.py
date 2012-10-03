@@ -97,7 +97,10 @@ def validate_package_release(package, branch, next_version):
     git_info = package.get_github_info()
 
     if not next_version:
-        errors.add('Version number cannot be empty')
+        errors.append('Version number cannot be empty')
+
+    if next_version.find('@') > -1:
+        errors.append('You cannot include the "@" symbol in a version')
 
     for tag in git_info['tags']:
         # tags by doula are always prefixed with a v

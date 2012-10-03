@@ -13,6 +13,17 @@
         <strong>{{ queued_item['service_name'] }}</strong>.
     {% endif %}
 
+    <span>
+        Job scheduled
+        <strong>
+        <time>
+            <a id="{{queued_item['id']}}" href="http://doula.corp.surveymonkey.com/queue#{{queued_item['id']}}">
+            {{ date_and_time }}
+            </a>
+        </time>
+        </strong>
+    </span>
+
     </br><br />
 
     Below is the error log:
