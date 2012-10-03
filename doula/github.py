@@ -5,7 +5,6 @@ A simplified interface to the Github V3 API
 from datetime import datetime
 from doula.cache import Cache
 from doula.config import Config
-from doula.models.user import User
 from doula.util import *
 import json
 import re
@@ -85,19 +84,10 @@ def pull_doula_admins():
     Doula admins have the ability to lockdown an entire site. This means
     no one else can release to this site unless they are an admin
     """
-    # This is failing on prod. fix in prod.
-    return ['alexv', 'chuckg', 'colins', 'doula', 'mikesela', 'tbone', 'whit', 'willwagner']
-
-    # alextodo. change this logic over to pull data using the doula user
-    # Doula needs it's own username, authtoken whatever to pull
-    # this data back. for now I'll be using alexv's oauth token
-    # mostly cause that guys cool
-    admin_user = User.find('alexv')
-
     domain = Config.get('doula.github.api.domain')
     org = Config.get('doula.github.doula.admins.org')
-    vals = (domain, org, admin_user['oauth_token'])
-    url = "%s/orgs/%s/members?access_token=%s" % vals
+    token = Config.get('doula.github.token')
+    url = "%s/orgs/%s/members?access_token=%s" % (domain, org, token)
 
     members = json.loads(pull_url(url))
 

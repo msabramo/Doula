@@ -133,16 +133,18 @@ QueuedItems = {
     },
 
     showTheSelectedJobLog: function() {
-        $(document.location.hash).click();
+        if ($(document.location.hash).length) {
+            $(document.location.hash).click();
 
-        // We have to wait till the log is open so that we get an accurate
-        // reading on the height of the log element. Then we scroll to that element
-        setTimeout(function() {
-            var id = document.location.hash.replace('#', '').trim();
-            var logHeight = $('#item_' + id).height();
-            var destination = $(document.location.hash).offset().top + logHeight;
-            $(document).scrollTop(destination);
-        }, 400);
+            // We have to wait till the log is open so that we get an accurate
+            // reading on the height of the log element. Then we scroll to that element
+            setTimeout(function() {
+                var id = document.location.hash.replace('#', '').trim();
+                var logHeight = $('#item_' + id).height();
+                var destination = $(document.location.hash).offset().top + logHeight;
+                $(document).scrollTop(destination);
+            }, 400);
+        }
     }
 };
 
