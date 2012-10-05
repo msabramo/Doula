@@ -17,11 +17,7 @@
           <li class="dropdown
               {% if path.startswith('/settings') %}active{% endif %}">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                  <img class="avatar" src="{% if request.user['avatar_url'] %}
-                      {{ request.user['avatar_url'] }}
-                      {% else %}
-                      /images/anon-gravatar.png
-                      {% endif %}" />
+                  <img class="avatar" src="/images/anon-gravatar.png" />
                   {{ request.user['username'] }}
                   <b class="caret"></b>
               </a>
