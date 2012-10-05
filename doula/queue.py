@@ -1,7 +1,7 @@
 from doula.cache import Cache
 from doula.notifications import send_notification
 from retools.queue import QueueManager
-import json
+import simplejson as json
 import logging
 import redis
 import time

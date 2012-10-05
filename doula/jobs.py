@@ -11,7 +11,7 @@ from doula.models.sites_dal import SiteDAL
 from doula.queue import Queue
 from doula.cheese_prism import CheesePrism
 from doula.util import *
-import json
+import simplejson as json
 import logging
 import os
 import time

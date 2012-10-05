@@ -1,7 +1,7 @@
 from doula.cache import Cache
 from doula.config import Config
 from doula.util import *
-import json
+import simplejson as json
 import logging
 
 log = logging.getLogger('doula')

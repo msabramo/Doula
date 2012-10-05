@@ -1,5 +1,5 @@
 from pprint import pprint as pretty_print
-import json
+import simplejson as json
 import re
 import requests
 

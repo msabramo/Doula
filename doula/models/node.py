@@ -3,7 +3,7 @@ from doula.util import *
 from fabric.api import *
 from git import *
 from doula.cache import Cache
-import json
+import simplejson as json
 import logging
 import traceback
 

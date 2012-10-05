@@ -1,7 +1,7 @@
 from doula.cache import Cache
 from doula.views.index import bambino_register
 from pyramid import testing
-import json
+import simplejson as json
 import unittest
 
 

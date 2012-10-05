@@ -6,7 +6,7 @@ from datetime import datetime
 from doula.cache import Cache
 from doula.config import Config
 from doula.util import *
-import json
+import simplejson as json
 import re
 
 cache = Cache.cache()

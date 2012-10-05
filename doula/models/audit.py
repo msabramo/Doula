@@ -1,7 +1,7 @@
 """
 Implements the auditing piece of Doula.
 """
-import json
+import simplejson as json
 
 from datetime import datetime
 from doula.cache import Cache

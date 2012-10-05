@@ -11,7 +11,7 @@ from pyramid.httpexceptions import HTTPFound
 from pyramid.response import FileResponse
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
-import json
+import simplejson as json
 import logging
 import os
 import time

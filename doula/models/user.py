@@ -1,6 +1,6 @@
 from doula.cache import Cache
 from pyramid.security import unauthenticated_userid
-import json
+import simplejson as json
 
 
 class User(object):
