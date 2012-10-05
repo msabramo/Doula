@@ -104,7 +104,6 @@ class Service(object):
                 if(result['status'] != 80):
                     success = False
 
-
             if(success):
                 True
             else:

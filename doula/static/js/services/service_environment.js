@@ -36,7 +36,7 @@ var ServiceEnv = {
 		});
 
 		// Dropdown packages
-		this.addOriginalVersionToPackageSelects();
+		this.addVersionMessageBelowPackageSelects();
 
 		$('#release-service').popover({placement: "bottom"});
 		$('a.release').on('click', $.proxy(this.selectReleasePackages, this));
@@ -53,7 +53,7 @@ var ServiceEnv = {
 	PACKAGE DROPDOWN RELATED
 	************************/
 
-	addOriginalVersionToPackageSelects: function() {
+	addVersionMessageBelowPackageSelects: function() {
 		$('.package-select').each(function(i, select) {
 			select = $(select);
 			select.attr('data-original-val', select.val());
@@ -357,7 +357,7 @@ var ServiceEnv = {
 	},
 
 	updatePackagesDropdown: function(package_name, version) {
-		$('#pckg_select_dummycode').
+		$('#pckg_select_' + package_name).
 			append('<option value="' + version + '">' + version + '</option>').
 			val(version).
 			change();

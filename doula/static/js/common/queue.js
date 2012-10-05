@@ -122,8 +122,6 @@ QueuedItems = {
                 // Update jobs and statuses array
                 this.jobsAndStatuses[item.id] = item.status;
             }
-
-            QueuedItems.publish('queue-item-changed', item);
         }, this));
 
         if (this.firstRun) {
