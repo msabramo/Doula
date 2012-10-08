@@ -31,16 +31,20 @@ class Cache(object):
     @staticmethod
     def cache(db=0):
         try:
-            if db == 0:
-                if not Cache.redis:
-                    Cache.redis = Cache.connect(Config.get('redis.host'), Config.get('redis.port'), db)
+            return Cache.connect(Config.get('redis.host'), Config.get('redis.port'), db)
 
-                return Cache.redis
-            elif db == 1:
-                if not Cache.redis_store:
-                    Cache.redis_store = Cache.connect(Config.get('redis.host'), Config.get('redis.port'), db)
+            # if db == 0:
+                # testing with creating a new connection on every request
 
-                return Cache.redis_store
+                #if not Cache.redis:
+                    # Cache.redis = Cache.connect(Config.get('redis.host'), Config.get('redis.port'), db)
+
+                # return Cache.redis
+            # elif db == 1:
+            #     if not Cache.redis_store:
+            #         Cache.redis_store = Cache.connect(Config.get('redis.host'), Config.get('redis.port'), db)
+
+            #     return Cache.redis_store
         except:
             if Cache.env == 'prod':
                 raise
