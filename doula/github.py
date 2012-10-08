@@ -17,8 +17,7 @@ import re
 def get_devmonkey_repo(name):
     cache = Cache.cache()
     repo_as_json = cache.get("repo.devmonkeys:" + comparable_name(name))
-    print 'repo as json for key: ' + "repo.devmonkeys:" + comparable_name(name)
-    print repo_as_json
+
     if repo_as_json:
         return json.loads(repo_as_json)
 
@@ -318,9 +317,12 @@ def pull_devmonkeys_repos():
         }
     """
     repos = {}
+
     domain = Config.get('doula.github.api.domain')
-    html_domain = Config.get('doula.github.html.domain')
-    url = domain + '/orgs/' + Config.get('doula.github.packages.org') + '/repos'
+    org = Config.get('doula.github.packages.org')
+    token = Config.get('doula.github.token')
+    url = "%s/orgs/%s/repos?access_token=%s" % (domain, org, token)
+
     git_repos = json.loads(pull_url(url))
 
     for git_repo in git_repos:
@@ -334,7 +336,7 @@ def pull_devmonkeys_repos():
             "ssh_url": git_repo["ssh_url"],
             "org": Config.get('doula.github.packages.org'),
             "domain": domain,
-            "html_domain": html_domain,
+            "html_domain": Config.get('doula.github.html.domain'),
             "tags": tags,
             "branches": branches,
             "commits": commits

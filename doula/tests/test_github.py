@@ -7,9 +7,10 @@ class GithubTests(unittest.TestCase):
     def setUp(self):
         settings = {
             'doula.github.api.domain': 'http://api.code.corp.surveymonkey.com',
-            'doula.github.appenvs.org': 'FakeAppEnvs',
+            'doula.github.appenvs.org': 'AppEnv',
             'doula.github.doula.admins.org': 'DoulaAdmins',
-            'doula.github.packages.org': 'doulaweb',
+            'doula.github.packages.org': 'devmonkeys',
+            'doula.github.html.domain': 'http://code.corp.surveymonkey.com',
             'doula.github.token': '17e6642dca429043725ad6a98ce966e5a67eac69'
         }
 

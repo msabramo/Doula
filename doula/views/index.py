@@ -14,7 +14,6 @@ from pyramid.view import view_config
 import simplejson as json
 import logging
 import os
-import time
 
 log = logging.getLogger(__name__)
 
