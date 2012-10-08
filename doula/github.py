@@ -17,7 +17,8 @@ import re
 def get_devmonkey_repo(name):
     cache = Cache.cache()
     repo_as_json = cache.get("repo.devmonkeys:" + comparable_name(name))
-
+    print 'repo as json for key: ' + "repo.devmonkeys:" + comparable_name(name)
+    print repo_as_json
     if repo_as_json:
         return json.loads(repo_as_json)
 

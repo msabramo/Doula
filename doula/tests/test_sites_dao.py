@@ -76,7 +76,7 @@ class TestSitesDAL(unittest.TestCase):
         SiteDAL.register_node(node)
         keys = SiteDAL._all_site_keys()
 
-        self.assertEqual(keys[0], 'site:site1')
+        self.assertEqual(keys[0], 'site1')
 
     def test_get_sites(self):
         # Get Site objects array, [Site, Site, Site...]

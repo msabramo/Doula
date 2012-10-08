@@ -83,7 +83,6 @@ def bambino_register(request):
     Register a Bambino node with Doula.
     """
     node = json.loads(request.POST['node'])
-    node['time'] = time.strftime("%m/%d/%Y %H:%M:%S", time.gmtime())
 
     if(request.POST['action'] == 'register'):
         SiteDAL.register_node(node)

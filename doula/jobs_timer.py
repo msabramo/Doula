@@ -69,21 +69,20 @@ def start_task_scheduling():
     """
     Start scheduling tasks.
     """
-    pass
-    #sched = Scheduler()
-    # sched.start()
+    sched = Scheduler()
+    sched.start()
 
-    # interval = int(Config.get('task_interval_pull_bambino'))
-    # sched.add_interval_job(pull_bambino_data, seconds=interval)
+    interval = int(Config.get('task_interval_pull_bambino'))
+    sched.add_interval_job(pull_bambino_data, seconds=interval)
 
-    # cheeseprism_interval = int(Config.get('task_interval_pull_cheesprism_data'))
-    # sched.add_interval_job(pull_cheeseprism_data, seconds=cheeseprism_interval)
+    cheeseprism_interval = int(Config.get('task_interval_pull_cheesprism_data'))
+    sched.add_interval_job(pull_cheeseprism_data, seconds=cheeseprism_interval)
 
-    # git_interval = int(Config.get('task_interval_pull_github_data'))
-    # sched.add_interval_job(pull_github_data, seconds=git_interval)
+    git_interval = int(Config.get('task_interval_pull_github_data'))
+    sched.add_interval_job(pull_github_data, seconds=git_interval)
 
-    # interval = int(Config.get('task_interval_pull_appenv_github_data'))
-    # sched.add_interval_job(pull_appenv_github_data, seconds=interval)
+    interval = int(Config.get('task_interval_pull_appenv_github_data'))
+    sched.add_interval_job(pull_appenv_github_data, seconds=interval)
 
-    # cleanup_interval = int(Config.get('task_interval_cleanup_queue'))
-    # sched.add_interval_job(cleanup_queue, seconds=cleanup_interval)
+    cleanup_interval = int(Config.get('task_interval_cleanup_queue'))
+    sched.add_interval_job(cleanup_queue, seconds=cleanup_interval)
