@@ -217,7 +217,8 @@ def enqueue_service_release(request, service, packages):
         'job_type': 'push_service_environment',
         'site_name_or_node_ip': ip,
         'service_name': service.name,
-        'packages': pckgs
+        'packages': pckgs,
+        'site': service.site_name
     })
 
     # After we push the release. lets pull the latest release data again.
