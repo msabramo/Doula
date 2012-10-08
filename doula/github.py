@@ -433,8 +433,12 @@ def pull_appenv_repos():
     ]
     """
     repos = {}
+
     domain = Config.get('doula.github.api.domain')
-    url = domain + '/orgs/' + Config.get('doula.github.appenvs.org') + '/repos'
+    org = Config.get('doula.github.appenvs.org')
+    token = Config.get('doula.github.token')
+    url = "%s/orgs/%s/repos?access_token=%s" % (domain, org, token)
+
     git_repos = json.loads(pull_url(url))
 
     for git_repo in git_repos:
