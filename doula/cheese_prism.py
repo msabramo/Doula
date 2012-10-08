@@ -5,7 +5,6 @@ import simplejson as json
 import logging
 
 log = logging.getLogger('doula')
-cache = Cache.cache()
 
 
 class PythonPackage(object):
@@ -24,6 +23,7 @@ class CheesePrism(object):
         """
         Package URL's are case sensitive so we need to find the exact URL
         """
+        cache = Cache.cache()
         text = cache.get('cheeseprism:package:' + comparable_name(name))
 
         if text:
@@ -38,6 +38,7 @@ class CheesePrism(object):
         """
         Return all packages from our cache
         """
+        cache = Cache.cache()
         all_packages = []
         packages_as_json = cache.get('cheeseprism:packages')
 

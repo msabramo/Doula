@@ -6,8 +6,8 @@ from doula.models.sites_dal import SiteDAL
 class TestSitesDAL(unittest.TestCase):
     def setUp(self):
         Cache.env = 'dev'
-        Cache.clear_cache()
         self.cache = Cache.cache()
+        self.flushdb()
 
     def test_cache_store(self):
         # Just make sure we get a valid cache store from cache

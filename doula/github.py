@@ -9,14 +9,13 @@ from doula.util import *
 import simplejson as json
 import re
 
-cache = Cache.cache()
-
 ######################
 # PULL FROM CACHE
 ######################
 
 
 def get_devmonkey_repo(name):
+    cache = Cache.cache()
     repo_as_json = cache.get("repo.devmonkeys:" + comparable_name(name))
 
     if repo_as_json:
@@ -29,6 +28,7 @@ def get_doula_admins():
     """
     Get the Doula admins from cache. if cache doesn't exist pull now
     """
+    cache = Cache.cache()
     admins_as_json = cache.get("doula.admins")
 
     if admins_as_json:
@@ -61,6 +61,7 @@ def get_appenv_releases(name, branch):
         }
     }
     """
+    cache = Cache.cache()
     json_text = cache.get("repos:appenvs")
 
     if json_text:

@@ -7,7 +7,7 @@ import unittest
 class CheesePrismTests(unittest.TestCase):
     def setUp(self):
         Cache.env = 'dev'
-        Cache.clear_cache()
+        Cache.cache().flushdb()
         settings = {
             'doula.cheeseprism_url': 'http://yorick.corp.surveymonkey.com:9003'
         }

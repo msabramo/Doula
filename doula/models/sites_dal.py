@@ -9,11 +9,17 @@ log = logging.getLogger('doula')
 
 
 class SiteDAL(object):
-    cache = Cache.cache()
+    cache = None
     site_prefix = 'site:'
 
     def __init(self):
         pass
+
+    @staticmethod
+    def get_cache():
+        if not SiteDAL.cache:
+            SiteDAL.cache = Cache.cache()
+        return SiteDAL.cache
 
     @staticmethod
     def list_of_sites_and_services():
@@ -37,16 +43,21 @@ class SiteDAL(object):
     def _add_to_deploy_set(app, tag):
         set_key = SiteDAL._get_deployed_app_set_key(app)
         app_details = SiteDAL._deployed_app_details(app, tag)
-        SiteDAL.cache.sadd(set_key, json.dumps(app_details))
+
+        cache = SiteDAL.get_cache()
+        cache.sadd(set_key, json.dumps(app_details))
 
     @staticmethod
     def _set_app_tag_as_deployed(app, tag):
         app_key = SiteDAL._get_deployed_app_key(app)
-        SiteDAL.cache.set(app_key, tag.name)
+
+        cache = SiteDAL.get_cache()
+        cache.set(app_key, tag.name)
 
     @staticmethod
     def is_deployed(app, tag):
-        deployed_tag = SiteDAL.cache.get(SiteDAL._get_deployed_app_key(app))
+        cache = SiteDAL.get_cache()
+        deployed_tag = cache.get(SiteDAL._get_deployed_app_key(app))
 
         return deployed_tag == tag.name
 
@@ -85,7 +96,8 @@ class SiteDAL(object):
         log.info('Registering site')
         log.info(json.dumps(site))
 
-        SiteDAL.cache.set(key, json.dumps(site))
+        cache = SiteDAL.get_cache()
+        cache.set(key, json.dumps(site))
 
     @staticmethod
     def _lower_keys(node):
@@ -96,16 +108,18 @@ class SiteDAL(object):
 
     @staticmethod
     def unregister_node(node):
+        cache = SiteDAL.get_cache()
+
         site = SiteDAL._get_site_as_json(node['site'])
         name = node['name'].lower()
         del site['nodes'][name]
 
         key = SiteDAL._get_site_cache_key(node['site'])
-        SiteDAL.cache.set(key, json.dumps(site))
+        cache.set(key, json.dumps(site))
 
         # If the site has no nodes left remove from cache
         if len(site['nodes']) == 0:
-            SiteDAL.cache.delete(key)
+            cache.delete(key)
 
     @staticmethod
     def _get_site_cache_key(name):
@@ -121,7 +135,8 @@ class SiteDAL(object):
             nodes: [{'name':{'name':value, 'site':value, 'url':value}}]}
         """
         name = name.lower()
-        site = SiteDAL.cache.get(SiteDAL._get_site_cache_key(name))
+        cache = SiteDAL.get_cache()
+        site = cache.get(SiteDAL._get_site_cache_key(name))
 
         if site:
             return json.loads(site)
@@ -137,7 +152,8 @@ class SiteDAL(object):
 
     @staticmethod
     def _all_site_keys():
-        site_keys = SiteDAL.cache.keys('site:*')
+        cache = SiteDAL.get_cache()
+        site_keys = cache.keys('site:*')
 
         log.info('Site Keys')
         log.info(site_keys)
@@ -198,11 +214,12 @@ class SiteDAL(object):
 
     @staticmethod
     def get_node_ips():
+        cache = SiteDAL.get_cache()
         ips = []
 
         for site in SiteDAL.get_sites():
             key = SiteDAL._get_site_cache_key(site)
-            site_obj = json.loads(SiteDAL.cache.get(key))
+            site_obj = json.loads(cache.get(key))
 
             for name, node in site_obj['nodes'].iteritems():
                 ips.append(node['ip'])
