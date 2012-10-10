@@ -5,7 +5,6 @@ var Service = {
     init: function() {
         this.compareURL = __compare_url;
         this.bindToUIActions();
-        this.bindToDataActions();
     },
 
     bindToUIActions: function() {

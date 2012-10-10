@@ -116,11 +116,12 @@
         </td>
     </tr>
 </table>
+{% endblock %}
+{% block scripts %}
 <script>
   __compare_url = "{{ service.get_compare_url() }}";
 </script>
 {{ [
-'/js/libs/jquery.js',
 '/js/common/util.js',
 '/js/services/service.js'
 ]|js_script|safe }}
