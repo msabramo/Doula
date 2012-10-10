@@ -13,7 +13,7 @@ import shutil
 # into memory from disk
 #################################
 
-prodjs_path = os.getcwd() + '/doula/static/prodjs'
+prodjs_path = os.path.dirname(os.path.realpath(__file__)) + '/../static/prodjs'
 production_js_filenames = {}
 
 
