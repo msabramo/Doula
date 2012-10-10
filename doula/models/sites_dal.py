@@ -140,10 +140,13 @@ class SiteDAL(object):
         """
         name = name.lower()
         cache = SiteDAL.get_cache()
-        site = cache.get(SiteDAL._get_site_cache_key(name))
+        site_as_json = cache.get(SiteDAL._get_site_cache_key(name))
 
-        if site:
-            return json.loads(site)
+        print 'SITE AS JSON'
+        print site_as_json
+
+        if site_as_json:
+            return json.loads(site_as_json)
         else:
             log.info('Unable to find site by name "{0}"'.format(name))
             return {'name': name, 'nodes': {}}

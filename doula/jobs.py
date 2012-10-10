@@ -19,7 +19,7 @@ import traceback
 import xmlrpclib
 
 
-def create_logger(job_id, level=logging.DEBUG):
+def create_logger(job_id, level=logging.INFO):
     logging.basicConfig(filename=os.path.join('/var/log/doula', str(job_id) + '.log'),
                         format='%(asctime)s %(levelname)-4s %(message)s',
                         level=level)
@@ -214,6 +214,8 @@ def push_service_environment(config={}, job_dict={}, debug=False):
             # raise Exception(','.join(failures['error']))
             raise Exception(failures[0]['error'])
 
+        # alextodo. here is where you would add the newly released packages
+        # as the default for the service
         logging.getLogger().setLevel(logging.DEBUG)
         create_logger(job_dict['id'])
         logging.info('Done installing packages.')

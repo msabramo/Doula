@@ -186,12 +186,12 @@ def service_release(request):
     service = get_service_from_url(request)
     packages = json.loads(request.POST['packages'])
 
-    job_id = enqueue_service_release(request, service, packages)
+    job_id = enqueue_release_service(request, service, packages)
 
     return dumps({'success': True, 'job_id': job_id})
 
 
-def enqueue_service_release(request, service, packages):
+def enqueue_release_service(request, service, packages):
     """
     Enqueue the job onto the queue
     """
