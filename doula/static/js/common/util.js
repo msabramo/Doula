@@ -83,6 +83,14 @@ var AJAXUtil = {
               url: url,
               type: type,
               data: this._getDataValues(params),
+              error: function() {
+                if(typeof(onFail) == 'function') {
+                    onFail(rslt);
+                }
+                else {
+                    AJAXUtil._showStandardErrorMessage(rslt);
+                }
+              },
               success: function(response) {
                   try {
                     if(msg) {

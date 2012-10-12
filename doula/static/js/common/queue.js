@@ -27,7 +27,6 @@ QueuedItems = {
 
         // Poll now and poll every second from now on
         this.poll();
-        window.setInterval($.proxy(this.poll, this), 1000);
     },
 
     /***************
@@ -72,7 +71,11 @@ QueuedItems = {
 
     poll: function() {
         this.queueFilters.job_ids = JSON.stringify(this.getJobIDs());
-        this.post('/queue', this.queueFilters, $.proxy(this.updateJobStatuses, this), null, false);
+        this.post('/queue',
+                  this.queueFilters,
+                  $.proxy(this.updateJobStatuses, this),
+                  $.proxy(this.failedJobUpdateStatus, this),
+                  false);
     },
 
     /**
@@ -80,6 +83,10 @@ QueuedItems = {
     */
     getJobIDs: function() {
         return $.map(this.jobsAndStatuses, function(value, key) {return key;} );
+    },
+
+    failedJobUpdateStatus: function() {
+        this.pollAgain();
     },
 
     /**
@@ -128,6 +135,15 @@ QueuedItems = {
             this.firstRun = false;
             this.showTheSelectedJobLog();
         }
+
+        this.pollAgain();
+    },
+
+    pollAgain: function() {
+        // Call poll again after the response
+        setTimeout($.proxy(function() {
+            this.poll();
+        }, this), 1000);
     },
 
     showTheSelectedJobLog: function() {

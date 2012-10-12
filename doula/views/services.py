@@ -216,6 +216,7 @@ def enqueue_release_service(request, service, packages):
         'user_id': request.user['username'],
         'job_type': 'push_service_environment',
         'site_name_or_node_ip': ip,
+        'service': service.name,
         'service_name': service.name,
         'packages': pckgs,
         'site': service.site_name

@@ -12,6 +12,9 @@ def get_log(job_id):
     log = ''
     log_name = os.path.join('/var/log/doula', job_id + '.log')
 
+    if not os.path.isfile(log_name):
+        return ''
+
     with open(log_name) as log_file:
         log = log_file.read()
 

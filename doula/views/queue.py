@@ -49,12 +49,6 @@ def search_queue(request):
     # sort all of the items with respect to time
     queued_items = sorted(queued_items, key=lambda k: k['time_started'])
 
-    # for item in queued_items:
-    #     if item['status'] == 'failed':
-    #         print 'QUEUED ITESM'
-    #         print item
-    #         print "\n\n"
-
     return {
         'success': True,
         'queuedItems': queued_items

@@ -49,7 +49,7 @@
                     <strong>{{ queued_item['service_name'] }}</strong> on
                     <strong>{{ queued_item['site'] }}</strong>.
                 {% elif queued_item['status'] == 'complete' %}
-                    <strong>{{ queued_item['user_id'] }}</strong> released service
+                    <strong>{{ queued_item['user_id'] }}</strong> released and cycled service
                     <strong>{{ queued_item['service_name'] }}</strong> on
                     <strong>{{ queued_item['site'] }}</strong>.
                 {% elif queued_item['status'] == 'queued' %}
