@@ -7,6 +7,7 @@ QueuedItems = {
     jobQueueCount: 0,
     jobsAndStatuses: {},
     queueFilters: {},
+    pollInterval: 1000,
 
     init: function(kwargs) {
         _mixin(this, AJAXUtil);
@@ -14,10 +15,12 @@ QueuedItems = {
 
         this.queueFilters = __queueFilters;
 
-        // The queue shows the jobs by default. No need to ajax.
         // If a service name exist, then you'll need to show all the jobs
         // from the first poll request
-        if (this.queueFilters.service) this.limitInitialQueueItems = true;
+        if (this.queueFilters.service) {
+            this.pollInterval = 3000;
+            this.limitInitialQueueItems = true;
+        }
 
         this.bindToUIActions();
     },
