@@ -1,10 +1,11 @@
+from doula.cache import Cache
 from doula.models.service import Service
+from doula.models.sites_dal import SiteDAL
 from doula.util import *
 from fabric.api import *
 from git import *
-from doula.cache import Cache
-import simplejson as json
 import logging
+import simplejson as json
 import traceback
 
 # Defines the Data Models for Doula and Bambino.
@@ -37,7 +38,21 @@ class Node(object):
         """
         Return the services for this node as json
         """
-        return pull_url(self.url + '/services')
+        try:
+            return pull_url(self.url + '/services', 1.5)
+        except Exception as e:
+            # If we're not able to contact a bambino we unregister
+            # the bambino. The Bambino will need to re register itself.
+            # when it come back online
+            # unregister needs a dict with node name and site only
+            node = {'site': self.site_name, 'name': self.name}
+            SiteDAL.unregister_node(node)
+
+            vals = (self.url + '/services', e.message)
+            msg = 'Unable to contact Bambino at %s because of error %s' % vals
+            log.error(msg)
+
+            return None
 
     def load_services(self):
         """
@@ -71,6 +86,8 @@ class Node(object):
 
         if not services_as_json:
             services_as_json = self.pull_services()
-            cache.set('node:services:' + self.name_url, services_as_json)
+
+            if services_as_json:
+                cache.set('node:services:' + self.name_url, services_as_json)
 
         return services_as_json

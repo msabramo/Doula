@@ -14,7 +14,7 @@ class Cache(object):
 
     @staticmethod
     def connect(host, port, db):
-        host = host or 'localhost'
+        host = host or '127.0.0.1'
         port = port or 6379
 
         try:

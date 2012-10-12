@@ -45,11 +45,11 @@ def comparable_name(name):
     return name
 
 
-def pull_url(url):
+def pull_url(url, timeout=3.0):
     """
     Pull the URL text. Always raise the status error.
     """
-    r = requests.get(url, timeout=5.0)
+    r = requests.get(url, timeout=timeout)
     # If the response is non 200, we raise an error
     r.raise_for_status()
     return r.text

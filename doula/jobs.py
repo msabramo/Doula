@@ -11,11 +11,12 @@ from doula.models.sites_dal import SiteDAL
 from doula.queue import Queue
 from doula.cheese_prism import CheesePrism
 from doula.util import *
-import simplejson as json
 import logging
 import os
+import simplejson as json
 import time
 import traceback
+import uuid
 import xmlrpclib
 
 
@@ -214,11 +215,15 @@ def push_service_environment(config={}, job_dict={}, debug=False):
             # raise Exception(','.join(failures['error']))
             raise Exception(failures[0]['error'])
 
-        # alextodo. here is where you would add the newly released packages
-        # as the default for the service
         logging.getLogger().setLevel(logging.DEBUG)
         create_logger(job_dict['id'])
         logging.info('Done installing packages.')
+
+        # Update this site by pulling the latest data for the site
+        # Create a new job dict because we don't want logs mixed up
+        pull_bambino_data_job_dict = {'id': uuid.uuid1().hex}
+        pull_bambino_data(config, pull_bambino_data_job_dict)
+
         return successes, failures
     except Exception as e:
         logging.getLogger().setLevel(logging.DEBUG)
