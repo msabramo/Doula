@@ -1,5 +1,6 @@
 from datetime import datetime
 from doula.cache import Cache
+from doula.cheese_prism import CheesePrism
 from doula.config import Config
 from doula.github import pull_appenv_repos
 from doula.github import pull_devmonkeys_repos
@@ -9,7 +10,6 @@ from doula.models.push import Push
 from doula.models.service import Service
 from doula.models.sites_dal import SiteDAL
 from doula.queue import Queue
-from doula.cheese_prism import CheesePrism
 from doula.util import *
 import logging
 import os
@@ -118,6 +118,9 @@ def pull_cheeseprism_data(config={}, job_dict={}):
 
         pipeline.execute()
 
+        # always remove maintenance jobs from the queue
+        Queue().remove(job_dict['id'])
+
         logging.info('Done pulling data from cheeseprism')
     except Exception as e:
         logging.error(e.message)
@@ -148,6 +151,9 @@ def pull_github_data(config={}, job_dict={}):
 
         pipeline.execute()
 
+        # always remove maintenance jobs from the queue
+        Queue().remove(job_dict['id'])
+
         logging.info('Done pulling github data')
     except Exception as e:
         logging.error(e.message)
@@ -168,6 +174,9 @@ def pull_appenv_github_data(config={}, job_dict={}, debug=False):
         cache = Cache.cache()
         repos = pull_appenv_repos()
         cache.set("repos:appenvs", dumps(repos))
+
+        # always remove maintenance jobs from the queue
+        Queue().remove(job_dict['id'])
 
         logging.info('Done pulling github appenv data')
     except Exception as e:
@@ -256,6 +265,10 @@ def pull_bambino_data(config={}, job_dict={}):
                 pipeline.set('node:services:' + node.name_url, services_as_json)
 
         pipeline.execute()
+
+        # always remove maintenance jobs from the queue
+        Queue().remove(job_dict['id'])
+
         logging.info('Done pulling bambino data')
     except Exception as e:
         logging.error(e.message)
