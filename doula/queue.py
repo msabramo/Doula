@@ -91,7 +91,7 @@ class Queue(object):
 
     def __init__(self):
         # Initialize redis database
-        self.rdb = redis.Redis()
+        self.redis = redis.Redis()
 
         # Initialize the QueueManager
         self.qm = QueueManager(default_queue_name=self.default_queue_name)
@@ -127,7 +127,7 @@ class Queue(object):
         job_dict['time_started'] = time.time()
         job_type = job_dict['job_type']
 
-        p = self.rdb.pipeline()
+        p = self.redis.pipeline()
 
         self.qm.enqueue('doula.jobs:%s' % job_type, config=self.get_config(), job_dict=job_dict)
         self._save(p, job_dict)
@@ -167,7 +167,7 @@ class Queue(object):
         if not 'id' in job_dict:
             raise Exception('Must pass an id into the update function.')
 
-        p = self.rdb.pipeline()
+        p = self.redis.pipeline()
         job_dict = self._update(p, job_dict)
         p.execute()
 
@@ -177,7 +177,7 @@ class Queue(object):
         if isinstance(job_dict_ids, basestring):
             job_dict_ids = [job_dict_ids]
 
-        p = self.rdb.pipeline()
+        p = self.redis.pipeline()
         self._remove_jobs(p, job_dict_ids)
         p.execute()
 
@@ -192,7 +192,9 @@ class Queue(object):
     def _get_jobs(self):
         # Combine the two job locations
         k = self._keys()
-        jobs_json = self.rdb.smembers(k['jobs'])
+        # print 'HELLO KEYS'
+        # print k
+        jobs_json = self.redis.smembers(k['jobs'])
 
         # Created a list of all of the jobs(dict)
         jobs = []

@@ -272,7 +272,19 @@ def job_expired(job):
     now = datetime.now()
     now = time.mktime(now.timetuple())
 
-    if job['status'] == 'complete' and job['time_started'] < (now - 4320):
+    # The maintenance jobs always get popped off
+    maintenance_job_types = [
+        'cleanup_queue',
+        'pull_cheeseprism_data',
+        'pull_github_data',
+        'pull_bambino_data',
+        'pull_appenv_github_data',
+        ]
+
+    if job['job_type'] in maintenance_job_types:
+        print 'gonna pop this one off'
+        return True
+    elif job['status'] == 'complete' and job['time_started'] < (now - 4320):
         return True
     elif job['time_started'] < (now - 7200):
         return True
@@ -293,10 +305,6 @@ def cleanup_queue(config={}, job_dict={}):
     load_config(config)
 
     try:
-        # alextodo. something is going wrong on production.
-        # there are never any jobs in the queue when this runs.
-        return 0;
-
         logging.info('Cleaning up the queue')
 
         queue = Queue()

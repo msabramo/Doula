@@ -7,7 +7,7 @@ QueuedItems = {
     jobQueueCount: 0,
     jobsAndStatuses: {},
     queueFilters: {},
-    pollInterval: 1000,
+    pollInterval: 7000,
 
     init: function(kwargs) {
         _mixin(this, AJAXUtil);
@@ -18,7 +18,7 @@ QueuedItems = {
         // If a service name exist, then you'll need to show all the jobs
         // from the first poll request
         if (this.queueFilters.service) {
-            this.pollInterval = 3000;
+            this.pollInterval = 1000;
             this.limitInitialQueueItems = true;
         }
 
@@ -146,7 +146,7 @@ QueuedItems = {
         // Call poll again after the response
         setTimeout($.proxy(function() {
             this.poll();
-        }, this), 1000);
+        }, this), this.pollInterval);
     },
 
     showTheSelectedJobLog: function() {
