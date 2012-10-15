@@ -39,7 +39,7 @@ class Node(object):
         Return the services for this node as json
         """
         try:
-            return pull_url(self.url + '/services', 2.5)
+            return pull_url(self.url + '/services', 7.5)
         except Exception as e:
             # If we're not able to contact a bambino we unregister
             # the bambino. The Bambino will need to re register itself.
