@@ -1,4 +1,3 @@
-from datetime import datetime
 from doula.cache import Cache
 from doula.cheese_prism import CheesePrism
 from doula.config import Config
@@ -282,8 +281,7 @@ def job_expired(job):
     pulled off the queue. For completed jobs it's 3 days, for failed or
     queued jobs it's 5 days
     """
-    now = datetime.now()
-    now = time.mktime(now.timetuple())
+    now = time.time()
 
     # The maintenance jobs always get popped off
     maintenance_job_types = [
@@ -296,9 +294,9 @@ def job_expired(job):
 
     if job['job_type'] in maintenance_job_types:
         return True
-    elif job['status'] == 'complete' and job['time_started'] < (now - 4320):
+    elif job['status'] == 'complete' and job['time_started'] < (now - 259200):
         return True
-    elif job['time_started'] < (now - 7200):
+    elif job['time_started'] < (now - 432000):
         return True
     else:
         return False
