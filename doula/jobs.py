@@ -282,7 +282,6 @@ def job_expired(job):
         ]
 
     if job['job_type'] in maintenance_job_types:
-        print 'gonna pop this one off'
         return True
     elif job['status'] == 'complete' and job['time_started'] < (now - 4320):
         return True

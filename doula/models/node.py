@@ -39,7 +39,7 @@ class Node(object):
         Return the services for this node as json
         """
         try:
-            return pull_url(self.url + '/services', 1.5)
+            return pull_url(self.url + '/services', 2.5)
         except Exception as e:
             # If we're not able to contact a bambino we unregister
             # the bambino. The Bambino will need to re register itself.
@@ -84,7 +84,7 @@ class Node(object):
         cache = Cache.cache()
         services_as_json = cache.get('node:services:' + self.name_url)
 
-        if not services_as_json:
+        if services_as_json == None or services_as_json == 'None':
             services_as_json = self.pull_services()
 
             if services_as_json:
