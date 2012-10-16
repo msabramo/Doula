@@ -44,7 +44,7 @@ var ServiceEnv = {
 			on('change', $.proxy(this.updatePackageDropdownOnChange, this));
 
 		// Queue stuff
-		QueuedItems.subscribe(
+		QueueView.subscribe(
 			'queue-item-changed',
 			$.proxy(this.queueItemChanged, this));
 	},

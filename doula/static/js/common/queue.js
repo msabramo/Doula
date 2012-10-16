@@ -1,4 +1,4 @@
-QueuedItems = {
+QueueView = {
 
     // The maximum number of jobs shown for a service
     MAX_SERVICE_JOB_COUNT: 3,
@@ -93,44 +93,44 @@ QueuedItems = {
     },
 
     /**
-    *   Add new queue items to the web page. Here is where we update the queue-jobs element.
+    *   Add new queue jobs to the web page. Here is where we update the queue-jobs element.
     *   Any status changes to jobs will appear here.
     */
     updateJobStatuses: function(data) {
         var jobIDs = this.getJobIDs();
 
-        if (data.queuedItems.length) $('#no-queue-items-warning').hide();
+        if (data.jobs.length) $('#no-queue-items-warning').hide();
 
-        $.each(data.queuedItems.reverse(), $.proxy(function(index, item) {
+        $.each(data.jobs.reverse(), $.proxy(function(index, job) {
             if (jobIDs.length) {
                 // We've already added the jobs to the web page. Only add new and updated jobs
-                if (jobIDs.indexOf(item.id) > -1) {
+                if (jobIDs.indexOf(job.id) > -1) {
                     // Job's been tracked. only add if the status has changed.
-                    if (this.jobsAndStatuses[item.id] != item.status) {
-                        $("#queue-jobs .queued_item[data-id='" + item.id + "']").replaceWith(item.html);
-                        QueuedItems.publish('queue-item-changed', item);
+                    if (this.jobsAndStatuses[job.id] != job.status) {
+                        $("#queue-jobs .queued_item[data-id='" + job.id + "']").replaceWith(job.html);
+                        QueueView.publish('queue-item-changed', job);
                     }
                 }
                 else {
                     // Jobs never been tracked. Add it as a new job
-                    $('#queue-jobs').prepend(item.html);
+                    $('#queue-jobs').prepend(job.html);
                 }
 
                 // Update jobs and statuses array
-                this.jobsAndStatuses[item.id] = item.status;
+                this.jobsAndStatuses[job.id] = job.status;
             }
             else {
                 // Adding jobs to the web page for the first time.
                 // Only services show the initial poll request.
                 if (this.jobQueueCount < this.MAX_SERVICE_JOB_COUNT || !this.limitInitialQueueItems) {
-                    if (!this.jobsAndStatuses[item.id]) {
-                        $('#queue-jobs').append(item.html);
+                    if (!this.jobsAndStatuses[job.id]) {
+                        $('#queue-jobs').append(job.html);
                         this.jobQueueCount += 1;
                     }
                 }
 
                 // Update jobs and statuses array
-                this.jobsAndStatuses[item.id] = item.status;
+                this.jobsAndStatuses[job.id] = job.status;
             }
         }, this));
 
@@ -158,5 +158,5 @@ QueuedItems = {
 };
 
 $(document).ready(function() {
-    QueuedItems.init();
+    QueueView.init();
 });

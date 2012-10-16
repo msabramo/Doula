@@ -20,17 +20,13 @@ def search_queue(request):
     """
     Search for the latest jobs on the queue
     """
-    service = False
-
-    if request.params.getone('service'):
-        service = request.params.getone('service')
-
+    service = get_service_for_query(request)
     jobs_started_after = int(request.params.getone('jobs_started_after'))
     job_ids = json.loads(request.params.getone('job_ids'))
 
-    queued_items = []
+    jobs = []
 
-    for item in pull_queued_items(request):
+    for item in query_queue(request):
         # Only return the job if a new item (the start time is after the
         # jobs_started_after time value) or the job is listed in the
         # jobs_and_statuses dictionary
@@ -44,18 +40,25 @@ def search_queue(request):
                 item['html'] = render('doula:templates/queue/queued_item.html',
                                       {'queued_item': item})
 
-                queued_items.append(item)
+                jobs.append(item)
 
-    # sort all of the items with respect to time
-    queued_items = sorted(queued_items, key=lambda k: k['time_started'])
+    # sort jobs with respect to time
+    jobs = sorted(jobs, key=lambda k: k['time_started'])
 
     return {
         'success': True,
-        'queuedItems': queued_items
+        'jobs': jobs
     }
 
 
-def pull_queued_items(request):
+def get_service_for_query(request):
+    if request.params.getone('service'):
+        return request.params.getone('service')
+    else:
+        return False
+
+
+def query_queue(request):
     query = {
         'job_type': [
             'push_to_cheeseprism',

@@ -91,7 +91,7 @@ class Queue(object):
 
     def __init__(self):
         # Initialize redis database
-        self.redis = redis.Redis()
+        self.redis = Cache.cache()
 
         # Initialize the QueueManager
         self.qm = QueueManager(default_queue_name=self.default_queue_name)
@@ -139,29 +139,7 @@ class Queue(object):
         """
         Load the config from redis
         """
-        cache = Cache.cache()
-        return json.loads(cache.get('doula:settings'))
-
-    def get(self, job_dict={}):
-        """
-        Find the jobs that meet criteria sent in the job_dict
-        """
-        jobs = self._get_jobs()
-
-        # Loop through each criteria, throw out the jobs that don't meet
-        for job in list(jobs):
-            for k, v in job_dict.items():
-                try:
-                    if isinstance(v, basestring):
-                        if job[k] != v:
-                            jobs.remove(job)
-                    elif type(v) == list:
-                        if not job[k] in v:
-                            jobs.remove(job)
-                except (KeyError, ValueError):
-                    continue
-
-        return jobs
+        return json.loads(self.redis.get('doula:settings'))
 
     def update(self, job_dict):
         if not 'id' in job_dict:
@@ -254,6 +232,34 @@ class Queue(object):
             return job_dict
         else:
             return False
+
+    #######################
+    # Query Section of Queue
+    #######################
+
+    def has_query_bucket(self, bucket_id):
+        pass
+
+    def get(self, job_dict={}):
+        """
+        Find the jobs that meet criteria sent in the job_dict
+        """
+        jobs = self._get_jobs()
+
+        # Loop through each criteria, throw out the jobs that don't meet
+        for job in list(jobs):
+            for k, v in job_dict.items():
+                try:
+                    if isinstance(v, basestring):
+                        if job[k] != v:
+                            jobs.remove(job)
+                    elif type(v) == list:
+                        if not job[k] in v:
+                            jobs.remove(job)
+                except (KeyError, ValueError):
+                    continue
+
+        return jobs
 
 
 #
