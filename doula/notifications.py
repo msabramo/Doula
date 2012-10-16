@@ -114,14 +114,20 @@ def send_notification(job_dict, exception=None):
     which are push to cheese prism, cycle services and release service
     """
     try:
-        if job_dict['job_type'] in ['push_to_cheeseprism', 'cycle_services', 'push_service_environment']:
-            email_list = build_email_list(job_dict)
+        if job_dict:
+            emailable_jobs = [
+                'push_to_cheeseprism',
+                'cycle_services',
+                'push_service_environment']
 
-            if len(email_list) > 0:
-                if job_dict['status'] == 'complete':
-                    email_success(email_list, job_dict)
-                elif job_dict['status'] == 'failed':
-                    email_fail(email_list, job_dict, exception)
+            if job_dict['job_type'] in emailable_jobs:
+                email_list = build_email_list(job_dict)
+
+                if len(email_list) > 0:
+                    if job_dict['status'] == 'complete':
+                        email_success(email_list, job_dict)
+                    elif job_dict['status'] == 'failed':
+                        email_fail(email_list, job_dict, exception)
     except Exception as e:
         # error trying to notify user
         subject = 'Error notifying user: ' + e.message
