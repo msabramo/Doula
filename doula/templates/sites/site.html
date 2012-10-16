@@ -38,25 +38,23 @@
   {% set service = key_val_pair[1] %}
 
   <div class="accordion-group">
-    <div class="accordion-heading group">
-      <a id="link_{{ service.name_url }}" class="accordion-toggle accord-title"
-      title="{{ service.get_status()|get_friendly_status_explanation }}" rel="tooltip"
-      data-parent="#sites-accordion" href="#collapse_{{ service.name_url }}"
-      {% if service.status.startswith('change_to') %}
-        data-toggle="do_not_collapse"
-      {% else %}
-        data-toggle="do_not_collapse"
-      {% endif %} >
+    <div class="accordion-heading group service-title-bar">
+      <span id="link_{{ service.name_url }}"
+      class="accordion-toggle accord-title"
+      title="{{ service.get_status()|get_friendly_status_explanation }}"
+      rel="tooltip">
         <span class="{{ service.get_status()|get_status_class }}"></span>
         {{ service.name }}
-      </a>
+      </span>
+    </div>
 
-      <a href="/sites/{{ site.name_url }}/{{ service.name_url }}" class="accord-link">
+      <div style="display: block;" class="group">
+      <a href="/sites/{{ site.name_url }}/{{ service.name_url }}" class="admin-action-link accord-link ">
         Admin Actions
       </a>
 
       <a href="/sites/{{ site.name_url }}/{{ service.name_url }}/details"
-      class="accord-link">
+      class="accord-link service-details-link">
         Service Details
       </a>
     </div>

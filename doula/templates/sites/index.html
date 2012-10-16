@@ -11,7 +11,7 @@
         <a href="/sites/{{ site.name_url }}" rel="tooltip"
           title="{{ site.get_status()|get_friendly_status_explanation('site') }}">
           <span class="{{ site.get_status()|get_status_class }}"></span>
-          <strong>{{ site.name|upper }}</strong>
+          <strong class="site-title">{{ site.name|upper }}</strong>
         </a>
       </li>
     {% endif %}
