@@ -7,13 +7,17 @@ QueueView = {
     jobQueueCount: 0,
     jobsAndStatuses: {},
     queueFilters: {},
-    pollInterval: 7000,
+    bucket_id: 0,
+    last_updated: 0,
+    pollInterval: 2000,
 
     init: function(kwargs) {
         _mixin(this, AJAXUtil);
         _mixin(this, DataEventManager);
 
         this.queueFilters = __queueFilters;
+        this.queueFilters.bucket_id = this.bucket_id;
+        this.queueFilters.last_updated = this.last_updated;
 
         // If a service name exist, then you'll need to show all the jobs
         // from the first poll request
@@ -97,42 +101,46 @@ QueueView = {
     *   Any status changes to jobs will appear here.
     */
     updateJobStatuses: function(data) {
-        var jobIDs = this.getJobIDs();
+        if (data.has_changed) {
+            this.queueFilters.bucket_id = data.query_bucket.id;
+            this.queueFilters.last_updated = data.query_bucket.last_updated;
 
-        if (data.jobs.length) $('#no-queue-items-warning').hide();
+            var jobIDs = this.getJobIDs();
+            if (data.query_bucket.jobs.length) $('#no-queue-items-warning').hide();
 
-        $.each(data.jobs.reverse(), $.proxy(function(index, job) {
-            if (jobIDs.length) {
-                // We've already added the jobs to the web page. Only add new and updated jobs
-                if (jobIDs.indexOf(job.id) > -1) {
-                    // Job's been tracked. only add if the status has changed.
-                    if (this.jobsAndStatuses[job.id] != job.status) {
-                        $("#queue-jobs .queued_item[data-id='" + job.id + "']").replaceWith(job.html);
-                        QueueView.publish('queue-item-changed', job);
+            $.each(data.query_bucket.jobs.reverse(), $.proxy(function(index, job) {
+                if (jobIDs.length) {
+                    // We've already added the jobs to the web page. Only add new and updated jobs
+                    if (jobIDs.indexOf(job.id) > -1) {
+                        // Job's been tracked. only add if the status has changed.
+                        if (this.jobsAndStatuses[job.id] != job.status) {
+                            $("#queue-jobs .queued_item[data-id='" + job.id + "']").replaceWith(job.html);
+                            QueueView.publish('queue-item-changed', job);
+                        }
                     }
+                    else {
+                        // Jobs never been tracked. Add it as a new job
+                        $('#queue-jobs').prepend(job.html);
+                    }
+
+                    // Update jobs and statuses array
+                    this.jobsAndStatuses[job.id] = job.status;
                 }
                 else {
-                    // Jobs never been tracked. Add it as a new job
-                    $('#queue-jobs').prepend(job.html);
-                }
-
-                // Update jobs and statuses array
-                this.jobsAndStatuses[job.id] = job.status;
-            }
-            else {
-                // Adding jobs to the web page for the first time.
-                // Only services show the initial poll request.
-                if (this.jobQueueCount < this.MAX_SERVICE_JOB_COUNT || !this.limitInitialQueueItems) {
-                    if (!this.jobsAndStatuses[job.id]) {
-                        $('#queue-jobs').append(job.html);
-                        this.jobQueueCount += 1;
+                    // Adding jobs to the web page for the first time.
+                    // Only services show the initial poll request.
+                    if (this.jobQueueCount < this.MAX_SERVICE_JOB_COUNT || !this.limitInitialQueueItems) {
+                        if (!this.jobsAndStatuses[job.id]) {
+                            $('#queue-jobs').append(job.html);
+                            this.jobQueueCount += 1;
+                        }
                     }
-                }
 
-                // Update jobs and statuses array
-                this.jobsAndStatuses[job.id] = job.status;
-            }
-        }, this));
+                    // Update jobs and statuses array
+                    this.jobsAndStatuses[job.id] = job.status;
+                }
+            }, this));
+        }
 
         if (this.firstRun) {
             this.firstRun = false;

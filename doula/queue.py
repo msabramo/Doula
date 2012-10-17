@@ -3,10 +3,10 @@ from doula.notifications import send_notification
 from retools.queue import QueueManager
 import simplejson as json
 import logging
-import redis
 import time
 import traceback
 import uuid
+import math
 
 
 class Queue(object):
@@ -133,6 +133,9 @@ class Queue(object):
         self._save(p, job_dict)
         p.execute()
 
+        # Anytime a job is added we update the buckets
+        self.update_buckets()
+
         return job_dict['id']
 
     def get_config(self):
@@ -170,8 +173,6 @@ class Queue(object):
     def _get_jobs(self):
         # Combine the two job locations
         k = self._keys()
-        # print 'HELLO KEYS'
-        # print k
         jobs_json = self.redis.smembers(k['jobs'])
 
         # Created a list of all of the jobs(dict)
@@ -237,8 +238,67 @@ class Queue(object):
     # Query Section of Queue
     #######################
 
-    def has_query_bucket(self, bucket_id):
-        pass
+    # alextodo. put together tests for this ish. make it work.
+    # publish by 10 am.
+
+    def has_bucket_changed(self, bucket_id, last_updated_for_bucket):
+        last_updated = self.redis.get('doula.query.bucket.last_updated:' + bucket_id)
+        self.extend_bucket_expiration(bucket_id)
+
+        if not last_updated:
+            last_updated = 1
+
+        last_updated = int(math.floor(float(last_updated)))
+        last_updated_for_bucket = int(math.floor(float(last_updated_for_bucket)))
+
+        if int(math.floor(last_updated_for_bucket)) < int(math.floor(last_updated)):
+            return True
+        else:
+            return False
+
+    def extend_bucket_expiration(self, bucket_id):
+        """
+        Every query extends the life of the bucket for 5 minutes
+        """
+        self.redis.expire('doula.query.bucket:' + bucket_id, 30)
+        self.redis.expire('doula.query.bucket.last_updated:' + bucket_id, 30)
+
+    def get_query_bucket(self, bucket_id, query):
+        """
+        Check if a bucket exist under the ID, if so return it,
+        otherwise build and return the new query bucket
+        """
+        bucket = None
+
+        if bucket_id:
+            bucket_as_json = self.redis.get('doula.query.bucket:' + bucket_id)
+
+            if bucket_as_json:
+                bucket = json.loads(bucket_as_json)
+
+        if not bucket:
+            # build a bucket and save it
+            bucket = {
+                "id": uuid.uuid1().hex,
+                "query": query,
+                "last_updated": time.time(),
+                "jobs": self.get(query)
+            }
+
+            self.save_bucket_cache_values(bucket)
+
+        return bucket
+
+    def save_bucket_cache_values(self, bucket):
+        """
+        Add the bucket to the list of buckets and save it's last_updated time
+        and save the bucket as json
+        """
+        self.redis.sadd('doula.query.buckets', bucket['id'])
+        self.redis.set('doula.query.bucket:' + bucket['id'], json.dumps(bucket))
+        self.redis.set('doula.query.bucket.last_updated:' + bucket['id'], bucket['last_updated'])
+
+        self.extend_bucket_expiration(bucket['id'])
 
     def get(self, job_dict={}):
         """
@@ -261,6 +321,22 @@ class Queue(object):
 
         return jobs
 
+    def update_buckets(self):
+        """
+        Update all the buckets in the 'doula.query.buckets' set with newest details
+        """
+        for bucket_id in self.redis.smembers('doula.query.buckets'):
+            bucket_as_json = self.redis.get('doula.query.bucket:' + bucket_id)
+
+            if bucket_as_json:
+                bucket = json.loads(bucket_as_json)
+                bucket["last_updated"] = time.time()
+                bucket["jobs"] = self.get(bucket["query"])
+                self.save_bucket_cache_values(bucket)
+            else:
+                # bucket expired. remove from doula.query.buckets set
+                self.redis.srem("doula.query.buckets", bucket_id)
+
 
 #
 # Retools Subscribers
@@ -269,14 +345,19 @@ def add_result(job=None, result=None):
     """
     Subscriber that gets called right after the job gets run, and is successful.
     """
-    queue = Queue()
-
-    job_dict = queue.update({'id': job.kwargs['job_dict']['id'], 'status': 'complete'})
     print "\n SUCCESSFUL JOB\N"
-    print job_dict
+    print job.kwargs['job_dict']
 
-    # Notify user of successful job
-    send_notification(job_dict)
+    if can_update_job(job.kwargs['job_dict']['job_type']):
+        queue = Queue()
+
+        job_dict = queue.update({'id': job.kwargs['job_dict']['id'], 'status': 'complete'})
+
+        # Update the buckets with the newest details
+        queue.update_buckets()
+
+        # Notify user of successful job
+        send_notification(job_dict)
 
 
 def add_failure(job=None, exc=None):
@@ -290,12 +371,29 @@ def add_failure(job=None, exc=None):
     print exc
     print tb
 
-    queue = Queue()
-    job_dict = queue.update({
-        'exc': tb,
-        'status': 'failed',
-        'id': job.kwargs['job_dict']['id']
-    })
+    if can_update_job(job.kwargs['job_dict']['job_type']):
+        queue = Queue()
+        job_dict = queue.update({
+            'exc': tb,
+            'status': 'failed',
+            'id': job.kwargs['job_dict']['id']
+        })
 
-    # Notify user of failed job
-    send_notification(job_dict, tb)
+        queue.update_buckets()
+
+        # Notify user of failed job
+        send_notification(job_dict, tb)
+
+
+def can_update_job(job_type):
+    """
+    Determines if the job can be updated by according to its type
+    We never have to update the maintenance_job_types
+    """
+    updateable_job_types = [
+        'push_to_cheeseprism',
+        'cycle_services',
+        'push_service_environment'
+        ]
+
+    return job_type in updateable_job_types
