@@ -13,6 +13,12 @@ class PythonPackage(object):
         self.clean_name = comparable_name(self.name)
         self.versions = versions
 
+    def get_last_version(self):
+        """
+        Get the latest version in the versions list
+        """
+        return "1.3.change"
+
 
 class CheesePrism(object):
     """

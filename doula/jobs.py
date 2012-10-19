@@ -232,6 +232,9 @@ def push_service_environment(config={}, job_dict={}, debug=False):
         pull_bambino_data_job_dict = {'id': uuid.uuid1().hex}
         pull_bambino_data(config, pull_bambino_data_job_dict)
 
+        # Cycle the service after releasing the service
+        cycle_services(config, job_dict)
+
         return successes, failures
     except Exception as e:
         logging.getLogger().setLevel(logging.DEBUG)

@@ -70,6 +70,7 @@ def main(global_config, **settings):
 
     config.add_route('queue', '/queue')
     config.add_route('settings', '/settings')
+    config.add_route('packages', '/packages')
 
     config.add_route('bambino_register', '/bambino/register')
     config.add_route('bambino_ips', '/bambino/ip_addresses')

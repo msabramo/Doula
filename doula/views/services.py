@@ -197,13 +197,10 @@ def enqueue_release_service(request, service, packages):
     """
     if Config.get('env') == 'prod':
         nodes = SiteDAL.nodes(service.site_name)
-
-        for node_name, node in nodes.iteritems():
-            if node['site'] == service.site_name:
-                ip = node['ip']
-                break
+        # alextodo. move to multinodes now
+        ips = [nodes[service.node_name]["ip"]]
     else:
-        ip = Config.get('doula.deploy.site')
+        ips = Config.get('doula.deploy.site')
 
     pckgs = []
 
@@ -213,13 +210,15 @@ def enqueue_release_service(request, service, packages):
     q = Queue()
 
     job_id = q.this({
-        'user_id': request.user['username'],
         'job_type': 'push_service_environment',
-        'site_name_or_node_ip': ip,
+        'nodes': [ips],
+        'packages': pckgs,
         'service': service.name,
         'service_name': service.name,
-        'packages': pckgs,
-        'site': service.site_name
+        'site': service.site_name,
+        'site_name_or_node_ip': ips,
+        'supervisor_service_names': service.supervisor_service_names,
+        'user_id': request.user['username']
     })
 
     # After we push the release. lets pull the latest release data again.
@@ -247,12 +246,12 @@ def enqueue_cycle_services(request, nodes, service):
     ips = [nodes[service.node_name]["ip"]]
 
     return Queue().this({
-        'user_id': request.user['username'],
         'job_type': 'cycle_services',
-        'site': service.site_name,
         'nodes': ips,
         'service': service.name,
-        'supervisor_service_names': service.supervisor_service_names
+        'site': service.site_name,
+        'supervisor_service_names': service.supervisor_service_names,
+        'user_id': request.user['username']
     })
 
 

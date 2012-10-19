@@ -24,7 +24,7 @@ class Package(object):
     """
     Represents a python package
     """
-    def __init__(self, name, version, remote):
+    def __init__(self, name, version, remote=''):
         self.name = name
         self.version = version
         self.remote = remote
@@ -52,6 +52,22 @@ class Package(object):
             self.tag(repo, new_version)
             self.push(repo, "origin")
             self.upload(repo)
+
+    @staticmethod
+    def get_sm_packages():
+        """
+        Pull all the survey monkey packages
+        """
+        sm_packages = []
+        all_python_packages = CheesePrism.all_packages()
+
+        for python_package in all_python_packages:
+            sm_package = Package(python_package.name, python_package.get_last_version())
+
+            if sm_package.get_github_info():
+                sm_packages.append(sm_package)
+
+        return sm_packages
 
     @contextmanager
     def repo(self, branch):

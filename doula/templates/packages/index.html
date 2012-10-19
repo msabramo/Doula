@@ -1,0 +1,85 @@
+{% extends 'layouts/base.html' %}
+{% import 'queue/queued_item.html' as queued_item_tmpl %}
+
+{% block content %}
+<div class="title-bar clearfix">
+	<h2>
+    <a href="/packages">Packages</a>
+  </h2>
+</div>
+
+<!-- show released packages only -->
+{% include 'queue/queued_items.html' %}
+
+<div>
+
+<div class="accordion group" id="package-accordion">
+  <div class="accordion-group">
+    <div class="accordion-heading group sm-accordion-title packages-title-bar">
+      <a href="#" onclick="return false;" data-toggle="collapse"
+      data-target="#sm_packages_table">
+        All Survey Monkey Packages
+      </a>
+    </div>
+  </div>
+
+  <div id="sm_packages_table" class="accordion-body in collapse">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Package</th>
+        <th>Version</th>
+        <th> &nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- our packages first, the ones with the github repo data -->
+      {% for pckg in sm_packages|sort(attribute='name') %}
+
+      <tr>
+        <td width="20%">
+          <a href="#" onclick="return false;" rel="tooltip"
+          title="Click to see the Git commit history"
+          data-toggle="collapse"
+          data-target="#{{ pckg.name|replace(".", "") }}_git_info">
+          {{ pckg.name }}
+        </a>
+        </td>
+        <td width="80%">
+          <select id="pckg_select_{{ pckg.name }}" class="package-select">
+              <option value="{{ pckg.version }}" selected="selected" >
+                {{ pckg.version }}
+              </option>
+          </select>
+          <a class="btn sm-btn-success new-version-btn" data-name="{{pckg.name}}" href="#">
+            <i class="icon-chevron-right icon-white"></i> Build New Package
+          </a>
+          <div id="pckg_select_msg_{{ pckg.name }}" class="help-block">
+            Latest version {{ pckg.version }}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <!-- end sm_packages_table -->
+</div>
+</div>
+<!-- end package-accordion -->
+
+<!-- all the packages on cheese prism not in this service -->
+<div id="add-packages" class="modal hide">
+  <!-- fill in -->
+</div>
+<div id="push-to-cheese-modal" class="modal hide" style="width: 575px;">
+  <!-- fill in -->
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ [
+'/js/common/util.js',
+'/js/packages/packages.js'
+]|js_script|safe }}
+{% endblock %}
