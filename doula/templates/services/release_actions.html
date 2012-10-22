@@ -176,7 +176,7 @@
 <div id="add-packages" class="modal hide">
   <!-- fill in -->
 </div>
-<div id="push-to-cheese-modal" class="modal hide" style="width: 575px;">
+<div id="build-new-package-modal" class="modal hide" style="width: 575px;">
   <!-- fill in -->
 </div>
 {% endblock %}
@@ -194,10 +194,12 @@ var __queueFilters = {
   "sort_by": "all",
   "filter_by": "alljobs"
 };
+var __limitInitialQueueItems = true;
 </script>
 {{ [
 '/js/common/util.js',
 '/js/common/queue.js',
+'/js/packages/packages.js',
 '/js/services/service_data.js',
 '/js/services/service_environment.js'
 ]|js_script|safe }}

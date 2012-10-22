@@ -12,23 +12,21 @@
           accordion-group">
         <div class="accordion-heading like-a-link" data-toggle="collapse" data-target="#item_{{ queued_item['id'] }}">
 
-            {% if queued_item['job_type'] == 'push_to_cheeseprism' %}
+            {% if queued_item['job_type'] == 'build_new_package' %}
                 {% if queued_item['status'] == 'failed' %}
                     <strong>{{ queued_item['user_id'] }}'s</strong> job failed to build
                     <strong>{{ queued_item['package_name'] }}</strong> with the version number
-                    <strong>{{ queued_item['version'] }}</strong> on
-                    <strong>{{ queued_item['site'] }}</strong>.
+                    <strong>{{ queued_item['version'] }}</strong>.
                 {% elif queued_item['status'] == 'complete' %}
                     <strong>{{ queued_item['user_id'] }}</strong> built
                     <strong>{{ queued_item['package_name'] }}</strong> with the version number
-                    <strong>{{ queued_item['version'] }}</strong> on
-                    <strong>{{ queued_item['site'] }}</strong>.
+                    <strong>{{ queued_item['version'] }}</strong>.
                 {% elif queued_item['status'] == 'queued' %}
                     <strong>{{ queued_item['user_id'] }}</strong> is waiting to build
                     <strong>{{ queued_item['package_name'] }}</strong> with the version number
-                    <strong>{{ queued_item['version'] }}</strong> on
-                    <strong>{{ queued_item['site'] }}</strong>.
+                    <strong>{{ queued_item['version'] }}</strong>.
                 {% endif %}
+
             {% elif queued_item['job_type'] == 'cycle_services' %}
                 {% if queued_item['status'] == 'failed' %}
                     <strong>{{ queued_item['user_id'] }}'s</strong> job failed to cycle service
@@ -43,6 +41,7 @@
                     <strong>{{ queued_item['service'] }}</strong> on
                     <strong>{{ queued_item['site'] }}</strong>.
                 {% endif %}
+
             {% elif queued_item['job_type'] == 'push_service_environment' %}
                 {% if queued_item['status'] == 'failed' %}
                     <strong>{{ queued_item['user_id'] }}'s</strong> job failed to release service

@@ -1,8 +1,9 @@
 from contextlib import contextmanager
 from datetime import datetime
+from doula.cheese_prism import CheesePrism
 from doula.config import Config
 from doula.github import get_package_github_info
-from doula.cheese_prism import CheesePrism
+from doula.util import comparable_name
 from fabric.api import *
 from git import *
 from sets import Set
@@ -45,6 +46,15 @@ class Package(object):
         # Make sure no duplicates exist
         return [ver for ver in Set(versions)]
 
+    def get_current_version(self):
+        """
+        Return the current active package version
+        """
+        versions = self.get_versions()
+        versions.sort()
+
+        return versions[len(versions) - 1]
+
     def distribute(self, branch, new_version):
         with self.repo(branch) as repo:
             self.update_version(repo, new_version)
@@ -68,6 +78,17 @@ class Package(object):
                 sm_packages.append(sm_package)
 
         return sm_packages
+
+    @staticmethod
+    def get_sm_package_by_name(package_name):
+        package = False
+
+        for pckg in Package.get_sm_packages():
+            if comparable_name(pckg.name) == comparable_name(package_name):
+                package = pckg
+                break
+
+        return package
 
     @contextmanager
     def repo(self, branch):

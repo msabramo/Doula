@@ -28,7 +28,7 @@ class PackageTests(unittest.TestCase):
             'service': 'billweb',
             'branch': 'stwopay',
             'remote': 'git@code.corp.surveymonkey.com:devmonkeys/BillWeb.git',
-            'job_type': 'push_to_cheeseprism',
+            'job_type': 'build_new_package',
             'site': 'alexs-macbook-pro-4.local',
             'id': 'bc255ebaf6da11e1b07fb8f6b1191577'
         }

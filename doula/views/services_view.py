@@ -3,13 +3,11 @@ from doula.models.sites_dal import SiteDAL
 from doula.queue import Queue
 from doula.cheese_prism import CheesePrism
 from doula.util import *
-from doula.views.helpers import *
-from pyramid.renderers import render
+from doula.views.view_helpers import *
 from pyramid.response import Response
 from pyramid.view import view_config
 import math
 import logging
-import re
 import time
 
 log = logging.getLogger(__name__)
@@ -37,105 +35,6 @@ def service(request):
         'queued_items': [],
         'jobs_started_after': jobs_started_after
     }
-
-
-@view_config(route_name='service_cheese_prism_modal',
-    renderer="services/modal_push_package.html")
-def service_cheese_prism_modal(request):
-    service = get_service_from_url(request)
-    package = service.get_package_by_name(request.GET['name'])
-
-    versions = package.get_versions()
-    versions.sort()
-    versions.reverse()
-    current_version = versions[0]
-
-    return {
-        'service': service,
-        'package': package,
-        'current_version': current_version,
-        'next_version': next_version(current_version)
-    }
-
-
-@view_config(route_name='service_cheese_prism_push', renderer="string")
-def service_cheese_prism_push(request):
-    service = get_service_from_url(request)
-    package = service.get_package_by_name(request.GET['name'])
-
-    branch = request.GET['branch']
-    # The next version number is a combination of the actual version
-    # number and the name of the actual branch
-    next_version = request.GET['next_version'] + '-' + branch
-    remote = package.get_github_info()['ssh_url']
-
-    errors = validate_package_release(package, branch, next_version)
-
-    if len(errors) == 0:
-        job_dict = enqueue_push_package(request.user['username'],
-                                        service,
-                                        package,
-                                        remote,
-                                        branch,
-                                        next_version)
-    else:
-        msg = "There were errors attempting to release %s" % (service.name)
-        html = render('doula:templates/services/release_package_error.html',
-                {'msg': msg, 'errors': errors})
-
-        return dumps({'success': False, 'msg': msg, 'html': html})
-
-    return dumps({'success': True, 'job': job_dict})
-
-
-def validate_package_release(package, branch, next_version):
-    """
-    Validate that:
-        The version number does not already exists
-    """
-    errors = []
-    git_info = package.get_github_info()
-
-    if not next_version:
-        errors.append('Version number cannot be empty')
-
-    if next_version.find('@') > -1:
-        errors.append('You cannot include the "@" symbol in a version')
-
-    for tag in git_info['tags']:
-        # tags by doula are always prefixed with a v
-        # and test that it doesn't match without
-        tag_name = re.sub(r'^v', '', str(tag['name']))
-
-        if tag_name == next_version:
-            msg = "This package version (%s) already exists. "
-            msg += "Try another version."
-            msg = msg % next_version
-            errors.append(msg)
-
-    return errors
-
-
-def enqueue_push_package(user_id, service, package, remote, branch, version):
-    """
-    Enqueue the job onto the queue
-    """
-    job_dict = {
-        'user_id': user_id,
-        'site': service.site_name,
-        'service': service.name,
-        'package_name': package.name,
-        'remote': remote,
-        'branch': branch,
-        'version': version,
-        'job_type': 'push_to_cheeseprism'
-    }
-
-    q = Queue()
-    job_id = q.this(job_dict)
-    job_dict['id'] = job_id
-
-    return job_dict
 
 
 @view_config(route_name='service_details', renderer="services/service_details.html")
@@ -212,6 +111,7 @@ def enqueue_release_service(request, service, packages):
 
     q = Queue()
 
+    # todo: use service and service_name
     job_id = q.this({
         'job_type': 'push_service_environment',
         'nodes': [ip],

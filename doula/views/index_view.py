@@ -4,7 +4,7 @@ from doula.jobs_timer import start_task_scheduling
 from doula.models.sites_dal import SiteDAL
 from doula.queue import Queue
 from doula.util import *
-from doula.views.helpers import *
+from doula.views.view_helpers import *
 from pyramid.events import ApplicationCreated
 from pyramid.events import subscriber
 from pyramid.httpexceptions import HTTPFound

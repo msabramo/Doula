@@ -33,10 +33,10 @@ def load_config(config):
     Config.load_config(config)
 
 
-def push_to_cheeseprism(config={}, job_dict={}):
+def build_new_package(config={}, job_dict={}):
     """
     This function will be enqueued by Queue upon receiving a job dict that
-    has a job_type of 'push_to_cheeseprism'.  Upon being called, it will
+    has a job_type of 'build_new_package'.  Upon being called, it will
     updated the version present in the setup.py of the repo, and release the
     package to cheeseprism.
     """

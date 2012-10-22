@@ -21,9 +21,10 @@ QueueView = {
 
         // If a service name exist, then you'll need to show all the jobs
         // from the first poll request
-        if (this.queueFilters.service) {
+        this.limitInitialQueueItems = __limitInitialQueueItems;
+
+        if (this.limitInitialQueueItems) {
             this.pollInterval = 1000;
-            this.limitInitialQueueItems = true;
         }
 
         this.bindToUIActions();
@@ -129,6 +130,7 @@ QueueView = {
                 else {
                     // Adding jobs to the web page for the first time.
                     // Only services show the initial poll request.
+
                     if (this.jobQueueCount < this.MAX_SERVICE_JOB_COUNT || !this.limitInitialQueueItems) {
                         if (!this.jobsAndStatuses[job.id]) {
                             $('#queue-jobs').append(job.html);

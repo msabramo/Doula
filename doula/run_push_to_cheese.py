@@ -59,7 +59,7 @@ config = {
 
 # {'status': 'queued', 'user_id': 'alexv', 'time_started':
 # 1350516859.581536, 'package_name': 'dummycode', 'job_type':
-# 'push_to_cheeseprism', 'site': 'alexs-macbook-pro-6.local',
+# 'build_new_package', 'site': 'alexs-macbook-pro-6.local',
 # 'service': 'createweb', 'version': '2.7.103-test', 'branch':
 # 'test', 'remote': 'git@code.corp.surveymonkey.com:devmonkeys/dummycode.git',
 # 'id': '2c4a4a1c18b311e2ac8ab8f6b1191577', 'exc': ''}

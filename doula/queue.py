@@ -71,7 +71,7 @@ class Queue(object):
         'packages': []
     }.items() + common_dict.items())
 
-    push_to_cheeseprism_dict = dict({
+    build_new_package_dict = dict({
         'remote': '',
         'branch': 'master',
         'version': ''
@@ -79,7 +79,7 @@ class Queue(object):
 
     base_dicts = {
         'base': common_dict,
-        'push_to_cheeseprism': push_to_cheeseprism_dict,
+        'build_new_package': build_new_package_dict,
         'push_service_environment': push_service_environment_dict,
         'cycle_services': common_dict,
         'pull_cheeseprism_data': common_dict,
@@ -103,7 +103,7 @@ class Queue(object):
         Enqueues a job onto the retools queue
         """
         job_types = [
-            'push_to_cheeseprism',
+            'build_new_package',
             'push_service_environment',
             'cycle_services',
             'pull_cheeseprism_data',
@@ -391,7 +391,7 @@ def can_update_job(job_type):
     We never have to update the maintenance_job_types
     """
     updateable_job_types = [
-        'push_to_cheeseprism',
+        'build_new_package',
         'cycle_services',
         'push_service_environment'
         ]

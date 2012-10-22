@@ -23,7 +23,7 @@ def email_success(email_list, job_dict):
 
     subject = 'Doula Success: '
 
-    if job_dict['job_type'] == 'push_to_cheeseprism':
+    if job_dict['job_type'] == 'build_new_package':
         vals = (user['username'],
                 job_dict['package_name'],
                 job_dict['version'])
@@ -55,7 +55,7 @@ def email_fail(email_list, job_dict, exception):
 
     subject = 'Doula Failure: '
 
-    if job_dict['job_type'] == 'push_to_cheeseprism':
+    if job_dict['job_type'] == 'build_new_package':
         vals = (user['username'], job_dict['package_name'])
         subject += '%s\'s Job to Build Package %s Failed' % vals
     elif job_dict['job_type'] == 'cycle_services':
@@ -116,7 +116,7 @@ def send_notification(job_dict, exception=None):
     try:
         if job_dict:
             emailable_jobs = [
-                'push_to_cheeseprism',
+                'build_new_package',
                 'cycle_services',
                 'push_service_environment']
 

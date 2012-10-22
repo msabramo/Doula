@@ -345,6 +345,9 @@ body {
 .content a {
   color: #00898B;
 }
+.content .sm-pckg-btn {
+  margin-left: 0px;
+}
 .content .sm-btn {
   color: #333;
 }

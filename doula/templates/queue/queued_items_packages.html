@@ -1,18 +1,14 @@
 <div class="queued_items">
 	<div>
 	  <p class="recent-jobs-text">
-	  	{% if service %}
-	  	Recent jobs for <strong>{{ service.name }}</strong> on {{ site.name }}. View all jobs in the
+	  	Recent package builds. View all jobs in the
 	    <a href="/queue">queue</a>.
-	    {% endif %}
 	  </p>
 	</div>
 
     <div id="queue-jobs">
-    	{% if not service %}
 	    <div id="no-queue-items-warning" class="alert">
 	        <p>No jobs</p>
 	    </div>
-	    {% endif %}
     </div>
 </div>

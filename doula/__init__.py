@@ -30,7 +30,7 @@ def main(global_config, **settings):
     config.set_default_permission('authenticated')
 
     # Tweens
-    config.add_tween('doula.views.helpers.exception_tween_factory')
+    config.add_tween('doula.views.view_helpers.exception_tween_factory')
 
     # Request
     config.set_request_property(User.find_user_for_request, 'user', reify=True)
@@ -58,6 +58,7 @@ def main(global_config, **settings):
     config.add_route('site_lock', '/sites/{site_id}/lock')
     config.add_route('site_tag', '/sites/{site_id}/tag')
 
+    # Services routes
     config.add_route('service', '/sites/{site_id}/{serv_id}')
     config.add_route('service_tag', '/sites/{site_id}/{serv_id}/tag')
     config.add_route('service_cycle', '/sites/{site_id}/{serv_id}/cycle')
@@ -65,17 +66,19 @@ def main(global_config, **settings):
     config.add_route('service_deploy', '/sites/{site_id}/{serv_id}/deploy')
     config.add_route('service_release', '/sites/{site_id}/{serv_id}/release')
     config.add_route('service_details', '/sites/{site_id}/{serv_id}/details')
-    config.add_route('service_cheese_prism_modal', '/sites/{site_id}/{serv_id}/cheese_prism_modal')
-    config.add_route('service_cheese_prism_push', '/sites/{site_id}/{serv_id}/cheese_prism_push')
 
     config.add_route('queue', '/queue')
     config.add_route('settings', '/settings')
+
+    # Packages routes
     config.add_route('packages', '/packages')
+    config.add_route('build_new_package_modal', '/packages/build_new_package_modal')
+    config.add_route('build_new_package', '/packages/build_new_package')
 
     config.add_route('bambino_register', '/bambino/register')
     config.add_route('bambino_ips', '/bambino/ip_addresses')
 
-    # Scan this module
+    # Scan this directory
     config.scan('doula.views')
 
     return config.make_wsgi_app()
