@@ -52,6 +52,19 @@ def build_new_package(config={}, job_dict={}):
         # Update the packages after an update. automatically add new version
         cache = Cache.cache()
 
+        all_packages_as_json = cache.get("cheeseprism:packages")
+
+        if all_packages_as_json:
+            all_packages = json.loads(all_packages_as_json)
+
+            for pckg in all_packages:
+                if pckg["clean_name"] == comparable_name(job_dict['package_name']):
+                    pckg["versions"].append(job_dict['version'])
+                    break
+
+            cache.set("cheeseprism:packages", dumps(all_packages))
+
+
         packages_as_json = cache.get('cheeseprism:package:' +
             comparable_name(job_dict['package_name']))
 

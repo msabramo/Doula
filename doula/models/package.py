@@ -203,4 +203,10 @@ class Package(object):
         with lcd(repo.working_dir):
             url = Config.get('doula.cheeseprism_url') + '/simple'
             s = local('python setup.py sdist upload -r ' + url, capture=True)
+
             logging.info(s)
+
+            # Check for a 200 success
+            if not re.search(r'server\s+response\s+\(200\)', s, re.I):
+                logging.error("Error building new package")
+                raise Exception("Error building new package")
