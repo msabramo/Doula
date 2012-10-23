@@ -310,11 +310,11 @@ def job_expired(job):
 
     if job['job_type'] in maintenance_job_types:
         return True
-    elif job['status'] == 'complete' and job['time_started'] < (now - 172800):
-        # completed jobs stay on queue for 2 days
+    elif job['status'] == 'complete' and job['time_started'] < (now - 86400):
+        # completed jobs stay on queue for 1 day
         return True
-    elif job['time_started'] < (now - 302400):
-        # failed and completed problems stay on queue for 3.5 days
+    elif job['time_started'] < (now - 172800):
+        # failed and completed problems stay on queue for 2 days
         return True
     else:
         return False
