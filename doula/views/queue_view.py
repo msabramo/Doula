@@ -1,7 +1,7 @@
 from doula.config import Config
 from doula.log import get_log
 from doula.queue import Queue
-from doula.views.helpers import *
+from doula.views.view_helpers import *
 from pyramid.renderers import render
 from pyramid.view import view_config
 
@@ -54,10 +54,14 @@ def query_queue_view(request):
 def build_query_from_request(request):
     query = {
         'job_type': [
-            'push_to_cheeseprism',
+            'build_new_package',
             'cycle_services',
             'push_service_environment']
         }
+
+    # If job type is specified use that
+    if request.POST.get('job_type'):
+        query['job_type'] = [request.POST.get('job_type')]
 
     if not request.params.getone('filter_by') == 'alljobs':
         query['user_id'] = request.user['username']

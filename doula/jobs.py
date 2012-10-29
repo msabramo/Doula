@@ -34,10 +34,10 @@ def load_config(config):
     Config.load_config(config)
 
 
-def push_to_cheeseprism(config={}, job_dict={}):
+def build_new_package(config={}, job_dict={}):
     """
     This function will be enqueued by Queue upon receiving a job dict that
-    has a job_type of 'push_to_cheeseprism'.  Upon being called, it will
+    has a job_type of 'build_new_package'.  Upon being called, it will
     updated the version present in the setup.py of the repo, and release the
     package to cheeseprism.
     """
@@ -52,6 +52,19 @@ def push_to_cheeseprism(config={}, job_dict={}):
 
         # Update the packages after an update. automatically add new version
         cache = Cache.cache()
+
+        all_packages_as_json = cache.get("cheeseprism:packages")
+
+        if all_packages_as_json:
+            all_packages = json.loads(all_packages_as_json)
+
+            for pckg in all_packages:
+                if pckg["clean_name"] == comparable_name(job_dict['package_name']):
+                    pckg["versions"].append(job_dict['version'])
+                    break
+
+            cache.set("cheeseprism:packages", dumps(all_packages))
+
 
         packages_as_json = cache.get('cheeseprism:package:' +
             comparable_name(job_dict['package_name']))
@@ -238,6 +251,9 @@ def push_service_environment(config={}, job_dict={}, debug=False):
         pull_bambino_data_job_dict = {'id': uuid.uuid1().hex}
         pull_bambino_data(config, pull_bambino_data_job_dict)
 
+        # Cycle the service after releasing the service
+        cycle_services(config, job_dict)
+
         return successes, failures
     except Exception as e:
         logging.getLogger().setLevel(logging.DEBUG)
@@ -300,11 +316,11 @@ def job_expired(job):
 
     if job['job_type'] in maintenance_job_types:
         return True
-    elif job['status'] == 'complete' and job['time_started'] < (now - 172800):
-        # completed jobs stay on queue for 2 days
+    elif job['status'] == 'complete' and job['time_started'] < (now - 86400):
+        # completed jobs stay on queue for 1 day
         return True
-    elif job['time_started'] < (now - 302400):
-        # failed and completed problems stay on queue for 3.5 days
+    elif job['time_started'] < (now - 172800):
+        # failed and completed problems stay on queue for 2 days
         return True
     else:
         return False

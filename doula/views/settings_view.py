@@ -2,7 +2,7 @@ from doula.config import Config
 from doula.models.sites_dal import SiteDAL
 from doula.models.user import User
 from doula.util import *
-from doula.views.helpers import *
+from doula.views.view_helpers import *
 from pyramid.view import view_config
 
 

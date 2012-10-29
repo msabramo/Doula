@@ -1,8 +1,9 @@
 from contextlib import contextmanager
 from datetime import datetime
+from doula.cheese_prism import CheesePrism
 from doula.config import Config
 from doula.github import get_package_github_info
-from doula.cheese_prism import CheesePrism
+from doula.util import comparable_name
 from fabric.api import *
 from git import *
 from sets import Set
@@ -24,7 +25,7 @@ class Package(object):
     """
     Represents a python package
     """
-    def __init__(self, name, version, remote):
+    def __init__(self, name, version, remote=''):
         self.name = name
         self.version = version
         self.remote = remote
@@ -45,6 +46,15 @@ class Package(object):
         # Make sure no duplicates exist
         return [ver for ver in Set(versions)]
 
+    def get_current_version(self):
+        """
+        Return the current active package version
+        """
+        versions = self.get_versions()
+        versions.sort()
+
+        return versions[len(versions) - 1]
+
     def distribute(self, branch, new_version):
         with self.repo(branch) as repo:
             self.update_version(repo, new_version)
@@ -52,6 +62,33 @@ class Package(object):
             self.tag(repo, new_version)
             self.push(repo, "origin")
             self.upload(repo)
+
+    @staticmethod
+    def get_sm_packages():
+        """
+        Pull all the survey monkey packages
+        """
+        sm_packages = []
+        all_python_packages = CheesePrism.all_packages()
+
+        for python_package in all_python_packages:
+            sm_package = Package(python_package.name, python_package.get_last_version())
+
+            if sm_package.get_github_info():
+                sm_packages.append(sm_package)
+
+        return sm_packages
+
+    @staticmethod
+    def get_sm_package_by_name(package_name):
+        package = False
+
+        for pckg in Package.get_sm_packages():
+            if comparable_name(pckg.name) == comparable_name(package_name):
+                package = pckg
+                break
+
+        return package
 
     @contextmanager
     def repo(self, branch):
@@ -166,4 +203,10 @@ class Package(object):
         with lcd(repo.working_dir):
             url = Config.get('doula.cheeseprism_url') + '/simple'
             s = local('python setup.py sdist upload -r ' + url, capture=True)
+
             logging.info(s)
+
+            # Check for a 200 success
+            if not re.search(r'server\s+response\s+\(200\)', s, re.I):
+                logging.error("Error building new package")
+                raise Exception("Error building new package")

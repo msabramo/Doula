@@ -8,11 +8,13 @@ var ServiceEnv = {
 		this.releases = __releases;
 
 		_mixin(this, AJAXUtil);
+		_mixin(this, Packages);
 
 		Data.init();
 
 		this.bindToUIActions();
 		this.bindToDataActions();
+		this.initPackagesAsMixin(Data.site_name, Data.name_url);
 	},
 
 	bindToUIActions: function() {
@@ -49,9 +51,9 @@ var ServiceEnv = {
 			$.proxy(this.queueItemChanged, this));
 	},
 
-	/***********************
-	PACKAGE DROPDOWN RELATED
-	************************/
+	/************************************
+	Package dropdowns for Release Service
+	*************************************/
 
 	addVersionMessageBelowPackageSelects: function() {
 		$('.package-select').each(function(i, select) {
@@ -143,15 +145,7 @@ var ServiceEnv = {
 	********************/
 
 	bindToDataActions: function() {
-		$('#add-pckg').on('click', function() {
-			// show modal dialog of packages available on cheese prism
-			// that are not on here
-			$('#add-packages').modal();
-		});
-
 		$('#cycle').on('click', $.proxy(this.cycle, this));
-		$('.new-version-btn').on('click', $.proxy(this.showPushPackageModal, this));
-
 		$('#release-service').on('click', $.proxy(this.releaseService, this));
 	},
 
@@ -263,20 +257,6 @@ var ServiceEnv = {
 		// done
 	},
 
-	queueItemChanged: function(event, item) {
-		// Cycle button gets enabled once
-		if(item.job_type == 'cycle_services') {
-			if(item.status == 'failed' || item.status == 'complete') {
-				this.enableCycleButton();
-			}
-		}
-		else if (item.job_type == 'push_to_cheeseprism') {
-			if (item.status == 'complete') {
-				this.updatePackagesDropdown(item.package_name, item.version);
-			}
-		}
-	},
-
 	disableCycleButton: function() {
 		$('#cycle').addClass('disabled');
 	},
@@ -286,85 +266,31 @@ var ServiceEnv = {
 	},
 
 	/****************
-	PUSH PACKAGE
+	Queue Item Changes
 	*****************/
 
-	showPushPackageModal: function(event) {
-		var name = $(event.srcElement).attr('data-name');
-
-		// make ajax requests to get modal
-		var url = '/sites/' + Data.site_name + '/';
-		url += Data.name_url + '/cheese_prism_modal';
-
-		this.get(url, {'name': name}, this.doneShowPushPackageModal);
-
-		return false;
+	queueItemChanged: function(event, item) {
+		// Cycle button gets enabled once
+		if(item.job_type == 'cycle_services') {
+			if(item.status == 'failed' || item.status == 'complete') {
+				this.enableCycleButton();
+			}
+		}
+		else if (item.job_type == 'build_new_package') {
+			if (item.status == 'complete') {
+				this.updatePackagesDropdown(item.package_name, item.version);
+			}
+		}
 	},
 
-	doneShowPushPackageModal: function(rslt) {
-		$('#push-to-cheese-modal').on('shown', function() {
-			ServiceEnv.validateShowPushPackageModal();
-
-			$('#build_new_package_branch')
-				.on('change click', ServiceEnv.validateShowPushPackageModal);
-			$('#build_new_package_version')
-				.on('keyup', ServiceEnv.validateShowPushPackageModal)
-				.on('mouseup', ServiceEnv.validateShowPushPackageModal);
-
-			$('#build_new_package').on('click', $.proxy(ServiceEnv.pushPackage, ServiceEnv));
-		});
-
-		$('#push-to-cheese-modal')
-			.html(rslt)
-			.modal();
-	},
-
-	// Validate the show push package version number and
-	// update the next-full-version text
-	validateShowPushPackageModal: function() {
-		var branch = $.trim($('#build_new_package_branch').val());
-		var version = $.trim($('#build_new_package_version').val());
-
-		if (branch && version) $('#build_new_package').removeClass('disabled');
-		else $('#build_new_package').addClass('disabled');
-
-		var nextFullVersion = (version + '-' + branch).replace(/[\.-]$/, '');
-		$('#next-full-version').html(nextFullVersion);
-	},
-
-	pushPackage: function(event) {
-		if($(event.target).hasClass('disabled')) return false;
-
-		var url = '/sites/' + Data.site_name + '/';
-		url += Data.name_url + '/cheese_prism_push';
-
-		var params = {
-			'name': $('#build_new_package_name').val(),
-			'branch': $('#build_new_package_branch').val(),
-			'next_version': $('#build_new_package_version').val()
-		};
-
-		var msg = 'Pushing package '+params.name+' version '+
-				params.next_version + '. Please be patient and stay awesome.';
-
-		this.get(url, params, this.donePushPackage, this.failedPushPackage, msg);
-
-		return false;
-	},
-
-	donePushPackage: function(rslt) {
-		$('#push-to-cheese-modal').modal('hide');
-	},
-
+	/**
+	*	After a package is built, automatically choose it for the user
+	*/
 	updatePackagesDropdown: function(package_name, version) {
 		$('#pckg_select_' + package_name).
 			append('<option value="' + version + '">' + version + '</option>').
 			val(version).
 			change();
-	},
-
-	failedPushPackage: function(rslt) {
-		$('#release_package_errors').removeClass('hide').html(rslt.html);
 	}
 };
 

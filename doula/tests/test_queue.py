@@ -30,12 +30,12 @@ class QueueTests(unittest.TestCase):
         rdb = self.queue.rdb
 
         # Create test "Job" dict, with a specific id
-        push_to_cheeseprism = self._test_job_dict('push_to_cheeseprism')
-        push_to_cheeseprism['id'] = id
+        build_new_package = self._test_job_dict('build_new_package')
+        build_new_package['id'] = id
 
         # Add to redis, and return the "Job" dict
-        rdb.sadd(self.k['jobs'], json.dumps(push_to_cheeseprism, sort_keys=True))
-        return push_to_cheeseprism
+        rdb.sadd(self.k['jobs'], json.dumps(build_new_package, sort_keys=True))
+        return build_new_package
 
     def test_keys(self):
         self.assertIn('jobs', self.queue._keys())
@@ -95,7 +95,7 @@ class QueueTests(unittest.TestCase):
 
     def test_save(self):
         p = self.queue.rdb.pipeline()
-        self.queue._save(p, {'id': '1', 'job_type': 'push_to_cheeseprism'})
+        self.queue._save(p, {'id': '1', 'job_type': 'build_new_package'})
         p.execute()
 
         jobs = self.queue.rdb.smembers(self.k['jobs'])
@@ -152,12 +152,12 @@ class QueueTests(unittest.TestCase):
         qm = self.queue.qm
         qm.enqueue = Mock()
 
-        id = self.queue.this({'job_type': 'push_to_cheeseprism'})
-        expected = [call('doula.jobs:push_to_cheeseprism', job_dict={'status': 'queued',
+        id = self.queue.this({'job_type': 'build_new_package'})
+        expected = [call('doula.jobs:build_new_package', job_dict={'status': 'queued',
                                                                      'remote': '',
                                                                      'time_started': 0,
                                                                      'service': '',
-                                                                     'job_type': 'push_to_cheeseprism',
+                                                                     'job_type': 'build_new_package',
                                                                      'site': '',
                                                                      'version': '',
                                                                      'branch': 'master',
@@ -242,31 +242,31 @@ class QueueTests(unittest.TestCase):
         qm = self.queue.qm
         qm.enqueue = Mock(side_effect=lambda *args, **kwargs: uuid.uuid4().hex)
 
-        id = self.queue.this({'job_type': 'push_to_cheeseprism'})
-        self.queue.this({'job_type': 'push_to_cheeseprism'})
+        id = self.queue.this({'job_type': 'build_new_package'})
+        self.queue.this({'job_type': 'build_new_package'})
         self.queue.this({'job_type': 'cycle_services'})
 
         jobs = self.queue.get({'id': id, 'blah': 'key'})
-        self.assertEqual(jobs[0]['job_type'], 'push_to_cheeseprism')
+        self.assertEqual(jobs[0]['job_type'], 'build_new_package')
 
-        jobs = self.queue.get({'job_type': 'push_to_cheeseprism'})
+        jobs = self.queue.get({'job_type': 'build_new_package'})
         self.assertEqual(len(jobs), 2)
-        self.assertEqual(jobs[0]['job_type'], 'push_to_cheeseprism')
+        self.assertEqual(jobs[0]['job_type'], 'build_new_package')
 
     def test_queue_get_list(self):
         # Have it return a random hex string as an id
         qm = self.queue.qm
         qm.enqueue = Mock(side_effect=lambda *args, **kwargs: uuid.uuid4().hex)
 
-        self.queue.this({'job_type': 'push_to_cheeseprism'})
+        self.queue.this({'job_type': 'build_new_package'})
         self.queue.this({'job_type': 'pull_github_data'})
-        self.queue.this({'job_type': 'push_to_cheeseprism'})
+        self.queue.this({'job_type': 'build_new_package'})
         self.queue.this({'job_type': 'cycle_services'})
 
-        jobs = self.queue.get({'job_type': ['push_to_cheeseprism', 'cycle_services']})
+        jobs = self.queue.get({'job_type': ['build_new_package', 'cycle_services']})
         self.assertEqual(len(jobs), 3)
 
-    # todo: write test for multiple query params, like query = {'job_type': 'push_to_cheeseprism',
+    # todo: write test for multiple query params, like query = {'job_type': 'build_new_package',
     #                                                           'status': 'complete'}
 
     def test_add_result_subscriber(self):
