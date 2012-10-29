@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 ###############
 
 
-@view_config(route_name='service', renderer="services/release_actions.html")
+@view_config(route_name='service', renderer="services/admin_actions.html")
 def service(request):
     site = get_site(request.matchdict['site_id'])
     service = site.services[request.matchdict['serv_id']]

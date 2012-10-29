@@ -150,6 +150,7 @@ class SiteDAL(object):
     @staticmethod
     def _all_site_keys():
         cache = Cache.cache()
+        # alextodo. clean up the damn redis keys be consistent
         site_names = cache.smembers("doula.sites")
 
         return [site for site in site_names]

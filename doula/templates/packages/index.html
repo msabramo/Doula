@@ -21,45 +21,47 @@
         All Survey Monkey Packages
       </a>
     </div>
-  </div>
 
   <div id="sm_packages_table" class="accordion-body in collapse">
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Package</th>
-        <th>Version</th>
-        <th> &nbsp;</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- our packages first, the ones with the github repo data -->
-      {% for pckg in sm_packages|sort(attribute='name') %}
+    <div class="accordion-inner">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Package</th>
+            <th>Version</th>
+            <th> &nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- our packages first, the ones with the github repo data -->
+          {% for pckg in sm_packages|sort(attribute='name') %}
 
-      <tr>
-        <td width="20%">
-          <a href="#" onclick="return false;" rel="tooltip"
-          title="Click to see the Git commit history"
-          data-toggle="collapse"
-          data-target="#{{ pckg.name|replace(".", "") }}_git_info">
-          {{ pckg.name }}
-        </a>
-        </td>
-        <td width="80%">
-          <a class="btn sm-btn-success new-version-btn sm-pckg-btn"
-          data-name="{{pckg.name}}" href="#">
-            <i class="icon-chevron-right icon-white"></i> Build New Package
-          </a>
-          <div id="pckg_select_msg_{{ pckg.name }}" class="help-block">
-            Latest version <strong>{{ pckg.version }}</strong>
-          </div>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+          <tr>
+            <td width="20%">
+              <a href="#" onclick="return false;" rel="tooltip"
+              title="Click to see the Git commit history"
+              data-toggle="collapse"
+              data-target="#{{ pckg.name|replace(".", "") }}_git_info">
+              {{ pckg.name }}
+            </a>
+            </td>
+            <td width="80%">
+              <a class="btn sm-btn-success new-version-btn sm-pckg-btn"
+              data-name="{{pckg.name}}" href="#">
+                <i class="icon-chevron-right icon-white"></i> Build New Package
+              </a>
+              <div id="pckg_select_msg_{{ pckg.name }}" class="help-block">
+                Latest version <strong>{{ pckg.version }}</strong>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
   <!-- end sm_packages_table -->
+</div>
 </div>
 </div>
 <!-- end package-accordion -->

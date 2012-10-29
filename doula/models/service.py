@@ -55,32 +55,36 @@ class Service(object):
         self.packages = []
         self.changed_files = []
         self.tags = []
+        self.config = {}
         self.supervisor_service_names = []
 
     @staticmethod
-    def build_app(site_name, node_name, url, app):
-        """Build an service object from the app dictionary"""
+    def build_app(site_name, node_name, url, service):
+        """Build an service object from the service dictionary"""
 
-        a = Service(app['name'], site_name, node_name, url)
-        a.current_branch_app = app['current_branch_app']
-        a.change_count_app = app['change_count_app']
-        a.change_count_config = app['change_count_config']
-        a.is_dirty_config = app['is_dirty_config']
-        a.last_tag_config = app['last_tag_config']
-        a.status = app['status']
-        a.remote = app['remote']
-        a.last_tag_app = app['last_tag_app']
-        a.last_tag_message = app['last_tag_message']
-        a.current_branch_config = app['current_branch_config']
-        a.changed_files = app['changed_files']
-        a.tags = []
-        a.packages = []
-        a.add_packages(app['packages'])
-        a.add_tags_from_dict(app['tags'])
-        a.last_tag = a.get_last_tag()
-        a.supervisor_service_names = app['supervisor_service_names']
+        s = Service(service['name'], site_name, node_name, url)
+        s.current_branch_app = service['current_branch_app']
+        s.change_count_app = service['change_count_app']
+        s.change_count_config = service['change_count_config']
+        s.is_dirty_config = service['is_dirty_config']
+        s.last_tag_config = service['last_tag_config']
+        s.status = service['status']
+        s.remote = service['remote']
+        s.last_tag_app = service['last_tag_app']
+        s.last_tag_message = service['last_tag_message']
+        s.current_branch_config = service['current_branch_config']
+        s.changed_files = service['changed_files']
+        s.tags = []
+        s.packages = []
+        s.add_packages(service['packages'])
+        s.add_tags_from_dict(service['tags'])
+        s.last_tag = s.get_last_tag()
+        s.config = service['config']
+        print 'CONFIG'
+        print s.config
+        s.supervisor_service_names = service['supervisor_service_names']
 
-        return a
+        return s
 
     @staticmethod
     def report_status(results):
@@ -90,6 +94,8 @@ class Service(object):
     @staticmethod
     def cycle(proxy, service_name):
         try:
+            # alextodo. figure out the api here. can we add a timeout
+
             logging.info('stopping %s' % service_name)
             results = proxy.supervisor.stopProcessGroup(service_name)
             Service.report_status(results)

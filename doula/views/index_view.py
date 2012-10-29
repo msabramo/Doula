@@ -143,7 +143,8 @@ def load_config(event):
 
     # When the service starts we'll make sure Doula updates it self pulling
     # all the latest data
-    updatedoula(None)
+    # alextodo. re enable once we've got this figured out.
+    # updatedoula(None)
 
     start_task_scheduling()
 

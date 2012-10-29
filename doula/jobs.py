@@ -44,6 +44,7 @@ def build_new_package(config={}, job_dict={}):
     load_config(config)
 
     try:
+        # alextodo. revisit everything we log to the file.
         logging.info("About to push package to cheese prism %s" % job_dict['remote'])
 
         p = Package(job_dict['package_name'], '0', job_dict['remote'])

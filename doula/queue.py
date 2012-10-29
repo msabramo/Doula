@@ -390,6 +390,8 @@ def can_update_job(job_type):
     Determines if the job can be updated by according to its type
     We never have to update the maintenance_job_types
     """
+    print 'CAN UPDATE JOB? ' + job_type
+
     updateable_job_types = [
         'build_new_package',
         'cycle_services',

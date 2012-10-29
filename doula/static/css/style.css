@@ -270,8 +270,6 @@ pre {
 /* HTML ELEMENTS */
 body {
   background: url(/images/noise.jpg);
-  font-size: 13px;
-  line-height: 18px;
   margin: 25px 0px;
   overflow-y: scroll;
 }
@@ -299,6 +297,9 @@ body {
   content: "";
   clear: both;
   height: 0;
+}
+.hide {
+  display: none !important;
 }
 /* END COMMON MIXINS */
 .container {
@@ -657,6 +658,73 @@ h3.commit-group-heading {
 .sm-accordion-inner {
   margin-top: 10px;
 }
+.sm-config-status-success {
+  color: #468847;
+  background-color: #DFF0D8;
+  border-color: #D6E9C6;
+  margin-bottom: 15px;
+  padding: 8px 15px;
+  font-size: 14px;
+  line-height: 18px;
+  display: block;
+  border: 1px solid #E5E5E5;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+.sm-config-status-fail {
+  color: #B94A48;
+  background-color: #F2DEDE;
+  border-color: #EED3D7;
+  margin-bottom: 10px;
+  padding: 8px 15px;
+  font-size: 14px;
+  line-height: 18px;
+  display: block;
+  border: 1px solid #E5E5E5;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+/**************
+Mini Dashboard
+***************/
+.mini-dashboard {
+  width: 100%;
+  text-align: center;
+  margin: 0 auto 10px;
+  vertical-align: middle;
+  border: 1px solid #E5E5E5;
+  border-radius: 4px;
+  background-color: #F7F7F9;
+}
+.mini-dashboard-square {
+  border: 3px solid #E5E5E5;
+  border-radius: 4px;
+  display: inline-block;
+  padding: 5px;
+  margin: 10px 15px 15px;
+  width: 230px;
+  height: 120px;
+  cursor: pointer;
+}
+.mini-dashboard-square h2 {
+  margin-top: 15px;
+}
+.mini-dashboard-square p {
+  margin: 0;
+}
+.mini-dashboard-square * {
+  color: #414c41;
+}
+.mini-success {
+  background-color: #DFF0D8;
+  border-color: #D6E9C6;
+}
+.mini-fail {
+  background-color: #F2DEDE;
+  border-color: #EED3D7;
+}
 /* Package */
 .dropdown-menu {
   padding: 5px;
@@ -668,6 +736,9 @@ h3.commit-group-heading {
 .accord-link {
   float: right;
   margin: 10px 20px 0px 0px;
+}
+.accord-strong {
+  letter-spacing: 1px;
 }
 [class^="status"] {
   display: inline-block;
