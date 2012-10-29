@@ -43,7 +43,7 @@ var Packages = {
 
     // Make ajax call to get build new package modal HTML
     showBuildNewPackageModal: function(event) {
-        var name = $(event.srcElement).attr('data-name');
+        var name = $(event.target).data('name');
         var url = '/packages/build_new_package_modal';
         this.get(url, {'name': name}, this.doneShowBuildNewPackageModal);
 
