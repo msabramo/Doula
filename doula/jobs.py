@@ -17,6 +17,7 @@ import time
 import traceback
 import uuid
 import xmlrpclib
+import socket
 
 
 def create_logger(job_id, level=logging.INFO):
@@ -101,10 +102,15 @@ def cycle_services(config={}, job_dict={}):
 
             for name in job_dict['supervisor_service_names']:
                 logging.info('Cycling service %s on IP http://%s' % (name, ip))
+                #http://stackoverflow.com/a/1766187/182484
+                #set a global timeout on socket
+                socket.setdefaulttimeout(30)
                 Service.cycle(xmlrpclib.ServerProxy('http://' + ip + ':9001'), name)
+                socket.setdefaulttimeout(None)
 
         logging.info('Done cycling %s' % job_dict['service'])
     except Exception as e:
+        socket.setdefaulttimeout(None)
         logging.error(e.message)
         logging.error(traceback.format_exc())
         raise
