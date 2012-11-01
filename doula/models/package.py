@@ -27,6 +27,7 @@ class Package(object):
     """
     def __init__(self, name, version, remote=''):
         self.name = name
+        self.name_url = comparable_name(name)
         self.version = version
         self.remote = remote
         self.github_info = False
@@ -104,6 +105,8 @@ class Package(object):
             self.rm_repo_dir(repo_path)
 
             # Clone specified service's repo
+            # alextodo, look at cleaning up the end of the repo path
+            # the directory itself should be lowercased
             repo = Repo.clone_from(self.remote, repo_path)
 
             # Pull the latest changes from the branch the user selected

@@ -74,7 +74,7 @@
         </thead>
         <tbody>
           <!-- our packages first, the ones with the github repo data -->
-          {% for pckg in service.packages|sort(attribute='name') %}
+          {% for name, pckg in service.packages.iteritems() %}
           {% set git_info = pckg.get_github_info() %}
 
           {% if git_info %}
@@ -145,7 +145,7 @@
             </tr>
           </thead>
           <tbody>
-            {% for pckg in service.packages|sort(attribute='name') %}
+            {% for name, pckg in service.packages.iteritems() %}
             {% if not pckg.get_github_info() %}
             <tr>
               <td width="20%">{{ pckg.name }}</td>

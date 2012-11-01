@@ -1,4 +1,4 @@
-from doula.cache import Cache
+from doula.cache import Redis
 from pyramid.security import unauthenticated_userid
 import simplejson as json
 
@@ -26,8 +26,8 @@ class User(object):
         Users are stored in redis with the key:
             'doula:user:[username]'
         """
-        cache = Cache.cache(1)
-        user_as_json = cache.get('doula:user:%s' % username)
+        redis = Redis.get_instance(1)
+        user_as_json = redis.get('doula:user:%s' % username)
 
         if user_as_json:
             return json.loads(user_as_json)
@@ -63,20 +63,20 @@ class User(object):
 
         json_user = json.dumps(user, sort_keys=True)
 
-        cache = Cache.cache(1)
+        redis = Redis.get_instance(1)
 
-        cache.set('doula:user:%s' % user['username'], json_user)
-        cache.sadd('doula:users', user['username'])
+        redis.set('doula:user:%s' % user['username'], json_user)
+        redis.sadd('doula:users', user['username'])
 
     @staticmethod
     def users():
         """
         Return all the users
         """
-        cache = Cache.cache(1)
+        redis = Redis.get_instance(1)
         users = []
 
-        for username in cache.smembers('doula:users'):
+        for username in redis.smembers('doula:users'):
             user = User.find(username)
 
             if user:

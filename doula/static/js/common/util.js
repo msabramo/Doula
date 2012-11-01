@@ -110,6 +110,8 @@ var AJAXUtil = {
                             onFail(rslt);
                         }
                         else {
+                            // On failure hide immediately
+                            Notifier.hide();
                             AJAXUtil._showStandardErrorMessage(rslt);
                         }
                     }
@@ -136,7 +138,10 @@ var AJAXUtil = {
 
     _showStandardErrorMessage: function(rslt) {
         $('#modal-error').on('show', function () {
+          // Update the error message
           $('#modal-error-msg').html(rslt.msg);
+
+          // Bind the close button
           $('#modal-error-close').on('click', function() {
             $('#modal-error').modal('hide');
             return false;

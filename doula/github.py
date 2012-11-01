@@ -3,7 +3,7 @@ A simplified interface to the Github V3 API
 """
 
 from datetime import datetime
-from doula.cache import Cache
+from doula.cache import Redis
 from doula.config import Config
 from doula.util import *
 import simplejson as json
@@ -15,8 +15,8 @@ import re
 
 
 def get_devmonkey_repo(name):
-    cache = Cache.cache()
-    repo_as_json = cache.get("repo.devmonkeys:" + comparable_name(name))
+    redis = Redis.get_instance()
+    repo_as_json = redis.get("repo.devmonkeys:" + comparable_name(name))
 
     if repo_as_json:
         return json.loads(repo_as_json)
@@ -26,16 +26,16 @@ def get_devmonkey_repo(name):
 
 def get_doula_admins():
     """
-    Get the Doula admins from cache. if cache doesn't exist pull now
+    Get the Doula admins from redis. if redis doesn't exist pull now
     """
-    cache = Cache.cache()
-    admins_as_json = cache.get("doula.admins")
+    redis = Redis.get_instance()
+    admins_as_json = redis.get("doula.admins")
 
     if admins_as_json:
         admins = json.loads(admins_as_json)
     else:
         admins = pull_doula_admins()
-        cache.set('doula.admins', dumps(admins))
+        redis.set('doula.admins', dumps(admins))
 
     return admins
 
@@ -61,8 +61,8 @@ def get_appenv_releases(name, branch):
         }
     }
     """
-    cache = Cache.cache()
-    json_text = cache.get("repos:appenvs")
+    redis = Redis.get_instance()
+    json_text = redis.get("repos:appenvs")
 
     if json_text:
         github_appenv_data = json.loads(json_text)

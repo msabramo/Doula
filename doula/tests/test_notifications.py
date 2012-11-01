@@ -1,4 +1,4 @@
-from doula.cache import Cache
+from doula.cache import Redis
 from doula.models.user import User
 from doula.notifications import build_email_list
 import unittest
@@ -7,8 +7,8 @@ import unittest
 class NotificationsTests(unittest.TestCase):
 
     def setUp(self):
-        cache = Cache.cache()
-        cache.flushdb()
+        redis = Redis.get_instance()
+        redis.flushdb()
 
     def test_build_email_list_to_original_user(self):
         user = {

@@ -6,8 +6,8 @@ import unittest
 
 class CheesePrismTests(unittest.TestCase):
     def setUp(self):
-        Cache.env = 'dev'
-        Cache.cache().flushdb()
+        Redis.env = 'dev'
+        Redis.get_instance().flushdb()
         settings = {
             'doula.cheeseprism_url': 'http://yorick.corp.surveymonkey.com:9003'
         }

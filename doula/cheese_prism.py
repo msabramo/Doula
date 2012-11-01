@@ -1,4 +1,4 @@
-from doula.cache import Cache
+from doula.cache import Redis
 from doula.config import Config
 from doula.util import *
 import simplejson as json
@@ -30,8 +30,8 @@ class CheesePrism(object):
         """
         Package URL's are case sensitive so we need to find the exact URL
         """
-        cache = Cache.cache()
-        text = cache.get('cheeseprism:package:' + comparable_name(name))
+        redis = Redis.get_instance()
+        text = redis.get('cheeseprism:package:' + comparable_name(name))
 
         if text:
             p = json.loads(text)
@@ -43,11 +43,11 @@ class CheesePrism(object):
     @staticmethod
     def all_packages():
         """
-        Return all packages from our cache
+        Return all packages from our redis
         """
-        cache = Cache.cache()
+        redis = Redis.get_instance()
         all_packages = []
-        packages_as_json = cache.get('cheeseprism:packages')
+        packages_as_json = redis.get('cheeseprism:packages')
 
         if packages_as_json:
             json_packages = json.loads(packages_as_json)
@@ -94,7 +94,7 @@ class CheesePrism(object):
         """
         all_packages = CheesePrism.all_packages()
 
-        for pckg in packages:
+        for package_name, pckg in packages.iteritems():
             found_pckg = False
 
             for all_pckg in all_packages:

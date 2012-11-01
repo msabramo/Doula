@@ -1,5 +1,5 @@
 from doula.config import Config
-from doula.models.sites_dal import SiteDAL
+from doula.models.doula_dal import DoulaDAL
 from doula.models.user import User
 from doula.util import *
 from doula.views.view_helpers import *
@@ -9,10 +9,12 @@ from pyramid.view import view_config
 # SETTINGS VIEWS
 @view_config(route_name='settings', renderer='settings/index.html')
 def show_settings(request):
+    dd = DoulaDAL()
+
     return {
         'config': Config,
         'user': request.user,
-        'sas': SiteDAL.list_of_sites_and_services()
+        'sas': dd.list_of_sites_and_services()
     }
 
 

@@ -18,8 +18,8 @@ class ServiceTests(unittest.TestCase):
         service.current_branch_app = 'master'
 
         tags = [{'name': '1.0.3', 'message': 'message', 'date': 'date'}]
-        service.add_tags_from_dict(tags)
-        service.add_tags_from_dict(tags)
+        service._add_tags_from_service_dict(tags)
+        service._add_tags_from_service_dict(tags)
 
         compare_url = 'http://code.corp.surveymonkey.com'
         compare_url += '/DevOps/test_app/compare/1.0.3...master'
@@ -46,7 +46,7 @@ class ServiceTests(unittest.TestCase):
     def test_next_version_number(self):
         service = Service('test_app', 'site_name', 'test_node', 'http://test.com')
         tags = [{'name': '1.1.4', 'message': 'message', 'date': 'date'}]
-        service.add_tags_from_dict(tags)
+        service._add_tags_from_service_dict(tags)
 
         expected = '0.1.5'
 
@@ -55,7 +55,7 @@ class ServiceTests(unittest.TestCase):
         service = Service('test_app', 'site_name', 'test_node', 'http://test.com')
         service.tags = [Tag('45.2.4 rc', 'date', 'message')]
         tags = [{'name': '45.2.4 rc', 'message': 'message', 'date': 'date'}]
-        service.add_tags_from_dict(tags)
+        service._add_tags_from_service_dict(tags)
 
         expected = '45.2.5 rc'
 

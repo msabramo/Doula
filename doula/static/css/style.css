@@ -269,7 +269,7 @@ pre {
 }
 /* HTML ELEMENTS */
 body {
-  background: url(/images/noise.jpg);
+  background-color: #4A4A4A;
   margin: 25px 0px;
   overflow-y: scroll;
 }
@@ -470,6 +470,13 @@ div.navbar-inner {
 }
 .service-title-bar span {
   font-size: 18px;
+}
+span.service-title-last-updated {
+  color: #999;
+  font-size: 11px;
+  float: left;
+  padding: 10px 0;
+  margin-left: -9px;
 }
 .site-title {
   font-size: 18px;
@@ -709,7 +716,7 @@ Mini Dashboard
   cursor: pointer;
 }
 .mini-dashboard-square h2 {
-  margin-top: 15px;
+  margin-top: 20px;
 }
 .mini-dashboard-square p {
   margin: 0;

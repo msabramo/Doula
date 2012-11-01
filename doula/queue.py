@@ -1,4 +1,4 @@
-from doula.cache import Cache
+from doula.cache import Redis
 from doula.notifications import send_notification
 from retools.queue import QueueManager
 import simplejson as json
@@ -91,7 +91,7 @@ class Queue(object):
 
     def __init__(self):
         # Initialize redis database
-        self.redis = Cache.cache()
+        self.redis = Redis.get_instance()
 
         # Initialize the QueueManager
         self.qm = QueueManager(default_queue_name=self.default_queue_name)
@@ -285,11 +285,11 @@ class Queue(object):
                 "jobs": self.get(query)
             }
 
-            self.save_bucket_cache_values(bucket)
+            self.save_bucket_redis_values(bucket)
 
         return bucket
 
-    def save_bucket_cache_values(self, bucket):
+    def save_bucket_redis_values(self, bucket):
         """
         Add the bucket to the list of buckets and save it's last_updated time
         and save the bucket as json
@@ -332,7 +332,7 @@ class Queue(object):
                 bucket = json.loads(bucket_as_json)
                 bucket["last_updated"] = time.time()
                 bucket["jobs"] = self.get(bucket["query"])
-                self.save_bucket_cache_values(bucket)
+                self.save_bucket_redis_values(bucket)
             else:
                 # bucket expired. remove from doula.query.buckets set
                 self.redis.srem("doula.query.buckets", bucket_id)
@@ -390,8 +390,6 @@ def can_update_job(job_type):
     Determines if the job can be updated by according to its type
     We never have to update the maintenance_job_types
     """
-    print 'CAN UPDATE JOB? ' + job_type
-
     updateable_job_types = [
         'build_new_package',
         'cycle_services',

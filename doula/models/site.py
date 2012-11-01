@@ -1,35 +1,39 @@
-from doula.cache import Cache
-from doula.models.node import Node
+from doula.cache import Redis
 from doula.models.site_tag_history import SiteTagHistory
 from doula.util import dirify
 from fabric.api import *
 from git import *
 import logging
 
-# Defines the Data Models for Doula and Bambino.
-#
-# sites
-#   Site
-#     nodes
-#       services
-#         Service
-#           packages
-#             Package
-#     services
-#       Service
-#         packages
-#           Package
-
 log = logging.getLogger('doula')
 
 
 class Site(object):
+    """
+    A site represents an Monkey Test Environment. It holds references to
+    the nodes that make it up and the services that encompass the entire site.
+
+    The nodes are a dict, for example:
+        nodes = {
+            "node_name": Node Object
+        }
+
+    The services are a dict, for example:
+        services = {
+            "service_name": Service Object
+        }
+    """
+
     def __init__(self, name, status='unknown', nodes={}, services={}):
         self.name = name
         self.name_url = dirify(name)
         self.status = status
         self.nodes = nodes
         self.services = services
+
+    ################################
+    # Status and Tag Logic
+    ################################
 
     def get_status(self):
         """
@@ -56,72 +60,23 @@ class Site(object):
 
         return self.status
 
-    def get_logs(self):
-        all_logs = []
-
-        for app_name, app in self.services.iteritems():
-            all_logs.extend(app.get_logs())
-
-        return all_logs
-
     def tag(self, tag_history_path, tag_history_remote, tag, msg, user):
         sth = SiteTagHistory(tag_history_path, tag_history_remote, self.name_url, 'output.log')
         sth.tag_site(tag, msg, self.services)
 
-    @staticmethod
-    def build_site(simple_site):
-        """
-        Take the simple dictionary version of a site object, i.e.
-            {name:value, nodes[{'name':value, 'site':value, 'url':value}]}
-        and return an actual Site object with all the nodes and services
-        built as well.
-        """
-        site = Site(simple_site['name'])
-        site.nodes = Site._build_nodes(simple_site['nodes'])
-        site.services = Site._get_combined_services(site.nodes)
-
-        return site
-
-    @staticmethod
-    def _build_nodes(simple_nodes):
-        """
-        Takes the nodes with format:
-            nodes[{'name':value, 'site':value, 'url':value}]
-        And builds Node objects
-        """
-        nodes = {}
-
-        for name, n in simple_nodes.iteritems():
-            node = Node(name, n['site'], n['url'])
-            node.load_services()
-            nodes[name] = node
-
-        return nodes
-
-    @staticmethod
-    def _get_combined_services(nodes):
-        """
-        Takes the nodes (contains actual Node objects) and
-        builds the services as a combined list of their
-        services for the entire site.
-        """
-        combined_services = {}
-
-        for k, node in nodes.iteritems():
-            for app_name, app in node.services.iteritems():
-                combined_services[app_name] = app
-
-        return combined_services
+    ############################
+    # Lock/Unlock Logic for Site
+    ############################
 
     def is_locked(self):
         """
         Returns true or false based on whether or not the site has been
         locked by an Doula admin
         """
-        cache = Cache.cache()
+        redis = Redis.get_instance()
         key = 'doula.site.locked:%s' % self.name_url
 
-        if cache.get(key) == 'true':
+        if redis.get(key) == 'true':
             return True
         else:
             return False
@@ -130,14 +85,14 @@ class Site(object):
         """
         Lock down a site so no one except an admin can release to the site
         """
-        cache = Cache.cache()
+        redis = Redis.get_instance()
         key = 'doula.site.locked:%s' % self.name_url
-        cache.set(key, 'true')
+        redis.set(key, 'true')
 
     def unlock(self):
         """
         Unlock site so everyone can release to the site
         """
-        cache = Cache.cache()
+        redis = Redis.get_instance()
         key = 'doula.site.locked:%s' % self.name_url
-        cache.set(key, 'false')
+        redis.set(key, 'false')

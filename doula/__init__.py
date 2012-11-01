@@ -54,18 +54,17 @@ def main(global_config, **settings):
     config.add_route('logout', '/logout')
     config.add_route('updatedoula', '/updatedoula')
 
-    config.add_route('site', '/sites/{site_id}')
-    config.add_route('site_lock', '/sites/{site_id}/lock')
-    config.add_route('site_tag', '/sites/{site_id}/tag')
+    config.add_route('site', '/sites/{site_name}')
+    config.add_route('site_lock', '/sites/{site_name}/lock')
+    config.add_route('site_tag', '/sites/{site_name}/tag')
 
     # Services routes
-    config.add_route('service', '/sites/{site_id}/{serv_id}')
-    config.add_route('service_tag', '/sites/{site_id}/{serv_id}/tag')
-    config.add_route('service_cycle', '/sites/{site_id}/{serv_id}/cycle')
-    config.add_route('service_freeze', '/sites/{site_id}/{serv_id}/freeze')
-    config.add_route('service_deploy', '/sites/{site_id}/{serv_id}/deploy')
-    config.add_route('service_release', '/sites/{site_id}/{serv_id}/release')
-    config.add_route('service_details', '/sites/{site_id}/{serv_id}/details')
+    config.add_route('service', '/sites/{site_name}/{service_name}')
+    config.add_route('service_tag', '/sites/{site_name}/{service_name}/tag')
+    config.add_route('service_cycle', '/sites/{site_name}/{service_name}/cycle')
+    config.add_route('service_freeze', '/sites/{site_name}/{service_name}/freeze')
+    config.add_route('service_release', '/sites/{site_name}/{service_name}/release')
+    config.add_route('service_details', '/sites/{site_name}/{service_name}/details')
 
     config.add_route('queue', '/queue')
     config.add_route('settings', '/settings')

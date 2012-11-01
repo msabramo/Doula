@@ -1,13 +1,12 @@
-from doula.cache import Cache
+from doula.cache import Redis
 from doula.cheese_prism import CheesePrism
 from doula.config import Config
 from doula.github import pull_appenv_repos
 from doula.github import pull_devmonkeys_repos
-from doula.models.node import Node
 from doula.models.package import Package
 from doula.models.push import Push
 from doula.models.service import Service
-from doula.models.sites_dal import SiteDAL
+from doula.models.doula_dal import DoulaDAL
 from doula.queue import Queue
 from doula.util import *
 import logging
@@ -52,9 +51,9 @@ def build_new_package(config={}, job_dict={}):
         p.distribute(job_dict['branch'], job_dict['version'])
 
         # Update the packages after an update. automatically add new version
-        cache = Cache.cache()
+        redis = Redis.get_instance()
 
-        all_packages_as_json = cache.get("cheeseprism:packages")
+        all_packages_as_json = redis.get("cheeseprism:packages")
 
         if all_packages_as_json:
             all_packages = json.loads(all_packages_as_json)
@@ -64,10 +63,9 @@ def build_new_package(config={}, job_dict={}):
                     pckg["versions"].append(job_dict['version'])
                     break
 
-            cache.set("cheeseprism:packages", dumps(all_packages))
+            redis.set("cheeseprism:packages", dumps(all_packages))
 
-
-        packages_as_json = cache.get('cheeseprism:package:' +
+        packages_as_json = redis.get('cheeseprism:package:' +
             comparable_name(job_dict['package_name']))
 
         if packages_as_json:
@@ -75,7 +73,7 @@ def build_new_package(config={}, job_dict={}):
             packages["versions"].append(job_dict['version'])
             packages_as_json = dumps(packages)
 
-            cache.set('cheeseprism:package:' + job_dict['package_name'], packages_as_json)
+            redis.set('cheeseprism:package:' + job_dict['package_name'], packages_as_json)
 
         logging.info('Finished pushing package %s to CheesePrism' % job_dict['remote'])
     except Exception as e:
@@ -95,6 +93,11 @@ def cycle_services(config={}, job_dict={}):
 
     try:
         logging.info('Cycling service %s' % job_dict['service'])
+
+        # alextodo. change this. it will look up all the nodes on that service
+        # that node will have ip addresses and names of supervisor_service_names
+        # just pass in the name of the mt and the name of the service
+        # that is all. everything else is found.
 
         for ip in job_dict['nodes']:
             logging.info('Cycling supervisord services: %s' %
@@ -126,8 +129,8 @@ def pull_cheeseprism_data(config={}, job_dict={}):
     try:
         logging.info('Started pulling cheeseprism data')
 
-        cache = Cache.cache()
-        pipeline = cache.pipeline()
+        redis = Redis.get_instance()
+        pipeline = redis.pipeline()
 
         packages = CheesePrism.pull_all_packages()
         pipeline.set("cheeseprism:packages", dumps(packages))
@@ -157,12 +160,13 @@ def pull_github_data(config={}, job_dict={}):
 
     try:
         logging.info('pulling github data')
+        return;
 
         # PUll the dev monkey repos data
         repos = pull_devmonkeys_repos()
 
-        cache = Cache.cache()
-        pipeline = cache.pipeline()
+        redis = Redis.get_instance()
+        pipeline = redis.pipeline()
 
         for name, repo in repos.iteritems():
             key = "repo.devmonkeys:" + name
@@ -189,10 +193,10 @@ def pull_appenv_github_data(config={}, job_dict={}, debug=False):
 
     try:
         logging.info('Pulling github appenv data')
-
-        cache = Cache.cache()
+        return;
+        redis = Redis.get_instance()
         repos = pull_appenv_repos()
-        cache.set("repos:appenvs", dumps(repos))
+        redis.set("repos:appenvs", dumps(repos))
 
         # always remove maintenance jobs from the queue
         Queue().remove(job_dict['id'])
@@ -273,20 +277,8 @@ def pull_bambino_data(config={}, job_dict={}):
     try:
         logging.info('Pulling bambino data')
 
-        cache = Cache.cache()
-        pipeline = cache.pipeline()
-        simple_sites = SiteDAL.get_simple_sites()
-
-        for site_name in simple_sites:
-            simple_site = simple_sites[site_name]
-            simple_nodes = simple_site['nodes']
-
-            for name, n in simple_nodes.iteritems():
-                node = Node(name, n['site'], n['url'])
-                services_as_json = node.pull_services()
-                pipeline.set('node:services:' + node.name_url, services_as_json)
-
-        pipeline.execute()
+        dd = DoulaDAL()
+        dd.update_site_and_service_models()
 
         # always remove maintenance jobs from the queue
         Queue().remove(job_dict['id'])

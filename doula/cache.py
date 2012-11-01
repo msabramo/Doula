@@ -6,7 +6,7 @@ import traceback
 log = logging.getLogger('doula')
 
 
-class Cache(object):
+class Redis(object):
     env = 'prod'
     redis = None
     # redis_store holds onto the permanent data for Doula
@@ -29,22 +29,22 @@ class Cache(object):
             raise
 
     @staticmethod
-    def cache(db=0):
+    def get_instance(db=0):
         try:
             if db == 0:
-                if not Cache.redis:
-                    Cache.redis = Cache.connect(Config.get('redis.host'), Config.get('redis.port'), db)
+                if not Redis.redis:
+                    Redis.redis = Redis.connect(Config.get('redis.host'), Config.get('redis.port'), db)
 
-                return Cache.redis
+                return Redis.redis
             elif db == 1:
-                if not Cache.redis_store:
-                    Cache.redis_store = Cache.connect(Config.get('redis.host'), Config.get('redis.port'), db)
+                if not Redis.redis_store:
+                    Redis.redis_store = Redis.connect(Config.get('redis.host'), Config.get('redis.port'), db)
 
-                return Cache.redis_store
+                return Redis.redis_store
         except:
-            if Cache.env == 'prod':
+            if Redis.env == 'prod':
                 raise
             else:
                 # for testing we use mock redis so that we don't need an option
-                from mockredis import MockRedis
+                from doula.tests.mock_redis import MockRedis
                 return MockRedis()

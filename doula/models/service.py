@@ -1,7 +1,6 @@
-from doula.models.audit import Audit
+from doula.models.node import Node
 from doula.models.package import Package
 from doula.models.release import Release
-from doula.models.sites_dal import SiteDAL
 from doula.models.tag import Tag
 from doula.util import *
 from fabric.api import *
@@ -12,79 +11,73 @@ import re
 import requests
 import xmlrpclib
 
-# Defines the Data Models for Doula and Bambino.
-#
-# sites
-#   Site
-#     nodes
-#       services
-#         Service
-#           packages
-#             Package
-#     services
-#       Service
-#         packages
-#           Package
-
 log = logging.getLogger('doula')
 
 
 class Service(object):
-    def __init__(self, name, site_name, node_name, url):
-        self.name = name
-        self.site_name = site_name
-        self.node_name = node_name
-        self.name_url = dirify(name)
-        self.url = url
+    # Service attributes are same as dict
+    # "current_branch_app": "mt3",
+    # "change_count_app": 0,
+    # "change_count_config": 0,
+    # "remote": "git@code.corp.surveymonkey.com:AppEnv/anweb.git",
+    # "name": "anweb",
+    # "tags": [
+    #     {
+    #         "date": 1334013665,
+    #         "message": "all the kings horses",
+    #         "name": "x.2"
+    #     }
+    # ],
+    # "is_dirty_app": true,
+    # "last_tag_message": "all the kings horses",
+    # "is_dirty_config": true,
+    # "status": "uncommitted_changes",
+    # "last_tag_config": "x.2",
+    # "changed_files": [
+    #     "bin/activate.csh"
+    # ],
+    # "last_tag_app": "x.2",
+    # "packages": {
+    #     "repoze.lru": {
+    #         "version": "0.3",
+    #         "name": "repoze.lru"
+    #     },
+    #     "pyramid": {
+    #         "version": "1.2.7",
+    #         "name": "pyramid"
+    #     }
+    # },
+    # "config": {
+    #     "short_sha1": "\"5f775a3\""
+    # },
+    # "current_branch_config": "mt3",
+    # "supervisor_service_names": []
+    # }
 
-        self.current_branch_app = ''
-        self.current_branch_config = ''
+    def __init__(self, **dict_data):
+        self.__dict__.update(dict_data)
+        self.name_url = dirify(self.name)
 
-        self.change_count_app = ''
-        self.change_count_config = ''
+        self.nodes = {}
 
-        self.is_dirty_app = False
-        self.is_dirty_config = False
+        self._add_packages(dict_data['packages'])
+        self._add_tags_from_service_dict(dict_data['tags'])
+        self.last_tag = self._get_last_tag()
 
-        self.last_tag_app = ''
-        self.last_tag_config = ''
-        self.last_tag_message = ''
+    def append_node(self, node, service_as_dict):
+        """
+        Create new node object and append it to the nodes dict
 
-        self.status = ''
-        self.remote = ''
-        self.packages = []
-        self.changed_files = []
-        self.tags = []
-        self.config = {}
-        self.supervisor_service_names = []
-
-    @staticmethod
-    def build_app(site_name, node_name, url, service):
-        """Build an service object from the service dictionary"""
-
-        s = Service(service['name'], site_name, node_name, url)
-        s.current_branch_app = service['current_branch_app']
-        s.change_count_app = service['change_count_app']
-        s.change_count_config = service['change_count_config']
-        s.is_dirty_config = service['is_dirty_config']
-        s.last_tag_config = service['last_tag_config']
-        s.status = service['status']
-        s.remote = service['remote']
-        s.last_tag_app = service['last_tag_app']
-        s.last_tag_message = service['last_tag_message']
-        s.current_branch_config = service['current_branch_config']
-        s.changed_files = service['changed_files']
-        s.tags = []
-        s.packages = []
-        s.add_packages(service['packages'])
-        s.add_tags_from_dict(service['tags'])
-        s.last_tag = s.get_last_tag()
-        s.config = service['config']
-        print 'CONFIG'
-        print s.config
-        s.supervisor_service_names = service['supervisor_service_names']
-
-        return s
+        We get passed an existing site node object and a the service as a dict
+        that was returned from Bambino.
+        """
+        self.nodes[node.name] = Node(node.name,
+                                     node.site_name,
+                                     node.url,
+                                     node.ip,
+                                     service_as_dict['config'],
+                                     service_as_dict['changed_files'],
+                                     service_as_dict['supervisor_service_names'])
 
     @staticmethod
     def report_status(results):
@@ -94,8 +87,6 @@ class Service(object):
     @staticmethod
     def cycle(proxy, service_name):
         try:
-            # alextodo. figure out the api here. can we add a timeout
-
             logging.info('stopping %s' % service_name)
             results = proxy.supervisor.stopProcessGroup(service_name)
             Service.report_status(results)
@@ -125,11 +116,19 @@ class Service(object):
         """
         return Release.get_releases(self.site_name, self.name)
 
-    def add_packages(self, pckgs):
-        for name, pckg in pckgs.iteritems():
-            self.packages.append(Package(pckg['name'], pckg['version'], ''))
+    def _add_packages(self, pckgs):
+        """
+        Add package objects from the Bambino dict
+        """
+        self.packages = {}
 
-    def add_tags_from_dict(self, tags_as_dicts):
+        for package_name, package_as_dict in pckgs.iteritems():
+            package = Package(package_as_dict['name'], package_as_dict['version'], '')
+            self.packages[package.name_url] = package
+
+    def _add_tags_from_service_dict(self, tags_as_dicts):
+        self.tags = []
+
         for tag in tags_as_dicts:
             self.tags.append(Tag(tag['name'], tag['date'], tag['message']))
 
@@ -171,14 +170,11 @@ class Service(object):
         self.msg = msg
         self.status = 'tagged'
 
-        audit = Audit()
-        audit.log_action(self.site_name, self.name, 'tag', user)
-
     def _update_last_tag(self):
-        self.last_tag_app = self.get_last_tag()
-        self.last_tag_config = self.get_last_tag()
+        self.last_tag_app = self._get_last_tag()
+        self.last_tag_config = self._get_last_tag()
 
-    def get_last_tag(self):
+    def _get_last_tag(self):
         # Initialize an empty tag if it doesn't tag exist
         latest_tag = Tag('', '', '')
         latest_tag_date = 0
@@ -191,29 +187,7 @@ class Service(object):
         return latest_tag
 
     def get_status(self):
-        if self.status == 'tagged' and SiteDAL.is_deployed(self, self.last_tag):
-            return 'deployed'
-        else:
-            return self.status
-
-    def mark_as_deployed(self, tag, user):
-        """
-        Mark an service as deployed
-        """
-        self.status = 'deployed'
-        SiteDAL.save_service_as_deployed(self, tag)
-
-        audit = Audit()
-        audit.log_action(self.site_name, self.name, 'deploy', user)
-
-    def get_logs(self):
-        audit = Audit()
-        app_logs = audit.get_app_logs(self.site_name, self.name)
-
-        for log in app_logs:
-            log['service'] = self.name
-
-        return app_logs
+        return self.status
 
     def next_version(self):
         """
