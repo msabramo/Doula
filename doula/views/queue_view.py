@@ -55,8 +55,8 @@ def build_query_from_request(request):
     query = {
         'job_type': [
             'build_new_package',
-            'cycle_services',
-            'push_service_environment']
+            'cycle_service',
+            'release_service']
         }
 
     # If job type is specified use that

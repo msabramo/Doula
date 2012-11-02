@@ -271,7 +271,7 @@ var ServiceEnv = {
 
 	queueItemChanged: function(event, item) {
 		// Cycle button gets enabled once
-		if(item.job_type == 'cycle_services') {
+		if(item.job_type == 'cycle_service') {
 			if(item.status == 'failed' || item.status == 'complete') {
 				this.enableCycleButton();
 			}

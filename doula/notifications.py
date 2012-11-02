@@ -29,14 +29,11 @@ def email_success(email_list, job_dict):
                 job_dict['version'])
 
         subject += '%s Built Package %s Version %s' % vals
-    elif job_dict['job_type'] == 'cycle_services':
+    elif job_dict['job_type'] == 'cycle_service':
         vals = (user['username'], job_dict['service'], job_dict['site'])
         subject += '%s Cycled %s on %s' % vals
-    elif job_dict['job_type'] == 'push_service_environment':
-        vals = (user['username'],
-                job_dict['service_name'],
-                job_dict['site_name_or_node_ip'])
-
+    elif job_dict['job_type'] == 'release_service':
+        vals = (user['username'], job_dict['service'], job_dict['site'])
         subject += '%s Released Service %s on %s' % vals
 
     email(subject, email_list, body)
@@ -58,14 +55,11 @@ def email_fail(email_list, job_dict, exception):
     if job_dict['job_type'] == 'build_new_package':
         vals = (user['username'], job_dict['package_name'])
         subject += '%s\'s Job to Build Package %s Failed' % vals
-    elif job_dict['job_type'] == 'cycle_services':
+    elif job_dict['job_type'] == 'cycle_service':
         vals = (user['username'], job_dict['service'], job_dict['site'])
         subject += '%s\'s Job to Cycle %s on %s Failed' % vals
-    elif job_dict['job_type'] == 'push_service_environment':
-        vals = (user['username'],
-                job_dict['service_name'],
-                job_dict['site_name_or_node_ip'])
-
+    elif job_dict['job_type'] == 'release_service':
+        vals = (user['username'], job_dict['service'], job_dict['site'])
         subject += '%s\'s Job to Release Service %s on %s Failed' % vals
 
     email(subject, email_list, body)
@@ -117,8 +111,8 @@ def send_notification(job_dict, exception=None):
         if job_dict:
             emailable_jobs = [
                 'build_new_package',
-                'cycle_services',
-                'push_service_environment']
+                'cycle_service',
+                'release_service']
 
             if job_dict['job_type'] in emailable_jobs:
                 email_list = build_email_list(job_dict)

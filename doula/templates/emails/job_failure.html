@@ -5,11 +5,11 @@
         <strong>{{ queued_item['user_id'] }}'s</strong> job failed to build
         <strong>{{ queued_item['package_name'] }}</strong> with the version number
         <strong>{{ queued_item['version'] }}</strong>.
-    {% elif queued_item['job_type'] == 'cycle_services' %}
+    {% elif queued_item['job_type'] == 'cycle_service' %}
         <strong>{{ queued_item['user_id'] }}'s</strong> job failed to cycle service
         <strong>{{ queued_item['service'] }}</strong> on
         <strong>{{ queued_item['site'] }}</strong>.
-    {% elif queued_item['job_type'] == 'push_service_environment' %}
+    {% elif queued_item['job_type'] == 'release_service' %}
         <strong>{{ queued_item['user_id'] }}'s</strong> job failed to release service
         <strong>{{ queued_item['service_name'] }}</strong> on
         <strong>{{ queued_item['site'] }}</strong>.

@@ -27,7 +27,7 @@
                     <strong>{{ queued_item['version'] }}</strong>.
                 {% endif %}
 
-            {% elif queued_item['job_type'] == 'cycle_services' %}
+            {% elif queued_item['job_type'] == 'cycle_service' %}
                 {% if queued_item['status'] == 'failed' %}
                     <strong>{{ queued_item['user_id'] }}'s</strong> job failed to cycle service
                     <strong>{{ queued_item['service'] }}</strong> on
@@ -42,7 +42,7 @@
                     <strong>{{ queued_item['site'] }}</strong>.
                 {% endif %}
 
-            {% elif queued_item['job_type'] == 'push_service_environment' %}
+            {% elif queued_item['job_type'] == 'release_service' %}
                 {% if queued_item['status'] == 'failed' %}
                     <strong>{{ queued_item['user_id'] }}'s</strong> job failed to release service
                     <strong>{{ queued_item['service_name'] }}</strong> on

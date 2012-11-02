@@ -171,12 +171,12 @@ class QueueTests(unittest.TestCase):
         qm = self.queue.qm
         qm.enqueue = Mock()
 
-        id = self.queue.this({'job_type': 'cycle_services'})
-        expected = [call('doula.jobs:cycle_services', job_dict={'status': 'queued',
+        id = self.queue.this({'job_type': 'cycle_service'})
+        expected = [call('doula.jobs:cycle_service', job_dict={'status': 'queued',
                                                                 'time_started': 0,
                                                                 'service': '',
                                                                 'exc': '',
-                                                                'job_type': 'cycle_services',
+                                                                'job_type': 'cycle_service',
                                                                 'site': '',
                                                                 'id': '%s' % id})]
         self.assertEqual(qm.enqueue.mock_calls, expected)
@@ -244,7 +244,7 @@ class QueueTests(unittest.TestCase):
 
         id = self.queue.this({'job_type': 'build_new_package'})
         self.queue.this({'job_type': 'build_new_package'})
-        self.queue.this({'job_type': 'cycle_services'})
+        self.queue.this({'job_type': 'cycle_service'})
 
         jobs = self.queue.get({'id': id, 'blah': 'key'})
         self.assertEqual(jobs[0]['job_type'], 'build_new_package')
@@ -261,9 +261,9 @@ class QueueTests(unittest.TestCase):
         self.queue.this({'job_type': 'build_new_package'})
         self.queue.this({'job_type': 'pull_github_data'})
         self.queue.this({'job_type': 'build_new_package'})
-        self.queue.this({'job_type': 'cycle_services'})
+        self.queue.this({'job_type': 'cycle_service'})
 
-        jobs = self.queue.get({'job_type': ['build_new_package', 'cycle_services']})
+        jobs = self.queue.get({'job_type': ['build_new_package', 'cycle_service']})
         self.assertEqual(len(jobs), 3)
 
     # todo: write test for multiple query params, like query = {'job_type': 'build_new_package',

@@ -33,6 +33,10 @@ def load_config(config):
     Config.load_config(config)
 
 
+#####################
+# User Initiated Jobs
+#####################
+
 def build_new_package(config={}, job_dict={}):
     """
     This function will be enqueued by Queue upon receiving a job dict that
@@ -40,12 +44,12 @@ def build_new_package(config={}, job_dict={}):
     updated the version present in the setup.py of the repo, and release the
     package to cheeseprism.
     """
-    create_logger(job_dict['id'])
+    log = create_logger(job_dict['id'])
     load_config(config)
 
     try:
-        # alextodo. revisit everything we log to the file.
-        logging.info("About to push package to cheese prism %s" % job_dict['remote'])
+        vals = (job_dict['package_name'], job_dict['versions'])
+        log.info("Pushing package '%s' with version %s to CheesePrism" % vals)
 
         p = Package(job_dict['package_name'], '0', job_dict['remote'])
         p.distribute(job_dict['branch'], job_dict['version'])
@@ -65,6 +69,9 @@ def build_new_package(config={}, job_dict={}):
 
             redis.set("cheeseprism:packages", dumps(all_packages))
 
+        # alextodo. revisit this. not everything is getting updated properly
+        # the packages are not being updated properly based on the name.
+        # use comparable name.
         packages_as_json = redis.get('cheeseprism:package:' +
             comparable_name(job_dict['package_name']))
 
@@ -75,59 +82,146 @@ def build_new_package(config={}, job_dict={}):
 
             redis.set('cheeseprism:package:' + job_dict['package_name'], packages_as_json)
 
-        logging.info('Finished pushing package %s to CheesePrism' % job_dict['remote'])
+        log.info('Finished pushing package %s to CheesePrism' % job_dict['remote'])
     except Exception as e:
-        logging.error(e.message)
-        logging.error(traceback.format_exc())
+        log.error(e.message)
+        log.error(traceback.format_exc())
         raise
 
 
-def cycle_services(config={}, job_dict={}):
+def cycle_service(config={}, job_dict={}):
     """
-    This function will be enqueued by Queue upon receiving a job dict that
-    has a job_type of 'cycle_services'.
-    It restarts the supervisor processes for a specific site.
+    This job restarts the supervisord processes for the service on the site
     """
-    create_logger(job_dict['id'])
+    log = create_logger(job_dict['id'])
     load_config(config)
 
     try:
-        logging.info('Cycling service %s' % job_dict['service'])
+        log.info('Cycling %s on %s' % (job_dict['service'], job_dict['site']))
 
-        # alextodo. change this. it will look up all the nodes on that service
-        # that node will have ip addresses and names of supervisor_service_names
-        # just pass in the name of the mt and the name of the service
-        # that is all. everything else is found.
+        dd = DoulaDAL()
+        service = dd.find_service_by_name(job_dict['site'], job_dict['service'])
 
-        for ip in job_dict['nodes']:
-            logging.info('Cycling supervisord services: %s' %
-                job_dict['supervisor_service_names'])
+        # Roll through all the nodes for this service
+        for node_name, node in service.nodes.iteritems():
+            vals = (service.name, node.ip)
+            msg = "Cycling supervisord services '%s' on node with IP %s" % vals
+            log.info(msg)
 
-            for name in job_dict['supervisor_service_names']:
-                logging.info('Cycling service %s on IP http://%s' % (name, ip))
-                #http://stackoverflow.com/a/1766187/182484
-                #set a global timeout on socket
+            for supervisor_service_name in node.supervisor_service_names:
+                log.info("Cycling supervisord service with name '%s'" %
+                    supervisor_service_name)
+
+                # Supervisord doesn't have a default timeout, it will just hang
+                # Solution is to set a global timeout on socket,
+                # then set it back to default
+                # See original soloution here: http://stackoverflow.com/a/1766187/182484
+
+                # Set the timeout to 30 seconds
                 socket.setdefaulttimeout(30)
-                Service.cycle(xmlrpclib.ServerProxy('http://' + ip + ':9001'), name)
+                url = 'http://' + node.ip + ':9001'
+                Service.cycle(xmlrpclib.ServerProxy(url), supervisor_service_name)
+
+                # Set the timeout back to default
                 socket.setdefaulttimeout(None)
 
-        logging.info('Done cycling %s' % job_dict['service'])
+            log.info('Done cycling services on node with IP %s' % node.ip)
+
+        log.info('Done cycling %s on %s' % (job_dict['service'], job_dict['site']))
     except Exception as e:
         socket.setdefaulttimeout(None)
-        logging.error(e.message)
-        logging.error(traceback.format_exc())
+        log.error(e.message)
+        log.error(traceback.format_exc())
         raise
 
+
+def release_service(config={}, job_dict={}, debug=False):
+    """
+    Release a service to a specific site.
+    1) Pip install the packages sent
+    2) Update config files
+    3) Cycle the services
+    """
+    log = create_logger(job_dict['id'])
+    load_config(config)
+
+    try:
+        dd = DoulaDAL()
+        service = dd.find_service_by_name(job_dict['site'], job_dict['service'])
+
+        vals = (','.join(job_dict['packages']), service.name, service.site_name)
+        log.info('Pushing the packages %s to %s on %s.' % vals)
+
+        failures = []
+        successes = []
+
+        try:
+            # Roll through all the nodes for this service and push
+            # the packages for each node in the service
+            for node_name, node in service.nodes.iteritems():
+                vals = (service.name, node.ip)
+                msg = "Pushing %s to the node with IP %s" % vals
+                log.info(msg)
+
+                push = Push(
+                    service.name,
+                    node.ip,
+                    job_dict['user_id'],
+                    config['bambino.webapp_dir'],
+                    config['doula.cheeseprism_url'],
+                    config['doula.keyfile_path'],
+                    config['doula.assets.dir'],
+                    debug
+                )
+
+            successes, failures = push.packages(job_dict['packages'])
+        except Exception as e:
+            print 'EXCEPTION IN JOB:'
+            # getting this message. sequence item 0: exp
+            print e.message
+
+            failures.append({'package': 'git', 'error': str(e)})
+
+        if failures:
+            # timtodo. this used to use join, failures returns this
+            # [{'error': "'bambino.web_app_dir'", 'package': 'git'}]
+            # Old call. this is here
+            # raise Exception(','.join(failures['error']))
+            raise Exception(failures[0]['error'])
+
+        logging.getLogger().setLevel(logging.DEBUG)
+        create_logger(job_dict['id'])
+        log.info('Done installing packages.')
+
+        # Update this site by pulling the latest data for the site
+        # Create a new job dict because we don't want logs mixed up
+        pull_bambino_data_job_dict = {'id': uuid.uuid1().hex}
+        pull_bambino_data(config, pull_bambino_data_job_dict)
+
+        # Cycle the service after releasing the service
+        cycle_service(config, job_dict)
+
+        return successes, failures
+    except Exception as e:
+        logging.getLogger().setLevel(logging.DEBUG)
+        log.error(e.message)
+        log.error(traceback.format_exc())
+        raise
+
+
+########################
+# Doula Maintenance Jobs
+########################
 
 def pull_cheeseprism_data(config={}, job_dict={}):
     """
     Ping Cheese Prism and pull the latest packages and all of their versions.
     """
-    create_logger(job_dict['id'])
+    log = create_logger(job_dict['id'])
     load_config(config)
 
     try:
-        logging.info('Started pulling cheeseprism data')
+        log.info('Started pulling cheeseprism data')
 
         redis = Redis.get_instance()
         pipeline = redis.pipeline()
@@ -143,10 +237,10 @@ def pull_cheeseprism_data(config={}, job_dict={}):
         # always remove maintenance jobs from the queue
         Queue().remove(job_dict['id'])
 
-        logging.info('Done pulling data from cheeseprism')
+        log.info('Done pulling data from cheeseprism')
     except Exception as e:
-        logging.error(e.message)
-        logging.error(traceback.format_exc())
+        log.error(e.message)
+        log.error(traceback.format_exc())
         raise
 
 
@@ -155,11 +249,11 @@ def pull_github_data(config={}, job_dict={}):
     Pull the github data for every python package.
     Pull commit history, tags, branches. Everything.
     """
-    create_logger(job_dict['id'])
+    log = create_logger(job_dict['id'])
     load_config(config)
 
     try:
-        logging.info('pulling github data')
+        log.info('pulling github data')
         return;
 
         # PUll the dev monkey repos data
@@ -177,10 +271,10 @@ def pull_github_data(config={}, job_dict={}):
         # always remove maintenance jobs from the queue
         Queue().remove(job_dict['id'])
 
-        logging.info('Done pulling github data')
+        log.info('Done pulling github data')
     except Exception as e:
-        logging.error(e.message)
-        logging.error(traceback.format_exc())
+        log.error(e.message)
+        log.error(traceback.format_exc())
         raise
 
 
@@ -188,11 +282,11 @@ def pull_appenv_github_data(config={}, job_dict={}, debug=False):
     """
     Pull the github data for every App environment
     """
-    create_logger(job_dict['id'])
+    log = create_logger(job_dict['id'])
     load_config(config)
 
     try:
-        logging.info('Pulling github appenv data')
+        log.info('Pulling github appenv data')
         return;
         redis = Redis.get_instance()
         repos = pull_appenv_repos()
@@ -201,69 +295,10 @@ def pull_appenv_github_data(config={}, job_dict={}, debug=False):
         # always remove maintenance jobs from the queue
         Queue().remove(job_dict['id'])
 
-        logging.info('Done pulling github appenv data')
+        log.info('Done pulling github appenv data')
     except Exception as e:
-        logging.error(e.message)
-        logging.error(traceback.format_exc())
-        raise
-
-
-def push_service_environment(config={}, job_dict={}, debug=False):
-    """
-    Pip install the packages sent
-    """
-    log = create_logger(job_dict['id'])
-    load_config(config)
-
-    try:
-        log.info('%s pushed the following packages to %s: [%s]' %
-                (job_dict['user_id'], job_dict['service_name'],
-                ','.join(job_dict['packages'])))
-        failures = []
-        successes = []
-
-        try:
-            push = Push(
-                job_dict['service_name'],
-                job_dict['user_id'],
-                config['bambino.webapp_dir'],
-                config['doula.cheeseprism_url'],
-                config['doula.keyfile_path'],
-                job_dict['site_name_or_node_ip'],
-                config['doula.assets.dir'],
-                debug
-            )
-            successes, failures = push.packages(job_dict['packages'])
-        except Exception as e:
-            print 'EXCEPTIN IN JOB:'
-            # getting this message. sequence item 0: exp
-            print e.message
-            failures.append({'package': 'git', 'error': str(e)})
-
-        if failures:
-            # timtodo. this used to use join, failures returns this
-            # [{'error': "'bambino.web_app_dir'", 'package': 'git'}]
-            # Old call. this is here
-            # raise Exception(','.join(failures['error']))
-            raise Exception(failures[0]['error'])
-
-        logging.getLogger().setLevel(logging.DEBUG)
-        create_logger(job_dict['id'])
-        logging.info('Done installing packages.')
-
-        # Update this site by pulling the latest data for the site
-        # Create a new job dict because we don't want logs mixed up
-        pull_bambino_data_job_dict = {'id': uuid.uuid1().hex}
-        pull_bambino_data(config, pull_bambino_data_job_dict)
-
-        # Cycle the service after releasing the service
-        cycle_services(config, job_dict)
-
-        return successes, failures
-    except Exception as e:
-        logging.getLogger().setLevel(logging.DEBUG)
-        logging.error(e.message)
-        logging.error(traceback.format_exc())
+        log.error(e.message)
+        log.error(traceback.format_exc())
         raise
 
 
@@ -271,11 +306,11 @@ def pull_bambino_data(config={}, job_dict={}):
     """
     Pull the data from all the bambino's
     """
-    create_logger(job_dict['id'])
+    log = create_logger(job_dict['id'])
     load_config(config)
 
     try:
-        logging.info('Pulling bambino data')
+        log.info('Pulling bambino data')
 
         dd = DoulaDAL()
         dd.update_site_and_service_models()
@@ -283,10 +318,10 @@ def pull_bambino_data(config={}, job_dict={}):
         # always remove maintenance jobs from the queue
         Queue().remove(job_dict['id'])
 
-        logging.info('Done pulling bambino data')
+        log.info('Done pulling bambino data')
     except Exception as e:
-        logging.error(e.message)
-        logging.error(traceback.format_exc())
+        log.error(e.message)
+        log.error(traceback.format_exc())
         raise
 
 
@@ -328,11 +363,11 @@ def cleanup_queue(config={}, job_dict={}):
     """
     Cleanup old jobs stored in our queueing system.
     """
-    create_logger(job_dict['id'])
+    log = create_logger(job_dict['id'])
     load_config(config)
 
     try:
-        logging.info('Cleaning up the queue')
+        log.info('Cleaning up the queue')
 
         queue = Queue()
         expired_job_ids = find_expired_jobs(queue.get())
@@ -346,8 +381,8 @@ def cleanup_queue(config={}, job_dict={}):
             if os.path.isfile(path_to_file):
                 os.remove(path_to_file)
 
-        logging.info('Done cleaning up the queue')
+        log.info('Done cleaning up the queue')
     except Exception as e:
-        logging.error(e.message)
-        logging.error(traceback.format_exc())
+        log.error(e.message)
+        log.error(traceback.format_exc())
         raise

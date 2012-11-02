@@ -95,7 +95,7 @@ def enqueue_release_service(request, service, packages):
 
     # todo: use service and service_name
     job_id = q.this({
-        'job_type': 'push_service_environment',
+        'job_type': 'release_service',
         'packages': pckgs,
         'service': service.name,
         'site': service.site_name,
@@ -119,7 +119,7 @@ def service_cycle(request):
                     request.matchdict['site_name'],
                     request.matchdict['service_name'])
 
-        job_id = enqueue_cycle_services(request, service)
+        job_id = enqueue_cycle_service(request, service)
     except Exception as e:
         msg = 'Error attempting to cycle %s' % request.matchdict['service_name']
         log.error(msg)
@@ -131,12 +131,12 @@ def service_cycle(request):
     return dumps({'success': True, 'job_id': job_id})
 
 
-def enqueue_cycle_services(request, service):
+def enqueue_cycle_service(request, service):
     """
-    Enqueue the job onto the queue
+    Enqueue the cycle services job onto the queue
     """
     return Queue().this({
-        'job_type': 'cycle_services',
+        'job_type': 'cycle_service',
         'service': service.name,
         'site': service.site_name,
         'user_id': request.user['username']

@@ -88,7 +88,7 @@ class NotificationsTests(unittest.TestCase):
             'user_id': 'testuser2',
             'exc': '',
             'service': 'billweb',
-            'job_type': 'cycle_services',
+            'job_type': 'cycle_service',
             'site': 'alexs-macbook-pro-4.local',
             'time_started': 1345244421.622244,
             'nodes': ['192.168.104.109'],

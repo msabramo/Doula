@@ -36,11 +36,11 @@ class Push(object):
 
     def __init__(self,
             service_name,
+            node_ip,
             username,
             web_app_dir,
             cheeseprism_url,
             keyfile,
-            site_name_or_node_ip,
             outdir,
             debug=False):
 
@@ -56,9 +56,9 @@ class Push(object):
 
         self.web_app_dir = web_app_dir
         self.cheeseprism_url = os.path.join(cheeseprism_url, 'index')
-        print 'url:', self.cheeseprism_url
         self.keyfile = keyfile
-        env.host_string = site_name_or_node_ip
+
+        env.host_string = node_ip
         self.debug = debug
         env.user = 'doula'
         env.key_filename = self.keyfile

@@ -63,11 +63,7 @@ class Queue(object):
         'exc': ''
     }
 
-    push_service_environment_dict = dict({
-        'site_name_or_node_ip': '',
-        'email': '',
-        'service_name': '',
-        'assets_outdir': '',
+    release_service_dict = dict({
         'packages': []
     }.items() + common_dict.items())
 
@@ -80,8 +76,8 @@ class Queue(object):
     base_dicts = {
         'base': common_dict,
         'build_new_package': build_new_package_dict,
-        'push_service_environment': push_service_environment_dict,
-        'cycle_services': common_dict,
+        'release_service': release_service_dict,
+        'cycle_service': common_dict,
         'pull_cheeseprism_data': common_dict,
         'pull_github_data': common_dict,
         'pull_appenv_github_data': common_dict,
@@ -104,8 +100,8 @@ class Queue(object):
         """
         job_types = [
             'build_new_package',
-            'push_service_environment',
-            'cycle_services',
+            'release_service',
+            'cycle_service',
             'pull_cheeseprism_data',
             'pull_github_data',
             'pull_appenv_github_data',
@@ -392,8 +388,8 @@ def can_update_job(job_type):
     """
     updateable_job_types = [
         'build_new_package',
-        'cycle_services',
-        'push_service_environment'
+        'cycle_service',
+        'release_service'
         ]
 
     return job_type in updateable_job_types
