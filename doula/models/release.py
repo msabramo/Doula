@@ -11,6 +11,11 @@ class Release(object):
         self.branch = branch
         self.packages = packages
 
+
+    @staticmethod
+    def build_java_release_from_repo(branch, service_name, commit):
+
+
     @staticmethod
     def build_release_from_repo(branch, service_name, commit):
         """
