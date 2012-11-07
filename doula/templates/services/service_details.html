@@ -98,7 +98,7 @@
             </tr>
             {% set count = 1 %}
 
-            {% for pack in service.packages|sort(attribute='name') %}
+            {% for name, pack in service.packages.iteritems()|sort %}
             {% if count == 1 %}
             <tr>
             {% endif %}

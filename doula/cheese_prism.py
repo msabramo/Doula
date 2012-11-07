@@ -18,7 +18,15 @@ class PythonPackage(object):
         """
         Get the latest version in the versions list
         """
-        return self.versions[len(self.versions) - 1]
+        index = len(self.versions) - 1
+
+        if index < 0:
+            index = 0
+
+        if len(self.versions) > 0:
+            return self.versions[index]
+        else:
+            return ""
 
 
 class CheesePrism(object):
@@ -29,13 +37,16 @@ class CheesePrism(object):
     def find_package_by_name(name):
         """
         Package URL's are case sensitive so we need to find the exact URL
+
+        Return the python package object.
         """
         redis = Redis.get_instance()
-        text = redis.get('cheeseprism:package:' + comparable_name(name))
+        package_as_json = redis.get('cheeseprism:package:' + comparable_name(name))
 
-        if text:
-            p = json.loads(text)
-            return PythonPackage(p['name'], p['versions'])
+        if package_as_json:
+            package_as_dict = json.loads(package_as_json)
+
+            return PythonPackage(package_as_dict['name'], package_as_dict['versions'])
         else:
             log.info('Returning an empty package %s' % name)
             return PythonPackage(name, [])

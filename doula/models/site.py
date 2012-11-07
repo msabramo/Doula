@@ -1,8 +1,5 @@
 from doula.cache import Redis
-from doula.models.site_tag_history import SiteTagHistory
 from doula.util import dirify
-from fabric.api import *
-from git import *
 import logging
 
 log = logging.getLogger('doula')
@@ -23,13 +20,13 @@ class Site(object):
             "service_name": Service Object
         }
     """
-
     def __init__(self, name, status='unknown', nodes={}, services={}):
         self.name = name
         self.name_url = dirify(name)
         self.status = status
         self.nodes = nodes
         self.services = services
+        self.redis = Redis.get_instance()
 
     ################################
     # Status and Tag Logic
@@ -51,18 +48,14 @@ class Site(object):
             'uncommitted_changes': 4
         }
 
-        for app_name, app in self.services.iteritems():
-            app_status_value = status_values[app.get_status()]
+        for service_name, service in self.services.iteritems():
+            service_status_value = status_values[service.get_status()]
 
-            if app_status_value > status_value:
-                status_value = app_status_value
-                self.status = app.get_status()
+            if service_status_value > status_value:
+                status_value = service_status_value
+                self.status = service.get_status()
 
         return self.status
-
-    def tag(self, tag_history_path, tag_history_remote, tag, msg, user):
-        sth = SiteTagHistory(tag_history_path, tag_history_remote, self.name_url, 'output.log')
-        sth.tag_site(tag, msg, self.services)
 
     ############################
     # Lock/Unlock Logic for Site
@@ -73,10 +66,9 @@ class Site(object):
         Returns true or false based on whether or not the site has been
         locked by an Doula admin
         """
-        redis = Redis.get_instance()
         key = 'doula.site.locked:%s' % self.name_url
 
-        if redis.get(key) == 'true':
+        if self.redis.get(key) == 'true':
             return True
         else:
             return False
@@ -85,14 +77,15 @@ class Site(object):
         """
         Lock down a site so no one except an admin can release to the site
         """
-        redis = Redis.get_instance()
         key = 'doula.site.locked:%s' % self.name_url
-        redis.set(key, 'true')
+        self.redis.set(key, 'true')
 
     def unlock(self):
         """
         Unlock site so everyone can release to the site
         """
-        redis = Redis.get_instance()
         key = 'doula.site.locked:%s' % self.name_url
-        redis.set(key, 'false')
+        self.redis.set(key, 'false')
+
+
+

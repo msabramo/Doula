@@ -254,7 +254,6 @@ def pull_github_data(config={}, job_dict={}):
 
     try:
         log.info('pulling github data')
-        return;
 
         # PUll the dev monkey repos data
         repos = pull_devmonkeys_repos()
@@ -287,7 +286,6 @@ def pull_appenv_github_data(config={}, job_dict={}, debug=False):
 
     try:
         log.info('Pulling github appenv data')
-        return;
         redis = Redis.get_instance()
         repos = pull_appenv_repos()
         redis.set("repos:appenvs", dumps(repos))

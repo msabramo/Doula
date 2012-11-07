@@ -30,21 +30,18 @@ class Redis(object):
 
     @staticmethod
     def get_instance(db=0):
-        try:
-            if db == 0:
-                if not Redis.redis:
-                    Redis.redis = Redis.connect(Config.get('redis.host'), Config.get('redis.port'), db)
+        if Redis.env == 'dev':
+            # for testing we use mock redis so that we don't need an option
+            from doula.tests.mock_redis import MockRedis
+            return MockRedis()
 
-                return Redis.redis
-            elif db == 1:
-                if not Redis.redis_store:
-                    Redis.redis_store = Redis.connect(Config.get('redis.host'), Config.get('redis.port'), db)
+        if db == 0:
+            if not Redis.redis:
+                Redis.redis = Redis.connect(Config.get('redis.host'), Config.get('redis.port'), db)
 
-                return Redis.redis_store
-        except:
-            if Redis.env == 'prod':
-                raise
-            else:
-                # for testing we use mock redis so that we don't need an option
-                from doula.tests.mock_redis import MockRedis
-                return MockRedis()
+            return Redis.redis
+        elif db == 1:
+            if not Redis.redis_store:
+                Redis.redis_store = Redis.connect(Config.get('redis.host'), Config.get('redis.port'), db)
+
+        return Redis.redis_store

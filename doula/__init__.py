@@ -1,6 +1,6 @@
 from doula.models.user import User
 from doula.resources import Site
-from doula.security import groupfinder
+from doula.util import groupfinder
 from pyramid.authentication import SessionAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
@@ -56,7 +56,6 @@ def main(global_config, **settings):
 
     config.add_route('site', '/sites/{site_name}')
     config.add_route('site_lock', '/sites/{site_name}/lock')
-    config.add_route('site_tag', '/sites/{site_name}/tag')
 
     # Services routes
     config.add_route('service', '/sites/{site_name}/{service_name}')

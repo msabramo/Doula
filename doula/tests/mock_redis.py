@@ -155,8 +155,12 @@ class MockRedis(object):
 
     def srem(self, key, member):
         """Emulate a srem."""
+        if type(self.redis[key]) == dict:
+            if member in self.redis[key]:
+                del self.redis[key][member]
+        else:
+            self.redis[key].discard(member)
 
-        self.redis[key].discard(member)
         return self
 
     def srandmember(self, key):

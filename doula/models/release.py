@@ -5,11 +5,12 @@ import re
 
 
 class Release(object):
-    def __init__(self, author, date, branch, packages):
+    def __init__(self, author, date, commit_message, branch, packages):
         self.author = author
         self.date = date
         self.branch = branch
         self.packages = packages
+        self.commit_message = commit_message
 
     @staticmethod
     def build_release_from_repo(branch, service_name, commit):
@@ -49,7 +50,7 @@ class Release(object):
                 if m:
                     packages.append(Package(m.group(1), m.group(2), ''))
 
-        return Release(commit["author"], commit['date'], branch, packages)
+        return Release(commit["author"], commit['date'], commit['message'], branch, packages)
 
     @staticmethod
     def get_releases(branch, service_name):

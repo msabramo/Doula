@@ -106,7 +106,8 @@ class Package(object):
 
             # Clone specified service's repo
             # alextodo, look at cleaning up the end of the repo path
-            # the directory itself should be lowercased
+            # the directory itself should be lowercased. we want to move to
+            # to standardized packages. or maybe we just handle on front end.
             repo = Repo.clone_from(self.remote, repo_path)
 
             # Pull the latest changes from the branch the user selected

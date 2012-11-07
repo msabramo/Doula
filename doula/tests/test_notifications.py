@@ -1,4 +1,5 @@
 from doula.cache import Redis
+from doula.config import Config
 from doula.models.user import User
 from doula.notifications import build_email_list
 import unittest
@@ -7,8 +8,18 @@ import unittest
 class NotificationsTests(unittest.TestCase):
 
     def setUp(self):
-        redis = Redis.get_instance()
-        redis.flushdb()
+        Redis.env = 'dev'
+        self.redis = Redis.get_instance()
+        self.redis.flushdb()
+
+        settings = {
+            'doula.github.api.domain': 'http://api.code.corp.surveymonkey.com',
+            'doula.github.doula.admins.org': 'DoulaAdmins',
+            'doula.github.token': '17e6642dca429043725ad6a98ce966e5a67eac69',
+            'doula.cheeseprism_url': 'http://yorick.corp.surveymonkey.com:9003'
+        }
+
+        Config.load_config(settings)
 
     def test_build_email_list_to_original_user(self):
         user = {

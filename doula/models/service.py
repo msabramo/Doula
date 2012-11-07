@@ -6,7 +6,6 @@ from doula.util import *
 from fabric.api import *
 from socket import error as socket_error
 import logging
-import operator
 import re
 import requests
 import xmlrpclib
@@ -215,10 +214,10 @@ class Service(object):
 
     def freeze_requirements(self):
         reqs = ''
+        sorted_packages = sorted(self.packages.iterkeys())
 
-        self.packages.sort(key=operator.attrgetter('name'))
-
-        for pckg in self.packages:
+        for name in sorted_packages:
+            pckg = self.packages[name]
             reqs += pckg.name + '==' + pckg.version + "\n"
 
         return reqs

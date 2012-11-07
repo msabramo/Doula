@@ -1,11 +1,9 @@
-# from doula.views.view_helpers import *
 from doula.cache import Redis
 from doula.config import Config
 from doula.jobs_timer import start_task_scheduling
 from doula.models.doula_dal import DoulaDAL
 from doula.queue import Queue
 from doula.util import dumps
-from doula.util import git_dirify
 from pyramid.events import ApplicationCreated
 from pyramid.events import subscriber
 from pyramid.httpexceptions import HTTPFound
@@ -70,20 +68,6 @@ def site_lock(request):
         site.unlock()
 
     return {'success': True}
-
-
-@view_config(route_name='site_tag', renderer="string")
-def site_tag(request):
-    tag_history_path = Config.get('tag_history_path')
-    tag_history_remote = Config.get('tag_history_remote')
-    tag = git_dirify(request.POST['tag'])
-    msg = request.POST['msg']
-
-    dd = DoulaDAL()
-    site = dd.find_site_by_name(request.matchdict['site_name'])
-    site.tag(tag_history_path, tag_history_remote, tag, msg, 'anonymous')
-
-    return dumps({'success': True, 'site_name': site})
 
 
 # BAMBINO VIEWS

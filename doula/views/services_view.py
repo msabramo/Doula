@@ -14,9 +14,9 @@ import traceback
 
 log = logging.getLogger(__name__)
 
-###############
-# SERVICE VIEWS
-###############
+####################
+# SERVICE INDEX VIEW
+####################
 
 
 @view_config(route_name='service', renderer="services/admin_actions.html")
@@ -24,6 +24,9 @@ def service(request):
     dd = DoulaDAL()
     site = dd.find_site_by_name(request.matchdict['site_name'])
     service = site.services[request.matchdict['service_name']]
+    releases = service.get_releases()
+    last_release = get_last_release(releases)
+    last_job = get_last_job(site, service)
 
     other_packages = CheesePrism.other_packages(service.packages)
     # show jobs in the past hour 8 hours
@@ -33,12 +36,74 @@ def service(request):
         'site': site,
         'service': service,
         'config': Config,
+        'last_release': last_release,
+        'last_job': last_job,
+        'is_config_up_to_date': is_config_up_to_date(service),
         'service_json': dumps(service),
-        'releases_json': dumps(service.get_releases()),
+        'releases_json': dumps(releases),
         'other_packages': other_packages,
         'queued_items': [],
         'jobs_started_after': jobs_started_after
     }
+
+
+def is_config_up_to_date(service):
+    """
+    Check if any of the config files for the nodes are
+    out of date.
+    """
+    for node_name, node in service.nodes.iteritems():
+        print 'is up to date: ' + str(node.config["is_up_to_date"])
+        print 'node: '
+        print node
+
+        print "\n\n"
+
+        if not node.config["is_up_to_date"]:
+            return True
+
+    return False
+
+
+def get_last_release(releases):
+    if len(releases) > 0:
+        return releases[0]
+    else:
+        return None
+
+
+def get_last_job(site, service):
+    """
+    Return the last cycle or release_service job
+    for this service
+    """
+    query = {
+        'site': site.name,
+        'service': service.name,
+        'job_type': ['cycle_service', 'release_service']
+    }
+
+    queue = Queue()
+    jobs = queue.get(query)
+
+    last_job = None
+
+    # Find the last job for this service. job must also be complete or failed
+    # we don't want jobs that haven't completed as a status.
+    for job in jobs:
+        if job['status'] == 'queued':
+            continue
+
+        if last_job == None:
+            last_job = job
+        elif last_job['time_started'] < job['time_started']:
+            last_job = job
+
+    return last_job
+
+####################
+# Service Details
+####################
 
 
 @view_config(route_name='service_details', renderer="services/service_details.html")
@@ -154,7 +219,7 @@ def service_freeze(request):
     file_name = service.site_name + '_' + service.name_url + '_requirements.txt'
     response.content_disposition = 'attachment; filename="' + file_name + '"'
     response.charset = "UTF-8"
-    response.text = service.freeze_requirements()
+    response.text = unicode(service.freeze_requirements())
 
     return response
 

@@ -16,13 +16,15 @@ class TestSitesDAL(unittest.TestCase):
         node1 = {
             'name': 'node1',
             'site': site,
-            'url': 'http://node1'
+            'url': 'http://node1',
+            'ip': '127.0.0.1'
         }
 
         node2 = {
             'name': 'node2',
             'site': site,
-            'url': 'http://node2'
+            'url': 'http://node2',
+            'ip': '127.0.0.1'
         }
 
         self.dd.register_node(node1)
@@ -34,7 +36,8 @@ class TestSitesDAL(unittest.TestCase):
         node3 = {
             'name': 'node3',
             'site': site,
-            'url': 'http://node3'
+            'url': 'http://node3',
+            'ip': '127.0.0.1'
         }
 
         self.dd.register_node(node3)
@@ -50,7 +53,8 @@ class TestSitesDAL(unittest.TestCase):
         node1 = {
             'name': 'node1',
             'site': 'site1',
-            'url': 'http://node1'
+            'url': 'http://node1',
+            'ip': '127.0.0.1'
         }
 
         self.dd.register_node(node1)
@@ -67,7 +71,8 @@ class TestSitesDAL(unittest.TestCase):
         node = {
             'name': 'node1',
             'site': 'site1',
-            'url': 'http://node1'
+            'url': 'http://node1',
+            'ip': '127.0.0.1'
         }
 
         self.dd.register_node(node)
@@ -87,7 +92,8 @@ class TestSitesDAL(unittest.TestCase):
         node = {
             'name': 'node1',
             'site': 'site1',
-            'url': 'http://node1'
+            'url': 'http://node1',
+            'ip': '127.0.0.1'
         }
 
         self.dd.register_node(node)

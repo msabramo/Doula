@@ -9,19 +9,16 @@ from pyramid.view import view_config
 # SETTINGS VIEWS
 @view_config(route_name='settings', renderer='settings/index.html')
 def show_settings(request):
-    dd = DoulaDAL()
-
     return {
         'config': Config,
         'user': request.user,
-        'sas': dd.list_of_sites_and_services()
+        'sas': DoulaDAL().list_of_sites_and_services()
     }
 
 
 @view_config(route_name='settings', renderer='json', request_method='POST')
 def change_settings(request):
     kwargs = request.POST
-
     user = User.find(request.user['username'])
 
     for key, value in kwargs.items():

@@ -234,9 +234,6 @@ class Queue(object):
     # Query Section of Queue
     #######################
 
-    # alextodo. put together tests for this ish. make it work.
-    # publish by 10 am.
-
     def has_bucket_changed(self, bucket_id, last_updated_for_bucket):
         last_updated = self.redis.get('doula.query.bucket.last_updated:' + bucket_id)
         self.extend_bucket_expiration(bucket_id)
@@ -300,6 +297,7 @@ class Queue(object):
         """
         Find the jobs that meet criteria sent in the job_dict
         """
+        # alextodo. rewrite this to be faster. looping sucks.
         jobs = self._get_jobs()
 
         # Loop through each criteria, throw out the jobs that don't meet

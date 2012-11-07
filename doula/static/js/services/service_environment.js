@@ -1,299 +1,341 @@
 var ServiceEnv = {
 
-	/****************
-	INITIAL SERVICE
-	*****************/
+    /****************
+    INITIAL SERVICE
+    *****************/
 
-	init: function() {
-		this.releases = __releases;
+    init: function() {
+        this.releases = __releases;
 
-		_mixin(this, AJAXUtil);
-		_mixin(this, Packages);
+        _mixin(this, AJAXUtil);
+        _mixin(this, Packages);
 
-		Data.init();
+        Data.init();
 
-		this.bindToUIActions();
-		this.bindToDataActions();
-		this.initPackagesAsMixin(Data.site_name, Data.name_url);
-	},
+        this.bindToUIActions();
+        this.bindToDataActions();
+        this.initPackagesAsMixin(Data.site_name, Data.name_url);
+    },
 
-	bindToUIActions: function() {
-		$('a[rel="tooltip"]').tooltip({
-			"delay": {
-				"show": 500,
-				"hide": 100
-			}
-		});
+    bindToUIActions: function() {
+        $('a[rel="tooltip"]').tooltip({
+            "delay": {
+                "show": 500,
+                "hide": 100
+            }
+        });
 
-		$(".hide-on-load").each(function(index, el) {
-			$(el).show();
-		});
+        // Hide elements marked as hide on load, makes page load smoother
+        $(".hide-on-load").each(function(index, el) {
+            $(el).show();
+        });
 
-		$('.commit-accordion').on('show', function () {
-			$(this).parent().removeClass('hidden').addClass('shown');
-		});
+        $('.commit-accordion').on('show', function () {
+            $(this).parent().removeClass('hidden').addClass('shown');
+        });
 
-		$('.commit-accordion').on('hide', function () {
-			$(this).parent().removeClass('shown').addClass('hidden');
-		});
+        $('.commit-accordion').on('hide', function () {
+            $(this).parent().removeClass('shown').addClass('hidden');
+        });
 
-		// Dropdown packages
-		this.addVersionMessageBelowPackageSelects();
+        // Dropdown packages
+        this.addVersionMessageBelowPackageSelects();
 
-		$('#release-service').popover({placement: "bottom"});
-		$('a.release').on('click', $.proxy(this.selectReleasePackages, this));
-		$('select.package-select').
-			on('change', $.proxy(this.updatePackageDropdownOnChange, this));
+        $('#release-service').popover({placement: "bottom"});
+        $('a.release').on('click', $.proxy(this.selectReleasePackages, this));
+        $('select.package-select').
+            on('change', $.proxy(this.updatePackageDropdownOnChange, this));
 
-		// Queue stuff
-		QueueView.subscribe(
-			'queue-item-changed',
-			$.proxy(this.queueItemChanged, this));
-	},
+        // Queue stuff
+        QueueView.subscribe(
+            'queue-item-changed',
+            $.proxy(this.queueItemChanged, this));
 
-	/************************************
-	Package dropdowns for Release Service
-	*************************************/
+        // Handle the mini
+        this.bindToMiniDashboardActions();
+    },
 
-	addVersionMessageBelowPackageSelects: function() {
-		$('.package-select').each(function(i, select) {
-			select = $(select);
-			select.attr('data-original-val', select.val());
+    /*********************
+    Handle Mini Dashboard
+    **********************/
 
-			var safeID = select.attr('id').
-				replace('pckg_select_', '').
-				replace('.', '\\.');
-			$('#pckg_select_msg_' + safeID).
-				html('Current version <strong>' + select.val() + '</strong>.');
-		});
-	},
+    miniDashboardDetails: $('.mini-dashboard-details'),
+    miniDashboardDetailElements: $('.mini-dashboard-detail'),
 
-	selectReleasePackages: function(event) {
-		var target = $(event.target);
-		this.makeReleaseLinkActive(target);
+    bindToMiniDashboardActions: function() {
+        // Everything is hidden by default
+        this.miniDashboardDetails.slideUp('fast');
+        this.miniDashboardDetailElements.addClass('hide');
 
-		var releaseDate = target.attr('data-date');
-		var release = this.findReleaseByDate(releaseDate);
+        $('.mini-dashboard-square').on('click', $.proxy(function(event) {
+            var targetDetail = $($(event.target).
+                                    closest('div.mini-dashboard-square').
+                                    data('target'));
 
-		for(i=0; i < release.packages.length; i++) {
-			var pckg = release.packages[i];
+            // This target is visible and got clicked. Hide everything
+            if (targetDetail.is(":visible")) {
+                this.miniDashboardDetails.slideUp('fast');
+                this.miniDashboardDetailElements.addClass('hide');
+            }
+            // Another box got clicked while open. Show the target element
+            else if (this.miniDashboardDetails.is(":visible")) {
+                this.miniDashboardDetailElements.addClass('hide');
+                targetDetail.removeClass('hide');
+            }
+            // If everything is hidden. Slide down the box and show dashboard details
+            // and show the detail for the specific target
+            else if (!this.miniDashboardDetails.is(":visible")) {
+                this.miniDashboardDetailElements.addClass('hide');
+                targetDetail.removeClass('hide');
 
-			var safeID = pckg.name.toLowerCase().replace('.', '\\.');
-			this.updatePackageDropdown(safeID, pckg.version);
-		}
+                this.miniDashboardDetails.slideDown('fast');
+            }
+        }, this));
+    },
 
-		// Close the button dropdown menu
-		target.closest('div.btn-group').removeClass('open');
+    /************************************
+    Package dropdowns for Release Service
+    *************************************/
 
-		return false;
-	},
+    addVersionMessageBelowPackageSelects: function() {
+        $('.package-select').each(function(i, select) {
+            select = $(select);
+            select.attr('data-original-val', select.val());
 
-	findReleaseByDate: function(releaseDate) {
-		var release;
+            var safeID = select.attr('id').
+                replace('pckg_select_', '').
+                replace('.', '\\.');
+            $('#pckg_select_msg_' + safeID).
+                html('Current version <strong>' + select.val() + '</strong>.');
+        });
+    },
 
-		for(var i = 0; i < this.releases.length; i++) {
-			if(this.releases[i].date == releaseDate) {
-				return this.releases[i];
-			}
-		}
+    selectReleasePackages: function(event) {
+        var target = $(event.target);
+        this.makeReleaseLinkActive(target);
 
-		return false;
-	},
+        var releaseDate = target.attr('data-date');
+        var release = this.findReleaseByDate(releaseDate);
 
-	updatePackageDropdownOnChange: function(event) {
-		var target = $(event.target);
-		var name = target.attr('id').replace('pckg_select_', '');
+        for(i=0; i < release.packages.length; i++) {
+            var pckg = release.packages[i];
 
-		this.updatePackageDropdown(name, target.val());
-	},
+            var safeID = pckg.name.toLowerCase().replace('.', '\\.');
+            this.updatePackageDropdown(safeID, pckg.version);
+        }
 
-	updatePackageDropdown: function(name, version) {
-		var safeID = name.toLowerCase().replace('.', '\\.');
-		var select = $('#pckg_select_' + safeID);
-		var message = $('#pckg_select_msg_' + safeID);
-		var originalVal = $.trim(select.attr('data-original-val'));
+        // Close the button dropdown menu
+        target.closest('div.btn-group').removeClass('open');
 
-		if(originalVal != version && originalVal != 'undefined') {
-			select.val(version);
-			select.addClass('warning');
-			message.addClass('warning');
+        return false;
+    },
 
-			var html = (version) ?
-				'New version <strong>' + version + '</strong>. ' :
-				'Packaged will be removed. ';
-			html += 'Current version <strong>' + originalVal + '</strong>.';
-			message.html(html);
-		}
-		else {
-			select.val(version);
-			select.removeClass('warning');
-			message.removeClass('warning');
-			message.html('Current version <strong>' + originalVal + '</strong>.');
-		}
-	},
+    findReleaseByDate: function(releaseDate) {
+        var release;
 
-	makeReleaseLinkActive: function(el) {
-		$('#release-dropdown li').each(function(i, li) {
-			$(li).removeClass('active');
-		});
+        for(var i = 0; i < this.releases.length; i++) {
+            if(this.releases[i].date == releaseDate) {
+                return this.releases[i];
+            }
+        }
 
-		el.parent().addClass('active');
-	},
+        return false;
+    },
 
-	/*******************
-	DATA ACTIONS
-	********************/
+    updatePackageDropdownOnChange: function(event) {
+        var target = $(event.target);
+        var name = target.attr('id').replace('pckg_select_', '');
 
-	bindToDataActions: function() {
-		$('#cycle').on('click', $.proxy(this.cycle, this));
-		$('#release-service').on('click', $.proxy(this.releaseService, this));
-	},
+        this.updatePackageDropdown(name, target.val());
+    },
 
-	/****************
-	RELEASE SERVICE
-	*****************/
+    updatePackageDropdown: function(name, version) {
+        var safeID = name.toLowerCase().replace('.', '\\.');
+        var select = $('#pckg_select_' + safeID);
+        var message = $('#pckg_select_msg_' + safeID);
+        var originalVal = $.trim(select.attr('data-original-val'));
 
-	releaseService: function(event) {
-		var releaseButton = $(event.target);
-		var packages = this.getActiveReleasePackages();
+        if(originalVal != version && originalVal != 'undefined') {
+            select.val(version);
+            select.addClass('warning');
+            message.addClass('warning');
 
-		if(this.canRelease(releaseButton, packages)) {
-			$('#release-service').popover('hide');
+            var html = (version) ?
+                'New version <strong>' + version + '</strong>. ' :
+                'Packaged will be removed. ';
+            html += 'Current version <strong>' + originalVal + '</strong>.';
+            message.html(html);
+        }
+        else {
+            select.val(version);
+            select.removeClass('warning');
+            message.removeClass('warning');
+            message.html('Current version <strong>' + originalVal + '</strong>.');
+        }
+    },
 
-			this.disableReleaseServiceButton();
+    makeReleaseLinkActive: function(el) {
+        $('#release-dropdown li').each(function(i, li) {
+            $(li).removeClass('active');
+        });
 
-			var params = {packages: JSON.stringify(packages)};
-			var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/release';
-			var msg = 'Releasing '+Data.name+' to '+Data.site_name+
-					'. Please be patient and stay awesome.';
-			this.post(url, params, this.doneReleaseService, this.failedReleaseService, msg);
-		}
-		else {
-			if (releaseButton.hasClass('disabled')) {
-				$('#release-service').popover('hide');
-			}
-			else {
-				// No changes made. Show error message in popover
-				setTimeout(function() {
-					$('#release-service').popover('hide');
-				}, 3500);
-			}
-		}
+        el.parent().addClass('active');
+    },
 
-		event.preventDefault();
+    /*******************
+    DATA ACTIONS
+    ********************/
 
-		return false;
-	},
+    bindToDataActions: function() {
+        $('#cycle').on('click', $.proxy(this.cycle, this));
+        $('#release-service').on('click', $.proxy(this.releaseService, this));
+    },
 
-	canRelease: function(releaseButton, packages) {
-		if (releaseButton.hasClass('disabled')) {
-			return false;
-		}
+    /****************
+    RELEASE SERVICE
+    *****************/
 
-		return this.hasChanges(packages);
-	},
+    releaseService: function(event) {
+        var releaseButton = $(event.target);
+        var packages = this.getActiveReleasePackages();
 
-	hasChanges: function(packages) {
-		for(var name in packages) {
-			return true;
-		}
+        if(this.canRelease(releaseButton, packages)) {
+            $('#release-service').popover('hide');
 
-		return false;
-	},
+            this.disableReleaseServiceButton();
 
-	disableReleaseServiceButton: function() {
-		$('#release-service').addClass('disabled');
-	},
+            var params = {packages: JSON.stringify(packages)};
+            var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/release';
+            var msg = 'Releasing '+Data.name+' to '+Data.site_name+
+                    '. Please be patient and stay awesome.';
+            this.post(url, params, this.doneReleaseService, this.failedReleaseService, msg);
+        }
+        else {
+            if (releaseButton.hasClass('disabled')) {
+                $('#release-service').popover('hide');
+            }
+            else {
+                // No changes made. Show error message in popover
+                setTimeout(function() {
+                    $('#release-service').popover('hide');
+                }, 3500);
+            }
+        }
 
-	enableReleaseServiceButton: function() {
-		$('#release-service').removeClass('disabled');
-	},
+        event.preventDefault();
 
-	getActiveReleasePackages: function() {
-		var packages = {};
+        return false;
+    },
 
-		$('select.package-select').each(function(i, select) {
-			select = $(select);
-			var name = select.attr('id').replace('pckg_select_', '');
-			var version = select.val();
-			var originalVal = $.trim(select.attr('data-original-val'));
+    canRelease: function(releaseButton, packages) {
+        if (releaseButton.hasClass('disabled')) {
+            return false;
+        }
 
-			if(originalVal != version && originalVal != 'undefined') {
-				packages[name] = version;
-			}
-		});
+        return this.hasChanges(packages);
+    },
 
-		return packages;
-	},
+    hasChanges: function(packages) {
+        for(var name in packages) {
+            return true;
+        }
 
-	doneReleaseService: function(rslt) {
-		this.enableReleaseServiceButton();
-	},
+        return false;
+    },
 
-	failedReleaseService: function(rslt) {
-		this.enableReleaseServiceButton();
-		this._showStandardErrorMessage(rslt);
-	},
+    disableReleaseServiceButton: function() {
+        $('#release-service').addClass('disabled');
+    },
 
-	/****************
-	CYCLE SERVICE
-	*****************/
+    enableReleaseServiceButton: function() {
+        $('#release-service').removeClass('disabled');
+    },
 
-	cycle: function(event) {
-		if (!$(event.target).hasClass('disabled')) {
-			this.disableCycleButton();
+    getActiveReleasePackages: function() {
+        var packages = {};
 
-			var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/cycle';
-			var msg = 'Cycling ' + Data.name + '. Please be patient and stay awesome.';
-			this.get(url, {}, this.doneCycleService, false, msg);
-		}
+        $('select.package-select').each(function(i, select) {
+            select = $(select);
+            var name = select.attr('id').replace('pckg_select_', '');
+            var version = select.val();
+            var originalVal = $.trim(select.attr('data-original-val'));
 
-		event.preventDefault();
+            if(originalVal != version && originalVal != 'undefined') {
+                packages[name] = version;
+            }
+        });
 
-		return false;
-	},
+        return packages;
+    },
 
-	doneCycleService: function(rslt) {
-		// done
-	},
+    doneReleaseService: function(rslt) {
+        this.enableReleaseServiceButton();
+    },
 
-	disableCycleButton: function() {
-		$('#cycle').addClass('disabled');
-	},
+    failedReleaseService: function(rslt) {
+        this.enableReleaseServiceButton();
+        this._showStandardErrorMessage(rslt);
+    },
 
-	enableCycleButton: function() {
-		$('#cycle').removeClass('disabled');
-	},
+    /****************
+    CYCLE SERVICE
+    *****************/
 
-	/****************
-	Queue Item Changes
-	*****************/
+    cycle: function(event) {
+        if (!$(event.target).hasClass('disabled')) {
+            this.disableCycleButton();
 
-	queueItemChanged: function(event, item) {
-		// Cycle button gets enabled once
-		if(item.job_type == 'cycle_service') {
-			if(item.status == 'failed' || item.status == 'complete') {
-				this.enableCycleButton();
-			}
-		}
-		else if (item.job_type == 'build_new_package') {
-			if (item.status == 'complete') {
-				this.updatePackagesDropdown(item.package_name, item.version);
-			}
-		}
-	},
+            var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/cycle';
+            var msg = 'Cycling ' + Data.name + '. Please be patient and stay awesome.';
+            this.get(url, {}, this.doneCycleService, false, msg);
+        }
 
-	/**
-	*	After a package is built, automatically choose it for the user
-	*/
-	updatePackagesDropdown: function(package_name, version) {
-		$('#pckg_select_' + package_name).
-			append('<option value="' + version + '">' + version + '</option>').
-			val(version).
-			change();
-	}
+        event.preventDefault();
+
+        return false;
+    },
+
+    doneCycleService: function(rslt) {
+        // done
+    },
+
+    disableCycleButton: function() {
+        $('#cycle').addClass('disabled');
+    },
+
+    enableCycleButton: function() {
+        $('#cycle').removeClass('disabled');
+    },
+
+    /****************
+    Queue Item Changes
+    *****************/
+
+    queueItemChanged: function(event, item) {
+        // Cycle button gets enabled once
+        if(item.job_type == 'cycle_service') {
+            if(item.status == 'failed' || item.status == 'complete') {
+                this.enableCycleButton();
+            }
+        }
+        else if (item.job_type == 'build_new_package') {
+            if (item.status == 'complete') {
+                this.updatePackagesDropdown(item.package_name, item.version);
+            }
+        }
+    },
+
+    /**
+    *   After a package is built, automatically choose it for the user
+    */
+    updatePackagesDropdown: function(package_name, version) {
+        $('#pckg_select_' + package_name).
+            append('<option value="' + version + '">' + version + '</option>').
+            val(version).
+            change();
+    }
 };
 
 $(document).ready(function() {
-	ServiceEnv.init();
+    ServiceEnv.init();
 });

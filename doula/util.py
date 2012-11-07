@@ -122,3 +122,10 @@ def to_log_msg(log_vals):
         log_msg += str(key) + '=' + str(value) + ' '
 
     return log_msg.strip()
+
+
+def groupfinder(user_id, request):
+    if request.user is None:
+        return None
+    else:
+        return []
