@@ -58,10 +58,13 @@ class Package(object):
 
     def distribute(self, branch, new_version):
         with self.repo(branch) as repo:
-            self.update_version(repo, new_version)
-            self.commit(repo, ['setup.py'], 'bump version')
-            self.tag(repo, new_version)
-            self.push(repo, "origin")
+            # Ensure dev doesn't try to push to github repos.
+            if Config.get('env') != 'dev':
+                self.update_version(repo, new_version)
+                self.commit(repo, ['setup.py'], 'bump version')
+                self.tag(repo, new_version)
+                self.push(repo, "origin")
+
             self.upload(repo)
 
     @staticmethod

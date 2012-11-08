@@ -48,7 +48,7 @@ var ServiceEnv = {
         // Queue stuff
         QueueView.subscribe(
             'queue-item-changed',
-            $.proxy(this.queueItemChanged, this));
+            $.proxy(this.queueServiceJobChanged, this));
 
         // Handle the mini
         this.bindToMiniDashboardActions();
@@ -150,16 +150,9 @@ var ServiceEnv = {
         var releaseDate = target.attr('data-date');
         var release = this.findReleaseByDate(releaseDate);
 
-        console.log('selectReleasePackages: make sure this has a comparable name. each package needs it.');
-        console.log(release.packages);
-
         for(i=0; i < release.packages.length; i++) {
             var pckg = release.packages[i];
-            console.log('found a package. lets make usre it has comparable');
-            console.log(pckg);
-
-            var safeID = pckg.name.toLowerCase().replace('.', '\\.');
-            this.updatePackageDropdown(safeID, pckg.version);
+            this.updatePackageDropdown(pckg.comparable_name, pckg.version);
         }
 
         // Close the button dropdown menu
@@ -314,39 +307,22 @@ var ServiceEnv = {
     },
 
     /****************
-    Queue Item Changes
+    Queue Job Changes
     *****************/
 
-    queueItemChanged: function(event, item) {
+    queueServiceJobChanged: function(event, job) {
         // Cycle button gets enabled once
-        if(item.job_type == 'cycle_service') {
-            if(item.status == 'failed' || item.status == 'complete') {
+        if (job.job_type == 'cycle_service') {
+            if(job.status == 'failed' || job.status == 'complete') {
                 this.enableCycleButton();
                 this.updateMiniDashboard();
             }
         }
-        else if (item.job_type == 'build_new_package') {
-            if (item.status == 'complete') {
-                // alextodo. need to put this in the updatePackageDropdwon
-                // in package.js
-                this.updatePackagesDropdown(item.package_name, item.version);
-            }
-        }
-        else if (item.job_type == 'release_service') {
-            if(item.status == 'failed' || item.status == 'complete') {
+        else if (job.job_type == 'release_service') {
+            if(job.status == 'failed' || job.status == 'complete') {
                 this.updateMiniDashboard();
             }
         }
-    },
-
-    /**
-    *   After a package is built, automatically choose it for the user
-    */
-    updatePackagesDropdown: function(package_name, version) {
-        $('#pckg_select_' + package_name).
-            prepend('<option value="' + version + '">' + version + '</option>').
-            val(version).
-            change();
     }
 };
 

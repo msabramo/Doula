@@ -61,7 +61,7 @@
                 Job scheduled
                 <strong>
                 <time>
-                    <a id="{{queued_item['id']}}" href="#{{queued_item['id']}}">
+                    <a id="{{queued_item['id']}}" target="_blank" href="/queue#{{queued_item['id']}}">
                     {{ queued_item['time_started']|relative_datetime_from_epoch_time }}
                     </a>
                 </time>

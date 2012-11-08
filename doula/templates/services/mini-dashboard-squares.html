@@ -5,8 +5,10 @@
      <h2>Last Release</h2>
      {% if last_release %}
       <p>{{last_release.date|relative_datetime}}</p>
+      <p>&nbsp;</p>
      {% else %}
       <p>Unknown Last Release</p>
+      <p>&nbsp;</p>
      {% endif %}
   </div>
 
@@ -15,10 +17,12 @@
   {% if is_config_up_to_date %}mini-success{% else %}mini-fail{% endif %}"
   data-target="#mini-dashboard-detail-config">
      <h2>Config</h2>
-     {% if service.config %}
+     {% if is_config_up_to_date %}
       <p>Files are up to date</p>
+      <p>&nbsp;</p>
      {% else %}
-      <p>Files are out out of date</p>
+      <p>Files are out of date</p>
+      <p>&nbsp;</p>
      {% endif %}
   </div>
 
@@ -30,18 +34,31 @@
      {% if not last_job %}
       <p>No recent jobs</p>
      {% else %}
+
       {% if last_job['job_type'] == 'cycle_service' %}
         {% if last_job['status'] == 'complete' %}
           <p>The last <strong>cycle</strong> job succeeded</p>
+          <p>&nbsp;</p>
         {% elif last_job['status'] == 'failed' %}
           <p>The last <strong>cycle</strong> job failed</p>
+          <p>&nbsp;</p>
         {% endif %}
-      {% else %}
-        <!-- we assume a release service job -->
+
+      {% elif last_job['job_type'] == 'build_new_package' %}
         {% if last_job['status'] == 'complete' %}
-          <p>The last <strong>release service</strong> job succeeded</p>
+          <p>The last <strong>build new package</strong><p/>
+          <p>job succeeded</p>
         {% elif last_job['status'] == 'failed' %}
-          <p>The last <strong>release service</strong> job failed</p>
+          <p>The last <strong>release service</strong> <br />job failed</p>
+        {% endif %}
+
+      {% elif last_job['job_type'] == 'release_service' %}
+        {% if last_job['status'] == 'complete' %}
+          <p>The last <strong>release service</strong></p>
+          <p>job succeeded</p>
+        {% elif last_job['status'] == 'failed' %}
+          <p>The last <strong>release service</strong></p>
+          <p>job failed</p>
         {% endif %}
       {% endif %}
     {% endif %}

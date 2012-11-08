@@ -35,6 +35,11 @@ var Packages = {
 
     bindToBuildNewPackageButtons: function() {
         $('.new-version-btn').on('click', $.proxy(this.showBuildNewPackageModal, this));
+
+        // Queue stuff
+        QueueView.subscribe(
+            'queue-item-changed',
+            $.proxy(this.queuePackageJobChanged, this));
     },
 
     /****************
@@ -111,6 +116,31 @@ var Packages = {
 
     failedBuildNewPackage: function(rslt) {
         $('#build_package_errors').removeClass('hide').html(rslt.html);
+    },
+
+    /****************
+    Queue Item Changes
+    *****************/
+
+    queuePackageJobChanged: function(event, job) {
+        if (job.job_type == 'build_new_package') {
+            if (job.status == 'complete') {
+                this.updatePackagesDropdown(job);
+
+                // If the ServiceEnv exist then show this
+                if (ServiceEnv) ServiceEnv.showRecentJobsDetailView();
+            }
+        }
+    },
+
+    /**
+    *   After a package is built, automatically choose it for the user
+    */
+    updatePackagesDropdown: function(job) {
+        $('#pckg_select_' + job.comparable_name).
+            prepend('<option value="' + job.version + '">' + job.version + '</option>').
+            val(job.version).
+            change();
     }
 };
 

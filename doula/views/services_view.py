@@ -29,6 +29,9 @@ def service(request):
     last_release = get_last_release(releases)
     last_job = get_last_job(site, service)
 
+    print 'LAST JOB'
+    print last_job
+
     other_packages = CheesePrism.other_packages(service.packages)
     # show jobs in the past hour 8 hours
     jobs_started_after = math.floor(time.time() - (60 * 60 * 8))
@@ -63,7 +66,7 @@ def get_last_job(site, service):
     query = {
         'site': site.name,
         'service': service.name,
-        'job_type': ['cycle_service', 'release_service']
+        'job_type': ['cycle_service', 'release_service', 'build_new_package']
     }
 
     queue = Queue()

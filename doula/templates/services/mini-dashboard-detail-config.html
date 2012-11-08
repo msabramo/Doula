@@ -9,20 +9,21 @@
       </p>
     {% else %}
       <p>
-        <!-- alextodo. what about the comapre view -->
-        <a href="http://code.corp.surveymonkey.com/config/{{ service.name_url }}/commit/{{node.config['commit']}}"
-        target="_blank">Compare the config files </a> for <strong>{{ node.name }}</strong> on Github against the latest Git commit.
+        Node: <strong>{{ node.name }}</strong>
       </p>
-
-      {% if node['changed_files']|length > 0 %}
+      {% if node['config']['changed_files']|length > 0 %}
       <p>
         These files have been <strong>changed</strong>.
 
         <ul>
-          {% for file in node['changed_files'] %}
+          {% for file in node['config']['changed_files'] %}
             <li>{{file}}</li>
           {% endfor %}
         </ul>
+      </p>
+      <p>
+      <a href="http://code.corp.surveymonkey.com/config/{{ service.name_url }}/compare/{{node.config['commit']}}...{{node.config['latest_commit']}}"
+        target="_blank">See the diff for these files on Github</a>.
       </p>
     {% endif %}
     {% endif %}
