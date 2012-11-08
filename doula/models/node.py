@@ -25,7 +25,9 @@ class Node(object):
         """
         try:
             services_as_dicts = {}
-            services_as_json = pull_url(self.url + '/services')
+            # The bambino's are bit slow now so we'll give them extra
+            # time to gather the data
+            services_as_json = pull_url(self.url + '/services', 7)
 
             if services_as_json:
                 services_as_dicts = json.loads(services_as_json)
@@ -41,7 +43,10 @@ class Node(object):
 
             vals = (self.url + '/services', e.message)
             msg = 'Unable to contact Bambino at %s because of error %s' % vals
+            print msg
             log.error(msg)
 
-            return None
+            # Return an empty list of services
+            return {'services': []}
+
 

@@ -1,0 +1,31 @@
+<!-- config details -->
+<div id="mini-dashboard-detail-config" class="hide mini-dashboard-detail">
+  {% for node_name, node in service.nodes.iteritems() %}
+    {% if is_config_up_to_date %}
+      <p>
+        View the latest
+        <a href="http://code.corp.surveymonkey.com/config/{{ service.name_url }}"
+        target="_blank">config files on Github</a>.
+      </p>
+    {% else %}
+      <p>
+        <!-- alextodo. what about the comapre view -->
+        <a href="http://code.corp.surveymonkey.com/config/{{ service.name_url }}/commit/{{node.config['commit']}}"
+        target="_blank">Compare the config files </a> for <strong>{{ node.name }}</strong> on Github against the latest Git commit.
+      </p>
+
+      {% if node['changed_files']|length > 0 %}
+      <p>
+        These files have been <strong>changed</strong>.
+
+        <ul>
+          {% for file in node['changed_files'] %}
+            <li>{{file}}</li>
+          {% endfor %}
+        </ul>
+      </p>
+    {% endif %}
+    {% endif %}
+
+  {% endfor %}
+</div>

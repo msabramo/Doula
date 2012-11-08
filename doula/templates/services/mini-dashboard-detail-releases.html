@@ -1,0 +1,11 @@
+<!-- last release details -->
+<div id="mini-dashboard-detail-releases" class="hide mini-dashboard-detail">
+  {% if last_release %}
+    <p>
+      This service was released
+     <strong>{{last_release.date|relative_datetime}}</strong>.
+    </p>
+  {% else %}
+    <p>The last release date is <strong>unknown</strong>.</p>
+  {% endif %}
+</div>

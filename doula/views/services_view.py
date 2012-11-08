@@ -4,6 +4,7 @@ from doula.models.doula_dal import DoulaDAL
 from doula.queue import Queue
 from doula.util import dumps
 from doula.util import git_dirify
+from pyramid.renderers import render
 from pyramid.response import Response
 from pyramid.view import view_config
 import json
@@ -38,31 +39,13 @@ def service(request):
         'config': Config,
         'last_release': last_release,
         'last_job': last_job,
-        'is_config_up_to_date': is_config_up_to_date(service),
+        'is_config_up_to_date': service.is_config_up_to_date(),
         'service_json': dumps(service),
         'releases_json': dumps(releases),
         'other_packages': other_packages,
         'queued_items': [],
         'jobs_started_after': jobs_started_after
     }
-
-
-def is_config_up_to_date(service):
-    """
-    Check if any of the config files for the nodes are
-    out of date.
-    """
-    for node_name, node in service.nodes.iteritems():
-        print 'is up to date: ' + str(node.config["is_up_to_date"])
-        print 'node: '
-        print node
-
-        print "\n\n"
-
-        if not node.config["is_up_to_date"]:
-            return True
-
-    return False
 
 
 def get_last_release(releases):
@@ -100,6 +83,36 @@ def get_last_job(site, service):
             last_job = job
 
     return last_job
+
+####################
+# DASHBOARD UPDATE
+####################
+
+
+@view_config(route_name='service_dashboard', renderer="string")
+def service_dashboard(request):
+    dd = DoulaDAL()
+    site = dd.find_site_by_name(request.matchdict['site_name'])
+    service = site.services[request.matchdict['service_name']]
+    releases = service.get_releases()
+    last_release = get_last_release(releases)
+    last_job = get_last_job(site, service)
+
+    temp_data = {
+        'site': site,
+        'service': service,
+        'config': Config,
+        'last_release': last_release,
+        'last_job': last_job,
+        'is_config_up_to_date': service.is_config_up_to_date(),
+    }
+
+    return dumps({
+        'success': True,
+        'squaresHTML': render('doula:templates/services/mini-dashboard-squares.html', temp_data),
+        'configHTML': render('doula:templates/services/mini-dashboard-detail-config.html', temp_data),
+        'releasesHTML': render('doula:templates/services/mini-dashboard-detail-releases.html', temp_data)
+    })
 
 ####################
 # Service Details

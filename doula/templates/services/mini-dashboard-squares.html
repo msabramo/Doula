@@ -1,0 +1,49 @@
+<div id="mini-dashboard-squares" class="mini-dashboard">
+  <!-- last release square -->
+  <div class="mini-dashboard-square {% if last_release %}mini-success{% else %}mini-fail{% endif %}"
+  data-target="#mini-dashboard-detail-releases">
+     <h2>Last Release</h2>
+     {% if last_release %}
+      <p>{{last_release.date|relative_datetime}}</p>
+     {% else %}
+      <p>Unknown Last Release</p>
+     {% endif %}
+  </div>
+
+  <!-- config square -->
+  <div class="mini-dashboard-square
+  {% if is_config_up_to_date %}mini-success{% else %}mini-fail{% endif %}"
+  data-target="#mini-dashboard-detail-config">
+     <h2>Config</h2>
+     {% if service.config %}
+      <p>Files are up to date</p>
+     {% else %}
+      <p>Files are out out of date</p>
+     {% endif %}
+  </div>
+
+  <!-- recent jobs square -->
+  <div class="mini-dashboard-square
+  {% if last_job == None or last_job['status'] == 'complete' %}mini-success{% else %}mini-fail{% endif %}"
+  data-target="#mini-dashboard-detail-jobs">
+     <h2>Recent Jobs</h2>
+     {% if not last_job %}
+      <p>No recent jobs</p>
+     {% else %}
+      {% if last_job['job_type'] == 'cycle_service' %}
+        {% if last_job['status'] == 'complete' %}
+          <p>The last <strong>cycle</strong> job succeeded</p>
+        {% elif last_job['status'] == 'failed' %}
+          <p>The last <strong>cycle</strong> job failed</p>
+        {% endif %}
+      {% else %}
+        <!-- we assume a release service job -->
+        {% if last_job['status'] == 'complete' %}
+          <p>The last <strong>release service</strong> job succeeded</p>
+        {% elif last_job['status'] == 'failed' %}
+          <p>The last <strong>release service</strong> job failed</p>
+        {% endif %}
+      {% endif %}
+    {% endif %}
+  </div>
+</div>

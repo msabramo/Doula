@@ -163,7 +163,9 @@ class DoulaDAL(object):
             }
         """
         registered_site = self.get_registered_site(node['site'])
-        del registered_site['nodes'][node['name']]
+
+        if node['name'] in registered_site['nodes']:
+            del registered_site['nodes'][node['name']]
 
         self.save_registered_site(registered_site)
 

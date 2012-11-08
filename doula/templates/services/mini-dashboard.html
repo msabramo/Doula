@@ -1,105 +1,12 @@
-<div class="mini-dashboard">
+<div id="mini-dashboard">
+  <!-- dashboard mini squares. delicious -->
+  {% include 'services/mini-dashboard-squares.html' %}
 
-  <!-- last release square -->
-  <div class="mini-dashboard-square {% if last_release %}mini-success{% else %}mini-fail{% endif %}"
-  data-target="#mini-dashboard-detail-releases">
-     <h2>Last Release</h2>
-     {% if last_release %}
-      <p>{{last_release.date|relative_datetime}}</p>
-     {% else %}
-      <p>Unknown Last Release</p>
-     {% endif %}
+  <div class="mini-dashboard-details">
+    {% include 'services/mini-dashboard-detail-releases.html' %}
+
+    {% include 'services/mini-dashboard-detail-config.html' %}
+
+    {% include 'services/mini-dashboard-detail-jobs.html' %}
   </div>
-
-  <!-- config square -->
-  <div class="mini-dashboard-square
-  {% if is_config_up_to_date %}mini-success{% else %}mini-fail{% endif %}"
-  data-target="#mini-dashboard-detail-config">
-     <h2>Config</h2>
-     {% if service.config %}
-      <p>Files are up to date</p>
-     {% else %}
-      <p>Files are out out of date</p>
-     {% endif %}
-  </div>
-
-  <!-- recent jobs square -->
-  <div class="mini-dashboard-square
-  {% if last_job == None or last_job['status'] == 'complete' %}mini-success{% else %}mini-fail{% endif %}"
-  data-target="#mini-dashboard-detail-jobs">
-     <h2>Recent Jobs</h2>
-     {% if not last_job %}
-      <p>No recent jobs</p>
-     {% else %}
-      {% if last_job['job_type'] == 'cycle_service' %}
-        {% if last_job['status'] == 'complete' %}
-          <p>The last <strong>cycle</strong> job succeeded</p>
-        {% elif last_job['status'] == 'failed' %}
-          <p>The last <strong>cycle</strong> job failed</p>
-        {% endif %}
-      {% else %}
-        <!-- we assume a release service job -->
-        {% if last_job['status'] == 'complete' %}
-          <p>The last <strong>release service</strong> job succeeded</p>
-        {% elif last_job['status'] == 'failed' %}
-          <p>The last <strong>release service</strong> job failed</p>
-        {% endif %}
-      {% endif %}
-    {% endif %}
-  </div>
-</div>
-
-<div class="mini-dashboard-details">
-  <!-- last release details -->
-  <div id="mini-dashboard-detail-releases" class="hide mini-dashboard-detail">
-    {% if last_release %}
-      <p>
-        This service was released
-       <strong>{{last_release.date|relative_datetime}}</strong>.
-      </p>
-    {% else %}
-      <p>The last release date is <strong>unknown</strong>.</p>
-    {% endif %}
-  </div>
-
-  <!-- config details -->
-  <div id="mini-dashboard-detail-config" class="hide mini-dashboard-detail">
-    {% for node_name, node in service.nodes.iteritems() %}
-      <p>
-        The config files for the node <strong>{{ node.name }}</strong> were updated on
-        <strong>{{ node.config['date'] }}</strong>.
-      </p>
-
-      {% if node['changed_files']|length > 0 %}
-      <p>
-        The following config files have been <strong>changed</strong> on this node.
-
-        <ul>
-          {% for file in node['changed_files'] %}
-            <li>{{file}}</li>
-          {% endfor %}
-        </ul>
-      </p>
-      {% endif %}
-
-      {% if is_config_up_to_date %}
-        <p>
-          Compare <strong>{{ node.name }}'s</strong> config files against
-          <a href="http://code.corp.surveymonkey.com/config/{{ service.name_url }}/compare/{{node.config['commit']}}...{{node.config['latest_commit']}}"
-          target="_blank">the latest config files on Github</a>.
-        </p>
-      {% else %}
-        <p>
-          View the commit for
-          <a href="http://code.corp.surveymonkey.com/config/{{ service.name_url }}/commit/{{node.config['commit']}}"
-          target="_blank">these config files on Github</a>.
-        </p>
-      {% endif %}
-    {% endfor %}
-  </div>
-
-  <!-- queue details -->
-  <div id="mini-dashboard-detail-jobs" class="hide mini-dashboard-detail">
-    {% include 'queue/queued_items_service.html' %}
-  </div>
-</div>
+</div> <!-- end of master div #mini-dashboard -->

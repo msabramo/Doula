@@ -195,8 +195,15 @@ def release_service(config={}, job_dict={}, debug=False):
 
         # Update this site by pulling the latest data for the site
         # Create a new job dict because we don't want logs mixed up
+        # This will update the config related informaton.
         pull_bambino_data_job_dict = {'id': uuid.uuid1().hex}
         pull_bambino_data(config, pull_bambino_data_job_dict)
+
+        # Pull the latest app env data as well
+        # Create a new job dict because we don't want to mix the logs
+        # This will update the releases related ata
+        pull_appenv_github_data_job_dict = {'id': uuid.uuid1().hex}
+        pull_appenv_github_data(config, pull_appenv_github_data_job_dict)
 
         # Cycle the service after releasing the service
         cycle_service(config, job_dict)
@@ -248,11 +255,14 @@ def pull_github_data(config={}, job_dict={}):
     """
     Pull the github data for every python package.
     Pull commit history, tags, branches. Everything.
+
+    # alextodo. this is the slowest call we have. 60 seconds. speed it up.
     """
     log = create_logger(job_dict['id'])
     load_config(config)
 
     try:
+        start = time.time()
         log.info('pulling github data')
 
         # PUll the dev monkey repos data
@@ -270,6 +280,10 @@ def pull_github_data(config={}, job_dict={}):
         # always remove maintenance jobs from the queue
         Queue().remove(job_dict['id'])
 
+        diff = time.time() - start
+        print "\n"
+        print 'DIFF IN TIME FOR PULL GITHUB DATA: ' + str(diff)
+
         log.info('Done pulling github data')
     except Exception as e:
         log.error(e.message)
@@ -285,6 +299,7 @@ def pull_appenv_github_data(config={}, job_dict={}, debug=False):
     load_config(config)
 
     try:
+        start = time.time()
         log.info('Pulling github appenv data')
         redis = Redis.get_instance()
         repos = pull_appenv_repos()
@@ -292,6 +307,10 @@ def pull_appenv_github_data(config={}, job_dict={}, debug=False):
 
         # always remove maintenance jobs from the queue
         Queue().remove(job_dict['id'])
+
+        diff = time.time() - start
+        print "\n"
+        print 'DIFF IN TIME FOR PULL APPENV: ' + str(diff)
 
         log.info('Done pulling github appenv data')
     except Exception as e:
@@ -308,6 +327,7 @@ def pull_bambino_data(config={}, job_dict={}):
     load_config(config)
 
     try:
+        start = time.time()
         log.info('Pulling bambino data')
 
         dd = DoulaDAL()
@@ -315,6 +335,10 @@ def pull_bambino_data(config={}, job_dict={}):
 
         # always remove maintenance jobs from the queue
         Queue().remove(job_dict['id'])
+
+        diff = time.time() - start
+        print "\n"
+        print 'DIFF IN TIME FOR PULL BAMBINO DATA: ' + str(diff)
 
         log.info('Done pulling bambino data')
     except Exception as e:

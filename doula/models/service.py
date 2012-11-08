@@ -109,6 +109,19 @@ class Service(object):
         except (socket_error, xmlrpclib.Fault, xmlrpclib.ProtocolError, xmlrpclib.ResponseError), error_code:
             raise CycleServiceException(error_code)
 
+    def is_config_up_to_date(self):
+        """
+        Check if any of the nodes for this service are
+        out of date.
+        """
+        for node_name, node in self.nodes.iteritems():
+            # If any node is not up to date. the entire service
+            # is out of date.
+            if not node.config["is_up_to_date"]:
+                return False
+
+        return True
+
     def get_releases(self):
         """
         Return the releases for this service to this site

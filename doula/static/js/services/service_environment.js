@@ -41,7 +41,6 @@ var ServiceEnv = {
         // Dropdown packages
         this.addVersionMessageBelowPackageSelects();
 
-        $('#release-service').popover({placement: "bottom"});
         $('a.release').on('click', $.proxy(this.selectReleasePackages, this));
         $('select.package-select').
             on('change', $.proxy(this.updatePackageDropdownOnChange, this));
@@ -59,13 +58,20 @@ var ServiceEnv = {
     Handle Mini Dashboard
     **********************/
 
+    firstRun: true,
     miniDashboardDetails: $('.mini-dashboard-details'),
     miniDashboardDetailElements: $('.mini-dashboard-detail'),
 
     bindToMiniDashboardActions: function() {
-        // Everything is hidden by default
-        this.miniDashboardDetails.slideUp('fast');
-        this.miniDashboardDetailElements.addClass('hide');
+        if (this.firstRun) {
+            this.firstRun = false;
+
+            // The first time around everything is hidden
+            this.miniDashboardDetails.slideUp('fast');
+            this.miniDashboardDetailElements.addClass('hide');
+        }
+
+        $('.mini-dashboard-square').unbind();
 
         $('.mini-dashboard-square').on('click', $.proxy(function(event) {
             var targetDetail = $($(event.target).
@@ -91,6 +97,34 @@ var ServiceEnv = {
                 this.miniDashboardDetails.slideDown('fast');
             }
         }, this));
+    },
+
+    // After any job action open up the recent jobs view
+    showRecentJobsDetailView: function() {
+        this.miniDashboardDetailElements.addClass('hide');
+        $('#mini-dashboard-detail-jobs').removeClass('hide');
+
+        this.miniDashboardDetails.slideDown('fast');
+    },
+
+    // Update the mini dashboard after a change
+
+    updateMiniDashboard: function() {
+        var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/dash';
+        this.get(url, {}, this.doneUpdateMiniDashboard, false, msg=false);
+    },
+
+    doneUpdateMiniDashboard: function(rslt) {
+        // Update the squares, the config and the releases details
+        $('#mini-dashboard-squares').replaceWith(rslt.squaresHTML);
+        $('#mini-dashboard-detail-config').replaceWith(rslt.configHTML);
+        $('#mini-dashboard-detail-releases').replaceWith(rslt.releasesHTML);
+
+        // Reset the cached jquery elements
+        this.miniDashboardDetails = $('.mini-dashboard-details');
+        this.miniDashboardDetailElements = $('.mini-dashboard-detail');
+
+        this.bindToMiniDashboardActions();
     },
 
     /************************************
@@ -196,59 +230,19 @@ var ServiceEnv = {
     *****************/
 
     releaseService: function(event) {
-        var releaseButton = $(event.target);
-        var packages = this.getActiveReleasePackages();
+        this.disableReleaseServiceButton();
 
-        if(this.canRelease(releaseButton, packages)) {
-            $('#release-service').popover('hide');
-
-            this.disableReleaseServiceButton();
-
-            var params = {packages: JSON.stringify(packages)};
-            var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/release';
-            var msg = 'Releasing '+Data.name+' to '+Data.site_name+
-                    '. Please be patient and stay awesome.';
-            this.post(url, params, this.doneReleaseService, this.failedReleaseService, msg);
-        }
-        else {
-            if (releaseButton.hasClass('disabled')) {
-                $('#release-service').popover('hide');
-            }
-            else {
-                // No changes made. Show error message in popover
-                setTimeout(function() {
-                    $('#release-service').popover('hide');
-                }, 3500);
-            }
-        }
+        var params = {
+            packages: JSON.stringify(this.getActiveReleasePackages())
+        };
+        var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/release';
+        var msg = 'Releasing '+Data.name+' to '+Data.site_name+
+                '. Please be patient and stay awesome.';
+        this.post(url, params, this.doneReleaseService, this.failedReleaseService, msg);
 
         event.preventDefault();
 
         return false;
-    },
-
-    canRelease: function(releaseButton, packages) {
-        if (releaseButton.hasClass('disabled')) {
-            return false;
-        }
-
-        return this.hasChanges(packages);
-    },
-
-    hasChanges: function(packages) {
-        for(var name in packages) {
-            return true;
-        }
-
-        return false;
-    },
-
-    disableReleaseServiceButton: function() {
-        $('#release-service').addClass('disabled');
-    },
-
-    enableReleaseServiceButton: function() {
-        $('#release-service').removeClass('disabled');
     },
 
     getActiveReleasePackages: function() {
@@ -269,12 +263,21 @@ var ServiceEnv = {
     },
 
     doneReleaseService: function(rslt) {
+        this.showRecentJobsDetailView();
         this.enableReleaseServiceButton();
     },
 
     failedReleaseService: function(rslt) {
         this.enableReleaseServiceButton();
         this._showStandardErrorMessage(rslt);
+    },
+
+    disableReleaseServiceButton: function() {
+        $('#release-service').addClass('disabled');
+    },
+
+    enableReleaseServiceButton: function() {
+        $('#release-service').removeClass('disabled');
     },
 
     /****************
@@ -296,7 +299,7 @@ var ServiceEnv = {
     },
 
     doneCycleService: function(rslt) {
-        // done
+        this.showRecentJobsDetailView();
     },
 
     disableCycleButton: function() {
@@ -316,11 +319,21 @@ var ServiceEnv = {
         if(item.job_type == 'cycle_service') {
             if(item.status == 'failed' || item.status == 'complete') {
                 this.enableCycleButton();
+                this.updateMiniDashboard();
             }
         }
         else if (item.job_type == 'build_new_package') {
             if (item.status == 'complete') {
+                // alextodo. need to put this in the updatePackageDropdwon
+                // in package.js
+                console.log('done with package');
+                console.log(item);
                 this.updatePackagesDropdown(item.package_name, item.version);
+            }
+        }
+        else if (item.job_type == 'release_service') {
+            if(item.status == 'failed' || item.status == 'complete') {
+                this.updateMiniDashboard();
             }
         }
     },

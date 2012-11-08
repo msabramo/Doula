@@ -63,7 +63,7 @@ var Packages = {
             $('#build_new_package').on('click', $.proxy(this.buildNewPackage, this));
         }, this));
 
-        $('#build-new-package-modal').html(rslt).modal();
+        $('#build-new-package-modal').html(rslt).removeClass('hide').modal();
     },
 
     // Validate the show push package version number and
@@ -104,6 +104,10 @@ var Packages = {
 
     doneBuildNewPackage: function(rslt) {
         $('#build-new-package-modal').modal('hide');
+        console.log(rslt);
+
+        // If the ServiceEnv exist then show this
+        if (ServiceEnv) ServiceEnv.showRecentJobsDetailView();
     },
 
     failedBuildNewPackage: function(rslt) {
