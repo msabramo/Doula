@@ -35,7 +35,7 @@ class CheesePrismTests(unittest.TestCase):
 
     def test_find_package_by_name(self):
         package_by_name = {
-            "clean_name": "test_package",
+            "comparable_name": "testpackage",
             "name": "test_package",
             "versions": ["0.6.7"]
         }

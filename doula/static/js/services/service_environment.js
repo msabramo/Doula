@@ -136,10 +136,9 @@ var ServiceEnv = {
             select = $(select);
             select.attr('data-original-val', select.val());
 
-            var safeID = select.attr('id').
-                replace('pckg_select_', '').
-                replace('.', '\\.');
-            $('#pckg_select_msg_' + safeID).
+            var packageName = select.attr('id').replace('pckg_select_', '');
+
+            $('#pckg_select_msg_' + packageName).
                 html('Current version <strong>' + select.val() + '</strong>.');
         });
     },
@@ -151,8 +150,13 @@ var ServiceEnv = {
         var releaseDate = target.attr('data-date');
         var release = this.findReleaseByDate(releaseDate);
 
+        console.log('selectReleasePackages: make sure this has a comparable name. each package needs it.');
+        console.log(release.packages);
+
         for(i=0; i < release.packages.length; i++) {
             var pckg = release.packages[i];
+            console.log('found a package. lets make usre it has comparable');
+            console.log(pckg);
 
             var safeID = pckg.name.toLowerCase().replace('.', '\\.');
             this.updatePackageDropdown(safeID, pckg.version);
@@ -184,9 +188,8 @@ var ServiceEnv = {
     },
 
     updatePackageDropdown: function(name, version) {
-        var safeID = name.toLowerCase().replace('.', '\\.');
-        var select = $('#pckg_select_' + safeID);
-        var message = $('#pckg_select_msg_' + safeID);
+        var select = $('#pckg_select_' + name);
+        var message = $('#pckg_select_msg_' + name);
         var originalVal = $.trim(select.attr('data-original-val'));
 
         if(originalVal != version && originalVal != 'undefined') {
@@ -326,8 +329,6 @@ var ServiceEnv = {
             if (item.status == 'complete') {
                 // alextodo. need to put this in the updatePackageDropdwon
                 // in package.js
-                console.log('done with package');
-                console.log(item);
                 this.updatePackagesDropdown(item.package_name, item.version);
             }
         }
@@ -343,7 +344,7 @@ var ServiceEnv = {
     */
     updatePackagesDropdown: function(package_name, version) {
         $('#pckg_select_' + package_name).
-            append('<option value="' + version + '">' + version + '</option>').
+            prepend('<option value="' + version + '">' + version + '</option>').
             val(version).
             change();
     }

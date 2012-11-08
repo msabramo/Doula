@@ -10,7 +10,7 @@ log = logging.getLogger('doula')
 class PythonPackage(object):
     def __init__(self, name, versions=[]):
         self.name = name
-        self.clean_name = comparable_name(self.name)
+        self.comparable_name = comparable_name(self.name)
         self.versions = versions
         self.versions.sort()
 
@@ -109,7 +109,7 @@ class CheesePrism(object):
             found_pckg = False
 
             for all_pckg in all_packages:
-                if all_pckg.name == pckg.name:
+                if all_pckg.comparable_name == pckg.comparable_name:
                     found_pckg = all_pckg
                     break
 

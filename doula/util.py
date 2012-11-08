@@ -37,6 +37,9 @@ def next_version(version):
 
 
 def comparable_name(name):
+    """
+    Make name that is easy to compare
+    """
     name = name.lower()
     name = name.replace('.', '')
     name = name.replace('-', '')

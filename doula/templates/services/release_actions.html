@@ -84,12 +84,12 @@
           <a href="#" onclick="return false;" rel="tooltip"
           title="Click to see the Git commit history"
           data-toggle="collapse"
-          data-target="#{{ pckg.name|replace(".", "") }}_git_info">
+          data-target="#{{ pckg.comparable_name }}_git_info">
           {{ pckg.name }}
         </a>
         </td>
         <td width="80%">
-          <select id="pckg_select_{{ pckg.name }}" class="package-select">
+          <select id="pckg_select_{{ pckg.comparable_name }}" class="package-select">
             {% for version in pckg.get_versions()|sort(reverse=True, case_sensitive=False) %}
               <option value="{{ version }}"
               {% if pckg.version == version %}selected="selected"{% endif %} >
@@ -100,17 +100,17 @@
               <option value="">Remove Package</option>
             {% endif %}
           </select>
-          <a class="btn sm-btn-success new-version-btn" data-name="{{pckg.name}}" href="#">
+          <a class="btn sm-btn-success new-version-btn" data-name="{{pckg.comparable_name}}" href="#">
             <i class="icon-chevron-right icon-white"></i> Build New Package
           </a>
-          <span id="pckg_select_msg_{{ pckg.name }}" class="help-block">
+          <span id="pckg_select_msg_{{ pckg.comparable_name }}" class="help-block">
             Current version 1.4.5
           </span>
         </td>
       </tr>
       <tr class="git-info-row">
           <td colspan="2" class="hidden">
-            <div id="{{ pckg.name|replace(".", "") }}_git_info"
+            <div id="{{ pckg.comparable_name }}_git_info"
             class="commit-accordion accordion-body collapse hide-on-load"
             style="display: none;">
               {% include 'services/commits.html' %}
@@ -147,7 +147,7 @@
       <tr>
         <td width="20%">{{ pckg.name }}</td>
         <td width="80%">
-          <select id="pckg_select_{{ pckg.name }}" class="package-select">
+          <select id="pckg_select_{{ pckg.comparable_name }}" class="package-select">
             {% for version in pckg.get_versions()|sort(reverse=True, case_sensitive=False) %}
               <option value="{{ version }}"
               {% if pckg.version == version %}selected="selected"{% endif %} >
@@ -158,7 +158,7 @@
               <option value="">Remove Package</option>
             {% endif %}
           </select>
-          <span id="pckg_select_msg_{{ pckg.name }}" class="help-block">
+          <span id="pckg_select_msg_{{ pckg.comparable_name }}" class="help-block">
             Current version 1.4.5
           </span>
         </td>

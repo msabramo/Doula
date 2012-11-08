@@ -104,7 +104,6 @@ var Packages = {
 
     doneBuildNewPackage: function(rslt) {
         $('#build-new-package-modal').modal('hide');
-        console.log(rslt);
 
         // If the ServiceEnv exist then show this
         if (ServiceEnv) ServiceEnv.showRecentJobsDetailView();

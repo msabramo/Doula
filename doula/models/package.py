@@ -27,7 +27,7 @@ class Package(object):
     """
     def __init__(self, name, version, remote=''):
         self.name = name
-        self.name_url = comparable_name(name)
+        self.comparable_name = comparable_name(name)
         self.version = version
         self.remote = remote
         self.github_info = False
@@ -85,7 +85,7 @@ class Package(object):
         package = False
 
         for pckg in Package.get_sm_packages():
-            if comparable_name(pckg.name) == comparable_name(package_name):
+            if pckg.comparable_name == comparable_name(package_name):
                 package = pckg
                 break
 

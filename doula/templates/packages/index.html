@@ -41,16 +41,16 @@
               <a href="#" onclick="return false;" rel="tooltip"
               title="Click to see the Git commit history"
               data-toggle="collapse"
-              data-target="#{{ pckg.name|replace(".", "") }}_git_info">
+              data-target="#{{ pckg.comparable_name }}_git_info">
               {{ pckg.name }}
             </a>
             </td>
             <td width="80%">
               <a class="btn sm-btn-success new-version-btn sm-pckg-btn"
-              data-name="{{pckg.name}}" href="#">
+              data-name="{{pckg.comparable_name}}" href="#">
                 <i class="icon-chevron-right icon-white"></i> Build New Package
               </a>
-              <div id="pckg_select_msg_{{ pckg.name }}" class="help-block">
+              <div id="pckg_select_msg_{{ pckg.comparable_name }}" class="help-block">
                 Latest version <strong>{{ pckg.version }}</strong>
               </div>
             </td>

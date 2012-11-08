@@ -136,7 +136,7 @@ class Service(object):
 
         for package_name, package_as_dict in pckgs.iteritems():
             package = Package(package_as_dict['name'], package_as_dict['version'], '')
-            self.packages[package.name_url] = package
+            self.packages[package.comparable_name] = package
 
     def _add_tags_from_service_dict(self, tags_as_dicts):
         self.tags = []
@@ -219,7 +219,7 @@ class Service(object):
         package = False
 
         for pckg in self.packages:
-            if comparable_name(pckg.name) == comparable_name(package_name):
+            if pckg.comparable_name == comparable_name(package_name):
                 package = pckg
                 break
 

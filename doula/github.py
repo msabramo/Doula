@@ -113,11 +113,10 @@ def get_service_github_repos(service):
     github_repos = {}
 
     for pckg in service.packages:
-        clean_name = comparable_name(pckg.name)
-        repo = get_devmonkey_repo(clean_name)
+        repo = get_devmonkey_repo(pckg.comparable_name)
 
         if repo:
-            github_repos[clean_name] = repo
+            github_repos[pckg.comparable_name] = repo
 
     return github_repos
 

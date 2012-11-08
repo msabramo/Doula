@@ -48,7 +48,7 @@ def build_new_package(config={}, job_dict={}):
     load_config(config)
 
     try:
-        vals = (job_dict['package_name'], job_dict['versions'])
+        vals = (job_dict['comparable_name'], job_dict['version'])
         log.info("Pushing package '%s' with version %s to CheesePrism" % vals)
 
         p = Package(job_dict['package_name'], '0', job_dict['remote'])
@@ -63,24 +63,20 @@ def build_new_package(config={}, job_dict={}):
             all_packages = json.loads(all_packages_as_json)
 
             for pckg in all_packages:
-                if pckg["clean_name"] == comparable_name(job_dict['package_name']):
+                if pckg["comparable_name"] == job_dict['comparable_name']:
                     pckg["versions"].append(job_dict['version'])
                     break
 
             redis.set("cheeseprism:packages", dumps(all_packages))
 
-        # alextodo. revisit this. not everything is getting updated properly
-        # the packages are not being updated properly based on the name.
-        # use comparable name.
-        packages_as_json = redis.get('cheeseprism:package:' +
-            comparable_name(job_dict['package_name']))
+        packages_as_json = redis.get('cheeseprism:package:' + job_dict['comparable_name'])
 
         if packages_as_json:
             packages = json.loads(packages_as_json)
             packages["versions"].append(job_dict['version'])
             packages_as_json = dumps(packages)
 
-            redis.set('cheeseprism:package:' + job_dict['package_name'], packages_as_json)
+            redis.set('cheeseprism:package:' + job_dict['comparable_name'], packages_as_json)
 
         log.info('Finished pushing package %s to CheesePrism' % job_dict['remote'])
     except Exception as e:
@@ -237,7 +233,7 @@ def pull_cheeseprism_data(config={}, job_dict={}):
         pipeline.set("cheeseprism:packages", dumps(packages))
 
         for pckg in packages:
-            pipeline.set('cheeseprism:package:' + pckg.clean_name, dumps(pckg))
+            pipeline.set('cheeseprism:package:' + pckg.comparable_name, dumps(pckg))
 
         pipeline.execute()
 
