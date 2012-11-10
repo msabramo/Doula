@@ -27,7 +27,7 @@ class Node(object):
             services_as_dicts = {}
             # The bambino's are bit slow now so we'll give them extra
             # time to gather the data
-            services_as_json = pull_url(self.url + '/services', 45)
+            services_as_json = pull_url(self.url + '/services', 60)
 
             if services_as_json:
                 services_as_dicts = json.loads(services_as_json)
