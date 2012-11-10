@@ -33,6 +33,7 @@
      <h2>Recent Jobs</h2>
      {% if not last_job %}
       <p>No recent jobs</p>
+      <p>&nbsp;</p>
      {% else %}
 
       {% if last_job['job_type'] == 'cycle_service' %}
@@ -46,10 +47,11 @@
 
       {% elif last_job['job_type'] == 'build_new_package' %}
         {% if last_job['status'] == 'complete' %}
-          <p>The last <strong>build new package</strong><p/>
+          <p>The last <strong>build new package</strong></p>
           <p>job succeeded</p>
         {% elif last_job['status'] == 'failed' %}
-          <p>The last <strong>release service</strong> <br />job failed</p>
+          <p>The last <strong>release service</strong></p>
+          <p>job failed</p>
         {% endif %}
 
       {% elif last_job['job_type'] == 'release_service' %}
