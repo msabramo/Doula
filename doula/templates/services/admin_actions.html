@@ -89,6 +89,8 @@
             </td>
             <td width="80%">
               <select id="pckg_select_{{ pckg[1].comparable_name }}"
+              data-comparable-name="{{ pckg[1].comparable_name }}"
+              data-name="{{ pckg[1].name }}"
               class="package-select">
                 {% for version in pckg[1].get_versions()|sort(reverse=True, case_sensitive=False) %}
                   <option value="{{ version }}"
@@ -100,7 +102,10 @@
                   <option value="">Remove Package</option>
                 {% endif %}
               </select>
-              <a class="btn sm-btn-success new-version-btn" data-name="{{pckg[1].comparable_name}}" href="#">
+              <a class="btn sm-btn-success new-version-btn"
+              data-comparable-name="{{ pckg[1].comparable_name }}"
+              data-name="{{ pckg[1].name }}"
+              href="#">
                 <i class="icon-chevron-right icon-white"></i> Build New Package
               </a>
               <span id="pckg_select_msg_{{ pckg[1].comparable_name }}" class="help-block">
@@ -151,7 +156,10 @@
             <tr>
               <td width="20%">{{ pckg[1].name }}</td>
               <td width="80%">
-                <select id="pckg_select_{{ pckg[1].comparable_name }}" class="package-select">
+                <select id="pckg_select_{{ pckg[1].comparable_name }}"
+                data-comparable-name="{{ pckg[1].comparable_name }}"
+                data-name="{{ pckg[1].name }}"
+                class="package-select">
                   {% for version in pckg[1].get_versions()|sort(reverse=True, case_sensitive=False) %}
                     <option value="{{ version }}"
                     {% if pckg[1].version == version %}selected="selected"{% endif %} >

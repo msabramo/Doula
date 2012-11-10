@@ -136,7 +136,7 @@ var ServiceEnv = {
             select = $(select);
             select.attr('data-original-val', select.val());
 
-            var packageName = select.attr('id').replace('pckg_select_', '');
+            var packageName = select.data('comparable-name');
 
             $('#pckg_select_msg_' + packageName).
                 html('Current version <strong>' + select.val() + '</strong>.');
@@ -174,10 +174,11 @@ var ServiceEnv = {
     },
 
     updatePackageDropdownOnChange: function(event) {
-        var target = $(event.target);
-        var name = target.attr('id').replace('pckg_select_', '');
+        var selectEl = $(event.target);
+        var name = selectEl.data('comparable-name');
+        var value = selectEl.val();
 
-        this.updatePackageDropdown(name, target.val());
+        this.updatePackageDropdown(name, value);
     },
 
     updatePackageDropdown: function(name, version) {
@@ -246,11 +247,13 @@ var ServiceEnv = {
 
         $('select.package-select').each(function(i, select) {
             select = $(select);
-            var name = select.attr('id').replace('pckg_select_', '');
+            // Releases need the actual name on cheese prism
+            // not the comparable name.
+            var name = select.data('name');
             var version = select.val();
             var originalVal = $.trim(select.attr('data-original-val'));
 
-            if(originalVal != version && originalVal != 'undefined') {
+            if (originalVal != version && originalVal != 'undefined') {
                 packages[name] = version;
             }
         });
