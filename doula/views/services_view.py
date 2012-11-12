@@ -35,6 +35,7 @@ def service(request):
 
     return {
         'site': site,
+        'path': request.path,
         'service': service,
         'config': Config,
         'last_release': last_release,
@@ -100,6 +101,7 @@ def service_dashboard(request):
 
     temp_data = {
         'site': site,
+        'path': request.path,
         'service': service,
         'config': Config,
         'last_release': last_release,
