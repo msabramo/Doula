@@ -16,15 +16,26 @@
         These files have been <strong>changed</strong>.
 
         <ul>
-          {% for file in node['config']['changed_files'] %}
-            <li>{{file}}</li>
+          {% for file, file_status in node['config']['changed_files'].iteritems() %}
+            {% if file_status == 'modified' %}
+              <li><strong>{{file}}</strong> modified on server</li>
+            {% elif file_status == 'deleted' %}
+              <li><strong>{{file}}</strong> deleted on server</li>
+            {% endif %}
           {% endfor %}
         </ul>
       </p>
       {% endif %}
       <p>
-      <a href="http://code.corp.surveymonkey.com/config/{{ service.name_url }}/compare/{{node.config['commit']}}...{{node.config['latest_commit']}}"
-        target="_blank">See the diff for these files on Github</a>.
+        {% if node.config['commit'] != node.config['latest_commit'] %}
+        <a href="http://code.corp.surveymonkey.com/config/{{ service.name_url }}/compare/{{node.config['commit']}}...{{node.config['latest_commit']}}"
+          target="_blank">See the diff between this commit and latest commit on Github</a>.
+        {% else %}
+        The config files are up to date, but have been modified on the server.
+        View the latest
+        <a href="http://code.corp.surveymonkey.com/config/{{ service.name_url }}"
+        target="_blank">config files on Github</a>.
+        {% endif %}
       </p>
     {% endif %}
 
