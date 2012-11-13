@@ -131,11 +131,17 @@ class Push(object):
 
     def install_assets(self):
         with workon(self._webapp(), self.debug):
+            logging.error('Running asset check.')
             result = run('asset_check %s' % self.service_name)
             if result.succeeded:
+                logging.error('assets detected.  gonna bake them up nice and hot')
                 result = sudo('paster --plugin=smlib.assets bake etc/app.ini %s' %self.outdir)
+                logging.error('asset push completed.  output follows:')
+                logging.error(result)
                 if result.succeeded:
                     return (True, True)
+                else:
+                    raise Exception(result)
             else:
                 #a non-success means that the plugin does not exist
                 #which means we do nothing, so we return success
