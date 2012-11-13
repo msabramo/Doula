@@ -316,7 +316,9 @@ def pull_devmonkeys_repos():
         }
     """
     repos = {}
-
+    # todo: pass in the previous git commit. and only pull from there
+    # pass in the param sha=[sha1]
+    # see http://developer.github.com/v3/repos/commits/
     domain = Config.get('doula.github.api.domain')
     org = Config.get('doula.github.packages.org')
     token = Config.get('doula.github.token')

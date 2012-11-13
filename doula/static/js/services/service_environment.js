@@ -279,6 +279,22 @@ var ServiceEnv = {
         $('#release-service').removeClass('disabled');
     },
 
+    // Update the current service and drop downs
+    updateServicePackagesAfterRelease: function(job) {
+        for (var comparable_name in job.comparable_packages) {
+            var select = $('#pckg_select_' + comparable_name);
+            var version = job.comparable_packages[comparable_name];
+
+            // Set the drop down's new default value. reset message
+            // by calling the change event
+            select.attr('data-original-val', version);
+            select.change();
+
+            // Update the data attribute value for the version
+            Data.packages[comparable_name]['version'] = version;
+        }
+    },
+
     /****************
     CYCLE SERVICE
     *****************/
@@ -322,8 +338,12 @@ var ServiceEnv = {
             }
         }
         else if (job.job_type == 'release_service') {
-            if(job.status == 'failed' || job.status == 'complete') {
+            if (job.status == 'failed' || job.status == 'complete') {
                 this.updateMiniDashboard();
+            }
+
+            if (job.status == 'complete') {
+                this.updateServicePackagesAfterRelease(job);
             }
         }
     }

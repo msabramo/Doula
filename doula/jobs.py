@@ -199,6 +199,7 @@ def release_service(config={}, job_dict={}, debug=False):
         # Create a new job dict because we don't want to mix the logs
         # This will update the releases related ata
         pull_appenv_github_data_job_dict = {'id': uuid.uuid1().hex}
+        # alextodo. speed this up to. it's fucked on prod. so fix it.
         pull_appenv_github_data(config, pull_appenv_github_data_job_dict)
 
         # Cycle the service after releasing the service
@@ -299,6 +300,8 @@ def pull_appenv_github_data(config={}, job_dict={}, debug=False):
         log.info('Pulling github appenv data')
         redis = Redis.get_instance()
         repos = pull_appenv_repos()
+        # alextodo. make sure the dashboard pulls from here
+        # and the repos are updated properly.
         redis.set("repos:appenvs", dumps(repos))
 
         # always remove maintenance jobs from the queue

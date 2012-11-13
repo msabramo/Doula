@@ -4,6 +4,7 @@ from doula.models.doula_dal import DoulaDAL
 from doula.queue import Queue
 from doula.util import dumps
 from doula.util import git_dirify
+from doula.util import comparable_name
 from pyramid.renderers import render
 from pyramid.response import Response
 from pyramid.view import view_config
@@ -167,28 +168,20 @@ def enqueue_release_service(request, service, packages):
     Enqueue the job onto the queue
     """
     pckgs = []
+    comparable_packages = {}
 
     for name, version in packages.iteritems():
         pckgs.append(name + '==' + version)
+        comparable_packages[comparable_name(name)] = version
 
-    q = Queue()
-
-    # todo: use service and service_name
-    job_id = q.this({
+    return Queue().this({
         'job_type': 'release_service',
+        'comparable_packages': comparable_packages,
         'packages': pckgs,
         'service': service.name,
         'site': service.site_name,
         'user_id': request.user['username']
     })
-
-    # After we push the release. lets pull the latest release data again.
-    # alextodo. after big rewrite just make it work correctly with this info.
-    q.this({
-        'job_type': 'pull_appenv_github_data'
-    })
-
-    return job_id
 
 
 @view_config(route_name='service_cycle', renderer="string")
