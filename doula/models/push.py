@@ -133,10 +133,10 @@ class Push(object):
         with workon(self._webapp(), self.debug):
             result = run('asset_check %s' % self.service_name)
             if result.succeeded:
-                log.info('assets detected.  gonna bake them up nice and hot')
+                loging.info('assets detected.  gonna bake them up nice and hot')
                 result = sudo('paster --plugin=smlib.assets bake etc/app.ini %s' %self.outdir)
-                log.info('asset push completed.  output follows:')
-                log.info(result)
+                logging.info('asset push completed.  output follows:')
+                logging.info(result)
                 if result.succeeded:
                     return (True, True)
                 else:
