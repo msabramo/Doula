@@ -139,6 +139,8 @@ class Push(object):
                 log.info(result)
                 if result.succeeded:
                     return (True, True)
+                else:
+                    raise Exception(result)
             else:
                 #a non-success means that the plugin does not exist
                 #which means we do nothing, so we return success
