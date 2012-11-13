@@ -131,12 +131,13 @@ class Push(object):
 
     def install_assets(self):
         with workon(self._webapp(), self.debug):
+            logging.error('Running asset check.')
             result = run('asset_check %s' % self.service_name)
             if result.succeeded:
-                logging.info('assets detected.  gonna bake them up nice and hot')
+                logging.error('assets detected.  gonna bake them up nice and hot')
                 result = sudo('paster --plugin=smlib.assets bake etc/app.ini %s' %self.outdir)
-                logging.info('asset push completed.  output follows:')
-                logging.info(result)
+                logging.error('asset push completed.  output follows:')
+                logging.error(result)
                 if result.succeeded:
                     return (True, True)
                 else:
