@@ -1,5 +1,6 @@
 from doula.config import Config
 from doula.github import get_appenv_releases
+from doula.util import date_to_seconds_since_epoch
 from doula.models.package import Package
 import re
 
@@ -8,6 +9,7 @@ class Release(object):
     def __init__(self, author, date, commit_message, branch, packages):
         self.author = author
         self.date = date
+        self.date_in_seconds = date_to_seconds_since_epoch(date)
         self.branch = branch
         self.packages = packages
         self.commit_message = commit_message
@@ -66,5 +68,7 @@ class Release(object):
         for cmt in commits:
             release = Release.build_release_from_repo(branch, service_name, cmt)
             releases.append(release)
+
+        releases.sort(key=lambda x: x.date_in_seconds, reverse=True)
 
         return releases

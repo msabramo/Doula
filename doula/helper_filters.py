@@ -37,7 +37,7 @@ def relative_datetime(date):
     dt = datetime.strptime(datetime_only, "%Y-%m-%dT%X")
     delta = datetime.now() - dt
 
-    if delta.days == 0:
+    if delta.days < 1:
         date_only = datetime.strptime(datetime_only.split('T')[0], "%Y-%m-%d")
 
         today_datetime_only = datetime.now().isoformat().split('T')[0]

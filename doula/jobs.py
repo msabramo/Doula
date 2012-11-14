@@ -300,8 +300,6 @@ def pull_appenv_github_data(config={}, job_dict={}, debug=False):
         log.info('Pulling github appenv data')
         redis = Redis.get_instance()
         repos = pull_appenv_repos()
-        # alextodo. make sure the dashboard pulls from here
-        # and the repos are updated properly.
         redis.set("repos:appenvs", dumps(repos))
 
         # always remove maintenance jobs from the queue

@@ -2,6 +2,24 @@ from pprint import pprint as pretty_print
 import simplejson as json
 import re
 import requests
+import time
+
+
+def date_to_seconds_since_epoch(date):
+    """
+    Convert a date like 2012-11-13T18:24:21+00:00 to
+    the seconds since the epoch.
+
+    Other examples:
+        2012-11-14T02:08:36+00:00
+        2012-11-14T00:29:01+00:00
+        2012-11-13T18:44:56+00:00
+        2012-11-10T00:20:03+00:00
+    """
+    date = date.split("+")[0]
+    struct_time = time.strptime(date, "%Y-%m-%dT%H:%M:%S")
+
+    return time.mktime(struct_time)
 
 
 def next_version(version):

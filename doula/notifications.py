@@ -95,9 +95,11 @@ def build_email_list(job_dict):
 
         if is_subscribed_to_this:
             if job_dict['status'] == 'complete' and user['settings']['notify_me'] == 'always':
-                email_list.add(user['email'])
+                if user['email'] and user['email'] != 'null':
+                    email_list.add(user['email'])
             elif job_dict['status'] == 'failed' and user['settings']['notify_me'] in ['always', 'failed']:
-                email_list.add(user['email'])
+                if user['email'] and user['email'] != 'null':
+                    email_list.add(user['email'])
 
     return [email for email in email_list]
 
