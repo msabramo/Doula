@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 from datetime import datetime
+from doula.cache import Redis
 from doula.cheese_prism import CheesePrism
 from doula.config import Config
 from doula.github import get_package_github_info
@@ -39,7 +40,10 @@ class Package(object):
 
     def get_versions(self):
         pypackage = CheesePrism.find_package_by_name(self.name)
-        versions = pypackage.versions
+        versions = []
+
+        if pypackage:
+            versions = pypackage.versions
 
         if not self.version in versions:
             versions.append(self.version)
@@ -73,12 +77,26 @@ class Package(object):
         Pull all the survey monkey packages
         """
         sm_packages = []
+        found_sm_package_names = []
         all_python_packages = CheesePrism.all_packages()
 
         for python_package in all_python_packages:
             sm_package = Package(python_package.name, python_package.get_last_version())
 
             if sm_package.get_github_info():
+                # Hold onto the comparable name. check later
+                # if we already have this name
+                found_sm_package_names.append(sm_package.comparable_name)
+                sm_packages.append(sm_package)
+
+        # Pull the devmonkey repos. If not a cheese prism package
+        # return as an empty cheese prism package
+        redis = Redis.get_instance()
+        repo_names = redis.smembers("repo.devmonkeys")
+
+        for repo_name in repo_names:
+            if not comparable_name(repo_name) in found_sm_package_names:
+                sm_package = Package(repo_name, '')
                 sm_packages.append(sm_package)
 
         return sm_packages

@@ -268,7 +268,11 @@ def pull_github_data(config={}, job_dict={}):
         redis = Redis.get_instance()
         pipeline = redis.pipeline()
 
+        # Clear the elements in the set by deleting the key
+        pipeline.delete("repo.devmonkeys")
+
         for name, repo in repos.iteritems():
+            pipeline.sadd("repo.devmonkeys", name)
             key = "repo.devmonkeys:" + name
             pipeline.set(key, dumps(repo))
 

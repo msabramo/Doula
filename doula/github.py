@@ -324,9 +324,17 @@ def pull_devmonkeys_repos():
     token = Config.get('doula.github.token')
     url = "%s/orgs/%s/repos?access_token=%s" % (domain, org, token)
 
-    git_repos = json.loads(pull_url(url))
+    repos_as_json = pull_url(url)
+    git_repos = json.loads(repos_as_json)
+
+    # alextodo. figure out how to pull a single
+    # repo more quickly and go from there
+    # this will need to be redis data aware and use
+    # that data to pull latest data
 
     for git_repo in git_repos:
+        print 'PULLING GIT REPO: ' + git_repo["name"]
+
         tags = pull_tags(git_repo)
         branches = pull_branches(git_repo)
         commits = pull_commits(git_repo, tags, branches)
