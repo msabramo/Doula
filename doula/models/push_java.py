@@ -27,7 +27,7 @@ class PushJava(object):
         cheeseprism_url,
         keyfile,
         site_name_or_node_ip,
-        debug=False)
+        debug=False):
 
         self.service_name = service_name
         self.username = username
@@ -47,7 +47,7 @@ class PushJava(object):
             self.email = user['email']
 
 
-    def release_service(self, wars)
+    def release_service(self, wars):
         self.wars = wars
 
         for war_name in wars:
@@ -57,7 +57,7 @@ class PushJava(object):
             with cd('%s/%s/' %(self.java_dir, self.service_name)):
                 run('rm -rf tmp')
                 run('mkdir tmp')
-                run('curl %s/%s > tmp/%s.war' % %(self.cheeseprism_url, war_name, self.service_name))
+                run('curl %s/%s > tmp/%s.war' % (self.cheeseprism_url, war_name, self.service_name))
             with cd('%s/%s/tmp' %(self.java_dir, self.service_name)):
                 run('unzip %s.war -d %s' %s (self.service_name, short_name))
                 run('cp ../etc/persistence.xml %s/WEB-INF/classes/META-INF/persistence.xml' % short_name)
@@ -87,8 +87,9 @@ class PushJava(object):
             if result.failed:
                 raise Exception(str(result))
 
-
-
     def short_war_name(self, war_name):
         short_name = re.search('^(\w+)[-.]', war_name)
         return short_name.group(1)
+
+def get_test_obj(service):
+    return PushJava(service, '', '/opt/java/', 'http://yorick:9003/index', '/Users/timsabat/.ssh/id_rsa_doula_user', '/opt/smassets', True)

@@ -1,4 +1,4 @@
-from doula import Package
+from doula.models.package import Package
 
 class PackageJava(Package):
 
