@@ -118,4 +118,9 @@ class CheesePrism(object):
 
             found_pckg = False
 
-        return all_packages
+        other_packages = {}
+
+        for package in all_packages:
+            other_packages[package.comparable_name] = package
+
+        return other_packages

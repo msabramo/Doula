@@ -2,6 +2,7 @@
 {% import 'queue/queued_item.html' as queued_item_tmpl %}
 
 {% block content %}
+<!-- service title bar area -->
 <div class="title-bar clearfix">
 	<h2>
     <a href="/sites">Sites</a> /
@@ -51,180 +52,13 @@
 </div>
 
 <div>
+  {% include 'services/mini-dashboard.html' %}
 
-{% include 'services/mini-dashboard.html' %}
+  {% include 'services/admin_actions_sm_packages.html' %}
 
-  <div class="accordion-group">
-    <div class="accordion-heading group sm-accordion-title packages-title-bar">
-      <a href="#" onclick="return false;" data-toggle="collapse"
-      data-target="#sm_packages_table">
-        <strong class="accord-strong">{{ service.name }}'s</strong> Survey Monkey Packages
-      </a>
-    </div>
+  {% include 'services/admin_actions_other_packages.html' %}
 
-  <div id="sm_packages_table" class="accordion-body in collapse">
-    <div class="accordion-inner">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Package</th>
-            <th>Version</th>
-            <th> &nbsp;</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- our packages first, the ones with the github repo data -->
-          {% for pckg in service.packages|dictsort %}
-          {% set git_info = pckg[1].get_github_info() %}
-
-          {% if git_info %}
-          <tr>
-            <td width="20%">
-              <a href="#" onclick="return false;" rel="tooltip"
-              title="Click to see the Git commit history"
-              data-toggle="collapse"
-              data-target="#{{ pckg[1].comparable_name }}_git_info">
-              {{ pckg[1].name }}
-            </a>
-            </td>
-            <td width="80%">
-              <select id="pckg_select_{{ pckg[1].comparable_name }}"
-              data-comparable-name="{{ pckg[1].comparable_name }}"
-              data-name="{{ pckg[1].name }}"
-              class="package-select">
-                {% for version in pckg[1].get_versions()|sort(reverse=True, case_sensitive=False) %}
-                  <option value="{{ version }}"
-                  {% if pckg[1].version == version %}selected="selected"{% endif %} >
-                    {{ version }}
-                  </option>
-                {% endfor %}
-                {% if config.get('env') == 'dev' %}
-                  <option value="">Remove Package</option>
-                {% endif %}
-              </select>
-              <a class="btn sm-btn-success new-version-btn"
-              data-comparable-name="{{ pckg[1].comparable_name }}"
-              data-name="{{ pckg[1].name }}"
-              href="#">
-                <i class="icon-chevron-right icon-white"></i> Build New Package
-              </a>
-              <span id="pckg_select_msg_{{ pckg[1].comparable_name }}" class="help-block">
-                Current version 1.4.5
-              </span>
-            </td>
-          </tr>
-          <tr class="git-info-row">
-              <td colspan="2" class="hidden">
-                <div id="{{ pckg[1].comparable_name }}_git_info"
-                class="commit-accordion accordion-body collapse hide-on-load"
-                style="display: none;">
-                  {% include 'services/commits.html' %}
-                </div>
-              </td>
-          </tr>
-          {% endif %}
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-   </div>
-  </div>
-  <!-- end sm_packages_table -->
-  <!--
-  <div class="accordion-group hide">
-    <div class="accordion-heading group sm-accordion-title">
-      <a href="#" onclick="return false;">
-      Add new package to
-      <strong class="accord-strong">service.name's</strong>
-    </div>
-
-    <div id="add_package_table" class="accordion-body hide-on-load">
-      <div class="accordion-inner">
-        <table class="table">
-          <tbody>
-            <tr>
-              <td width="20%">Add New Package</td>
-              <td width="40%">
-                <select id="pckg_select_add_new_package"
-                class="package-select">
-                  <option value="package_name">
-                    Other SM Package Name
-                  </option>
-                </select>
-                <span id="pckg_select_other_package_name" class="help-block">
-                  Other Package Name
-                </span>
-              </td>
-              <td width="40%">
-                <select id="pckg_select_add_new_package"
-                class="package-select">
-                  <option value="package_name">
-                    Version Number
-                  </option>
-                </select>
-                <span id="pckg_select_version_of_new_package" class="help-block">
-                  Version Number of Package
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  </div>
-  -->
-
-  <div class="accordion-group">
-    <div class="accordion-heading group sm-accordion-title">
-      <a href="#" onclick="return false;" data-toggle="collapse"
-      data-target="#other_packages_table">
-      <strong class="accord-strong">{{ service.name }}'s</strong> Other Python Packages
-    </div>
-
-    <div id="other_packages_table" class="accordion-body collapse hide-on-load"
-    style="display: none;">
-      <div class="accordion-inner">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Package</th>
-              <th>Version</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for pckg in service.packages|dictsort %}
-            {% if not pckg[1].get_github_info() %}
-            <tr>
-              <td width="20%">{{ pckg[1].name }}</td>
-              <td width="80%">
-                <select id="pckg_select_{{ pckg[1].comparable_name }}"
-                data-comparable-name="{{ pckg[1].comparable_name }}"
-                data-name="{{ pckg[1].name }}"
-                class="package-select">
-                  {% for version in pckg[1].get_versions()|sort(reverse=True, case_sensitive=False) %}
-                    <option value="{{ version }}"
-                    {% if pckg[1].version == version %}selected="selected"{% endif %} >
-                      {{ version }}
-                    </option>
-                  {% endfor %}
-                  {% if config.get('env') == 'dev' %}
-                    <option value="">Remove Package</option>
-                  {% endif %}
-                </select>
-                <span id="pckg_select_msg_{{ pckg[1].comparable_name }}" class="help-block">
-                  Current version 1.4.5
-                </span>
-              </td>
-            </tr>
-            {% endif %}
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
+  {% include 'services/admin_actions_add_py_package.html' %}
 </div>
 <!-- end package-accordion -->
 
@@ -241,6 +75,8 @@
 <script>
 var __service = {{service_json|safe}};
 var __releases = {{releases_json|safe}};
+var __other_packages = {{other_packages_json|safe}};
+
 // alextodo. change the sortBy filter to status
 // then change filter by user_id or something
 var __queueFilters = {

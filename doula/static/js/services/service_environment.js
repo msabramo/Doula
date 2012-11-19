@@ -6,6 +6,7 @@ var ServiceEnv = {
 
     init: function() {
         this.releases = __releases;
+        this.other_packages = __other_packages;
 
         _mixin(this, AJAXUtil);
         _mixin(this, Packages);
@@ -42,8 +43,16 @@ var ServiceEnv = {
         this.addVersionMessageBelowPackageSelects();
 
         $('a.release').on('click', $.proxy(this.selectReleasePackages, this));
+
         $('select.package-select').
             on('change', $.proxy(this.updatePackageDropdownOnChange, this));
+
+        // Dropdown for add python package
+        $('#pckg_select_add_new_package').on('change',
+            $.proxy(this.updateAddNewPackageVersions, this));
+
+        $('#pckg_select_add_new_package, #pckg_select_add_new_package_version').on('change',
+            $.proxy(this.updateAddNewPackageVersionsMessage, this));
 
         // Queue stuff
         QueueView.subscribe(
@@ -213,6 +222,36 @@ var ServiceEnv = {
         el.parent().addClass('active');
     },
 
+    updateAddNewPackageVersions: function() {
+        var value = $('#pckg_select_add_new_package').val();
+
+        // Update the versions drop down
+        if (value) {
+            var options = "<option value=\"\">Select a Version</option>";
+            var versions = this.other_packages[value].versions;
+
+            for (var i = 0; i < versions.length; i++) {
+                options += "<option value=\"" + versions[i] + "\">";
+                options += versions[i] + "</option>";
+            }
+
+            $('#pckg_select_add_new_package_version').html(options);
+        }
+    },
+
+    updateAddNewPackageVersionsMessage: function() {
+        var packageName = $('#pckg_select_add_new_package').val();
+        var version = $('#pckg_select_add_new_package_version').val();
+        var msg = '';
+
+        if (packageName && version) {
+            var msg = 'Adding package <strong>' + packageName + '</strong> ';
+            msg += 'version <strong>' + version + '</strong>.';
+        }
+
+        $('#pckg_select_add_new_package_msg').html(msg);
+    },
+
     /*******************
     DATA ACTIONS
     ********************/
@@ -257,6 +296,15 @@ var ServiceEnv = {
                 packages[name] = version;
             }
         });
+
+        // Check if the user is adding a new package as well
+        // Add that new package to this service
+        var packageName = $('#pckg_select_add_new_package').val();
+        var version = $('#pckg_select_add_new_package_version').val();
+
+        if (packageName && version) {
+            packages[this.other_packages[packageName].name] = version;
+        }
 
         return packages;
     },

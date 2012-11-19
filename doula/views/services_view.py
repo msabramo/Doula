@@ -29,8 +29,8 @@ def service(request):
     releases = service.get_releases()
     last_release = get_last_release(releases)
     last_job = get_last_job(site, service)
-
     other_packages = CheesePrism.other_packages(service.packages)
+
     # show jobs in the past hour 8 hours
     jobs_started_after = math.floor(time.time() - (60 * 60 * 8))
 
@@ -45,6 +45,7 @@ def service(request):
         'service_json': dumps(service),
         'releases_json': dumps(releases),
         'other_packages': other_packages,
+        'other_packages_json': dumps(other_packages),
         'queued_items': [],
         'jobs_started_after': jobs_started_after
     }
