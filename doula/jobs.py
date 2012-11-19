@@ -185,7 +185,7 @@ def release_service(config={}, job_dict={}, debug=False):
             # raise Exception(','.join(failures['error']))
             raise Exception(failures[0]['error'])
 
-        logging.getLogger().setLevel(logging.DEBUG)
+        logging.getLogger().setLevel(logging.INFO)
         create_logger(job_dict['id'])
         log.info('Done installing packages.')
 
@@ -207,7 +207,7 @@ def release_service(config={}, job_dict={}, debug=False):
 
         return successes, failures
     except Exception as e:
-        logging.getLogger().setLevel(logging.DEBUG)
+        logging.getLogger().setLevel(logging.INFO)
         log.error(e.message)
         log.error(traceback.format_exc())
         raise
