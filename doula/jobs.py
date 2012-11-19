@@ -257,7 +257,7 @@ def pull_github_data(config={}, job_dict={}):
     """
     log = create_logger(job_dict['id'])
     load_config(config)
-    return;
+
     try:
         start = time.time()
         log.info('pulling github data')
