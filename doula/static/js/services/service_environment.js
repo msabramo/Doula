@@ -245,7 +245,8 @@ var ServiceEnv = {
         var msg = '';
 
         if (packageName && version) {
-            var msg = 'Adding package <strong>' + packageName + '</strong> ';
+            var name = this.other_packages[packageName].name;
+            var msg = 'Adding package <strong>' + name + '</strong> ';
             msg += 'version <strong>' + version + '</strong>.';
         }
 
