@@ -99,12 +99,12 @@ class Queue(object):
     def is_maintenance_job(self, job_type):
         """
         Determines if a job is considered a maintenance job
+
+        These jobs run behind all other jobs
         """
         maintenance_job_types = [
             'pull_cheeseprism_data',
             'pull_github_data',
-            'pull_appenv_github_data',
-            'pull_bambino_data',
             'cleanup_queue']
 
         return job_type in maintenance_job_types
