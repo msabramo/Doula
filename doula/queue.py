@@ -51,6 +51,7 @@ class Queue(object):
     """
 
     default_queue_name = 'main'
+    maintenance_queue_name = 'maintenance'
 
     common_dict = {
         'id': 0,
@@ -91,8 +92,22 @@ class Queue(object):
 
         # Initialize the QueueManager
         self.qm = QueueManager(default_queue_name=self.default_queue_name)
+        self.maint_qm = QueueManager(default_queue_name=self.maintenance_queue_name)
         self.qm.subscriber('job_postrun', handler='doula.queue:add_result')
         self.qm.subscriber('job_failure', handler='doula.queue:add_failure')
+
+    def is_maintenance_job(self, job_type):
+        """
+        Determines if a job is considered a maintenance job
+        """
+        maintenance_job_types = [
+            'pull_cheeseprism_data',
+            'pull_github_data',
+            'pull_appenv_github_data',
+            'pull_bambino_data',
+            'cleanup_queue']
+
+        return job_type in maintenance_job_types
 
     def this(self, attrs):
         """
@@ -125,7 +140,11 @@ class Queue(object):
 
         p = self.redis.pipeline()
 
-        self.qm.enqueue('doula.jobs:%s' % job_type, config=self.get_config(), job_dict=job_dict)
+        if self.is_maintenance_job(job_type):
+            self.maint_qm.enqueue('doula.jobs:%s' % job_type, config=self.get_config(), job_dict=job_dict)
+        else:
+            self.qm.enqueue('doula.jobs:%s' % job_type, config=self.get_config(), job_dict=job_dict)
+
         self._save(p, job_dict)
         p.execute()
 

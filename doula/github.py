@@ -156,7 +156,7 @@ def pull_branches(git_repo):
 
         # Pull the last 50 sha's for each branch
         url = "%s/repos/%s/%s/commits?per_page=50&sha=%s" % \
-            (domain, Config.get('doula.github.packages.org'), git_repo['name'], branch["sha"])
+            (domain, Config.get('doula.github.packages.org'), git_repo['name'], branch["name"])
 
         commits_for_branch = json.loads(pull_url(url))
         shas = []
@@ -184,9 +184,11 @@ def pull_package_version(commit, tags):
     return package_version
 
 
-def pull_commit_branches(commit, branches):
+def find_branches_commit_belongs_to(commit, branches):
     """
-    Discover which branches this commit belongs to. Look back 50 commits.
+    Find which branches this commit belongs to.
+    The each branch in the branches list contains a list of
+    the last 50 sha1's.
     """
     commit_branches = []
 
@@ -206,7 +208,6 @@ def pull_commits(git_repo, tags, branches):
     that has all the values we need including branch, and package version
 
     We build a commit dict that looks like this:
-
     {
         "sha": "...",
         "author": {
@@ -262,7 +263,7 @@ def pull_commits(git_repo, tags, branches):
             commit["author"]["login"] = cmt["author"]["login"],
             commit["author"]["avatar_url"] = cmt["author"]["avatar_url"]
 
-        commit["branches"] = pull_commit_branches(commit, branches)
+        commit["branches"] = find_branches_commit_belongs_to(commit, branches)
 
         # still need the branches that this commit belongs to
 
@@ -319,6 +320,8 @@ def pull_devmonkeys_repos():
     # todo: pass in the previous git commit. and only pull from there
     # pass in the param sha=[sha1]
     # see http://developer.github.com/v3/repos/commits/
+    start = time.time()
+
     domain = Config.get('doula.github.api.domain')
     org = Config.get('doula.github.packages.org')
     token = Config.get('doula.github.token')
@@ -326,6 +329,10 @@ def pull_devmonkeys_repos():
 
     repos_as_json = pull_url(url)
     git_repos = json.loads(repos_as_json)
+
+    diff = time.time() - start
+    print "\n"
+    print 'DIFF IN TIME FOR PULL REPOS: ' + str(diff)
 
     # alextodo. figure out how to pull a single
     # repo more quickly and go from there
@@ -352,6 +359,10 @@ def pull_devmonkeys_repos():
         }
 
         repos[comparable_name(repo["name"])] = repo
+
+    diff = time.time() - start
+    print "\n"
+    print 'DIFF IN TIME FOR PULL ALL REPOS: ' + str(diff)
 
     return repos
 
