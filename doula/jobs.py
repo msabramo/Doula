@@ -252,8 +252,6 @@ def pull_github_data(config={}, job_dict={}):
     """
     Pull the github data for every python package.
     Pull commit history, tags, branches. Everything.
-
-    # alextodo. this is the slowest call we have. 60 seconds. speed it up.
     """
     log = create_logger(job_dict['id'])
     load_config(config)

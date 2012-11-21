@@ -37,3 +37,5 @@ def restart():
     run('supervisorctl restart doula_6543')
     run('supervisorctl reread retools')
     run('supervisorctl restart retools')
+    run('supervisorctl reread retools-maintenance')
+    run('supervisorctl restart retools-maintenance')

@@ -334,11 +334,6 @@ def pull_devmonkeys_repos():
     print "\n"
     print 'DIFF IN TIME FOR PULL REPOS: ' + str(diff)
 
-    # alextodo. figure out how to pull a single
-    # repo more quickly and go from there
-    # this will need to be redis data aware and use
-    # that data to pull latest data
-
     for git_repo in git_repos:
         print 'PULLING GIT REPO: ' + git_repo["name"]
 
