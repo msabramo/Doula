@@ -156,7 +156,7 @@ def pull_branches(git_repo):
 
         # Pull the last 50 sha's for each branch
         url = "%s/repos/%s/%s/commits?per_page=50&sha=%s" % \
-            (domain, Config.get('doula.github.packages.org'), git_repo['name'], branch["name"])
+            (domain, Config.get('doula.github.packages.org'), git_repo['name'], branch["sha"])
 
         commits_for_branch = json.loads(pull_url(url))
         shas = []
