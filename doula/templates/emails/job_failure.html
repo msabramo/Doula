@@ -1,25 +1,25 @@
-{% macro render_job_failure(queued_item) -%}
+{% macro render_job_failure(job_dict) -%}
     Hi there.</br></br>
 
-    {% if queued_item['job_type'] == 'build_new_package' %}
-        <strong>{{ queued_item['user_id'] }}'s</strong> job failed to build
-        <strong>{{ queued_item['package_name'] }}</strong> with the version number
-        <strong>{{ queued_item['version'] }}</strong>.
-    {% elif queued_item['job_type'] == 'cycle_service' %}
-        <strong>{{ queued_item['user_id'] }}'s</strong> job failed to cycle service
-        <strong>{{ queued_item['service'] }}</strong> on
-        <strong>{{ queued_item['site'] }}</strong>.
-    {% elif queued_item['job_type'] == 'release_service' %}
-        <strong>{{ queued_item['user_id'] }}'s</strong> job failed to release service
-        <strong>{{ queued_item['service'] }}</strong> on
-        <strong>{{ queued_item['site'] }}</strong>.
+    {% if job_dict['job_type'] == 'build_new_package' %}
+        <strong>{{ job_dict['user_id'] }}'s</strong> job failed to build
+        <strong>{{ job_dict['package_name'] }}</strong> with the version number
+        <strong>{{ job_dict['version'] }}</strong>.
+    {% elif job_dict['job_type'] == 'cycle_service' %}
+        <strong>{{ job_dict['user_id'] }}'s</strong> job failed to cycle service
+        <strong>{{ job_dict['service'] }}</strong> on
+        <strong>{{ job_dict['site'] }}</strong>.
+    {% elif job_dict['job_type'] == 'release_service' %}
+        <strong>{{ job_dict['user_id'] }}'s</strong> job failed to release service
+        <strong>{{ job_dict['service'] }}</strong> on
+        <strong>{{ job_dict['site'] }}</strong>.
     {% endif %}
 
     <span>
         Job scheduled
         <strong>
         <time>
-            <a id="{{queued_item['id']}}" href="http://doula.corp.surveymonkey.com/queue#{{queued_item['id']}}">
+            <a id="{{job_dict['id']}}" href="http://doula.corp.surveymonkey.com/queue#{{job_dict['id']}}">
             {{ date_and_time }}
             </a>
         </time>

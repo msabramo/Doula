@@ -1,30 +1,41 @@
-{% macro render_job_success(queued_item) -%}
+{% macro render_job_success(job_dict) -%}
     Howdy!</br></br>
 
-    {% if queued_item['job_type'] == 'build_new_package' %}
-        <strong>{{ queued_item['user_id'] }}</strong> built
-        <strong>{{ queued_item['package_name'] }}</strong> with the version number
-        <strong>{{ queued_item['version'] }}</strong>.
-    {% elif queued_item['job_type'] == 'cycle_service' %}
-        <strong>{{ queued_item['user_id'] }}</strong> cycled
-        <strong>{{ queued_item['service'] }}</strong> on
-        <strong>{{ queued_item['site'] }}</strong>.
-    {% elif queued_item['job_type'] == 'release_service' %}
-        <strong>{{ queued_item['user_id'] }}</strong> released and cycled service
-        <strong>{{ queued_item['service'] }}</strong> on
-        <strong>{{ queued_item['site'] }}</strong>.
+    {% if job_dict['job_type'] == 'build_new_package' %}
+        <strong>{{ job_dict['user_id'] }}</strong> built
+        <strong>{{ job_dict['package_name'] }}</strong> with the version number
+        <strong>{{ job_dict['version'] }}</strong>.
+    {% elif job_dict['job_type'] == 'cycle_service' %}
+        <strong>{{ job_dict['user_id'] }}</strong> cycled
+        <strong>{{ job_dict['service'] }}</strong> on
+        <strong>{{ job_dict['site'] }}</strong>.
+    {% elif job_dict['job_type'] == 'release_service' %}
+        <strong>{{ job_dict['user_id'] }}</strong> released and cycled service
+        <strong>{{ job_dict['service'] }}</strong> on
+        <strong>{{ job_dict['site'] }}</strong>.
     {% endif %}
 
     <span>
         Job scheduled
         <strong>
         <time>
-            <a id="{{queued_item['id']}}" href="http://doula.corp.surveymonkey.com/queue#{{queued_item['id']}}">
+            <a id="{{job_dict['id']}}" href="http://doula.corp.surveymonkey.com/queue#{{job_dict['id']}}">
             {{ date_and_time }}
             </a>
         </time>
         </strong>
     </span>
+
+    {% if job_dict['job_type'] == 'release_service' %}
+    <p>The following packages were installed:</p>
+    <ul style="list-style: none; font-size: 14px; line-height: 18px;">
+        {% for package in job_dict['packages'] %}
+        <li>
+            {{ package }}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
 {%- endmacro %}
 
 {% if job_dict: %}

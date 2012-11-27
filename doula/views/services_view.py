@@ -28,6 +28,8 @@ def service(request):
     service = site.services[request.matchdict['service_name']]
     releases = service.get_releases()
     last_release = get_last_release(releases)
+    # find the diff between the last release and the previous release to
+    # that. create it here and do it.
     last_job = get_last_job(site, service)
     other_packages = CheesePrism.other_packages(service.packages)
 
@@ -56,6 +58,22 @@ def get_last_release(releases):
         return releases[0]
     else:
         return None
+
+
+def diff_between_last_release_and_release_previous_to_that(releases):
+    """
+    Return a diff between this latest release and the release previous
+    to that release. We'll use this information to update the dashboard.
+
+    Returns:
+        {
+            'package_name': {
+                'current_version': 0.9,
+                'previous_version': 0.8
+            }
+        }
+    """
+    pass
 
 
 def get_last_job(site, service):
