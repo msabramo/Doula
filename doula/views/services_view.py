@@ -2,9 +2,9 @@ from doula.cheese_prism import CheesePrism
 from doula.config import Config
 from doula.models.doula_dal import DoulaDAL
 from doula.queue import Queue
+from doula.util import comparable_name
 from doula.util import dumps
 from doula.util import git_dirify
-from doula.util import comparable_name
 from pyramid.renderers import render
 from pyramid.response import Response
 from pyramid.view import view_config
@@ -28,8 +28,8 @@ def service(request):
     service = site.services[request.matchdict['service_name']]
     releases = service.get_releases()
     last_release = get_last_release(releases)
-    # find the diff between the last release and the previous release to
-    # that. create it here and do it.
+    changed_packages = diff_between_last_release_and_release_previous_to_that(releases)
+
     last_job = get_last_job(site, service)
     other_packages = CheesePrism.other_packages(service.packages)
 
@@ -46,6 +46,7 @@ def service(request):
         'is_config_up_to_date': service.is_config_up_to_date(),
         'service_json': dumps(service),
         'releases_json': dumps(releases),
+        'changed_packages': changed_packages,
         'other_packages': other_packages,
         'other_packages_json': dumps(other_packages),
         'queued_items': [],
@@ -67,13 +68,29 @@ def diff_between_last_release_and_release_previous_to_that(releases):
 
     Returns:
         {
-            'package_name': {
-                'current_version': 0.9,
-                'previous_version': 0.8
-            }
+            'package_name': '0.9'
         }
     """
-    pass
+    changed_packages = {}
+
+    # We need at least 2 releases
+    if len(releases) > 1:
+        # Find the difference with a set diff
+        previous_release = {}
+
+        # This is previous release
+        for package in releases[1].packages:
+            previous_release[package.name] = package.version
+
+        # This is current release
+        for package in releases[0].packages:
+            if package.name in previous_release:
+                if previous_release[package.name] != package.version:
+                    changed_packages[package.name] = package.version
+            else:
+                changed_packages[package.name] = package.version
+
+    return changed_packages
 
 
 def get_last_job(site, service):
