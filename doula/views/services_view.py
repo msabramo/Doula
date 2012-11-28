@@ -86,11 +86,24 @@ def diff_between_last_release_and_release_previous_to_that(releases):
         for package in releases[0].packages:
             if package.name in previous_release:
                 if previous_release[package.name] != package.version:
-                    changed_packages[package.name] = package.version
+                    name = get_proper_package_name(package.name)
+                    changed_packages[name] = package.version
             else:
-                changed_packages[package.name] = package.version
+                name = get_proper_package_name(package.name)
+                changed_packages[name] = package.version
 
     return changed_packages
+
+
+def get_proper_package_name(package_name):
+    package_list = package_name.split('-')
+    version_number = package_list.pop(0)
+    branch_name = ''
+
+    for part in package_list:
+        branch_name += part + '_'
+
+    return version_number + '-' + branch_name.rstrip('_')
 
 
 def get_last_job(site, service):
