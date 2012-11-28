@@ -106,7 +106,10 @@ def get_proper_package_name(package_name):
     for part in package_list:
         branch_name += part + '_'
 
-    return version_number + '-' + branch_name.rstrip('_')
+    if branch_name:
+        return version_number + '-' + branch_name.rstrip('_')
+    else:
+        return version_number
 
 
 def get_last_job(site, service):
