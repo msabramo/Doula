@@ -86,24 +86,24 @@ def diff_between_last_release_and_release_previous_to_that(releases):
         for package in releases[0].packages:
             if package.name in previous_release:
                 if previous_release[package.name] != package.version:
-                    name = get_proper_package_name(package.name)
-                    changed_packages[name] = package.version
+                    version = get_proper_version_name(package.version)
+                    changed_packages[package.name] = version
             else:
-                name = get_proper_package_name(package.name)
-                changed_packages[name] = package.version
+                version = get_proper_version_name(package.version)
+                changed_packages[package.name] = version
 
     return changed_packages
 
 
-def get_proper_package_name(package_name):
+def get_proper_version_name(version):
     # Since the package name needs to be different
     # then the actual git tag, we put it back here
     # so that we can link to the right commit in GitHub
-    package_list = package_name.split('-')
-    version_number = package_list.pop(0)
+    version_list = version.split('-')
+    version_number = version_list.pop(0)
     branch_name = ''
 
-    for part in package_list:
+    for part in version_list:
         branch_name += part + '_'
 
     if branch_name:
@@ -153,6 +153,7 @@ def service_dashboard(request):
     service = site.services[request.matchdict['service_name']]
     releases = service.get_releases()
     last_release = get_last_release(releases)
+    changed_packages = diff_between_last_release_and_release_previous_to_that(releases)
     last_job = get_last_job(site, service)
 
     temp_data = {
@@ -161,6 +162,7 @@ def service_dashboard(request):
         'service': service,
         'config': Config,
         'last_release': last_release,
+        'changed_packages': changed_packages,
         'last_job': last_job,
         'is_config_up_to_date': service.is_config_up_to_date(),
     }
