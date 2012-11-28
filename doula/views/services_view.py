@@ -96,6 +96,9 @@ def diff_between_last_release_and_release_previous_to_that(releases):
 
 
 def get_proper_package_name(package_name):
+    # Since the package name needs to be different
+    # then the actual git tag, we put it back here
+    # so that we can link to the right commit in GitHub
     package_list = package_name.split('-')
     version_number = package_list.pop(0)
     branch_name = ''
