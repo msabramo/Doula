@@ -6,6 +6,8 @@ from fabric.context_managers import hide
 from fabric.context_managers import prefix
 from fabric.context_managers import settings
 import os
+from doula.models.push import Push
+import re
 
 import logging
 
@@ -18,33 +20,26 @@ def debuggable(debug=False):
             yield
 
 
-class PushJava(object):
+class PushJava(Push):
 
-    def __init__(self, 
-        service_name,
-        username,
-        java_dir,
-        cheeseprism_url,
-        keyfile,
-        site_name_or_node_ip,
-        debug=False):
+    def __init__(self, service_name, username, java_dir, cheeseprism_url,
+                keyfile, site_name_or_node_ip, debug=False):
 
-        self.service_name = service_name
-        self.username = username
+
+
+        Push.__init__(self, service_name, username, java_dir, cheeseprism_url, 
+                keyfile, site_name_or_node_ip, '', debug);
+
+        self.warfile_name = self.warfile_mapping()
         self.java_dir = java_dir
         self.cheeseprism_url = os.path.join(cheeseprism_url, 'index', 'java')
-        self.keyfile = keyfile
-        env.host_string = site_name_or_node_ip
-        self.debug = debug
-        env.user = 'doula'
-        env.key_filename = self.keyfile
-        self.pip_freeze = ''
 
-        if debug:
-            self.email = 'tims@surveymonkey.com'
-        else:
-            user = User.find(username)
-            self.email = user['email']
+    def warfile_mapping(self):
+        if self.service_name == 'userdal':
+            return "UserAccount"
+        elif self.service_name == 'billingdal':
+            return "Billing"
+        raise "Invalid War File Mappping: %s not in 'userdal' or 'billingdal'" % self.name
 
 
     def release_service(self, wars):
@@ -52,17 +47,18 @@ class PushJava(object):
 
         for war_name in wars:
             short_name = self.short_war_name(war_name)
-            with cd('%s/%s/etc' %(self.java_dir, self.service_name)):
+            path = '%s/%s/etc' %(self.java_dir, self.service_name)
+            with cd(path):
                 run('git pull origin master')
             with cd('%s/%s/' %(self.java_dir, self.service_name)):
                 run('rm -rf tmp')
                 run('mkdir tmp')
                 run('curl %s/%s > tmp/%s.war' % (self.cheeseprism_url, war_name, self.service_name))
             with cd('%s/%s/tmp' %(self.java_dir, self.service_name)):
-                run('unzip %s.war -d %s' %s (self.service_name, short_name))
-                run('cp ../etc/persistence.xml %s/WEB-INF/classes/META-INF/persistence.xml' % short_name)
-                run('zip -f %.war %s' % (short_name, short_name))
-                run('cp %.war /var/lib/tomcat6/webapps/' % short_name)
+                run('unzip %s.war -d %s' % (self.service_name, short_name))
+                run('cp ../etc/META-INF/persistence.xml %s/WEB-INF/classes/META-INF/persistence.xml' % short_name)
+                run('zip -r %s.war %s' % (short_name, short_name))
+                run('sudo cp %s.war /var/lib/tomcat6/webapps/' % short_name)
                 sudo('chown tomcat6:tomcat6 /var/lib/tomcat6/webapps/%.war' % short_name)
             with cd('%s/%s/' %(self.java_dir, self.service_name)):
                 json_file = json.dumps({'version': war_name})
@@ -88,7 +84,7 @@ class PushJava(object):
                 raise Exception(str(result))
 
     def short_war_name(self, war_name):
-        short_name = re.search('^(\w+)[-.]', war_name)
+        short_name = re.search('^(\w+)[_.]', war_name)
         return short_name.group(1)
 
 def get_test_obj(service):
