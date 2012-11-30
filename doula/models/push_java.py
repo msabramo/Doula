@@ -26,8 +26,6 @@ class PushJava(Push):
     def __init__(self, service_name, username, java_dir, cheeseprism_url,
                 keyfile, site_name_or_node_ip, debug=False):
 
-
-
         Push.__init__(self, service_name, username, java_dir, cheeseprism_url, 
                 keyfile, site_name_or_node_ip, '', debug);
 
@@ -63,7 +61,7 @@ class PushJava(Push):
                 sudo('chown tomcat6:tomcat6 /var/lib/tomcat6/webapps/%s.war' % short_name)
             with cd('%s/%s/' %(self.java_dir, self.service_name)):
                 json_file = json.dumps({'version': war_name})
-                run("echo '%s' > version.json")
+                run("echo '%s' > version.json" % json_file)
 
         message = '%s installed %s package(s):\n' % (self.username, len(wars))
         message = '\n'.join(wars)
