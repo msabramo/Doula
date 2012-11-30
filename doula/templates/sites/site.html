@@ -32,12 +32,27 @@
   </ul>
   {% endif %}
 </div>
+
+<div class="filter group">
+  <form id="filter-form" class="form-search" action="#" onsubmit="return false;">
+    <div class="input-append">
+      <input id="filter" placeholder="Filter Services" type="text" class="span3 search-query">
+      <a id="clear" class="btn sm-btn" href="#"
+      rel="tooltip" data-placement="bottom" data-original-title="Seperate multiple searches by commas, e.g. billweb, anonweb">
+        <i class="icon-remove icon-black"></i>
+        Clear
+      </a>
+    </div>
+  </form>
+</div>
+
 <div class="accordion group" id="sites-accordion">
 
   {% for key_val_pair in site.services|dictsort %}
   {% set service = key_val_pair[1] %}
 
-  <div class="accordion-group">
+  <div class="accordion-group filterable" data-filter-data="{{ service.name }}" >
+
     <div class="accordion-heading group service-title-bar">
       <span id="link_{{ service.name_url }}"
       class="accordion-toggle accord-title"
@@ -51,7 +66,7 @@
       </span>
     </div>
 
-      <div style="display: block;" class="group">
+    <div style="display: block;" class="group">
       <a href="/sites/{{ site.name_url }}/{{ service.name_url }}" class="admin-action-link accord-link ">
         Admin Actions
       </a>
@@ -62,21 +77,6 @@
       </a>
     </div>
 
-    <div id="collapse_{{ service.name_url }}" class="accordion-body collapse">
-      <div class="accordion-inner">
-        <form id="form_{{ service.name_url }}" class="well">
-          <label>Tag</label>
-          <input id="tag_{{ service.name_url }}" value="{{ service.next_version() }}" class="input-xlarge" type="text" />
-          <span class="instruct">Last tag: <strong>{{ service.last_tag.name }}</strong></span>
-          <label>Commit Message:</label>
-          <textarea class="input-xlarge" id="msg_{{ service.name_url }}" cols="40" rows="5" required></textarea>
-
-          <div class="">
-            <button type="submit" class="btn">Tag Service</button>
-          </div>
-        </form>
-      </div>
-    </div>
   </div>
   <!-- end of individual site -->
   {% endfor %}
