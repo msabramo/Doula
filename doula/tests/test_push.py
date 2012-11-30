@@ -15,15 +15,14 @@ class PushTests(unittest.TestCase):
         }
 
     def test_push(self):
-
         config = self.get_config()
         job_dict = {
             'id': 111,
             'user_id': 'tbone',
-            'service_name': 'createweb',
-            'site_name_or_node_ip': 'mt-99',
+            'service': 'createweb',
+            'site': 'mtclone',
             'packages': ['requests']
         }
 
-        successes, failures = jobs.push_service_environment(config, job_dict, True)
+        successes, failures = jobs.release_service(config, job_dict, True)
         print successes, failures

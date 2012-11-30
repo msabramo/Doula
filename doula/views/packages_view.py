@@ -114,6 +114,7 @@ def enqueue_push_package(user_id, site_name, service_name, package, remote, bran
         'site': site_name,
         'service': service_name,
         'package_name': package.name,
+        'comparable_name': package.comparable_name,
         'remote': remote,
         'branch': branch,
         'version': version,

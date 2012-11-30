@@ -1,5 +1,5 @@
-from doula.cache import Cache
-from doula.views.index import bambino_register
+from doula.cache import Redis
+from doula.views.index_view import bambino_register
 from pyramid import testing
 import simplejson as json
 import unittest
@@ -7,7 +7,7 @@ import unittest
 
 class ViewTests(unittest.TestCase):
     def setUp(self):
-        Cache.env = 'dev'
+        Redis.env = 'dev'
         self.config = testing.setUp()
 
     def tearDown(self):

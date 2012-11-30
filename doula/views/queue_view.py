@@ -10,6 +10,7 @@ from pyramid.view import view_config
 @view_config(route_name='queue', renderer='queue/index.html')
 def show_queue(request):
     return {
+        'path': request.path,
         'config': Config,
         'jobs_started_after': 0
     }
@@ -38,7 +39,7 @@ def query_queue_view(request):
             # render the job
             # todo. change the queue_item to job everywhere.
             job['html'] = render('doula:templates/queue/queued_item.html',
-                                  {'queued_item': job})
+                                  {'queued_item': job, 'path': request.path})
 
         # sort jobs according to time
         query_bucket['jobs'] = sorted(query_bucket['jobs'], key=lambda k: k['time_started'])
@@ -55,8 +56,8 @@ def build_query_from_request(request):
     query = {
         'job_type': [
             'build_new_package',
-            'cycle_services',
-            'push_service_environment']
+            'cycle_service',
+            'release_service']
         }
 
     # If job type is specified use that

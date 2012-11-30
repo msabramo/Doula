@@ -1,4 +1,4 @@
-from doula.cache import Cache
+from doula.cache import Redis
 from doula.config import Config
 from doula.util import *
 import simplejson as json
@@ -10,7 +10,7 @@ log = logging.getLogger('doula')
 class PythonPackage(object):
     def __init__(self, name, versions=[]):
         self.name = name
-        self.clean_name = comparable_name(self.name)
+        self.comparable_name = comparable_name(self.name)
         self.versions = versions
         self.versions.sort()
 
@@ -18,7 +18,15 @@ class PythonPackage(object):
         """
         Get the latest version in the versions list
         """
-        return self.versions[len(self.versions) - 1]
+        index = len(self.versions) - 1
+
+        if index < 0:
+            index = 0
+
+        if len(self.versions) > 0:
+            return self.versions[index]
+        else:
+            return ""
 
 
 class CheesePrism(object):
@@ -29,13 +37,16 @@ class CheesePrism(object):
     def find_package_by_name(name):
         """
         Package URL's are case sensitive so we need to find the exact URL
-        """
-        cache = Cache.cache()
-        text = cache.get('cheeseprism:package:' + comparable_name(name))
 
-        if text:
-            p = json.loads(text)
-            return PythonPackage(p['name'], p['versions'])
+        Return the python package object.
+        """
+        redis = Redis.get_instance()
+        package_as_json = redis.get('cheeseprism:package:' + comparable_name(name))
+
+        if package_as_json:
+            package_as_dict = json.loads(package_as_json)
+
+            return PythonPackage(package_as_dict['name'], package_as_dict['versions'])
         else:
             log.info('Returning an empty package %s' % name)
             return PythonPackage(name, [])
@@ -43,11 +54,11 @@ class CheesePrism(object):
     @staticmethod
     def all_packages():
         """
-        Return all packages from our cache
+        Return all packages from our redis
         """
-        cache = Cache.cache()
+        redis = Redis.get_instance()
         all_packages = []
-        packages_as_json = cache.get('cheeseprism:packages')
+        packages_as_json = redis.get('cheeseprism:packages')
 
         if packages_as_json:
             json_packages = json.loads(packages_as_json)
@@ -94,11 +105,11 @@ class CheesePrism(object):
         """
         all_packages = CheesePrism.all_packages()
 
-        for pckg in packages:
+        for package_name, pckg in packages.iteritems():
             found_pckg = False
 
             for all_pckg in all_packages:
-                if all_pckg.name == pckg.name:
+                if all_pckg.comparable_name == pckg.comparable_name:
                     found_pckg = all_pckg
                     break
 
@@ -107,4 +118,9 @@ class CheesePrism(object):
 
             found_pckg = False
 
-        return all_packages
+        other_packages = {}
+
+        for package in all_packages:
+            other_packages[package.comparable_name] = package
+
+        return other_packages

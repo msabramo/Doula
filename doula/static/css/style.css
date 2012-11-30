@@ -269,9 +269,7 @@ pre {
 }
 /* HTML ELEMENTS */
 body {
-  background: url(/images/noise.jpg);
-  font-size: 13px;
-  line-height: 18px;
+  background-color: #4A4A4A;
   margin: 25px 0px;
   overflow-y: scroll;
 }
@@ -299,6 +297,9 @@ body {
   content: "";
   clear: both;
   height: 0;
+}
+.hide {
+  display: none !important;
 }
 /* END COMMON MIXINS */
 .container {
@@ -373,7 +374,6 @@ body {
   background-image: -moz-linear-gradient(top, #85c3c6, #79b5b7);
   background-image: linear-gradient(top, #85c3c6, #79b5b7);
 }
-/* navigation bar */
 /* overriding bootstrap default colors */
 div.accordion-group {
   margin-bottom: 7px;
@@ -470,6 +470,13 @@ div.navbar-inner {
 .service-title-bar span {
   font-size: 18px;
 }
+span.service-title-last-updated {
+  color: #999;
+  font-size: 11px;
+  float: left;
+  padding: 10px 0;
+  margin-left: -9px;
+}
 .site-title {
   font-size: 18px;
 }
@@ -517,6 +524,11 @@ a.release {
   padding: 4px 15px 4px;
 }
 /* warnings that happen for release changes */
+.help-block {
+  line-height: 18px;
+  margin-top: 10px;
+  margin-bottom: 25px;
+}
 .warning {
   color: #C0920A;
 }
@@ -530,6 +542,9 @@ input.warning {
 /* TABLE */
 td a.btn {
   margin: 0px 0px 9px 15px;
+}
+tr.first-row td {
+  border-top: 0 none white;
 }
 /* GIT INFO BLOCK */
 .git-info-row .hidden {
@@ -639,9 +654,6 @@ h3.commit-group-heading {
   color: #888;
 }
 /* Queue */
-.logs {
-  margin-top: 10px;
-}
 .recent-jobs-text {
   font-size: 14px;
   padding: 7px 3px 0 3px;
@@ -657,6 +669,85 @@ h3.commit-group-heading {
 .sm-accordion-inner {
   margin-top: 10px;
 }
+.sm-config-status-success {
+  color: #468847;
+  background-color: #DFF0D8;
+  border-color: #D6E9C6;
+  margin-bottom: 15px;
+  padding: 8px 15px;
+  font-size: 14px;
+  line-height: 18px;
+  display: block;
+  border: 1px solid #E5E5E5;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+.sm-config-status-fail {
+  color: #B94A48;
+  background-color: #F2DEDE;
+  border-color: #EED3D7;
+  margin-bottom: 10px;
+  padding: 8px 15px;
+  font-size: 14px;
+  line-height: 18px;
+  display: block;
+  border: 1px solid #E5E5E5;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+/**************
+Mini Dashboard
+***************/
+.mini-dashboard {
+  width: 100%;
+  text-align: center;
+  margin: 0 auto 10px;
+  vertical-align: middle;
+  border: 1px solid #E5E5E5;
+  border-radius: 4px;
+  background-color: #F7F7F9;
+}
+.mini-dashboard-square {
+  border: 3px solid #E5E5E5;
+  border-radius: 4px;
+  display: inline-block;
+  padding: 5px;
+  margin: 10px 15px 15px;
+  width: 230px;
+  height: 120px;
+  cursor: pointer;
+}
+.mini-dashboard-square h2 {
+  margin-top: 20px;
+}
+.mini-dashboard-square p {
+  margin: 0;
+}
+.mini-dashboard-square * {
+  color: #414c41;
+}
+.mini-dashboard-details {
+  width: 100%;
+  margin-top: -15px;
+  margin-bottom: 10px;
+  border: 1px solid #E5E5E5;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+  background-color: #F7F7F9;
+}
+.mini-dashboard-detail {
+  padding: 10px 15px;
+}
+.mini-success {
+  background-color: #DFF0D8;
+  border-color: #D6E9C6;
+}
+.mini-fail {
+  background-color: #F2DEDE;
+  border-color: #EED3D7;
+}
 /* Package */
 .dropdown-menu {
   padding: 5px;
@@ -669,6 +760,9 @@ h3.commit-group-heading {
   float: right;
   margin: 10px 20px 0px 0px;
 }
+.accord-strong {
+  letter-spacing: 1px;
+}
 [class^="status"] {
   display: inline-block;
   width: 20px;
@@ -676,7 +770,7 @@ h3.commit-group-heading {
   vertical-align: middle;
   border-radius: 50%;
   margin: 0 7px 0 0;
-  font: a;
+  font: 0/0 a;
 }
 .status-unknown {
   background: #B0A5AA;
@@ -757,16 +851,16 @@ a.side_tab {
   border-radius: 3px 3px 0 0;
   background-color: #F7F7F9;
 }
-.queued_items .like-a-link:hover {
-  cursor: pointer;
-  text-decoration: underline;
-}
 .queued_items .queued_item {
   margin-bottom: 5px;
 }
 .queued_items .queued_item .logs {
   margin-top: 0px;
   overflow-x: auto;
+}
+.like-a-link:hover {
+  cursor: pointer;
+  text-decoration: underline;
 }
 .alert p {
   margin-bottom: 0px;

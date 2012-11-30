@@ -1,86 +1,82 @@
-from doula.models.audit import Audit
+from doula.models.node import Node
 from doula.models.package import Package
 from doula.models.release import Release
-from doula.models.sites_dal import SiteDAL
 from doula.models.tag import Tag
 from doula.util import *
 from fabric.api import *
 from socket import error as socket_error
 import logging
-import operator
 import re
 import requests
 import xmlrpclib
-
-# Defines the Data Models for Doula and Bambino.
-#
-# sites
-#   Site
-#     nodes
-#       services
-#         Service
-#           packages
-#             Package
-#     services
-#       Service
-#         packages
-#           Package
 
 log = logging.getLogger('doula')
 
 
 class Service(object):
-    def __init__(self, name, site_name, node_name, url):
-        self.name = name
-        self.site_name = site_name
-        self.node_name = node_name
-        self.name_url = dirify(name)
-        self.url = url
+    # Service attributes are same as dict
+    # "current_branch_app": "mt3",
+    # "change_count_app": 0,
+    # "change_count_config": 0,
+    # "remote": "git@code.corp.surveymonkey.com:AppEnv/anweb.git",
+    # "name": "anweb",
+    # "tags": [
+    #     {
+    #         "date": 1334013665,
+    #         "message": "all the kings horses",
+    #         "name": "x.2"
+    #     }
+    # ],
+    # "is_dirty_app": true,
+    # "last_tag_message": "all the kings horses",
+    # "is_dirty_config": true,
+    # "status": "uncommitted_changes",
+    # "last_tag_config": "x.2",
+    # "changed_files": [
+    #     "bin/activate.csh"
+    # ],
+    # "last_tag_app": "x.2",
+    # "packages": {
+    #     "repoze.lru": {
+    #         "version": "0.3",
+    #         "name": "repoze.lru"
+    #     },
+    #     "pyramid": {
+    #         "version": "1.2.7",
+    #         "name": "pyramid"
+    #     }
+    # },
+    # "config": {
+    #     "short_sha1": "\"5f775a3\""
+    # },
+    # "current_branch_config": "mt3",
+    # "supervisor_service_names": []
+    # }
 
-        self.current_branch_app = ''
-        self.current_branch_config = ''
+    def __init__(self, **dict_data):
+        self.__dict__.update(dict_data)
+        self.name_url = dirify(self.name)
 
-        self.change_count_app = ''
-        self.change_count_config = ''
+        self.nodes = {}
 
-        self.is_dirty_app = False
-        self.is_dirty_config = False
+        self._add_packages(dict_data['packages'])
+        self._add_tags_from_service_dict(dict_data['tags'])
+        self.last_tag = self._get_last_tag()
 
-        self.last_tag_app = ''
-        self.last_tag_config = ''
-        self.last_tag_message = ''
+    def append_node(self, node, service_as_dict):
+        """
+        Create new node object and append it to the nodes dict
 
-        self.status = ''
-        self.remote = ''
-        self.packages = []
-        self.changed_files = []
-        self.tags = []
-        self.supervisor_service_names = []
-
-    @staticmethod
-    def build_app(site_name, node_name, url, app):
-        """Build an service object from the app dictionary"""
-
-        a = Service(app['name'], site_name, node_name, url)
-        a.current_branch_app = app['current_branch_app']
-        a.change_count_app = app['change_count_app']
-        a.change_count_config = app['change_count_config']
-        a.is_dirty_config = app['is_dirty_config']
-        a.last_tag_config = app['last_tag_config']
-        a.status = app['status']
-        a.remote = app['remote']
-        a.last_tag_app = app['last_tag_app']
-        a.last_tag_message = app['last_tag_message']
-        a.current_branch_config = app['current_branch_config']
-        a.changed_files = app['changed_files']
-        a.tags = []
-        a.packages = []
-        a.add_packages(app['packages'])
-        a.add_tags_from_dict(app['tags'])
-        a.last_tag = a.get_last_tag()
-        a.supervisor_service_names = app['supervisor_service_names']
-
-        return a
+        We get passed an existing site node object and a the service as a dict
+        that was returned from Bambino.
+        """
+        self.nodes[node.name] = Node(node.name,
+                                     node.site_name,
+                                     node.url,
+                                     node.ip,
+                                     service_as_dict['config'],
+                                     service_as_dict['changed_files'],
+                                     service_as_dict['supervisor_service_names'])
 
     @staticmethod
     def report_status(results):
@@ -113,17 +109,38 @@ class Service(object):
         except (socket_error, xmlrpclib.Fault, xmlrpclib.ProtocolError, xmlrpclib.ResponseError), error_code:
             raise CycleServiceException(error_code)
 
+    def is_config_up_to_date(self):
+        """
+        Check if any of the nodes for this service are
+        out of date.
+        """
+        for node_name, node in self.nodes.iteritems():
+            # If any node is not up to date. the entire service
+            # is out of date.
+            if not node.config["is_up_to_date"]:
+                return False
+
+        return True
+
     def get_releases(self):
         """
         Return the releases for this service to this site
         """
         return Release.get_releases(self.site_name, self.name)
 
-    def add_packages(self, pckgs):
-        for name, pckg in pckgs.iteritems():
-            self.packages.append(Package(pckg['name'], pckg['version'], ''))
+    def _add_packages(self, pckgs):
+        """
+        Add package objects from the Bambino dict
+        """
+        self.packages = {}
 
-    def add_tags_from_dict(self, tags_as_dicts):
+        for package_name, package_as_dict in pckgs.iteritems():
+            package = Package(package_as_dict['name'], package_as_dict['version'], '')
+            self.packages[package.comparable_name] = package
+
+    def _add_tags_from_service_dict(self, tags_as_dicts):
+        self.tags = []
+
         for tag in tags_as_dicts:
             self.tags.append(Tag(tag['name'], tag['date'], tag['message']))
 
@@ -165,14 +182,11 @@ class Service(object):
         self.msg = msg
         self.status = 'tagged'
 
-        audit = Audit()
-        audit.log_action(self.site_name, self.name, 'tag', user)
-
     def _update_last_tag(self):
-        self.last_tag_app = self.get_last_tag()
-        self.last_tag_config = self.get_last_tag()
+        self.last_tag_app = self._get_last_tag()
+        self.last_tag_config = self._get_last_tag()
 
-    def get_last_tag(self):
+    def _get_last_tag(self):
         # Initialize an empty tag if it doesn't tag exist
         latest_tag = Tag('', '', '')
         latest_tag_date = 0
@@ -185,29 +199,7 @@ class Service(object):
         return latest_tag
 
     def get_status(self):
-        if self.status == 'tagged' and SiteDAL.is_deployed(self, self.last_tag):
-            return 'deployed'
-        else:
-            return self.status
-
-    def mark_as_deployed(self, tag, user):
-        """
-        Mark an service as deployed
-        """
-        self.status = 'deployed'
-        SiteDAL.save_service_as_deployed(self, tag)
-
-        audit = Audit()
-        audit.log_action(self.site_name, self.name, 'deploy', user)
-
-    def get_logs(self):
-        audit = Audit()
-        app_logs = audit.get_app_logs(self.site_name, self.name)
-
-        for log in app_logs:
-            log['service'] = self.name
-
-        return app_logs
+        return self.status
 
     def next_version(self):
         """
@@ -227,7 +219,7 @@ class Service(object):
         package = False
 
         for pckg in self.packages:
-            if comparable_name(pckg.name) == comparable_name(package_name):
+            if pckg.comparable_name == comparable_name(package_name):
                 package = pckg
                 break
 
@@ -235,10 +227,10 @@ class Service(object):
 
     def freeze_requirements(self):
         reqs = ''
+        sorted_packages = sorted(self.packages.iterkeys())
 
-        self.packages.sort(key=operator.attrgetter('name'))
-
-        for pckg in self.packages:
+        for name in sorted_packages:
+            pckg = self.packages[name]
             reqs += pckg.name + '==' + pckg.version + "\n"
 
         return reqs

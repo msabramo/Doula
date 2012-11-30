@@ -1,31 +1,102 @@
 import unittest
-from doula.cache import Cache
-from doula.models.service import Service
-from doula.models.sites_dal import SiteDAL
+from doula.cache import Redis
+from doula.models.doula_dal import DoulaDAL
 
 
 class TestSitesDAL(unittest.TestCase):
     def setUp(self):
-        Cache.env = 'dev'
-        self.cache = Cache.cache()
-        self.cache.flushall()
+        Redis.env = 'dev'
+        self.redis = Redis.get_instance()
+        self.redis.flushdb()
+        self.dd = DoulaDAL()
 
-    def test_save_service_as_deployed(self):
-        app = Service('app_name', 'site_name', 'node_name', 'http://0.0.0.0.6542')
-        app.status = 'tagged'
-        tags = [{'name': 'last tag', 'message': 'last tag message', 'date': '8484848'}]
-        app.add_tags_from_dict(tags)
+    def test_register_node(self):
+        site = 'site1'
 
-        tag = app.get_tag_by_name('last tag')
-        app.mark_as_deployed(tag, 'anonymous')
+        node1 = {
+            'name': 'node1',
+            'site': site,
+            'url': 'http://node1',
+            'ip': '127.0.0.1'
+        }
 
-        self.assertEqual(app.get_status(), 'deployed')
+        node2 = {
+            'name': 'node2',
+            'site': site,
+            'url': 'http://node2',
+            'ip': '127.0.0.1'
+        }
 
-        key = SiteDAL._get_deployed_app_key(app)
-        self.assertEqual(key, 'site_name_app_name_deployed')
+        self.dd.register_node(node1)
+        self.dd.register_node(node2)
 
-        self.assertTrue(SiteDAL.is_deployed(app, tag))
+        # alextodo. the call to nodes() need to be replace. it is wrong
+        self.assertEqual(len(self.dd.nodes(site).keys()), 2)
 
+        node3 = {
+            'name': 'node3',
+            'site': site,
+            'url': 'http://node3',
+            'ip': '127.0.0.1'
+        }
+
+        self.dd.register_node(node3)
+
+        self.assertEqual(len(self.dd.nodes(site).keys()), 3)
+
+    def test_register_node_two(self):
+        # Make sure we don't return an unknown site
+        nodes = self.dd.nodes('unknown site')
+        self.assertEqual(len(nodes), 0)
+
+    def test_unregister_node(self):
+        node1 = {
+            'name': 'node1',
+            'site': 'site1',
+            'url': 'http://node1',
+            'ip': '127.0.0.1'
+        }
+
+        self.dd.register_node(node1)
+
+        self.assertEqual(len(self.dd.nodes('site1').keys()), 1)
+
+        self.dd.unregister_node(node1)
+        self.assertEqual(len(self.dd.nodes('site1').keys()), 0)
+
+        sites = self.dd.get_sites()
+        self.assertEqual(len(sites.keys()), 0)
+
+    def test_get_all_registered_site_names(self):
+        node = {
+            'name': 'node1',
+            'site': 'site1',
+            'url': 'http://node1',
+            'ip': '127.0.0.1'
+        }
+
+        self.dd.register_node(node)
+        keys = self.dd._get_all_registered_site_names()
+
+        self.assertEqual(keys[0], 'site1')
+
+    def test_get_sites(self):
+        # Get Site objects array, [Site, Site, Site...]
+        self._register_node()
+
+        sites = self.dd.get_sites()
+        self.assertEqual(len(sites), 1)
+        self.assertEqual(len(sites['site1'].nodes.keys()), 1)
+
+    def _register_node(self):
+        node = {
+            'name': 'node1',
+            'site': 'site1',
+            'url': 'http://node1',
+            'ip': '127.0.0.1'
+        }
+
+        self.dd.register_node(node)
 
 if __name__ == '__main__':
     unittest.main()

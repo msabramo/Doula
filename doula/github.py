@@ -3,7 +3,7 @@ A simplified interface to the Github V3 API
 """
 
 from datetime import datetime
-from doula.cache import Cache
+from doula.cache import Redis
 from doula.config import Config
 from doula.util import *
 import simplejson as json
@@ -15,8 +15,8 @@ import re
 
 
 def get_devmonkey_repo(name):
-    cache = Cache.cache()
-    repo_as_json = cache.get("repo.devmonkeys:" + comparable_name(name))
+    redis = Redis.get_instance()
+    repo_as_json = redis.get("repo.devmonkeys:" + comparable_name(name))
 
     if repo_as_json:
         return json.loads(repo_as_json)
@@ -26,16 +26,16 @@ def get_devmonkey_repo(name):
 
 def get_doula_admins():
     """
-    Get the Doula admins from cache. if cache doesn't exist pull now
+    Get the Doula admins from redis. if redis doesn't exist pull now
     """
-    cache = Cache.cache()
-    admins_as_json = cache.get("doula.admins")
+    redis = Redis.get_instance()
+    admins_as_json = redis.get("doula.admins")
 
     if admins_as_json:
         admins = json.loads(admins_as_json)
     else:
         admins = pull_doula_admins()
-        cache.set('doula.admins', dumps(admins))
+        redis.set('doula.admins', dumps(admins))
 
     return admins
 
@@ -61,8 +61,8 @@ def get_appenv_releases(name, branch):
         }
     }
     """
-    cache = Cache.cache()
-    json_text = cache.get("repos:appenvs")
+    redis = Redis.get_instance()
+    json_text = redis.get("repos:appenvs")
 
     if json_text:
         github_appenv_data = json.loads(json_text)
@@ -113,11 +113,10 @@ def get_service_github_repos(service):
     github_repos = {}
 
     for pckg in service.packages:
-        clean_name = comparable_name(pckg.name)
-        repo = get_devmonkey_repo(clean_name)
+        repo = get_devmonkey_repo(pckg.comparable_name)
 
         if repo:
-            github_repos[clean_name] = repo
+            github_repos[pckg.comparable_name] = repo
 
     return github_repos
 
@@ -185,9 +184,11 @@ def pull_package_version(commit, tags):
     return package_version
 
 
-def pull_commit_branches(commit, branches):
+def find_branches_commit_belongs_to(commit, branches):
     """
-    Discover which branches this commit belongs to. Look back 50 commits.
+    Find which branches this commit belongs to.
+    The each branch in the branches list contains a list of
+    the last 50 sha1's.
     """
     commit_branches = []
 
@@ -207,7 +208,6 @@ def pull_commits(git_repo, tags, branches):
     that has all the values we need including branch, and package version
 
     We build a commit dict that looks like this:
-
     {
         "sha": "...",
         "author": {
@@ -263,7 +263,7 @@ def pull_commits(git_repo, tags, branches):
             commit["author"]["login"] = cmt["author"]["login"],
             commit["author"]["avatar_url"] = cmt["author"]["avatar_url"]
 
-        commit["branches"] = pull_commit_branches(commit, branches)
+        commit["branches"] = find_branches_commit_belongs_to(commit, branches)
 
         # still need the branches that this commit belongs to
 
@@ -317,15 +317,26 @@ def pull_devmonkeys_repos():
         }
     """
     repos = {}
+    # todo: pass in the previous git commit. and only pull from there
+    # pass in the param sha=[sha1]
+    # see http://developer.github.com/v3/repos/commits/
+    start = time.time()
 
     domain = Config.get('doula.github.api.domain')
     org = Config.get('doula.github.packages.org')
     token = Config.get('doula.github.token')
     url = "%s/orgs/%s/repos?access_token=%s" % (domain, org, token)
 
-    git_repos = json.loads(pull_url(url))
+    repos_as_json = pull_url(url)
+    git_repos = json.loads(repos_as_json)
+
+    diff = time.time() - start
+    print "\n"
+    print 'DIFF IN TIME FOR PULL REPOS: ' + str(diff)
 
     for git_repo in git_repos:
+        print 'PULLING GIT REPO: ' + git_repo["name"]
+
         tags = pull_tags(git_repo)
         branches = pull_branches(git_repo)
         commits = pull_commits(git_repo, tags, branches)
@@ -343,6 +354,10 @@ def pull_devmonkeys_repos():
         }
 
         repos[comparable_name(repo["name"])] = repo
+
+    diff = time.time() - start
+    print "\n"
+    print 'DIFF IN TIME FOR PULL ALL REPOS: ' + str(diff)
 
     return repos
 

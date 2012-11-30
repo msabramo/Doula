@@ -1,0 +1,51 @@
+<div class="accordion-group">
+    <div class="accordion-heading group sm-accordion-title">
+      <a href="#" onclick="return false;" data-toggle="collapse"
+      data-target="#other_packages_table">
+      <strong class="accord-strong">{{ service.name }}'s</strong> Other Python Packages
+      </a>
+    </div>
+
+    <div id="other_packages_table" class="accordion-body collapse hide-on-load"
+    style="display: none;">
+      <div class="accordion-inner">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Package</th>
+              <th>Version</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for pckg in service.packages|dictsort %}
+            {% if not pckg[1].get_github_info() %}
+            <tr>
+              <td width="20%">{{ pckg[1].name }}</td>
+              <td width="80%">
+                <select id="pckg_select_{{ pckg[1].comparable_name }}"
+                data-comparable-name="{{ pckg[1].comparable_name }}"
+                data-name="{{ pckg[1].name }}"
+                class="package-select">
+                  {% for version in pckg[1].get_versions()|sort(reverse=True, case_sensitive=False) %}
+                    <option value="{{ version }}"
+                    {% if pckg[1].version == version %}selected="selected"{% endif %} >
+                      {{ version }}
+                    </option>
+                  {% endfor %}
+                  {% if config.get('env') == 'dev' %}
+                    <option value="">Remove Package</option>
+                  {% endif %}
+                </select>
+                <span id="pckg_select_msg_{{ pckg[1].comparable_name }}" class="help-block">
+                  Current version 1.4.5
+                </span>
+              </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,5 +1,5 @@
 from doula.config import Config
-from doula.models.sites_dal import SiteDAL
+from doula.models.doula_dal import DoulaDAL
 from doula.models.user import User
 from doula.util import *
 from doula.views.view_helpers import *
@@ -12,14 +12,13 @@ def show_settings(request):
     return {
         'config': Config,
         'user': request.user,
-        'sas': SiteDAL.list_of_sites_and_services()
+        'sas': DoulaDAL().list_of_sites_and_services()
     }
 
 
 @view_config(route_name='settings', renderer='json', request_method='POST')
 def change_settings(request):
     kwargs = request.POST
-
     user = User.find(request.user['username'])
 
     for key, value in kwargs.items():

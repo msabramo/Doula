@@ -1,0 +1,23 @@
+<!-- last release details -->
+<div id="mini-dashboard-detail-releases" class="hide mini-dashboard-detail">
+  {% if last_release %}
+    <p>
+      This service was released
+     <strong>{{last_release.date|relative_datetime}}</strong>.
+    </p>
+
+    {% if changed_packages.keys()|length > 0 %}
+	    <p>These packages were changed for this release:</p>
+
+	    {% for package_name in changed_packages %}
+		    <ul>
+		    	<li>
+		    		<a target="_blank" href="http://code.corp.surveymonkey.com/devmonkeys/{{ service.name }}/commits/v{{changed_packages[package_name]}}">{{package_name}} version {{changed_packages[package_name]}}</a>
+		    	</li>
+		    </ul>
+	    {% endfor %}
+    {% endif %}
+  {% else %}
+    <p>The last release date is <strong>unknown</strong>.</p>
+  {% endif %}
+</div>

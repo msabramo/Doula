@@ -35,6 +35,11 @@ var Packages = {
 
     bindToBuildNewPackageButtons: function() {
         $('.new-version-btn').on('click', $.proxy(this.showBuildNewPackageModal, this));
+
+        // Queue stuff
+        QueueView.subscribe(
+            'queue-item-changed',
+            $.proxy(this.queuePackageJobChanged, this));
     },
 
     /****************
@@ -43,7 +48,7 @@ var Packages = {
 
     // Make ajax call to get build new package modal HTML
     showBuildNewPackageModal: function(event) {
-        var name = $(event.srcElement).attr('data-name');
+        var name = $(event.target).data('name');
         var url = '/packages/build_new_package_modal';
         this.get(url, {'name': name}, this.doneShowBuildNewPackageModal);
 
@@ -63,7 +68,7 @@ var Packages = {
             $('#build_new_package').on('click', $.proxy(this.buildNewPackage, this));
         }, this));
 
-        $('#build-new-package-modal').html(rslt).modal();
+        $('#build-new-package-modal').html(rslt).removeClass('hide').modal();
     },
 
     // Validate the show push package version number and
@@ -104,10 +109,38 @@ var Packages = {
 
     doneBuildNewPackage: function(rslt) {
         $('#build-new-package-modal').modal('hide');
+
+        // If the ServiceEnv exist then show this
+        if (ServiceEnv) ServiceEnv.showRecentJobsDetailView();
     },
 
     failedBuildNewPackage: function(rslt) {
         $('#build_package_errors').removeClass('hide').html(rslt.html);
+    },
+
+    /****************
+    Queue Item Changes
+    *****************/
+
+    queuePackageJobChanged: function(event, job) {
+        if (job.job_type == 'build_new_package') {
+            if (job.status == 'complete') {
+                this.updatePackagesDropdown(job);
+
+                // If the ServiceEnv exist then show this
+                if (ServiceEnv) ServiceEnv.showRecentJobsDetailView();
+            }
+        }
+    },
+
+    /**
+    *   After a package is built, automatically choose it for the user
+    */
+    updatePackagesDropdown: function(job) {
+        $('#pckg_select_' + job.comparable_name).
+            prepend('<option value="' + job.version + '">' + job.version + '</option>').
+            val(job.version).
+            change();
     }
 };
 

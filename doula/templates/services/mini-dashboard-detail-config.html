@@ -1,0 +1,43 @@
+<!-- config details -->
+<div id="mini-dashboard-detail-config" class="hide mini-dashboard-detail">
+  {% for node_name, node in service.nodes.iteritems() %}
+    {% if is_config_up_to_date %}
+      <p>
+        View the latest
+        <a href="http://code.corp.surveymonkey.com/config/{{ service.name_url }}"
+        target="_blank">config files on Github</a>.
+      </p>
+    {% else %}
+      <p>
+        Node: <strong>{{ node.name }}</strong>
+      </p>
+      {% if node['config']['changed_files']|length > 0 %}
+      <p>
+        These files have been <strong>changed</strong>.
+
+        <ul>
+          {% for file, file_status in node['config']['changed_files'].iteritems() %}
+            {% if file_status == 'modified' %}
+              <li><strong>{{file}}</strong> modified on server</li>
+            {% elif file_status == 'deleted' %}
+              <li><strong>{{file}}</strong> deleted on server</li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      </p>
+      {% endif %}
+      <p>
+        {% if node.config['commit'] != node.config['latest_commit'] %}
+        <a href="http://code.corp.surveymonkey.com/config/{{ service.name_url }}/compare/{{node.config['latest_commit']}}...{{node.config['commit']}}"
+          target="_blank">See the diff between this commit and latest commit on Github</a>.
+        {% else %}
+        The config files are up to date, but have been modified on the server.
+        View the latest
+        <a href="http://code.corp.surveymonkey.com/config/{{ service.name_url }}"
+        target="_blank">config files on Github</a>.
+        {% endif %}
+      </p>
+    {% endif %}
+
+  {% endfor %}
+</div>

@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 from datetime import datetime
+from doula.cache import Redis
 from doula.cheese_prism import CheesePrism
 from doula.config import Config
 from doula.github import get_package_github_info
@@ -27,6 +28,7 @@ class Package(object):
     """
     def __init__(self, name, version, remote=''):
         self.name = name
+        self.comparable_name = comparable_name(name)
         self.version = version
         self.remote = remote
         self.github_info = False
@@ -38,7 +40,10 @@ class Package(object):
 
     def get_versions(self):
         pypackage = CheesePrism.find_package_by_name(self.name)
-        versions = pypackage.versions
+        versions = []
+
+        if pypackage:
+            versions = pypackage.versions
 
         if not self.version in versions:
             versions.append(self.version)
@@ -57,10 +62,13 @@ class Package(object):
 
     def distribute(self, branch, new_version):
         with self.repo(branch) as repo:
-            self.update_version(repo, new_version)
-            self.commit(repo, ['setup.py'], 'bump version')
-            self.tag(repo, new_version)
-            self.push(repo, "origin")
+            # Ensure dev doesn't try to push to github repos.
+            if Config.get('env') != 'dev':
+                self.update_version(repo, new_version)
+                self.commit(repo, ['setup.py'], 'bump version')
+                self.tag(repo, new_version)
+                self.push(repo, "origin")
+
             self.upload(repo)
 
     @staticmethod
@@ -69,12 +77,26 @@ class Package(object):
         Pull all the survey monkey packages
         """
         sm_packages = []
+        found_sm_package_names = []
         all_python_packages = CheesePrism.all_packages()
 
         for python_package in all_python_packages:
             sm_package = Package(python_package.name, python_package.get_last_version())
 
             if sm_package.get_github_info():
+                # Hold onto the comparable name. check later
+                # if we already have this name
+                found_sm_package_names.append(sm_package.comparable_name)
+                sm_packages.append(sm_package)
+
+        # Pull the devmonkey repos. If not a cheese prism package
+        # return as an empty cheese prism package
+        redis = Redis.get_instance()
+        repo_names = redis.smembers("repo.devmonkeys")
+
+        for repo_name in repo_names:
+            if not comparable_name(repo_name) in found_sm_package_names:
+                sm_package = Package(repo_name, '')
                 sm_packages.append(sm_package)
 
         return sm_packages
@@ -84,7 +106,7 @@ class Package(object):
         package = False
 
         for pckg in Package.get_sm_packages():
-            if comparable_name(pckg.name) == comparable_name(package_name):
+            if pckg.comparable_name == comparable_name(package_name):
                 package = pckg
                 break
 
@@ -104,6 +126,9 @@ class Package(object):
             self.rm_repo_dir(repo_path)
 
             # Clone specified service's repo
+            # alextodo, look at cleaning up the end of the repo path
+            # the directory itself should be lowercased. we want to move to
+            # to standardized packages. or maybe we just handle on front end.
             repo = Repo.clone_from(self.remote, repo_path)
 
             # Pull the latest changes from the branch the user selected
@@ -200,13 +225,18 @@ class Package(object):
         # Call `python setup.py sdist upload` to put upload to cheeseprism
         logging.info('Releasing to cheeseprism.')
 
-        with lcd(repo.working_dir):
-            url = Config.get('doula.cheeseprism_url') + '/simple'
-            s = local('python setup.py sdist upload -r ' + url, capture=True)
+        try:
+            with lcd(repo.working_dir):
+                url = Config.get('doula.cheeseprism_url') + '/simple'
+                result = local('python setup.py sdist upload -r ' + url, capture=True)
 
-            logging.info(s)
+                logging.info(result)
 
-            # Check for a 200 success
-            if not re.search(r'server\s+response\s+\(200\)', s, re.I):
-                logging.error("Error building new package")
-                raise Exception("Error building new package")
+                # Check for a 200 success
+                if not re.search(r'server\s+response\s+\(200\)', result, re.I):
+                    logging.error("Error building new package")
+                    raise Exception("Error building new package")
+        except:
+            # We make sure that the result always runs. sometimes we error out
+            # and the call is killed, catch all for errors
+            raise Exception('Error uploading ' + self.name + ' to Cheese Prism.')

@@ -1,0 +1,98 @@
+{% extends 'layouts/base.html' %}
+{% import 'queue/queued_item.html' as queued_item_tmpl %}
+
+{% block content %}
+<!-- service title bar area -->
+<div class="title-bar clearfix">
+	<h2>
+    <a href="/sites">Sites</a> /
+    <a href="/sites/{{site.name_url}}">{{ site.name }}</a> /
+    {{ service.name }}
+  </h2>
+  <ul>
+    <li>
+      <a id="cycle" class="btn sm-btn" href="#" style="float: left;">
+        <i class="icon-repeat icon-black"></i>
+        Cycle
+      </a>
+    </li>
+    <li>
+      <div class="btn-group" style="display: inline; float: right;">
+        <a id="release-service" href="#" rel="popover" delay="500"
+        title="Release Error" data-content="You must make a change to make new release."
+        class="{% if site.is_locked() %}disabled{% endif %} btn sm-btn">
+          {% if site.is_locked() %}
+          <i class="icon-lock icon-black"></i> Site Locked
+          {% else %}
+          <i class="icon-arrow-up icon-black"></i> Release Service
+          {% endif %}
+        </a>
+        <a class="btn sm-btn dropdown-toggle"
+        data-toggle="dropdown" href="#">
+          <span class="caret"></span>
+        </a>
+        <ul id="release-dropdown" class="dropdown-menu">
+            {% if service.get_releases()|length > 0 %}
+              {% for release in service.get_releases() %}
+                <li class="release {% if loop.index == 1 %}active{% endif %}">
+                  <a class="release" data-date="{{release.date}}" href="#">
+                  {{release.date|relative_datetime}}
+                  </a>
+                </li>
+              {% endfor %}
+            {% else %}
+              <li class="release">
+                No prior releases exist
+              </li>
+            {% endif %}
+        </ul>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<div>
+  {% include 'services/mini-dashboard.html' %}
+
+  {% include 'services/admin_actions_sm_packages.html' %}
+
+  {% include 'services/admin_actions_other_packages.html' %}
+
+  {% include 'services/admin_actions_add_py_package.html' %}
+</div>
+<!-- end package-accordion -->
+
+<!-- all the packages on cheese prism not in this service -->
+<div id="add-packages" class="modal hide">
+  <!-- fill in -->
+</div>
+<div id="build-new-package-modal" class="modal hide" style="width: 575px;">
+  <!-- fill in -->
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+var __service = {{service_json|safe}};
+var __releases = {{releases_json|safe}};
+var __other_packages = {{other_packages_json|safe}};
+
+// alextodo. change the sortBy filter to status
+// then change filter by user_id or something
+var __queueFilters = {
+  "site": "{{ site.name }}",
+  "service": "{{ service.name }}",
+  "jobs_started_after": {{jobs_started_after}},
+  "sort_by": "all",
+  "filter_by": "alljobs"
+};
+var __limitInitialQueueItems = true;
+</script>
+{{ [
+'/js/common/util.js',
+'/js/common/queue.js',
+'/js/packages/packages.js',
+'/js/services/service_data.js',
+'/js/services/service_environment.js'
+]|js_script|safe }}
+{% endblock %}

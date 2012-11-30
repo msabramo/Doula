@@ -1,5 +1,5 @@
 {% extends 'layouts/base.html' %}
-{% import 'queue/queued_item.html' as queued_item_tmpl %}
+{% import 'queue/queued_items_queue.html' as queued_item_tmpl %}
 
 {% block content %}
 <div class="title-bar clearfix">
@@ -40,7 +40,7 @@
     </li>
 </ul>
 
-{% include 'queue/queued_items.html' %}
+{% include 'queue/queued_items_queue.html' %}
 
 <script>
 // alextodo. fix fucking sortBy, make it status, filter by should be jobs - all or myjobs

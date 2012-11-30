@@ -1,0 +1,50 @@
+<div class="accordion-group">
+
+  <div class="accordion-heading group sm-accordion-title">
+    <a href="#" onclick="return false;" data-toggle="collapse"
+    data-target="#add_package_table">
+      Add Python Package To
+      <strong class="accord-strong">{{ service.name }}</strong>
+    </a>
+  </div>
+
+  <div id="add_package_table" class="accordion-body collapse hide-on-load">
+    <div class="accordion-inner" style="margin-bottom: 100px;">
+      <table class="table">
+        <tbody>
+          <tr class="first-row">
+            <td width="40%">
+              Choose a new package then release service.
+
+              <span id="pckg_select_add_new_package_msg" class="help-block warning">
+              </span>
+            </td>
+            <td width="30%">
+              <select id="pckg_select_add_new_package">
+                <option value="" selected="selected">
+                  Select a package
+                </option>
+
+                {% for pckg in other_packages|dictsort %}
+                  <option value="{{pckg[1].comparable_name}}"
+                  data-name="{{pckg[1].name}}"
+                  data-comparable-name="{{pckg[1].comparable_name}}">
+                    {{pckg[1].name}}
+                  </option>
+                {% endfor %}
+              </select>
+            </td>
+            <td width="30%">
+              <select id="pckg_select_add_new_package_version">
+                <option value="">
+                  Select a Version
+                </option>
+              </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

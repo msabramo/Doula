@@ -7,7 +7,7 @@
     Select the branch you want to package and the next version number. We'll append the <strong>branch</strong> to the <strong>version number</strong> so we'll always know where this build came from.
   </span>
 
-  <input id="build_new_package_name" type="hidden" value="{{ package.name }}" />
+  <input id="build_new_package_name" type="hidden" value="{{ package.comparable_name }}" />
   <label>Branch</label>
   <select id="build_new_package_branch" required>
     <option value="" selected="selected">Select a branch</option>

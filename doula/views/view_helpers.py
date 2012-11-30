@@ -1,5 +1,4 @@
 from doula.config import Config
-from doula.models.sites_dal import SiteDAL
 from doula.util import *
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.view import view_config
@@ -11,16 +10,6 @@ from pyramid.security import (
 import logging
 
 log = logging.getLogger('doula')
-
-
-def get_site(site_name):
-    site = SiteDAL.get_site(site_name)
-
-    if not site:
-        msg = 'Unable to find site "{0}"'.format(site_name)
-        raise HTTPNotFound(msg)
-
-    return site
 
 ##################
 # ERROR HANDLING

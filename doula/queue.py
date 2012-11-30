@@ -1,4 +1,4 @@
-from doula.cache import Cache
+from doula.cache import Redis
 from doula.notifications import send_notification
 from retools.queue import QueueManager
 import simplejson as json
@@ -51,6 +51,7 @@ class Queue(object):
     """
 
     default_queue_name = 'main'
+    maintenance_queue_name = 'maintenance'
 
     common_dict = {
         'id': 0,
@@ -63,11 +64,7 @@ class Queue(object):
         'exc': ''
     }
 
-    push_service_environment_dict = dict({
-        'site_name_or_node_ip': '',
-        'email': '',
-        'service_name': '',
-        'assets_outdir': '',
+    release_service_dict = dict({
         'packages': []
     }.items() + common_dict.items())
 
@@ -80,8 +77,8 @@ class Queue(object):
     base_dicts = {
         'base': common_dict,
         'build_new_package': build_new_package_dict,
-        'push_service_environment': push_service_environment_dict,
-        'cycle_services': common_dict,
+        'release_service': release_service_dict,
+        'cycle_service': common_dict,
         'pull_cheeseprism_data': common_dict,
         'pull_github_data': common_dict,
         'pull_appenv_github_data': common_dict,
@@ -91,12 +88,26 @@ class Queue(object):
 
     def __init__(self):
         # Initialize redis database
-        self.redis = Cache.cache()
+        self.redis = Redis.get_instance()
 
         # Initialize the QueueManager
         self.qm = QueueManager(default_queue_name=self.default_queue_name)
+        self.maint_qm = QueueManager(default_queue_name=self.maintenance_queue_name)
         self.qm.subscriber('job_postrun', handler='doula.queue:add_result')
         self.qm.subscriber('job_failure', handler='doula.queue:add_failure')
+
+    def is_maintenance_job(self, job_type):
+        """
+        Determines if a job is considered a maintenance job
+
+        These jobs run behind all other jobs
+        """
+        maintenance_job_types = [
+            'pull_cheeseprism_data',
+            'pull_github_data',
+            'cleanup_queue']
+
+        return job_type in maintenance_job_types
 
     def this(self, attrs):
         """
@@ -104,8 +115,8 @@ class Queue(object):
         """
         job_types = [
             'build_new_package',
-            'push_service_environment',
-            'cycle_services',
+            'release_service',
+            'cycle_service',
             'pull_cheeseprism_data',
             'pull_github_data',
             'pull_appenv_github_data',
@@ -129,7 +140,11 @@ class Queue(object):
 
         p = self.redis.pipeline()
 
-        self.qm.enqueue('doula.jobs:%s' % job_type, config=self.get_config(), job_dict=job_dict)
+        if self.is_maintenance_job(job_type):
+            self.maint_qm.enqueue('doula.jobs:%s' % job_type, config=self.get_config(), job_dict=job_dict)
+        else:
+            self.qm.enqueue('doula.jobs:%s' % job_type, config=self.get_config(), job_dict=job_dict)
+
         self._save(p, job_dict)
         p.execute()
 
@@ -238,9 +253,6 @@ class Queue(object):
     # Query Section of Queue
     #######################
 
-    # alextodo. put together tests for this ish. make it work.
-    # publish by 10 am.
-
     def has_bucket_changed(self, bucket_id, last_updated_for_bucket):
         last_updated = self.redis.get('doula.query.bucket.last_updated:' + bucket_id)
         self.extend_bucket_expiration(bucket_id)
@@ -285,11 +297,11 @@ class Queue(object):
                 "jobs": self.get(query)
             }
 
-            self.save_bucket_cache_values(bucket)
+            self.save_bucket_redis_values(bucket)
 
         return bucket
 
-    def save_bucket_cache_values(self, bucket):
+    def save_bucket_redis_values(self, bucket):
         """
         Add the bucket to the list of buckets and save it's last_updated time
         and save the bucket as json
@@ -304,6 +316,7 @@ class Queue(object):
         """
         Find the jobs that meet criteria sent in the job_dict
         """
+        # alextodo. rewrite this to be faster. looping sucks.
         jobs = self._get_jobs()
 
         # Loop through each criteria, throw out the jobs that don't meet
@@ -332,7 +345,7 @@ class Queue(object):
                 bucket = json.loads(bucket_as_json)
                 bucket["last_updated"] = time.time()
                 bucket["jobs"] = self.get(bucket["query"])
-                self.save_bucket_cache_values(bucket)
+                self.save_bucket_redis_values(bucket)
             else:
                 # bucket expired. remove from doula.query.buckets set
                 self.redis.srem("doula.query.buckets", bucket_id)
@@ -392,8 +405,8 @@ def can_update_job(job_type):
     """
     updateable_job_types = [
         'build_new_package',
-        'cycle_services',
-        'push_service_environment'
+        'cycle_service',
+        'release_service'
         ]
 
     return job_type in updateable_job_types

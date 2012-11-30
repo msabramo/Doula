@@ -30,7 +30,7 @@ def pull_appenv_github_data():
 
 def pull_cheeseprism_data():
     """
-    Update the cached data. ex. CheesePrism Data, Git commit history.
+    Update the redisd data. ex. CheesePrism Data, Git commit history.
     Put the tasks on the queue
     """
     job_dict = {
@@ -43,7 +43,7 @@ def pull_cheeseprism_data():
 
 def pull_bambino_data():
     """
-    Update the cached bambino data
+    Update the redisd bambino data
     """
     job_dict = {
         'job_type': 'pull_bambino_data'
@@ -55,7 +55,7 @@ def pull_bambino_data():
 
 def cleanup_queue():
     """
-    Update the cached bambino data
+    Update the redisd bambino data
     """
     job_dict = {
         'job_type': 'cleanup_queue'
