@@ -8,6 +8,7 @@ from fabric.context_managers import settings
 import os
 from doula.models.push import Push
 import re
+import json
 
 import logging
 
@@ -59,12 +60,12 @@ class PushJava(Push):
                 run('cp ../etc/META-INF/persistence.xml %s/WEB-INF/classes/META-INF/persistence.xml' % short_name)
                 run('zip -r %s.war %s' % (short_name, short_name))
                 run('sudo cp %s.war /var/lib/tomcat6/webapps/' % short_name)
-                sudo('chown tomcat6:tomcat6 /var/lib/tomcat6/webapps/%.war' % short_name)
+                sudo('chown tomcat6:tomcat6 /var/lib/tomcat6/webapps/%s.war' % short_name)
             with cd('%s/%s/' %(self.java_dir, self.service_name)):
                 json_file = json.dumps({'version': war_name})
                 run("echo '%s' > version.json")
 
-        message = '%s installed % package(s):\n' %s (self.username, len(wars))
+        message = '%s installed %s package(s):\n' % (self.username, len(wars))
         message = '\n'.join(wars)
         self.commit(message)
 
