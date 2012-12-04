@@ -64,7 +64,7 @@ def relative_datetime(date):
         if years == 1:
             return '1 year ago'
         else:
-            return str(years) + ' years ago'
+            return str(int(years)) + ' years ago'
 
 
 def branches_text(branches):

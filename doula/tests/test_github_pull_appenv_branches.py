@@ -20,7 +20,8 @@ class GithubTests(unittest.TestCase):
         app_envs = pull_appenv_repos()
 
         for name, appenv in app_envs.iteritems():
-            pass
+            print appenv
+            print "\n"
 
 
 if __name__ == '__main__':

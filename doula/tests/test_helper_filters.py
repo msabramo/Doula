@@ -1,5 +1,6 @@
 import unittest
 from datetime import datetime
+import calendar
 
 from doula.helper_filters import *
 
@@ -34,14 +35,22 @@ class HelperTests(unittest.TestCase):
         self.assertEqual('Yesterday at 10:31 AM', result)
 
         # expect 5 days ago at 10:31 AM
-        days_ago = datetime(now.year, now.month, now.day - 5, 10, 31, 10)
+        if now.day > 5:
+            days_ago = datetime(now.year, now.month, now.day - 5, 10, 31, 10)
+        else:
+            # backup to previous month
+            last_day_prev_month = calendar.monthrange(now.year, now.month - 1)[1]
+            remaining_negative_days = now.day - 5
+            new_day = last_day_prev_month + remaining_negative_days
+            days_ago = datetime(now.year, now.month - 1, new_day, 10, 31, 10)
+
         days_ago_val = days_ago.strftime("%Y-%m-%dT%X+02:00")
         result = relative_datetime(days_ago_val)
 
         self.assertEqual('5 days ago at 10:31 AM', result)
 
         # expect 2 months ago
-        days_ago = datetime(now.year, now.month - 2, now.day - 15, 10, 31, 10)
+        days_ago = datetime(now.year, now.month - 2, now.day - 2, 10, 31, 10)
         days_ago_val = days_ago.strftime("%Y-%m-%dT%X+02:00")
         result = relative_datetime(days_ago_val)
 
