@@ -16,26 +16,12 @@ class GithubTests(unittest.TestCase):
 
         Config.load_config(settings)
 
-    def tearDown(self):
-        pass
-
-    def test_pull_doula_admins(self):
-        admins = pull_doula_admins()
-        self.assertTrue(len(admins))
-
-    def test_pull_devmonkeys_repos(self):
-        repos = pull_devmonkeys_repos()
-
-        for name, repo in repos.iteritems():
-            # Ensure the name is true
-            self.assertTrue(repo['name'])
-
     def test_pull_appenv_repos(self):
-        repos = pull_appenv_repos()
+        app_envs = pull_appenv_repos()
 
-        for name, repo in repos.iteritems():
-            # Ensure the name is true
-            self.assertTrue(name)
+        for name, appenv in app_envs.iteritems():
+            print appenv
+            print "\n"
 
 
 if __name__ == '__main__':

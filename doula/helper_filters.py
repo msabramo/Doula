@@ -1,5 +1,6 @@
 from datetime import datetime
 from doula.util import comparable_name
+from doula.util import remove_timezone
 import math
 
 
@@ -8,7 +9,7 @@ def formatted_day(date):
     Returns a friendly date in the format: July 10, 2012
     date - a date formatted as a string (ex. "2012-02-15T10:12:01+02:00")
     """
-    datetime_only = date.split('+')[0]
+    datetime_only = remove_timezone(date)
     dt = datetime.strptime(datetime_only, "%Y-%m-%dT%X")
     return dt.strftime("%B %d, %Y")
 
@@ -33,7 +34,7 @@ def relative_datetime(date):
 
     date - a date formatted as a string (ex. "2012-02-15T10:12:01+02:00")
     """
-    datetime_only = date.split('+')[0]
+    datetime_only = remove_timezone(date)
     dt = datetime.strptime(datetime_only, "%Y-%m-%dT%X")
     delta = datetime.now() - dt
 
@@ -64,7 +65,7 @@ def relative_datetime(date):
         if years == 1:
             return '1 year ago'
         else:
-            return str(years) + ' years ago'
+            return str(int(years)) + ' years ago'
 
 
 def branches_text(branches):

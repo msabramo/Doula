@@ -367,19 +367,6 @@ def pull_devmonkeys_repos():
 ######################
 
 
-def is_doula_appenv_commit(message):
-    """
-    Match the commits message that start with:
-
-        Pushed AnWeb==2.0.95
-        ##################
-        pip freeze:
-        ##################
-    """
-    message = re.sub(r'\s', '', message)
-    return re.search(r'#+pipfreeze:#+', message, re.I)
-
-
 def pull_appenv_branches(git_repo):
     """
     Pull the commits for the appenvs for every one of their branches
@@ -399,31 +386,30 @@ def pull_appenv_branches(git_repo):
     github_branches = json.loads(pull_url(url))
     branches = {}
 
-    for b in github_branches:
-        branches[b["name"]] = {
+    for github_branch in github_branches:
+        branches[github_branch["name"]] = {
             "commits": []
         }
 
-        # Pull the last 10 sha's for each branch
-        url = "%s/repos/%s/%s/commits?per_page=10&sha=%s" % \
+        # Pull the last 20 sha's for each branch
+        url = "%s/repos/%s/%s/commits?per_page=20&sha=%s" % \
             (domain,
              Config.get('doula.github.appenvs.org'),
              git_repo['name'],
-             b["commit"]["sha"])
+             github_branch["commit"]["sha"])
 
         commits_for_branch = json.loads(pull_url(url))
 
+        # Every commit to this branch and repo is a new
+        # release to the environment
         for cmt in commits_for_branch:
-            message = cmt["commit"]["message"]
+            commit = {
+                "author": cmt["commit"]["author"]["email"],
+                "date": cmt["commit"]["author"]["date"],
+                "message": cmt["commit"]["message"]
+            }
 
-            if is_doula_appenv_commit(message):
-                commit = {
-                    "author": cmt["commit"]["author"]["email"],
-                    "date": cmt["commit"]["author"]["date"],
-                    "message": cmt["commit"]["message"]
-                }
-
-                branches[b["name"]]["commits"].append(commit)
+            branches[github_branch["name"]]["commits"].append(commit)
 
     return branches
 

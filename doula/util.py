@@ -16,10 +16,21 @@ def date_to_seconds_since_epoch(date):
         2012-11-13T18:44:56+00:00
         2012-11-10T00:20:03+00:00
     """
-    date = date.split("+")[0]
+    date = remove_timezone(date)
     struct_time = time.strptime(date, "%Y-%m-%dT%H:%M:%S")
 
     return time.mktime(struct_time)
+
+
+def remove_timezone(date):
+    """Remove timezone from date"""
+    date = date.split("+")[0]
+
+    # If we still have a timezone, remove it
+    if date.count('-') > 2:
+        date = date[:date.rfind('-')]
+
+    return date
 
 
 def next_version(version):
