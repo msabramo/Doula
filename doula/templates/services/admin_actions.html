@@ -32,11 +32,18 @@
           <span class="caret"></span>
         </a>
         <ul id="release-dropdown" class="dropdown-menu">
+            <!-- example of prod release -->
+
             {% if service.get_releases()|length > 0 %}
               {% for release in service.get_releases() %}
                 <li class="release {% if loop.index == 1 %}active{% endif %}">
                   <a class="release" data-date="{{release.date}}" href="#">
-                  {{release.date|relative_datetime}}
+                    <span class="release-num">#{{loop.revindex}}</span>
+                    <span class="release-date">{{release.date|relative_datetime}}</span>
+
+                    {% if loop.index is odd %}
+                      <span class="release-prod"><i class="icon-star"></i></span>
+                    {% endif %}
                   </a>
                 </li>
               {% endfor %}
