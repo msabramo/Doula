@@ -134,6 +134,7 @@ class Push(object):
             logging.error('Running asset check.')
             result = run('asset_check %s' % self.service_name)
             if result.succeeded:
+                # timmy. why the logging.error? makes me think it failed?
                 logging.error('assets detected.  gonna bake them up nice and hot')
                 result = sudo('paster --plugin=smlib.assets bake etc/app.ini %s' %self.outdir)
                 logging.error('asset push completed.  output follows:')
