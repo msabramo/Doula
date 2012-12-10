@@ -141,6 +141,10 @@ def release_service(config={}, job_dict={}, debug=False):
     log = create_logger(job_dict['id'])
     load_config(config)
 
+    print "CONFIG DICT"
+    print config
+    print "\n\n"
+
     try:
         dd = DoulaDAL()
         service = dd.find_service_by_name(job_dict['site'], job_dict['service'])
@@ -407,3 +411,58 @@ def cleanup_queue(config={}, job_dict={}):
         log.error(e.message)
         log.error(traceback.format_exc())
         raise
+
+if __name__ == '__main__':
+    config = {
+        "doula.github.html.domain": "http://code.corp.surveymonkey.com",
+        "task_interval_pull_bambino": "900",
+        "task_interval_pull_appenv_github_data": "900",
+        "github.scope": "user, repo",
+        "github.consumer_key": "cd87fe9134bb2b7d7493",
+        "task_interval_cleanup_queue": "3600",
+        "doula.github.packages.org": "devmonkeys",
+        "github.domain": "code.corp.surveymonkey.com",
+        "reload_assets": False,
+        "env": "prod",
+        "js_path": "/Users/alexvazquez/Projects/Doula/doula/static/js",
+        "bambino.webapp_dir": "/opt/webapp",
+        "doula.github.doula.admins.org": "DoulaAdmins",
+        "prod_js_path": "/Users/alexvazquez/Projects/Doula/doula/static/prodjs",
+        "jinja2.directories": "doula:templates",
+        "task_interval_pull_cheesprism_data": "900",
+        "doula.session.secret": "d4c84eed159abf6049dc53c1aa7ec85edb150fb2",
+        "task_interval_pull_github_data": "900",
+        "reload_templates": True,
+        "redis.host": "localhost",
+        "doula.github.token": "17e6642dca429043725ad6a98ce966e5a67eac69",
+        "doula.github.api.domain": "http://api.code.corp.surveymonkey.com",
+        "debug_authorization": False,
+        "doula.assets.dir": "/opt/smassets/",
+        "github.consumer_secret": "5368f923445fbaaf49e85e79f49194a8d6bfda34",
+        "doula.cheeseprism_url": "http://mt-99:6789",
+        "redis.port": "6379",
+        "doula.keyfile_path": "~/.ssh/id_rsa_doula",
+        "github.secure": "false",
+        "doula.deploy.site": "mt-99",
+        "doula.github.appenvs.org": "AppEnv"
+    }
+
+    job_dict = {
+        'status': 'queued',
+        'user_id': 'alexv',
+        'time_started': 1355173158.952757,
+        'service': 'collectweb',
+        'comparable_packages': {'collectweb': '1.3.2-master'},
+        'job_type': 'release_service',
+        'site': 'mt2',
+        'packages': ['collectweb==1.3.2-master'],
+        'id': '76fd76d1430c11e282ffb8f6b1191577_1',
+        'exc': ''
+    }
+
+    print 'ABOUT TO RELEASE SERVICE'
+
+    rslt = release_service(config, job_dict)
+
+    print 'RESULT HERE: '
+    print rslt
