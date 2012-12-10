@@ -140,17 +140,26 @@ class Push(object):
         try:
             with workon(self._webapp(), self.debug):
                 logging.info('Running asset check.')
+                print 'Running asset check'
+
                 result = run('asset_check %s' % self.service_name)
+
+                print 'result of asset check'
+                print result
+
                 if result.succeeded:
                     # timmy. why the logging.error? makes me think it failed?
                     logging.info('assets detected.  gonna bake them up nice and hot')
                     result = sudo('paster --plugin=smlib.assets bake etc/app.ini %s' % self.outdir)
+                    print 'Result of paster'
+                    print result
                     logging.info('asset push completed.  output follows:')
                     logging.info(result)
 
                     if result.succeeded:
                         return (True, True)
                     else:
+                        print 'result is unable to install asssets'
                         logging.error("Unable to install assets")
                         raise Exception(result)
                 else:
@@ -162,6 +171,7 @@ class Push(object):
         except:
             raise Exception('Error installing assets for ' + self.service_name)
         finally:
+            print 'Done running install asset'
             logging.info("Done running install asset")
 
     def _chown(self):
