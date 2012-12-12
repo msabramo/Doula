@@ -6,16 +6,6 @@ _mixin = function(target, source) {
     }
 };
 
-var EventUtil = {
-    onclick: function(selector, func) {
-        $(selector).on('click', $.proxy(function(event) {
-            func = $.proxy(func, this);
-            func(event);
-            return false;
-        }, this));
-    }
-};
-
 // Implements the publish subscribe model, using jquery
 var DataEventManager = {
     subscribe: function(event, fn) {

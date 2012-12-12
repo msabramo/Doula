@@ -90,7 +90,9 @@ class Push(object):
 
         #assets like css, js
         success, result = self.install_assets()
+
         if not success:
+            logging.error("Unable to install assets for %s" % self.service_name)
             failures.append({'service': self.service_name, 'error': str(result).replace('\r\n', ', ')})
 
         if not failures:
@@ -102,8 +104,13 @@ class Push(object):
             self.commit(message)
 
         self.config()
+
         if failures:
-            print 'failing!', failures
+            print 'Failed to Push', failures
+
+            logging.error("Failed to push %s" % self.service_name)
+            logging.error(failures)
+
             raise Exception(failures)
 
         return successes, failures
@@ -122,6 +129,7 @@ class Push(object):
             if result.succeeded:
                 result = run('git reset --hard HEAD')
                 if result.succeeded:
+
                     result = run('git pull origin %s' % self._branch())
                 else:
                     raise Exception(str(result).replace('\n', ', '))
@@ -130,23 +138,37 @@ class Push(object):
         return result
 
     def install_assets(self):
-        with workon(self._webapp(), self.debug):
-            logging.error('Running asset check.')
-            result = run('asset_check %s' % self.service_name)
-            if result.succeeded:
-                logging.error('assets detected.  gonna bake them up nice and hot')
-                result = sudo('paster --plugin=smlib.assets bake etc/app.ini %s' %self.outdir)
-                logging.error('asset push completed.  output follows:')
-                logging.error(result)
+        try:
+            with workon(self._webapp(), self.debug):
+                # We use error instead of info to log because
+                # setting the logging status to info would fill up our logs
+                # with lots of logging information from Fabric
+                logging.error('Running asset check.')
+
+                result = run('asset_check %s' % self.service_name)
+
                 if result.succeeded:
-                    return (True, True)
+                    logging.error('Assets detected.  gonna bake them up nice and hot')
+                    result = sudo('paster --plugin=smlib.assets bake etc/app.ini %s' % self.outdir)
+
+                    logging.error('Asset push completed. Output follows:')
+                    logging.error(result)
+
+                    if result.succeeded:
+                        return (True, True)
+                    else:
+                        logging.error("Unable to install assets")
+                        raise Exception(result)
                 else:
-                    raise Exception(result)
-            else:
-                #a non-success means that the plugin does not exist
-                #which means we do nothing, so we return success
-               return (True, True)
-        return (False, result)
+                    #a non-success means that the plugin does not exist
+                    #which means we do nothing, so we return success
+                    return (True, True)
+
+            return (False, result)
+        except:
+            raise Exception('Error installing assets for ' + self.service_name)
+        finally:
+            logging.error("Done running install asset")
 
     def _chown(self):
         with debuggable(self.debug):

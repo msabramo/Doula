@@ -189,18 +189,11 @@ def release_service(config={}, job_dict={}, debug=False):
         create_logger(job_dict['id'])
         log.info('Done installing packages.')
 
-        # Update this site by pulling the latest data for the site
-        # Create a new job dict because we don't want logs mixed up
-        # This will update the config related informaton.
-        pull_bambino_data_job_dict = {'id': uuid.uuid1().hex}
-        pull_bambino_data(config, pull_bambino_data_job_dict)
+        # Update bambinos
+        run_bambino_data_in_silence(config)
 
-        # Pull the latest app env data as well
-        # Create a new job dict because we don't want to mix the logs
-        # This will update the releases related ata
-        pull_appenv_github_data_job_dict = {'id': uuid.uuid1().hex}
-        # alextodo. speed this up to. it's fucked on prod. so fix it.
-        pull_appenv_github_data(config, pull_appenv_github_data_job_dict)
+        # Update app envs releases
+        run_pull_appenv_in_silence(config)
 
         # Cycle the service after releasing the service
         cycle_service(config, job_dict)
@@ -211,6 +204,35 @@ def release_service(config={}, job_dict={}, debug=False):
         log.error(e.message)
         log.error(traceback.format_exc())
         raise
+
+
+def run_bambino_data_in_silence(config):
+    """
+    Pull the bambino data with the logging set to error
+    """
+    logging.getLogger().setLevel(logging.ERROR)
+    # Update this site by pulling the latest data for the site
+    # Create a new job dict because we don't want logs mixed up
+    # This will update the config related informaton.
+    pull_bambino_data_job_dict = {'id': uuid.uuid1().hex}
+    pull_bambino_data(config, pull_bambino_data_job_dict)
+
+    logging.getLogger().setLevel(logging.INFO)
+
+
+def run_pull_appenv_in_silence(config):
+    """
+    Pull the latest app env data in silence.
+    """
+    logging.getLogger().setLevel(logging.ERROR)
+
+    # Pull the latest app env data as well
+    # Create a new job dict because we don't want to mix the logs
+    # This will update the releases related ata
+    pull_appenv_github_data_job_dict = {'id': uuid.uuid1().hex}
+    pull_appenv_github_data(config, pull_appenv_github_data_job_dict)
+
+    logging.getLogger().setLevel(logging.INFO)
 
 
 ########################

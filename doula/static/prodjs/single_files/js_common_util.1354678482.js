@@ -1,4 +1,4 @@
-_mixin=function(target,source){for(var x in source){target[x]=source[x];}};var EventUtil={onclick:function(selector,func){$(selector).on('click',$.proxy(function(event){func=$.proxy(func,this);func(event);return false;},this));}};var DataEventManager={subscribe:function(event,fn){$(this).bind(event,fn);},publish:function(event,data){$(this).trigger(event,data);}};_inArray=function(key,array,attribute){for(var i=0;i<array.length;i++){var item=array[i];if(typeof(item)=='object'){if(key==item[attribute])return item;}
+_mixin=function(target,source){for(var x in source){target[x]=source[x];}};var DataEventManager={subscribe:function(event,fn){$(this).bind(event,fn);},publish:function(event,data){$(this).trigger(event,data);}};_inArray=function(key,array,attribute){for(var i=0;i<array.length;i++){var item=array[i];if(typeof(item)=='object'){if(key==item[attribute])return item;}
 else{if(key==item)return item;}}
 return false;};_withoutArray=function(array,key,attribute){var arrayWithout=[];for(var i=0;i<array.length;i++){var item=array[i];if(typeof(item)=='object'){if(array!=item[attribute])arrayWithout.push(item);}
 else{if(array!=item)arrayWithout.push(item);}}
