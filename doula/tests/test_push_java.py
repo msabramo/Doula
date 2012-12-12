@@ -23,10 +23,17 @@ class PushTestsJava(unittest.TestCase):
             'packages': ['requests']
         }
 
-        service = PushJava('userdal', 'vagrant', '/opt/java', 'http://yorick:9003',
-                '~/.ssh/id_rsa_doula', '33.33.33.10', True)
+        service = PushJava(
+                'userdal', 
+                '33.33.33.10', 
+                'vagrant', 
+                '/opt/java', 
+                'http://yorick:9003',
+                '~/.ssh/id_rsa_doula',  
+                '',
+                True)
 
-        service.release_service(['UserAccount.war_9.9.9'])
+        service.release_service(['UserAccount.war==9.9.9'])
 
 if __name__ == '__main__':
     unittest.main()

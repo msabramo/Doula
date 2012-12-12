@@ -23,11 +23,26 @@ def debuggable(debug=False):
 
 class PushJava(Push):
 
-    def __init__(self, service_name, username, java_dir, cheeseprism_url,
-                keyfile, site_name_or_node_ip, debug=False):
+    def __init__(self,
+            service_name, 
+            site_name_or_node_ip, 
+            username, 
+            java_dir, 
+            cheeseprism_url, 
+            keyfile, 
+            assets_dir, 
+            debug=False):
 
-        Push.__init__(self, service_name, username, java_dir, cheeseprism_url, 
-                keyfile, site_name_or_node_ip, '', debug);
+        Push.__init__(self,
+            service_name, 
+            site_name_or_node_ip, 
+            username, 
+            java_dir, 
+            cheeseprism_url, 
+            keyfile, 
+            # we ignore the assets dir
+            '', 
+            debug);
 
         self.warfile_name = self.warfile_mapping()
         self.java_dir = java_dir
@@ -45,14 +60,17 @@ class PushJava(Push):
         self.wars = wars
 
         for war_name in wars:
-            short_name = self.short_war_name(war_name)
+            name, version = war_name.split('==')
+            short_name = self.short_war_name(name)
             path = '%s/%s/etc' %(self.java_dir, self.service_name)
             with cd(path):
                 run('git pull origin master')
             with cd('%s/%s/' %(self.java_dir, self.service_name)):
                 run('rm -rf tmp')
                 run('mkdir tmp')
-                run('curl %s/%s > tmp/%s.war' % (self.cheeseprism_url, war_name, self.service_name))
+                import ipdb
+                ipdb.set_trace()
+                run('curl %s/%s.war_%s > tmp/%s.war' % (self.cheeseprism_url, short_name, version, self.service_name))
             with cd('%s/%s/tmp' %(self.java_dir, self.service_name)):
                 run('unzip %s.war -d %s' % (self.service_name, short_name))
                 run('cp ../etc/META-INF/persistence.xml %s/WEB-INF/classes/META-INF/persistence.xml' % short_name)
@@ -60,7 +78,7 @@ class PushJava(Push):
                 run('sudo cp %s.war /var/lib/tomcat6/webapps/' % short_name)
                 sudo('chown tomcat6:tomcat6 /var/lib/tomcat6/webapps/%s.war' % short_name)
             with cd('%s/%s/' %(self.java_dir, self.service_name)):
-                json_file = json.dumps({'version': war_name})
+                json_file = json.dumps({'version': version})
                 run("echo '%s' > version.json" % json_file)
 
         message = '%s installed %s package(s):\n' % (self.username, len(wars))

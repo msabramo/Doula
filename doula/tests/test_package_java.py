@@ -19,9 +19,6 @@ class PackageJavaTests(unittest.TestCase):
     def testDown(self):
         pass
 
-    def make_one(self):
-        return PackageJava("userdal", "0.1.3", "git@code.corp.surveymonkey.com:tbone")
-
     def test_distribute(self):
         job_dict = {
             'version': str(uuid.uuid1()),

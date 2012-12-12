@@ -16,10 +16,6 @@ class Release(object):
 
 
     @staticmethod
-    def build_java_release_from_repo(branch, service_name, commit):
-
-
-    @staticmethod
     def build_release_from_repo(branch, service_name, commit):
         """
         Build a release object from an app env repo with the format

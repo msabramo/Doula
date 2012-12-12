@@ -4,7 +4,7 @@ from doula.config import Config
 from doula.github import pull_appenv_repos
 from doula.github import pull_devmonkeys_repos
 from doula.models.package import Package
-from doula.models.push import Push
+from doula.models.push_factory import PushFactory
 from doula.models.service import Service
 from doula.models.doula_dal import DoulaDAL
 from doula.queue import Queue
@@ -159,18 +159,8 @@ def release_service(config={}, job_dict={}, debug=False):
                 msg = "Pushing %s to the node with IP %s" % vals
                 log.info(msg)
 
-                push = Push(
-                    service.name,
-                    node.ip,
-                    job_dict['user_id'],
-                    config['bambino.webapp_dir'],
-                    config['doula.cheeseprism_url'],
-                    config['doula.keyfile_path'],
-                    config['doula.assets.dir'],
-                    debug
-                )
-
-            successes, failures = push.packages(job_dict['packages'])
+                push = PushFactory.get_push_object(service, node, job_dict, config, debug)
+                successes, failures = push.packages(job_dict['packages'])
         except Exception as e:
             print 'EXCEPTION IN JOB:'
             # getting this message. sequence item 0: exp

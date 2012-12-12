@@ -31,7 +31,6 @@ def workon(path, debug):
                 with settings(warn_only=True):
                     yield
 
-
 class Push(object):
 
     def __init__(self,
