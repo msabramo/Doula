@@ -129,6 +129,7 @@ class Push(object):
             if result.succeeded:
                 result = run('git reset --hard HEAD')
                 if result.succeeded:
+
                     result = run('git pull origin %s' % self._branch())
                 else:
                     raise Exception(str(result).replace('\n', ', '))
@@ -139,27 +140,23 @@ class Push(object):
     def install_assets(self):
         try:
             with workon(self._webapp(), self.debug):
-                logging.info('Running asset check.')
-                print 'Running asset check'
+                # We use error instead of info to log because
+                # setting the logging status to info would fill up our logs
+                # with lots of logging information from Fabric
+                logging.error('Running asset check.')
 
                 result = run('asset_check %s' % self.service_name)
 
-                print 'result of asset check'
-                print result
-
                 if result.succeeded:
-                    # timmy. why the logging.error? makes me think it failed?
-                    logging.info('assets detected.  gonna bake them up nice and hot')
+                    logging.error('Assets detected.  gonna bake them up nice and hot')
                     result = sudo('paster --plugin=smlib.assets bake etc/app.ini %s' % self.outdir)
-                    print 'Result of paster'
-                    print result
-                    logging.info('asset push completed.  output follows:')
-                    logging.info(result)
+
+                    logging.error('Asset push completed. Output follows:')
+                    logging.error(result)
 
                     if result.succeeded:
                         return (True, True)
                     else:
-                        print 'result is unable to install asssets'
                         logging.error("Unable to install assets")
                         raise Exception(result)
                 else:
@@ -171,8 +168,7 @@ class Push(object):
         except:
             raise Exception('Error installing assets for ' + self.service_name)
         finally:
-            print 'Done running install asset'
-            logging.info("Done running install asset")
+            logging.error("Done running install asset")
 
     def _chown(self):
         with debuggable(self.debug):
