@@ -5,8 +5,10 @@ from mockredis.lock import MockRedisLock
 
 
 class MockRedis(object):
-    """Imitate a Redis object so unit tests can run on our Hudson CI server
-    without needing a real Redis server."""
+    """
+    Imitate a Redis object so unit tests can run
+    without needing a real Redis server.
+    """
 
     # The 'Redis' store
     redis = defaultdict(dict)
@@ -178,11 +180,49 @@ class MockRedis(object):
 
         return self.redis[key]
 
+    def zadd(self, key, value, value_number):
+        """Emulate zadd."""
+        # Does the set at this key already exist?
+        if not key in self.redis:
+            # Yes, set the dict value
+            self.redis[key] = []
+
+        self.redis[key].append({value: value_number})
+
+    def zcount(self, key, start, finish):
+        """Emulate zcount."""
+        if key in self.redis:
+            return len(self.redis[key])
+        else:
+            return 0
+
+    def zrange(self, key, start, finish):
+        """Emulate zrange"""
+        keys_in_values = []
+
+        if key in self.redis:
+            for zdict in self.redis[key]:
+                for zdict_key in zdict:
+                    keys_in_values.append(zdict_key)
+
+        return keys_in_values
+
+    def incr(self, key):
+        """Emulate incr"""
+        if key in self.redis:
+            self.redis[key] += 1
+        else:
+            self.redis[key] = 1
+
+        return self.redis[key]
+
     def flushdb(self):
         self.redis.clear()
 
 
 def mock_redis_client():
-    """Mock common.util.redis_client so we can return a MockRedis object
-    instead of a Redis object."""
+    """
+    Mock common.util.redis_client so we can return a MockRedis object
+    instead of a Redis object.
+    """
     return MockRedis()

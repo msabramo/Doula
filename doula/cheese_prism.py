@@ -1,4 +1,5 @@
 from doula.cache import Redis
+from doula.cache_keys import key_val
 from doula.config import Config
 from doula.util import *
 import simplejson as json
@@ -41,7 +42,9 @@ class CheesePrism(object):
         Return the python package object.
         """
         redis = Redis.get_instance()
-        package_as_json = redis.get('cheeseprism:package:' + comparable_name(name))
+
+        key = key_val("cheeseprism_package", {"name": comparable_name(name)})
+        package_as_json = redis.get(key)
 
         if package_as_json:
             package_as_dict = json.loads(package_as_json)
@@ -58,7 +61,7 @@ class CheesePrism(object):
         """
         redis = Redis.get_instance()
         all_packages = []
-        packages_as_json = redis.get('cheeseprism:packages')
+        packages_as_json = redis.get(key_val('cheeseprism_packages'))
 
         if packages_as_json:
             json_packages = json.loads(packages_as_json)

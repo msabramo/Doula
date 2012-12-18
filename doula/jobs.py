@@ -1,4 +1,5 @@
 from doula.cache import Redis
+from doula.cache_keys import key_val
 from doula.cheese_prism import CheesePrism
 from doula.config import Config
 from doula.github import pull_appenv_repos
@@ -324,7 +325,8 @@ def pull_appenv_github_data(config={}, job_dict={}, debug=False):
         log.info('Pulling github appenv data')
         redis = Redis.get_instance()
         repos = pull_appenv_repos()
-        redis.set("repos:appenvs", dumps(repos))
+
+        redis.set(key_val("repos_appenvs"), dumps(repos))
 
         # always remove maintenance jobs from the queue
         Queue().remove(job_dict['id'])

@@ -711,6 +711,12 @@ Mini Dashboard
   border-radius: 4px;
   background-color: #F7F7F9;
 }
+/* a prod release has been chosen */
+.mini-dashboard-prod {
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+  background-color: #F7F7F9;
+}
 .mini-dashboard-square {
   border: 3px solid #E5E5E5;
   border-radius: 4px;
@@ -738,6 +744,17 @@ Mini Dashboard
   border-bottom-right-radius: 4px;
   border-bottom-left-radius: 4px;
   background-color: #F7F7F9;
+}
+.mini-dashboard-detail {
+  padding: 15px 15px;
+}
+.mini-dashboard-details .table tr.title th {
+  background-color: #E1F2F2;
+}
+.mini-dashboard-detail-prod {
+  border: 3px solid #D6E9C6;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
 }
 .mini-dashboard-detail {
   padding: 10px 15px;
