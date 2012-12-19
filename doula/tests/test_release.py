@@ -138,7 +138,7 @@ class ReleaseTests(unittest.TestCase):
         changed_packages = release._find_same_packages_with_diff_versions(service, release_packages)
 
         self.assertTrue('anweb' in changed_packages)
-        self.assertEqual(changed_packages['anweb']['package_name'], 'anweb')
+        self.assertEqual(changed_packages['anweb']['package'].comparable_name, 'anweb')
         self.assertEqual(changed_packages['anweb']['release_version'], '1.1')
         self.assertEqual(changed_packages['anweb']['current_version'], '0.3')
 
@@ -169,6 +169,7 @@ class ReleaseTests(unittest.TestCase):
         service = Service(**service_data)
         release_packages = release.diff_service_and_release(service)
 
+        self.assertTrue(release_packages['changed_packages']['anweb']['package'].name)
         self.assertTrue(release_packages['changed_packages'])
         self.assertTrue(release_packages['packages_to_add'])
         self.assertTrue(release_packages['packages_to_subtract'])

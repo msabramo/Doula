@@ -1,45 +1,19 @@
-<!-- last release details -->
-{#
-  old version of this stuff
-<div id="mini-dashboard-detail-releases" class="hide mini-dashboard-detail">
-  {% if last_release %}
-    <p>
-      This service was released
-     <strong>{{last_release.date|relative_datetime}}</strong>.
-    </p>
-
-    {% if changed_packages.keys()|length > 0 %}
-	    <p>These packages were changed:</p>
-
-	    {% for package_name in changed_packages %}
-		    <ul>
-		    	<li>
-		    		<a target="_blank" href="http://code.corp.surveymonkey.com/devmonkeys/{{ service.name }}/commits/v{{changed_packages[package_name]}}">{{package_name}} version {{changed_packages[package_name]}}</a>
-		    	</li>
-		    </ul>
-	    {% endfor %}
-    {% endif %}
-  {% else %}
-    <p>The last release date is <strong>unknown</strong>.</p>
-  {% endif %}
-</div>
-#}
-
-<!-- last release details -->
-<!--
-if prod release: then add the mini-dashboard-detail-prod
--->
-<div id="mini-dashboard-detail-releases" class="hide mini-dashboard-detail mini-dashboard-detail-prod">
+<div id="mini-dashboard-detail-releases" class="hide mini-dashboard-detail {% if last_release.production %}mini-dashboard-detail-prod{% endif %}">
   {% if last_release %}
 
   <p style="font-size: 115%; margin-top: 15px;">
-    Release <strong>#42</strong> sent to <strong>{{ service.name }}</strong> on <strong>{{ site.name }}</strong> {{last_release.date|relative_datetime}}.
+    {% if last_release.release_number > 0 %}
+      Release <strong>#{{last_release.release_number}}</strong> sent to <strong>{{ service.name }}</strong> on <strong>{{ site.name }}</strong> {{last_release.date|relative_datetime}}.
+    {% else %}
+      Release sent to <strong>{{ service.name }}</strong> on <strong>{{ site.name }}</strong> {{last_release.date|relative_datetime}}.
+    {% endif %}
   </p>
-
+  {% if last_release.release_number > 0 %}
   <p style="font-size: 115%;">
     <i class="icon-star"></i>
     Sent to production {{last_release.date|relative_datetime}}.
   </p>
+  {% endif %}
 
   <br />
 
@@ -53,25 +27,39 @@ if prod release: then add the mini-dashboard-detail-prod
       </tr>
     </thead>
     <tbody>
-      {% if changed_packages|length < 1 %}
+      {% if diff['changed_packages'].keys()|length < 1 %}
         <tr>
           <td>&nbsp;</td>
           <td colspan="3">No package changes</td>
         </tr>
       {% endif %}
 
-      {% for package_name in changed_packages %}
+      {% for name, package_diff in diff['changed_packages'].iteritems()|sort %}
         <tr>
-          <td>{{package_name}}</td>
-          <!-- need the package names. -->
-          <td><a href="http://code.corp.surveymonkey.com/devmonkeys/{{package_name}}">2.7.14-TBD</a></td>
-          <td><a href="http://code.corp.surveymonkey.com/devmonkeys/{{package_name}}">2.8.12-TBD</a></td>
+          {% if package_diff['package'].get_github_info() %}
+            <td>{{name}}</td>
+            <td>
+              <a target="_blank" href="http://code.corp.surveymonkey.com/devmonkeys/{{package_diff['package'].name}}/tree/v{{package_diff['release_version']}}">
+                {{package_diff['release_version']}}
+              </a>
+            </td>
+            <td>
+              <a target="_blank" href="http://code.corp.surveymonkey.com/devmonkeys/{{package_diff['package'].name}}/tree/v{{package_diff['current_version']}}">
+                {{package_diff['current_version']}}
+              </a>
+            </td>
 
-          <!--
-              need the hash to hash for each one of these release.
-              need the hash of the current release. or maybe use the tag. as a hash
-            -->
-          <td><a href="#compare">Sha1 TBD... Sha1 TBD</a></td>
+            <td>
+              <a target="_blank" href="http://code.corp.surveymonkey.com/devmonkeys/{{package_diff['package'].name}}/compare/v{{package_diff['current_version']}}...v{{package_diff['release_version']}}">
+                {{package_diff['current_version']}}...{{package_diff['release_version']}}
+              </a>
+            </td>
+          {% else %}
+            <td>{{name}}</td>
+            <td>{{package_diff['release_version']}}</td>
+            <td>{{package_diff['current_version']}}</td>
+            <td>&nbsp;</td>
+          {% endif %}
         </tr>
       {% endfor %}
 
@@ -87,13 +75,25 @@ if prod release: then add the mini-dashboard-detail-prod
         Need the config commit date. the commit sha1.
         -->
         <td rowspan="2">&nbsp;</td>
-        <td rowspan="2"><a target="_blank" href="http://code.corp.surveymonkey.com/config/anweb/commit/ffb67f00cb957c04154d796786d5d0bb068c28a0">
-          Date TBD
+        <td rowspan="2"><a target="_blank" href="http://code.corp.surveymonkey.com/config/anweb/commit/{{service.config['commit']}}">
+          {{service.config['commit']|truncate(7, true, "")}}
         </a></td>
-        <td rowspan="2"><a target="_blank" href="http://code.corp.surveymonkey.com/config/anweb/commit/ffb67f00cb957c04154d796786d5d0bb068c28a0">
-          Date TBD
-        </a></td>
-        <td><a href="#compare">TBD...TBD</a></td>
+        <td rowspan="2">
+          <!-- alextodo. will need the config dir's name -->
+          {% if last_release.sha1_etc %}
+            <a target="_blank" href="http://code.corp.surveymonkey.com/config/{{service.comparable_name}}/commit/{{last_release.sha1_etc}}">
+            {{last_release.sha1_etc}}
+            </a>
+          {% endif %}
+        </td>
+        <td>
+          {% if last_release.sha1_etc %}
+            <!-- alextodo. will need the config dir's name -->
+            <a href="http://code.corp.surveymonkey.com/config/{{service.comparable_name}}/compare/{{service.config['commit']|truncate(7, true, "")}}...{{last_release.sha1_etc}}">
+              {{service.config['commit']|truncate(7, true, "")}}...{{last_release.sha1_etc}}
+            </a>
+          {% endif %}
+        </td>
       </tr>
     </tbody>
   </table>

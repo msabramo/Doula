@@ -27,6 +27,7 @@ class Release(object):
         self.is_rollback = False
         self.project_name = ""
         self.project_release = 0
+        self.production = False
 
     ###################
     # Factory Methods
@@ -196,6 +197,21 @@ class Release(object):
         return packages_to_subtract
 
     def _find_same_packages_with_diff_versions(self, service, release_packages):
+        """
+            Returns:
+            {
+                "Anweb": {
+                    "package": Package(),
+                    "release_version": 1.1,
+                    "current_version": 1.2
+                },
+                "create": {
+                    "package": Package(),
+                    "release_version": 1.1.1,
+                    "current_version": 1.1.2
+                }
+            }
+        """
         changed_packages = {}
 
         for package_name, service_package in service.packages.iteritems():
@@ -204,12 +220,10 @@ class Release(object):
                 release_package = release_packages[package_name]
 
                 if service_package.version != release_package.version:
-                    changed_packages = {
-                        "package_name": package_name,
+                    changed_packages[service_package.comparable_name] = {
+                        "package": service_package,
                         "release_version": release_package.version,
                         "current_version": service_package.version
                     }
-
-                    changed_packages[package_name] = changed_packages
 
         return changed_packages

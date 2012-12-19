@@ -28,7 +28,10 @@ def service(request):
     service = site.services[request.matchdict['service_name']]
     releases = service.get_releases()
     last_release = get_last_release(releases)
-    changed_packages = diff_between_last_release_and_release_previous_to_that(releases)
+    diff = last_release.diff_service_and_release(service)
+
+    print "HELLO"
+    print service.config
 
     last_job = get_last_job(site, service)
     other_packages = CheesePrism.other_packages(service.packages)
@@ -46,7 +49,7 @@ def service(request):
         'is_config_up_to_date': service.is_config_up_to_date(),
         'service_json': dumps(service),
         'releases_json': dumps(releases),
-        'changed_packages': changed_packages,
+        'diff': diff,
         'other_packages': other_packages,
         'other_packages_json': dumps(other_packages),
         'queued_items': [],
@@ -59,40 +62,6 @@ def get_last_release(releases):
         return releases[0]
     else:
         return None
-
-
-def diff_between_last_release_and_release_previous_to_that(releases):
-    """
-    Return a diff between this latest release and the release previous
-    to that release. We'll use this information to update the dashboard.
-
-    Returns:
-        {
-            'package_name': '0.9'
-        }
-    """
-    changed_packages = {}
-
-    # We need at least 2 releases
-    if len(releases) > 1:
-        # Find the difference with a set diff
-        previous_release = {}
-
-        # This is previous release
-        for package in releases[1].packages:
-            previous_release[package.name] = package.version
-
-        # This is current release
-        for package in releases[0].packages:
-            if package.name in previous_release:
-                if previous_release[package.name] != package.version:
-                    version = get_proper_version_name(package.version)
-                    changed_packages[package.name] = version
-            else:
-                version = get_proper_version_name(package.version)
-                changed_packages[package.name] = version
-
-    return changed_packages
 
 
 def get_proper_version_name(version):
@@ -153,7 +122,7 @@ def service_dashboard(request):
     service = site.services[request.matchdict['service_name']]
     releases = service.get_releases()
     last_release = get_last_release(releases)
-    changed_packages = diff_between_last_release_and_release_previous_to_that(releases)
+    diff = last_release.diff_service_and_release(service)
     last_job = get_last_job(site, service)
 
     temp_data = {
@@ -162,7 +131,7 @@ def service_dashboard(request):
         'service': service,
         'config': Config,
         'last_release': last_release,
-        'changed_packages': changed_packages,
+        'diff': diff,
         'last_job': last_job,
         'is_config_up_to_date': service.is_config_up_to_date(),
     }
