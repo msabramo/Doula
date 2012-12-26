@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 from doula.models.user import User
+from doula.models.release_dal import ReleaseDAL
 from fabric.api import *
 from fabric.context_managers import cd
 from fabric.context_managers import hide
@@ -60,29 +61,36 @@ class Push(object):
 
         env.host_string = node_ip
         self.debug = debug
-        env.user = 'doula'
         env.key_filename = self.keyfile
         self.pip_freeze = ''
         logging.getLogger().setLevel(logging.ERROR)
 
+    #override for testing
+    def fabric_user(self):
+        return 'doula'
+
     def packages(self, packages, action='install'):
+        env.user = self.fabric_user()
         assert(action in ['install', 'uninstall'])
         self.packages = packages
 
         failures = []
         successes = []
 
+        #pull latest config
+        self.config()
+
         #for safety, on systems that don't have group write permissions
         self._chown()
 
         with workon(self._webapp(), self.debug):
             for package in packages:
-                with prefix('. bin/activate'):
-                    if action == 'install':
-                        result = run('pip install -i %s %s' % (self.cheeseprism_url, package))
-                    else:
-                        #the -y flag automatically says yes to confirmation prompts
-                        result = run('pip uninstall %s -y' % package)
+                if action == 'install':
+                    result = run('pip install -i %s %s' % (self.cheeseprism_url, package))
+                else:
+                    #the -y flag automatically says yes to confirmation prompts
+                    result = run('pip uninstall %s -y' % package)
+
                 if result.succeeded:
                     successes.append(package)
                 else:
@@ -100,10 +108,14 @@ class Push(object):
             message = "%s %sed %s package(s):\n%s\n\n" % \
                     (self.username, action, len(packages), \
                     "\n".join(["%sed: %s" % (action, x) for x in packages]))
-            message = message + self.get_pip_freeze()
-            self.commit(message)
 
-        self.config()
+            freeze_text = self._freeze()
+            manifest = self._manifest(freeze_text)
+            import ipdb; ipdb.set_trace()
+            self.write_manifest(manifest)
+
+            message = message + self.pretty_pip(freeze_text)
+            self.commit(message)
 
         if failures:
             print 'Failed to Push', failures
@@ -184,6 +196,7 @@ class Push(object):
             result = run('git add -A .')
             if result.succeeded:
                 changes = run("git status --porcelain 2> /dev/null | sed -e 's/ M etc//g' | sed '/^$/d'")
+                import ipdb; ipdb.set_trace()
                 if changes:
                     author = "%s <%s>" % (self.username, self.email)
                     result = run('git commit --author="%s" -am "%s"' % (author, message))
@@ -193,20 +206,57 @@ class Push(object):
             if result.failed:
                 raise Exception(str(result))
 
-    def get_pip_freeze(self):
+    def pretty_pip(self, freeze_text):
         with workon(self._webapp(), self.debug):
             # pip freeze's standard out is weird, so we do the following
             # * create temp file var $f
             # * pip pip freeze to $f
             # * cat $f
             # * delete $f, sending stdout to dev null, so it does not show up on output
-            freeze = run('f="/tmp/$RANDOM.txt" && pip freeze -l ./ > $f && cat $f && rm -rf $f > /dev/null 2>&1')
             hashes = "#################\n"
-            freeze = "%s%s%s%s" % (hashes, "pip freeze:\n", hashes, freeze)
+            freeze = "%s%s%s%s" % (hashes, "pip freeze:\n", hashes, freeze_text)
             return freeze
+
+    def write_manifest(self, manifest):
+        with open('doula.manifest', 'w') as f:
+            f.write(manifest)
+
+    def _manifest(self, freeze_text):
+        return {
+            'sha1_etc':self._etc_sha1(),
+            'doula_release_number':self._get_next_release(),
+            'site': self.site,
+            'service': self.service_name,
+            'pip_freeze': freeze_text,
+            'is_rollback': self._is_rollback(),
+            'date': int(time.time()),
+            'author': self.username
+        }
+
+    def _freeze_list():
+        freeze = self._freeze()
+        return Release.build_packages_from_pip_freeze(freeze)
+
+    def _is_rollback(self):
+        #timtodo: add this!
+        return false
+
+    def _get_next_release(self):
+        dal = ReleaseDAL()
+        return dal.next_release(self.site, self.service_name)
+
+    def _freeze(self):
+        return run('f="/tmp/$RANDOM.txt" && pip freeze -l ./ > $f && cat $f && rm -rf $f > /dev/null 2>&1')
+
 
     def _branch(self):
         return run('git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3')
+
+
+    def _etc_sha1(self):
+        with cd(self._etc()):
+            return run("git show -s --pretty=format:%T %s" % self._branch())
+
 
     def _webapp(self):
         return os.path.join(self.web_app_dir, self.service_name)
