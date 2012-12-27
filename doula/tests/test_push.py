@@ -3,8 +3,18 @@ import unittest
 import commands
 from mock import Mock
 from doula.models.push import Push
+from mock import patch
+from mockredis import MockRedis
+from doula.config import Config
 
 class PushTests2(unittest.TestCase):
+
+    def setUp(self):
+        settings = {
+            'doula.github.token': '17e6642dca429043725ad6a98ce966e5a67eac69'
+        }
+
+        Config.load_config(settings)
 
     def test_stuff(self):
         push = Push('createweb', 'localhost', 
@@ -12,13 +22,14 @@ class PushTests2(unittest.TestCase):
                     'http://yorick:9003',
                     '~/.ssh/id_rsa',
                     '',
+                    'mt1',
                     True)
 
         _, u = commands.getstatusoutput('whoami')
         push.fabric_user = Mock(return_value=u)
         push._chown = Mock()
         push.install_assets = Mock(return_value=(True, True))
-        push.packages(['requests'])
+        push.packages({'pip_freeze': {'requests': '0.13.0'}, 'is_rollback': False})
 
 if __name__ == '__main__':
     unittest.main()

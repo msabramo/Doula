@@ -1,14 +1,17 @@
 from contextlib import contextmanager
 from doula.models.user import User
 from doula.models.release_dal import ReleaseDAL
+from doula.models.release import Release
 from fabric.api import *
 from fabric.context_managers import cd
 from fabric.context_managers import hide
 from fabric.context_managers import prefix
 from fabric.context_managers import settings
 import os
-
+import time
+import json
 import logging
+import re
 
 
 @contextmanager
@@ -43,11 +46,13 @@ class Push(object):
             cheeseprism_url,
             keyfile,
             outdir,
+            site,
             debug=False):
 
         self.service_name = service_name
         self.username = username
         self.outdir = outdir
+        self.site = site
 
         if debug:
             self.email = 'tims@surveymonkey.com'
@@ -69,10 +74,10 @@ class Push(object):
     def fabric_user(self):
         return 'doula'
 
-    def packages(self, packages, action='install'):
+    def packages(self, manifest):
         env.user = self.fabric_user()
-        assert(action in ['install', 'uninstall'])
-        self.packages = packages
+        self.packages = ['%s==%s' % (x, y) for x, y in manifest['pip_freeze'].iteritems()]
+        self.is_rollback = manifest['is_rollback']
 
         failures = []
         successes = []
@@ -84,13 +89,11 @@ class Push(object):
         self._chown()
 
         with workon(self._webapp(), self.debug):
-            for package in packages:
-                if action == 'install':
-                    result = run('pip install -i %s %s' % (self.cheeseprism_url, package))
-                else:
-                    #the -y flag automatically says yes to confirmation prompts
-                    result = run('pip uninstall %s -y' % package)
+            if self.is_rollback:
+                self.rollback()
 
+            for package in self.packages:
+                result = run('pip install -i %s %s' % (self.cheeseprism_url, package))
                 if result.succeeded:
                     successes.append(package)
                 else:
@@ -105,13 +108,12 @@ class Push(object):
 
         if not failures:
             #set a nice commit message
-            message = "%s %sed %s package(s):\n%s\n\n" % \
-                    (self.username, action, len(packages), \
-                    "\n".join(["%sed: %s" % (action, x) for x in packages]))
+            message = "%s installed %s package(s):\n%s\n\n" % \
+                    (self.username, len(self.packages), \
+                    "\n".join(["installed: %s" % x for x in self.packages]))
 
             freeze_text = self._freeze()
             manifest = self._manifest(freeze_text)
-            import ipdb; ipdb.set_trace()
             self.write_manifest(manifest)
 
             message = message + self.pretty_pip(freeze_text)
@@ -148,6 +150,17 @@ class Push(object):
 
         self._chown()
         return result
+
+    def rollback(self, etc_sha1):
+        with workon(self._webapp(), self.debug):
+            run('pip freeze | xargs pip uninstall -y')
+
+        with workon(self._etc(), self.debug):
+            etc_remote = run("git remote -v | awk '{print $2}' | head -n 1")
+            run('rm /tmp/%s' % self.service_name)
+            run('git clone %s /tmp/%s' % (etc_remote, self.service_name))
+
+
 
     def install_assets(self):
         try:
@@ -196,7 +209,6 @@ class Push(object):
             result = run('git add -A .')
             if result.succeeded:
                 changes = run("git status --porcelain 2> /dev/null | sed -e 's/ M etc//g' | sed '/^$/d'")
-                import ipdb; ipdb.set_trace()
                 if changes:
                     author = "%s <%s>" % (self.username, self.email)
                     result = run('git commit --author="%s" -am "%s"' % (author, message))
@@ -218,8 +230,11 @@ class Push(object):
             return freeze
 
     def write_manifest(self, manifest):
-        with open('doula.manifest', 'w') as f:
-            f.write(manifest)
+        path = os.path.join(self.web_app_dir, self.service_name, 'doula.manifest')
+        with open(path, 'w') as f:
+            import ipdb; ipdb.set_trace()
+            f.write(json.dumps(manifest, sort_keys=True,
+                    indent=2, separators=(',', ': ')))
 
     def _manifest(self, freeze_text):
         return {
@@ -227,35 +242,41 @@ class Push(object):
             'doula_release_number':self._get_next_release(),
             'site': self.site,
             'service': self.service_name,
-            'pip_freeze': freeze_text,
-            'is_rollback': self._is_rollback(),
+            'pip_freeze': self._freeze_list(freeze_text),
+            'is_rollback': self.is_rollback,
             'date': int(time.time()),
             'author': self.username
         }
 
-    def _freeze_list():
-        freeze = self._freeze()
-        return Release.build_packages_from_pip_freeze(freeze)
+    def _freeze_list(self, freeze_text):
+        packages = {}
+        for line in freeze_text.splitlines():
+            line = line.strip()
 
-    def _is_rollback(self):
-        #timtodo: add this!
-        return false
+            m = re.match(r'(.+)==(.+)', line)
+
+            if m:
+                packages[m.group(1)] = m.group(2)
+
+        return packages
 
     def _get_next_release(self):
         dal = ReleaseDAL()
         return dal.next_release(self.site, self.service_name)
 
     def _freeze(self):
-        return run('f="/tmp/$RANDOM.txt" && pip freeze -l ./ > $f && cat $f && rm -rf $f > /dev/null 2>&1')
+        with workon(self._webapp(), self.debug):
+            return run('f="/tmp/$RANDOM.txt" && pip freeze -l ./ > $f && cat $f && rm -rf $f > /dev/null 2>&1')
 
 
     def _branch(self):
-        return run('git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3')
+        with workon(self._webapp(), self.debug):
+            return run('git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3')
 
 
     def _etc_sha1(self):
         with cd(self._etc()):
-            return run("git show -s --pretty=format:%T %s" % self._branch())
+            return run('git rev-parse --verify HEAD')
 
 
     def _webapp(self):

@@ -10,6 +10,8 @@ class MockRedis(object):
     without needing a real Redis server.
     """
 
+    env = 'dev'
+
     # The 'Redis' store
     redis = defaultdict(dict)
     # The pipeline

@@ -168,6 +168,7 @@ def release_service(config={}, job_dict={}, debug=False):
                     config['doula.cheeseprism_url'],
                     config['doula.keyfile_path'],
                     config['doula.assets.dir'],
+                    job_dict['site'],
                     debug
                 )
 
