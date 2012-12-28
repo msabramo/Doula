@@ -146,7 +146,9 @@ def release_service(config={}, job_dict={}, debug=False):
         dd = DoulaDAL()
         service = dd.find_service_by_name(job_dict['site'], job_dict['service'])
 
-        vals = (','.join(job_dict['packages']), service.name, service.site_name)
+        packages = ', '.join(["%s==%s" % (x, y) for x, y in job_dict['manifest']['pip_freeze'].iteritems()])
+        vals = (packages, service.name, service.site_name)
+
         log.info('Pushing the packages %s to %s on %s.' % vals)
 
         failures = []
