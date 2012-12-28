@@ -137,8 +137,8 @@ class DoulaDAL(object):
         node["site"] = dirify(node["site"])
         registered_site = self.get_registered_site(node['site'])
 
-        log.debug('Registering Site')
-        log.debug(json.dumps(registered_site))
+        # log.debug('Registering Site')
+        # log.debug(json.dumps(registered_site))
 
         if node['name'] in registered_site['nodes']:
             registered_site['nodes'][node['name']] = node

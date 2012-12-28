@@ -1,44 +1,20 @@
 from doula.models.package import Package
 from doula.models.release import Release
+from doula.models.service import Service
+from doula.views.services_view import build_release_manifest
 from doula.views.services_view import get_proper_version_name
-from doula.views.services_view import diff_between_last_release_and_release_previous_to_that
+from mock import Mock
+from pyramid import testing
 import unittest
 
 
 class PackageTests(unittest.TestCase):
     def setUp(self):
-        pass
+        self.request = testing.DummyRequest()
+        self.config = testing.setUp(request=self.request)
 
     def testDown(self):
         pass
-
-    def test_diff_between_last_release_and_release_previous_to_that(self):
-        p1 = Package('package name 1', '0.1')
-        p2 = Package('package name 2', '0.2')
-        p3 = Package('package name 3', '0.3')
-        p4 = Package('package name 3', '0.5')
-
-        d1 = '2012-11-13T18:24:21+00:00'
-        r1 = Release('author', d1, 'commit message', 'master', [p1, p2, p4])
-        r2 = Release('author', d1, 'commit message', 'master', [p1, p2, p3])
-        releases = [r1, r2]
-        diff = diff_between_last_release_and_release_previous_to_that(releases)
-
-        self.assertEqual(diff['package name 3'], '0.5')
-
-    def test_diff_between_last_release_and_release_previous_to_that_new(self):
-        p1 = Package('package name 1', '0.1')
-        p2 = Package('package name 2', '0.2')
-        p3 = Package('package name 3', '1.2.7b11-admintools-new')
-        p4 = Package('package name 3', '1.2.8b11-admintools-new')
-
-        d1 = '2012-11-13T18:24:21+00:00'
-        r1 = Release('author', d1, 'commit message', 'master', [p1, p2, p4])
-        r2 = Release('author', d1, 'commit message', 'master', [p1, p2, p3])
-        releases = [r1, r2]
-        diff = diff_between_last_release_and_release_previous_to_that(releases)
-
-        self.assertEqual(diff['package name 3'], '1.2.8b11-admintools_new')
 
     def test_get_proper_package_name(self):
         name = '1.2.7b11-admintools-new'
@@ -46,6 +22,31 @@ class PackageTests(unittest.TestCase):
         result = get_proper_version_name(name)
 
         self.assertEqual(result, expected)
+
+    def test_build_release_manifest(self):
+        service = Service(**{
+            "site_name": "mt3",
+            "name": "anweb",
+            "packages": {},
+            "tags": []
+            })
+
+        packages = {
+            "anweb": "1.0.2",
+            "smlib.web": "2.4"
+        }
+
+        expected = {
+            "is_rollback": False,
+            "service": service.name,
+            "site": "mt3"
+        }
+
+        self.request.user = {'username': 'quez'}
+        manifest = build_release_manifest(self.request, service, packages)
+
+        self.assertEqual(manifest["is_rollback"], False)
+
 
 
 if __name__ == '__main__':

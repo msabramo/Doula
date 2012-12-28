@@ -19,14 +19,34 @@ var ServiceEnv = {
     },
 
     bindToUIActions: function() {
+        this.initToolTips();
+        this.showElementsHiddenOnLoad();
+
+        this.addVersionMessageBelowPackageSelects();
+        this.bindToReleasesAndPackages();
+        // Dropdown for add python package
+        this.bindToAddPythonPackageSelects();
+
+        // Queue stuff
+        QueueView.subscribe(
+            'queue-item-changed',
+            $.proxy(this.queueServiceJobChanged, this));
+
+        // Handle the mini
+        this.bindToMiniDashboardActions();
+    },
+
+    initToolTips: function() {
         $('a[rel="tooltip"]').tooltip({
             "delay": {
                 "show": 500,
                 "hide": 100
             }
         });
+    },
 
-        // Hide elements marked as hide on load, makes page load smoother
+    // Hide elements marked as hide on load, makes page load smoother
+    showElementsHiddenOnLoad: function() {
         $(".hide-on-load").each(function(index, el) {
             $(el).show();
         });
@@ -38,29 +58,21 @@ var ServiceEnv = {
         $('.commit-accordion').on('hide', function () {
             $(this).parent().removeClass('shown').addClass('hidden');
         });
+    },
 
-        // Dropdown packages
-        this.addVersionMessageBelowPackageSelects();
-
-        $('a.release').on('click', $.proxy(this.selectReleasePackages, this));
+    bindToReleasesAndPackages: function() {
+        $('a.release')._on('click', this.selectReleasePackages, this);
 
         $('select.package-select').
             on('change', $.proxy(this.updatePackageDropdownOnChange, this));
+    },
 
-        // Dropdown for add python package
+    bindToAddPythonPackageSelects: function() {
         $('#pckg_select_add_new_package').on('change',
             $.proxy(this.updateAddNewPackageVersions, this));
 
         $('#pckg_select_add_new_package, #pckg_select_add_new_package_version').on('change',
             $.proxy(this.updateAddNewPackageVersionsMessage, this));
-
-        // Queue stuff
-        QueueView.subscribe(
-            'queue-item-changed',
-            $.proxy(this.queueServiceJobChanged, this));
-
-        // Handle the mini
-        this.bindToMiniDashboardActions();
     },
 
     /*********************
@@ -109,9 +121,12 @@ var ServiceEnv = {
     },
 
     // After any job action open up the recent jobs view
-    showRecentJobsDetailView: function() {
+    // viewType can be either (jobs|config|releases). Default is jobs.
+    showDashboardDetailView: function(viewType) {
+        viewType = viewType || 'jobs';
+
         this.miniDashboardDetailElements.addClass('hide');
-        $('#mini-dashboard-detail-jobs').removeClass('hide');
+        $('#mini-dashboard-detail-' + viewType).removeClass('hide');
 
         this.miniDashboardDetails.slideDown('fast');
     },
@@ -152,22 +167,52 @@ var ServiceEnv = {
         });
     },
 
-    selectReleasePackages: function(event) {
-        var target = $(event.target);
-        this.makeReleaseLinkActive(target);
+    /**
+    * Select the release from the drop down. Update the drop downs and
+    * show the release diff in the dashboard
+    *
+    */
+    selectReleasePackages: function(event, dropdownLink) {
+        console.log('hello there');
+        console.log(event.target);
 
-        var releaseDate = target.attr('data-date');
+        this.showDiffForRelease(dropdownLink);
+        this.selectReleasePackageFromDropdown(dropdownLink);
+    },
+
+    showDiffForRelease: function(dropdownLink) {
+        var params = {date: dropdownLink.data('date')};
+        var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/diff';
+        var msg = 'Pulling release diff. Please be patient and stay awesome.';
+
+        this.post(url, params, this.doneShowDiffForRelease, null, msg);
+    },
+
+    doneShowDiffForRelease: function(rslt) {
+        console.log('hello there rslt');
+        console.log(rslt);
+
+        this.doneUpdateMiniDashboard(rslt);
+        this.showDashboardDetailView('releases');
+    },
+
+    selectReleasePackageFromDropdown: function(dropdownLink) {
+        this.makeReleaseLinkActive(dropdownLink);
+
+        var releaseDate = dropdownLink.attr('data-date');
         var release = this.findReleaseByDate(releaseDate);
 
-        for(i=0; i < release.packages.length; i++) {
-            var pckg = release.packages[i];
-            this.updatePackageDropdown(pckg.comparable_name, pckg.version);
+        if (release) {
+            // Roll through this services dropdowns and select the changed
+            // package version numbers
+            for(i=0; i < release.packages.length; i++) {
+                var pckg = release.packages[i];
+                this.updatePackageDropdown(pckg.comparable_name, pckg.version);
+            }
         }
 
         // Close the button dropdown menu
-        target.closest('div.btn-group').removeClass('open');
-
-        return false;
+        dropdownLink.closest('div.btn-group').removeClass('open');
     },
 
     findReleaseByDate: function(releaseDate) {
@@ -246,7 +291,7 @@ var ServiceEnv = {
 
         if (packageName && version) {
             var name = this.other_packages[packageName].name;
-            var msg = 'Adding package <strong>' + name + '</strong> ';
+            msg = 'Adding package <strong>' + name + '</strong> ';
             msg += 'version <strong>' + version + '</strong>.';
         }
 
@@ -258,8 +303,8 @@ var ServiceEnv = {
     ********************/
 
     bindToDataActions: function() {
-        $('#cycle').on('click', $.proxy(this.cycle, this));
-        $('#release-service').on('click', $.proxy(this.releaseService, this));
+        $('#cycle')._on('click', this.cycle, this);
+        $('#release-service')._on('click', this.releaseService, this);
     },
 
     /****************
@@ -276,10 +321,6 @@ var ServiceEnv = {
         var msg = 'Releasing '+Data.name+' to '+Data.site_name+
                 '. Please be patient and stay awesome.';
         this.post(url, params, this.doneReleaseService, this.failedReleaseService, msg);
-
-        event.preventDefault();
-
-        return false;
     },
 
     getActiveReleasePackages: function() {
@@ -311,7 +352,7 @@ var ServiceEnv = {
     },
 
     doneReleaseService: function(rslt) {
-        this.showRecentJobsDetailView();
+        this.showDashboardDetailView();
         this.enableReleaseServiceButton();
     },
 
@@ -330,9 +371,9 @@ var ServiceEnv = {
 
     // Update the current service and drop downs
     updateServicePackagesAfterRelease: function(job) {
-        for (var comparable_name in job.comparable_packages) {
+        for (var comparable_name in job.manifest.comparable_packages) {
             var select = $('#pckg_select_' + comparable_name);
-            var version = job.comparable_packages[comparable_name];
+            var version = job.manifest.comparable_packages[comparable_name];
 
             // Set the drop down's new default value. reset message
             // by calling the change event
@@ -348,22 +389,18 @@ var ServiceEnv = {
     CYCLE SERVICE
     *****************/
 
-    cycle: function(event) {
-        if (!$(event.target).hasClass('disabled')) {
+    cycle: function(event, button) {
+        if (!button.hasClass('disabled')) {
             this.disableCycleButton();
 
             var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/cycle';
             var msg = 'Cycling ' + Data.name + '. Please be patient and stay awesome.';
             this.get(url, {}, this.doneCycleService, false, msg);
         }
-
-        event.preventDefault();
-
-        return false;
     },
 
     doneCycleService: function(rslt) {
-        this.showRecentJobsDetailView();
+        this.showDashboardDetailView();
     },
 
     disableCycleButton: function() {

@@ -1,17 +1,17 @@
-<div id="mini-dashboard-detail-releases" class="hide mini-dashboard-detail {% if last_release.production %}mini-dashboard-detail-prod{% endif %}">
-  {% if last_release %}
+<div id="mini-dashboard-detail-releases" class="hide mini-dashboard-detail {% if active_release.production %}mini-dashboard-detail-prod{% endif %}">
+  {% if active_release %}
 
   <p style="font-size: 115%; margin-top: 15px;">
-    {% if last_release.release_number > 0 %}
-      Release <strong>#{{last_release.release_number}}</strong> sent to <strong>{{ service.name }}</strong> on <strong>{{ site.name }}</strong> {{last_release.date|relative_datetime}}.
+    {% if active_release.release_number > 0 %}
+      Release <strong>#{{active_release.release_number}}</strong> sent to <strong>{{ service.name }}</strong> on <strong>{{ site.name }}</strong> {{active_release.date|relative_datetime}}.
     {% else %}
-      Release sent to <strong>{{ service.name }}</strong> on <strong>{{ site.name }}</strong> {{last_release.date|relative_datetime}}.
+      Release sent to <strong>{{ service.name }}</strong> on <strong>{{ site.name }}</strong> {{active_release.date|relative_datetime}}.
     {% endif %}
   </p>
-  {% if last_release.release_number > 0 %}
+  {% if active_release.release_number > 0 %}
   <p style="font-size: 115%;">
     <i class="icon-star"></i>
-    Sent to production {{last_release.date|relative_datetime}}.
+    Sent to production {{active_release.date|relative_datetime}}.
   </p>
   {% endif %}
 
@@ -75,22 +75,28 @@
         Need the config commit date. the commit sha1.
         -->
         <td rowspan="2">&nbsp;</td>
-        <td rowspan="2"><a target="_blank" href="http://code.corp.surveymonkey.com/config/anweb/commit/{{service.config['commit']}}">
-          {{service.config['commit']|truncate(7, true, "")}}
-        </a></td>
+        <td rowspan="2">
+          <a target="_blank" href="http://code.corp.surveymonkey.com/config/{{service.name_url}}/commit/{{service.config['commit']}}">
+          {{service.config['date']|formatted_github_day}}
+          </a>
+        </td>
         <td rowspan="2">
           <!-- alextodo. will need the config dir's name -->
-          {% if last_release.sha1_etc %}
-            <a target="_blank" href="http://code.corp.surveymonkey.com/config/{{service.comparable_name}}/commit/{{last_release.sha1_etc}}">
-            {{last_release.sha1_etc}}
+          {% if active_release.sha1_etc %}
+            <a target="_blank" href="http://code.corp.surveymonkey.com/config/{{service.name_url}}/commit/{{active_release.sha1_etc}}">
+            {{active_release.sha1_etc}}
             </a>
           {% endif %}
         </td>
         <td>
-          {% if last_release.sha1_etc %}
+          {% if active_release.sha1_etc %}
             <!-- alextodo. will need the config dir's name -->
-            <a href="http://code.corp.surveymonkey.com/config/{{service.comparable_name}}/compare/{{service.config['commit']|truncate(7, true, "")}}...{{last_release.sha1_etc}}">
-              {{service.config['commit']|truncate(7, true, "")}}...{{last_release.sha1_etc}}
+            <a target="_blank" href="http://code.corp.surveymonkey.com/config/{{service.name_url}}/compare/{{service.config['commit']|truncate(7, true, "")}}...{{active_release.sha1_etc}}">
+              {{service.config['commit']|truncate(7, true, "")}}...{{active_release.sha1_etc}}
+            </a>
+          {% else %}
+            <a target="_blank" href="http://code.corp.surveymonkey.com/config/{{service.name_url}}/commit/{{service.config['commit']}}">
+              {{service.config['commit']|truncate(7, true, "")}}
             </a>
           {% endif %}
         </td>

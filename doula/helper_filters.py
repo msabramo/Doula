@@ -4,6 +4,18 @@ from doula.util import remove_timezone
 import math
 
 
+def formatted_github_day(date):
+    """
+    Returns a friendly date in the format: July 10, 2012
+    date - a github formatted date as a string (ex. "2012-05-08 14:15:31")
+    """
+    datetime_only = remove_timezone(date)
+    datetime_only = datetime_only.replace(' ', 'T', 1).strip()
+
+    dt = datetime.strptime(datetime_only, "%Y-%m-%dT%X")
+    return dt.strftime("%B %d, %Y")
+
+
 def formatted_day(date):
     """
     Returns a friendly date in the format: July 10, 2012

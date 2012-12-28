@@ -33,16 +33,21 @@
         </a>
         <ul id="release-dropdown" class="dropdown-menu">
             <!-- example of prod release -->
-
             {% if service.get_releases()|length > 0 %}
               {% for release in service.get_releases() %}
                 <li class="release {% if loop.index == 1 %}active{% endif %}">
                   <a class="release" data-date="{{release.date}}" href="#">
-                    <span class="release-num">#{{loop.revindex}}</span>
-                    <span class="release-date">{{release.date|relative_datetime}}</span>
+                    <span class="release-num" data-date="{{release.date}}">
+                      {% if release.release_number %}
+                        #{{loop.revindex}}
+                      {% else %}
+                        —
+                      {% endif %}
+                    </span>
+                    <span class="release-date" data-date="{{release.date}}">{{release.date|relative_datetime}}</span>
 
-                    {% if loop.index is odd %}
-                      <span class="release-prod"><i class="icon-star"></i></span>
+                    {% if release.production %}
+                      <span class="release-prod" data-date="{{release.date}}"><i class="icon-star"></i></span>
                     {% endif %}
                   </a>
                 </li>

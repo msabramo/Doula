@@ -111,7 +111,7 @@ var Packages = {
         $('#build-new-package-modal').modal('hide');
 
         // If the ServiceEnv exist then show this
-        if (ServiceEnv) ServiceEnv.showRecentJobsDetailView();
+        if (ServiceEnv) ServiceEnv.showDashboardDetailView();
     },
 
     failedBuildNewPackage: function(rslt) {
@@ -128,7 +128,7 @@ var Packages = {
                 this.updatePackagesDropdown(job);
 
                 // If the ServiceEnv exist then show this
-                if (ServiceEnv) ServiceEnv.showRecentJobsDetailView();
+                if (ServiceEnv) ServiceEnv.showDashboardDetailView();
             }
         }
     },

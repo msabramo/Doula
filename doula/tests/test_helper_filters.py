@@ -73,6 +73,21 @@ class HelperTests(unittest.TestCase):
 
         self.assertEqual("October 02, 2012", result)
 
+    def test_formatted_github_day(self):
+        date = "2012-02-15 10:12:01"
+        result = formatted_github_day(date)
+
+        self.assertEqual("February 15, 2012", result)
+
+        date = "2012-10-02 10:12:01 +02:00"
+        result = formatted_github_day(date)
+
+        self.assertEqual("October 02, 2012", result)
+
+        date = '2012-05-08 14:15:31 -0700'
+        result = formatted_github_day(date)
+        self.assertEqual("May 08, 2012", result)
+
 
 if __name__ == '__main__':
     unittest.main()
