@@ -27,9 +27,9 @@ def debuggable(debug=False):
 def workon(path, debug):
     with cd(path):
         if 'etc' in path:
-            source = '. ../bin/activate'
+            source = 'source %s/../bin/activate' % path
         else:
-            source = '. bin/activate'
+            source = 'source %s/bin/activate' % path
         with prefix(source):
             with debuggable(debug):
                 with settings(warn_only=True):
@@ -77,7 +77,7 @@ class Push(object):
     def packages(self, manifest):
         env.user = self.fabric_user()
         self.packages = ['%s==%s' % (x, y) for x, y in manifest['pip_freeze'].iteritems()]
-        self.is_rollback = manifest['is_rollback']
+        self.manifest = manifest
 
         failures = []
         successes = []
@@ -89,8 +89,8 @@ class Push(object):
         self._chown()
 
         with workon(self._webapp(), self.debug):
-            if self.is_rollback:
-                self.rollback()
+            if self.manifest['is_rollback']:
+                self.rollback(self._etc_sha1())
 
             for package in self.packages:
                 result = run('pip install -i %s %s' % (self.cheeseprism_url, package))
@@ -143,7 +143,6 @@ class Push(object):
             if result.succeeded:
                 result = run('git reset --hard HEAD')
                 if result.succeeded:
-
                     result = run('git pull origin %s' % self._branch())
                 else:
                     raise Exception(str(result).replace('\n', ', '))
@@ -157,10 +156,17 @@ class Push(object):
 
         with workon(self._etc(), self.debug):
             etc_remote = run("git remote -v | awk '{print $2}' | head -n 1")
-            run('rm /tmp/%s' % self.service_name)
+            run('rm -rf /tmp/%s' % self.service_name)
             run('git clone %s /tmp/%s' % (etc_remote, self.service_name))
 
+            with cd('/tmp/%s' % self.service_name):
+                result = run('git checkout %s' % self.manifest['etc_sha1'])
+                if result.succeeded:
+                    result = run('find /tmp/%s/* -maxdepth 1 -type f -exec cp {} /opt/webapp/%s/etc \;' % (self.service_name, self.service_name))
+                    if result.succeeded:
+                        return
 
+            raise Exception("Rollback Failed: %s" % result)
 
     def install_assets(self):
         try:
@@ -232,7 +238,6 @@ class Push(object):
     def write_manifest(self, manifest):
         path = os.path.join(self.web_app_dir, self.service_name, 'doula.manifest')
         with open(path, 'w') as f:
-            import ipdb; ipdb.set_trace()
             f.write(json.dumps(manifest, sort_keys=True,
                     indent=2, separators=(',', ': ')))
 
@@ -243,7 +248,7 @@ class Push(object):
             'site': self.site,
             'service': self.service_name,
             'pip_freeze': self._freeze_list(freeze_text),
-            'is_rollback': self.is_rollback,
+            'is_rollback': self.manifest['is_rollback'],
             'date': int(time.time()),
             'author': self.username
         }

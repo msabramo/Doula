@@ -6,12 +6,13 @@ from doula.models.push import Push
 from mock import patch
 from mockredis import MockRedis
 from doula.config import Config
+import ipdb
 
 class PushTests2(unittest.TestCase):
 
     def setUp(self):
         settings = {
-            'doula.github.token': '17e6642dca429043725ad6a98ce966e5a67eac69'
+            'doula.github.token': '3cf79e0b2e1abe84a519227640fd6251164df61b'
         }
 
         Config.load_config(settings)
@@ -29,38 +30,7 @@ class PushTests2(unittest.TestCase):
         push.fabric_user = Mock(return_value=u)
         push._chown = Mock()
         push.install_assets = Mock(return_value=(True, True))
-        push.packages({'pip_freeze': {'requests': '0.13.0'}, 'is_rollback': False})
+        push.packages({'pip_freeze': {'requests': '0.13.0'}, 'is_rollback': True, 'etc_sha1': '93f481d56d3e3e7c939bc172507106d76ed546f1'})
 
 if __name__ == '__main__':
     unittest.main()
-
-
-#class PushTests():
-
-    #def get_config(self):
-        #key = os.path.expanduser('~/.ssh/id_rsa')
-        #return {
-            #'bambino.webapp_dir': '/opt/webapp',
-            #'doula.cheeseprism_url': 'http://yorick:9003',
-            #'doula.assets.dir': '/opt/smassets',
-            #'doula.keyfile_path': key
-        #}
-
-    #def test_push(self):
-        #config = self.get_config()
-        #job_dict = {
-            #'id': 111,
-            #'user_id': 'tbone',
-            #'service': 'createweb',
-            #'site': 'localhost',
-            #'packages': ['requests']
-        #}
-
-
-        #_, user = commands.getstatusoutput('whoami')
-        #jobs.fabric_user = Mock(side_effect=lambda *args, **kwargs: user)
-
-        #successes, failures = jobs.release_service(config, job_dict, True)
-        #print successes, failures
-
-
