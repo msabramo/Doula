@@ -173,7 +173,7 @@ def release_service(config={}, job_dict={}, debug=False):
                     debug
                 )
 
-            successes, failures = push.packages(job_dict['packages'])
+            successes, failures = push.packages(job_dict['manifest'])
         except Exception as e:
             print 'EXCEPTION IN JOB:'
             # getting this message. sequence item 0: exp
