@@ -144,7 +144,6 @@ def release_service(config={}, job_dict={}, debug=False):
 
     try:
         dd = DoulaDAL()
-        job_dict["manifest"]
         service = dd.find_service_by_name(job_dict['site'], job_dict['service'])
 
         vals = (','.join(job_dict['packages']), service.name, service.site_name)
