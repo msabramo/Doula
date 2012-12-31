@@ -124,12 +124,12 @@ class Release(object):
                 "Anweb": {
                     "package_name": "Anweb",
                     "release_version": 1.1,
-                    "current_version": 1.2
+                    "service_version": 1.2
                 },
                 "create": {
                     "package_name": "create",
                     "release_version": 1.1.1,
-                    "current_version": 1.1.2
+                    "service_version": 1.1.2
                 }
             },
             "packages_to_add": {
@@ -198,17 +198,32 @@ class Release(object):
 
     def _find_same_packages_with_diff_versions(self, service, release_packages):
         """
+            The service represents the current state of the service on the test
+            environment.
+
             Returns:
             {
                 "Anweb": {
-                    "package": Package(),
+                    "package": "package": {
+                        "github_info": "False",
+                        "version": "1.2",
+                        "remote": "",
+                        "name": "smpackage",
+                        "comparable_name": "smpackage"
+                    },
                     "release_version": 1.1,
-                    "current_version": 1.2
+                    "service_version": 1.2
                 },
                 "create": {
-                    "package": Package(),
+                    "package": "package": {
+                        "github_info": "False",
+                        "version": "1.1.2",
+                        "remote": "",
+                        "name": "smpackage",
+                        "comparable_name": "smpackage"
+                    },
                     "release_version": 1.1.1,
-                    "current_version": 1.1.2
+                    "service_version": 1.1.2
                 }
             }
         """
@@ -223,7 +238,7 @@ class Release(object):
                     changed_packages[service_package.comparable_name] = {
                         "package": service_package,
                         "release_version": release_package.version,
-                        "current_version": service_package.version
+                        "service_version": service_package.version
                     }
 
         return changed_packages

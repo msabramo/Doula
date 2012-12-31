@@ -85,10 +85,7 @@ def pull_doula_admins():
     Doula admins have the ability to lockdown an entire site. This means
     no one else can release to this site unless they are an admin
     """
-    domain = Config.get('doula.github.api.domain')
-    org = Config.get('doula.github.doula.admins.org')
-    token = Config.get('doula.github.token')
-    url = "%s/orgs/%s/members?access_token=%s" % (domain, org, token)
+    url = build_url_to_api("%(domain)s/orgs/%(admins)s/members?access_token=%(token)s")
 
     members = json.loads(pull_url(url))
 
@@ -125,9 +122,8 @@ def pull_tags(git_repo):
     """
     Pull the tags from git and they're corresponding sha's
     """
-    domain = Config.get('doula.github.api.domain')
-    vals = (domain, Config.get('doula.github.packages.org'), git_repo['name'])
-    url = "%s/repos/%s/%s/tags" % vals
+    url = "%(domain)s/repos/%(packages)s/%(repo)s/tags"
+    url = build_url_to_api(url, {"repo": git_repo["name"]})
 
     git_tags = json.loads(pull_url(url))
     tags = []
@@ -145,9 +141,9 @@ def pull_branches(git_repo):
     """
     Pull the branches from the github repo
     """
-    domain = Config.get('doula.github.api.domain')
-    url = "%s/repos/%s/%s/branches" % \
-        (domain, Config.get('doula.github.packages.org'), git_repo['name'])
+    url = "%(domain)s/repos/%(packages)s/%(repo)s/branches"
+    url = build_url_to_api(url, {"repo": git_repo['name']})
+
     github_branches = json.loads(pull_url(url))
     branches = []
 
@@ -155,8 +151,8 @@ def pull_branches(git_repo):
         branch = {"name": b["name"], "sha": b["commit"]["sha"]}
 
         # Pull the last 50 sha's for each branch
-        url = "%s/repos/%s/%s/commits?per_page=50&sha=%s" % \
-            (domain, Config.get('doula.github.packages.org'), git_repo['name'], branch["sha"])
+        url = "%(domain)s/repos/%(packages)s/%(repo)s/commits?per_page=50&sha=%(sha)s"
+        url = build_url_to_api(url, {"repo": git_repo["name"], "sha": branch["sha"]})
 
         commits_for_branch = json.loads(pull_url(url))
         shas = []
@@ -188,7 +184,7 @@ def find_branches_commit_belongs_to(commit, branches):
     """
     Find which branches this commit belongs to.
     The each branch in the branches list contains a list of
-    the last 50 sha1's.
+    the last 50 sha's.
     """
     commit_branches = []
 
@@ -227,9 +223,8 @@ def pull_commits(git_repo, tags, branches):
         "package_version": "0.2.3"
     }
     """
-    domain = Config.get('doula.github.api.domain')
-    vals = (domain, Config.get('doula.github.packages.org'), git_repo['name'])
-    url = "%s/repos/%s/%s/commits" % vals
+    params = {"repo": git_repo['name']}
+    url = build_url_to_api("%(domain)s/repos/%(packages)s/%(repo)s/commits", params)
 
     commits = []
     git_commits = []
@@ -318,15 +313,11 @@ def pull_devmonkeys_repos():
     """
     repos = {}
     # todo: pass in the previous git commit. and only pull from there
-    # pass in the param sha=[sha1]
+    # pass in the param sha=[sha]
     # see http://developer.github.com/v3/repos/commits/
     start = time.time()
 
-    domain = Config.get('doula.github.api.domain')
-    org = Config.get('doula.github.packages.org')
-    token = Config.get('doula.github.token')
-    url = "%s/orgs/%s/repos?access_token=%s" % (domain, org, token)
-
+    url = build_url_to_api("%(domain)s/orgs/%(packages)s/repos?access_token=%(token)s")
     repos_as_json = pull_url(url)
     git_repos = json.loads(repos_as_json)
 
@@ -380,9 +371,9 @@ def pull_appenv_branches(git_repo):
                 ]
         }
     """
-    domain = Config.get('doula.github.api.domain')
-    vals = (domain, Config.get('doula.github.appenvs.org'), git_repo['name'])
-    url = "%s/repos/%s/%s/branches" % vals
+    url = "%(domain)s/repos/%(appenvs)s/%(repo)s/branches"
+    url = build_url_to_api(url, {"repo": git_repo['name']})
+
     github_branches = json.loads(pull_url(url))
     branches = {}
 
@@ -392,11 +383,9 @@ def pull_appenv_branches(git_repo):
         }
 
         # Pull the last 20 sha's for each branch
-        url = "%s/repos/%s/%s/commits?per_page=20&sha=%s" % \
-            (domain,
-             Config.get('doula.github.appenvs.org'),
-             git_repo['name'],
-             github_branch["commit"]["sha"])
+        url = "%(domain)s/repos/%(appenvs)s/%(repo)s/commits?per_page=20&sha=%(sha)s"
+        params = {"repo": git_repo['name'], "sha": github_branch["commit"]["sha"]}
+        url = build_url_to_api(url, params)
 
         commits_for_branch = json.loads(pull_url(url))
 
@@ -412,6 +401,14 @@ def pull_appenv_branches(git_repo):
             branches[github_branch["name"]]["commits"].append(commit)
 
     return branches
+
+###################################
+# Pull App Env
+# TODO: pull the application env.
+# pull doula.manifest
+# pull from the latest date
+# pull the config file commits too.
+###################################
 
 
 def pull_appenv_repos():
@@ -434,11 +431,7 @@ def pull_appenv_repos():
     ]
     """
     repos = {}
-
-    domain = Config.get('doula.github.api.domain')
-    org = Config.get('doula.github.appenvs.org')
-    token = Config.get('doula.github.token')
-    url = "%s/orgs/%s/repos?access_token=%s" % (domain, org, token)
+    url = build_url_to_api("%(domain)s/orgs/%(appenvs)s/repos?access_token=%(token)s")
 
     git_repos = json.loads(pull_url(url))
 
@@ -449,3 +442,75 @@ def pull_appenv_repos():
         }
 
     return repos
+
+
+###################################
+# Pull Config for Service
+###################################
+
+def pull_services_for_config_names():
+    """
+    Pull the configs repos from GitHub
+    """
+    url = build_url_to_api("%(domain)s/orgs/%(config)s/repos?access_token=%(token)s")
+    git_repos = json.loads(pull_url(url))
+    names = []
+
+    for repo in git_repos:
+        names.append(repo["name"])
+
+    return names
+
+def pull_service_configs(name, date=''):
+    """
+    Pull all the latest commits for this service since this specific date.
+
+    Returns the GitHub API response as a dict object, paired down
+    See http://developer.github.com/v3/repos/commits/ for example output
+    """
+    # alextodo. you also have to pull the branches. each service needs a branch too.
+    # fuck me
+    url = "%(domain)s/repos/%(config)s/%(name)s/commits?per_page=10&since=%(since)s"
+    params = {"name": name, "since": date}
+    url = build_url_to_api(url, params)
+
+    git_service_configs = []
+
+    try:
+        config_as_json = pull_url(url)
+        git_service_configs = json.loads(config_as_json)
+    except:
+        # Not all services have commits yet. Ignore those.
+        pass
+
+    service_configs = []
+
+    print 'length of the commits: ' + str(len(service_configs))
+
+    for git_service_config in git_service_configs:
+        service_configs.append({
+            "name": name,
+            "date": git_service_config["commit"]["committer"]["date"],
+            "sha" : git_service_config["sha"],
+            "author": git_service_config["commit"]["author"]["email"],
+            "message": git_service_config["commit"]["message"]
+        })
+
+    return service_configs
+
+
+def build_url_to_api(url, params={}):
+    """
+    String formats a URL to the GitHub API. Always adds the
+    domain and token to the URL.
+
+    params is a dict.
+    """
+    params["domain"]   = Config.get('doula.github.api.domain')
+    params["token"]    = Config.get('doula.github.token')
+    params["appenvs"]  = Config.get('doula.github.appenvs.org')
+    params["config"]   = Config.get('doula.github.config.org')
+    params["packages"] = Config.get('doula.github.packages.org')
+    params["admins"]   = Config.get('doula.github.doula.admins.org')
+
+    return url % params

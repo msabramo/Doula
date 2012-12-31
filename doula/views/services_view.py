@@ -159,13 +159,14 @@ def service_diff(request):
     # print request.POST['date']
     # print "\n\n"
     last_release = get_last_release(releases)
+    # Find the release that the user chose from the dropdown by date
     active_release = find_release_by_date(releases, request.POST['date'])
 
     print 'ACTIVE RELEASE'
     print active_release
-    pdb.set_trace()
+    # pdb.set_trace()
 
-    diff = last_release.diff_service_and_release(service)
+    diff = active_release.diff_service_and_release(service)
     last_job = get_last_job(site, service)
 
     temp_data = {

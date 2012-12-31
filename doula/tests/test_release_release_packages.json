@@ -1,0 +1,443 @@
+{
+    "zopecomponent": {
+        "github_info": false,
+        "version": "3.10.0",
+        "remote": "",
+        "name": "zope.component",
+        "comparable_name": "zopecomponent"
+    },
+    "markdown": {
+        "github_info": false,
+        "version": "2.1.1",
+        "remote": "",
+        "name": "Markdown",
+        "comparable_name": "markdown"
+    },
+    "billweb": {
+        "github_info": false,
+        "version": "0.2.13.01",
+        "remote": "",
+        "name": "billweb",
+        "comparable_name": "billweb"
+    },
+    "repozelru": {
+        "github_info": false,
+        "version": "0.4",
+        "remote": "",
+        "name": "repoze.lru",
+        "comparable_name": "repozelru"
+    },
+    "weberror": {
+        "github_info": false,
+        "version": "0.10.3",
+        "remote": "",
+        "name": "WebError",
+        "comparable_name": "weberror"
+    },
+    "dummycode": {
+        "github_info": false,
+        "version": "2.8.8-test",
+        "remote": "",
+        "name": "dummycode",
+        "comparable_name": "dummycode"
+    },
+    "distribute": {
+        "github_info": false,
+        "version": "0.6.27",
+        "remote": "",
+        "name": "distribute",
+        "comparable_name": "distribute"
+    },
+    "pyramid": {
+        "github_info": false,
+        "version": "1.2.7",
+        "remote": "",
+        "name": "pyramid",
+        "comparable_name": "pyramid"
+    },
+    "zopeevent": {
+        "github_info": false,
+        "version": "3.5.0-1",
+        "remote": "",
+        "name": "zope.event",
+        "comparable_name": "zopeevent"
+    },
+    "smlibauth": {
+        "github_info": false,
+        "version": "1.2",
+        "remote": "",
+        "name": "smlib.auth",
+        "comparable_name": "smlibauth"
+    },
+    "zopedeprecation": {
+        "github_info": false,
+        "version": "3.5.0",
+        "remote": "",
+        "name": "zope.deprecation",
+        "comparable_name": "zopedeprecation"
+    },
+    "pygments": {
+        "github_info": false,
+        "version": "1.3.1",
+        "remote": "",
+        "name": "Pygments",
+        "comparable_name": "pygments"
+    },
+    "zopeinterface": {
+        "github_info": false,
+        "version": "3.8.0",
+        "remote": "",
+        "name": "zope.interface",
+        "comparable_name": "zopeinterface"
+    },
+    "tldextract": {
+        "github_info": false,
+        "version": "0.3.1",
+        "remote": "",
+        "name": "tldextract",
+        "comparable_name": "tldextract"
+    },
+    "ordereddict": {
+        "github_info": false,
+        "version": "1.1",
+        "remote": "",
+        "name": "ordereddict",
+        "comparable_name": "ordereddict"
+    },
+    "smtemplates": {
+        "github_info": false,
+        "version": "0.30.127",
+        "remote": "",
+        "name": "smtemplates",
+        "comparable_name": "smtemplates"
+    },
+    "pyramidjinja2": {
+        "github_info": false,
+        "version": "1.3",
+        "remote": "",
+        "name": "pyramid-jinja2",
+        "comparable_name": "pyramidjinja2"
+    },
+    "mako": {
+        "github_info": false,
+        "version": "0.6.0",
+        "remote": "",
+        "name": "Mako",
+        "comparable_name": "mako"
+    },
+    "geventutil": {
+        "github_info": false,
+        "version": "0.1.1",
+        "remote": "",
+        "name": "GeventUtil",
+        "comparable_name": "geventutil"
+    },
+    "smpackage": {
+        "github_info": false,
+        "version": "0.1.9",
+        "remote": "",
+        "name": "smpackage",
+        "comparable_name": "smpackage"
+    },
+    "formencode": {
+        "github_info": false,
+        "version": "1.2.4",
+        "remote": "",
+        "name": "FormEncode",
+        "comparable_name": "formencode"
+    },
+    "venusian": {
+        "github_info": false,
+        "version": "1.0a2",
+        "remote": "",
+        "name": "venusian",
+        "comparable_name": "venusian"
+    },
+    "pycountry": {
+        "github_info": false,
+        "version": "0.14.1",
+        "remote": "",
+        "name": "pycountry",
+        "comparable_name": "pycountry"
+    },
+    "paver": {
+        "github_info": false,
+        "version": "1.0.5",
+        "remote": "",
+        "name": "Paver",
+        "comparable_name": "paver"
+    },
+    "pastedeploy": {
+        "github_info": false,
+        "version": "1.5.0",
+        "remote": "",
+        "name": "PasteDeploy",
+        "comparable_name": "pastedeploy"
+    },
+    "redis": {
+        "github_info": false,
+        "version": "2.6.2",
+        "remote": "",
+        "name": "redis",
+        "comparable_name": "redis"
+    },
+    "tempita": {
+        "github_info": false,
+        "version": "0.5dev",
+        "remote": "",
+        "name": "Tempita",
+        "comparable_name": "tempita"
+    },
+    "smlibtesting": {
+        "github_info": false,
+        "version": "0.1",
+        "remote": "",
+        "name": "smlib.testing",
+        "comparable_name": "smlibtesting"
+    },
+    "smlibbilling": {
+        "github_info": false,
+        "version": "0.26.3",
+        "remote": "",
+        "name": "smlib.billing",
+        "comparable_name": "smlibbilling"
+    },
+    "validictory": {
+        "github_info": false,
+        "version": "0.7.1",
+        "remote": "",
+        "name": "validictory",
+        "comparable_name": "validictory"
+    },
+    "webob": {
+        "github_info": false,
+        "version": "1.2b3",
+        "remote": "",
+        "name": "WebOb",
+        "comparable_name": "webob"
+    },
+    "unittest2": {
+        "github_info": false,
+        "version": "0.5.1",
+        "remote": "",
+        "name": "unittest2",
+        "comparable_name": "unittest2"
+    },
+    "smlibassets": {
+        "github_info": false,
+        "version": "1.0.40",
+        "remote": "",
+        "name": "smlib.assets",
+        "comparable_name": "smlibassets"
+    },
+    "zopeschema": {
+        "github_info": false,
+        "version": "3.7.0",
+        "remote": "",
+        "name": "zope.schema",
+        "comparable_name": "zopeschema"
+    },
+    "smredis": {
+        "github_info": false,
+        "version": "0.1dev",
+        "remote": "",
+        "name": "smredis",
+        "comparable_name": "smredis"
+    },
+    "simplejson": {
+        "github_info": false,
+        "version": "2.6.1",
+        "remote": "",
+        "name": "simplejson",
+        "comparable_name": "simplejson"
+    },
+    "chameleon": {
+        "github_info": false,
+        "version": "2.7.3",
+        "remote": "",
+        "name": "Chameleon",
+        "comparable_name": "chameleon"
+    },
+    "smlibweb": {
+        "github_info": false,
+        "version": "1.0.4",
+        "remote": "",
+        "name": "smlib.web",
+        "comparable_name": "smlibweb"
+    },
+    "pathpy": {
+        "github_info": false,
+        "version": "2.2.2",
+        "remote": "",
+        "name": "path.py",
+        "comparable_name": "pathpy"
+    },
+    "pyramiddebugtoolbar": {
+        "github_info": false,
+        "version": "0.9.5",
+        "remote": "",
+        "name": "pyramid-debugtoolbar",
+        "comparable_name": "pyramiddebugtoolbar"
+    },
+    "pythondateutil": {
+        "github_info": false,
+        "version": "1.5",
+        "remote": "",
+        "name": "python-dateutil",
+        "comparable_name": "pythondateutil"
+    },
+    "markupsafe": {
+        "github_info": false,
+        "version": "0.15",
+        "remote": "",
+        "name": "MarkupSafe",
+        "comparable_name": "markupsafe"
+    },
+    "pytz": {
+        "github_info": false,
+        "version": "2010o",
+        "remote": "",
+        "name": "pytz",
+        "comparable_name": "pytz"
+    },
+    "jinja2": {
+        "github_info": false,
+        "version": "2.6",
+        "remote": "",
+        "name": "Jinja2",
+        "comparable_name": "jinja2"
+    },
+    "httplib2": {
+        "github_info": false,
+        "version": "0.7.2",
+        "remote": "",
+        "name": "httplib2",
+        "comparable_name": "httplib2"
+    },
+    "smcrypto": {
+        "github_info": false,
+        "version": "0.2.1",
+        "remote": "",
+        "name": "SMCrypto",
+        "comparable_name": "smcrypto"
+    },
+    "peppercorn": {
+        "github_info": false,
+        "version": "0.3",
+        "remote": "",
+        "name": "peppercorn",
+        "comparable_name": "peppercorn"
+    },
+    "monkeylib": {
+        "github_info": false,
+        "version": "1.3.5",
+        "remote": "",
+        "name": "MonkeyLib",
+        "comparable_name": "monkeylib"
+    },
+    "paste": {
+        "github_info": false,
+        "version": "1.7.5.1",
+        "remote": "",
+        "name": "Paste",
+        "comparable_name": "paste"
+    },
+    "decorator": {
+        "github_info": false,
+        "version": "3.2.0",
+        "remote": "",
+        "name": "decorator",
+        "comparable_name": "decorator"
+    },
+    "argparse": {
+        "github_info": false,
+        "version": "1.1",
+        "remote": "",
+        "name": "argparse",
+        "comparable_name": "argparse"
+    },
+    "pyyaml": {
+        "github_info": false,
+        "version": "3.10",
+        "remote": "",
+        "name": "PyYAML",
+        "comparable_name": "pyyaml"
+    },
+    "translationstring": {
+        "github_info": false,
+        "version": "0.4",
+        "remote": "",
+        "name": "translationstring",
+        "comparable_name": "translationstring"
+    },
+    "smliblocale": {
+        "github_info": false,
+        "version": "0.20.8",
+        "remote": "",
+        "name": "smlib.locale",
+        "comparable_name": "smliblocale"
+    },
+    "pycrypto": {
+        "github_info": false,
+        "version": "2.5",
+        "remote": "",
+        "name": "pycrypto",
+        "comparable_name": "pycrypto"
+    },
+    "smlibconfig": {
+        "github_info": false,
+        "version": "0.3",
+        "remote": "",
+        "name": "smlib.config",
+        "comparable_name": "smlibconfig"
+    },
+    "gevent": {
+        "github_info": false,
+        "version": "0.13.6",
+        "remote": "",
+        "name": "gevent",
+        "comparable_name": "gevent"
+    },
+    "greenlet": {
+        "github_info": false,
+        "version": "0.3.3",
+        "remote": "",
+        "name": "greenlet",
+        "comparable_name": "greenlet"
+    },
+    "jstools": {
+        "github_info": false,
+        "version": "0.5",
+        "remote": "",
+        "name": "JSTools",
+        "comparable_name": "jstools"
+    },
+    "zopei18n": {
+        "github_info": false,
+        "version": "3.7.4",
+        "remote": "",
+        "name": "zope.i18n",
+        "comparable_name": "zopei18n"
+    },
+    "zopei18nmessageid": {
+        "github_info": false,
+        "version": "3.5.3",
+        "remote": "",
+        "name": "zope.i18nmessageid",
+        "comparable_name": "zopei18nmessageid"
+    },
+    "smhodor": {
+        "github_info": false,
+        "version": "0.2",
+        "remote": "",
+        "name": "smhodor",
+        "comparable_name": "smhodor"
+    },
+    "pastescript": {
+        "github_info": false,
+        "version": "1.7.5",
+        "remote": "",
+        "name": "PasteScript",
+        "comparable_name": "pastescript"
+    }
+}

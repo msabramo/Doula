@@ -10,6 +10,9 @@ _keys = {
   # GitHub appenv keys
   "repos_appenvs": "repos:appenvs",
 
+  # GitHub config keys
+  "service_configs": "service:configs:$name",
+
   # Release keys
   "releases": "releases:$site:$service",
   "release_counter": "release:$site:$service:counter",

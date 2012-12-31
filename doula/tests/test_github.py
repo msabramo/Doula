@@ -10,6 +10,7 @@ class GithubTests(unittest.TestCase):
             'doula.github.appenvs.org': 'AppEnv',
             'doula.github.doula.admins.org': 'DoulaAdmins',
             'doula.github.packages.org': 'devmonkeys',
+            'doula.github.config.org': 'config',
             'doula.github.html.domain': 'http://code.corp.surveymonkey.com',
             'doula.github.token': '17e6642dca429043725ad6a98ce966e5a67eac69'
         }
@@ -19,23 +20,43 @@ class GithubTests(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_pull_doula_admins(self):
-        admins = pull_doula_admins()
-        self.assertTrue(len(admins))
+    # def test_pull_doula_admins(self):
+    #     admins = pull_doula_admins()
+    #     self.assertTrue(len(admins))
 
-    def test_pull_devmonkeys_repos(self):
-        repos = pull_devmonkeys_repos()
+    # def test_pull_devmonkeys_repos(self):
+    #     repos = pull_devmonkeys_repos()
 
-        for name, repo in repos.iteritems():
-            # Ensure the name is true
-            self.assertTrue(repo['name'])
+    #     for name, repo in repos.iteritems():
+    #         # Ensure the name is true
+    #         self.assertTrue(repo['name'])
 
-    def test_pull_appenv_repos(self):
-        repos = pull_appenv_repos()
+    # def test_pull_appenv_repos(self):
+    #     repos = pull_appenv_repos()
 
-        for name, repo in repos.iteritems():
-            # Ensure the name is true
-            self.assertTrue(name)
+    #     for name, repo in repos.iteritems():
+    #         # Ensure the name is true
+    #         self.assertTrue(name)
+
+    def test_pull_services_for_config_names(self):
+        result = pull_services_for_config_names()
+
+        self.assertTrue(len(result) > 0)
+
+    def test_pull_service_configs(self):
+        result = pull_service_configs('billweb')
+
+        self.assertTrue(result)
+
+    def test_build_url_to_api(self):
+        url = "%(domain)s and %(token)s and %(name)s"
+        params = {"name": "quezo"}
+        result = build_url_to_api(url, params)
+
+        expected = "http://api.code.corp.surveymonkey.com and "
+        expected += "17e6642dca429043725ad6a98ce966e5a67eac69 and quezo"
+
+        self.assertEqual(result, expected)
 
 
 if __name__ == '__main__':

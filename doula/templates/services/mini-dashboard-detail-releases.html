@@ -21,8 +21,8 @@
     <thead>
       <tr class="title">
         <th>Package Name</th>
-        <th>Release Version</th>
         <th>Current Version</th>
+        <th>New Version</th>
         <th>Compare View</th>
       </tr>
     </thead>
@@ -38,26 +38,29 @@
         <tr>
           {% if package_diff['package'].get_github_info() %}
             <td>{{name}}</td>
+
+            <td>
+              <a target="_blank" href="http://code.corp.surveymonkey.com/devmonkeys/{{package_diff['package'].name}}/tree/v{{package_diff['service_version']}}">
+                {{package_diff['service_version']}}
+              </a>
+            </td>
+
             <td>
               <a target="_blank" href="http://code.corp.surveymonkey.com/devmonkeys/{{package_diff['package'].name}}/tree/v{{package_diff['release_version']}}">
                 {{package_diff['release_version']}}
               </a>
             </td>
-            <td>
-              <a target="_blank" href="http://code.corp.surveymonkey.com/devmonkeys/{{package_diff['package'].name}}/tree/v{{package_diff['current_version']}}">
-                {{package_diff['current_version']}}
-              </a>
-            </td>
 
             <td>
-              <a target="_blank" href="http://code.corp.surveymonkey.com/devmonkeys/{{package_diff['package'].name}}/compare/v{{package_diff['current_version']}}...v{{package_diff['release_version']}}">
-                {{package_diff['current_version']}}...{{package_diff['release_version']}}
+              <!-- TODO: the current version is not good enough. need to replace the dashes with underscores for tags. or just put them in the right place. -->
+              <a target="_blank" href="http://code.corp.surveymonkey.com/devmonkeys/{{package_diff['package'].name}}/compare/v{{package_diff['service_version']}}...v{{package_diff['release_version']}}">
+                {{package_diff['service_version']}}...{{package_diff['release_version']}}
               </a>
             </td>
           {% else %}
             <td>{{name}}</td>
             <td>{{package_diff['release_version']}}</td>
-            <td>{{package_diff['current_version']}}</td>
+            <td>{{package_diff['service_version']}}</td>
             <td>&nbsp;</td>
           {% endif %}
         </tr>
@@ -66,7 +69,7 @@
       <tr class="title">
         <th>Config Files</th>
         <th>Current Commit</th>
-        <th>Release Commit</th>
+        <th>New Commit</th>
         <th>Compare View</th>
       </tr>
 
