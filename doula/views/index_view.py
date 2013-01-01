@@ -113,6 +113,7 @@ def updatedoula(request):
         'cleanup_queue',
         'pull_github_data',
         'pull_appenv_github_data',
+        'pull_service_configs',
         'pull_cheeseprism_data',
         'pull_bambino_data']
 

@@ -4,20 +4,21 @@ from doula.cheese_prism import CheesePrism
 from doula.config import Config
 from doula.github import pull_appenv_repos
 from doula.github import pull_devmonkeys_repos
+from doula.models.doula_dal import DoulaDAL
 from doula.models.package import Package
 from doula.models.push import Push
 from doula.models.service import Service
-from doula.models.doula_dal import DoulaDAL
+from doula.models.service_config_dal import ServiceConfigDAL
 from doula.queue import Queue
 from doula.util import *
 import logging
 import os
 import simplejson as json
+import socket
 import time
 import traceback
 import uuid
 import xmlrpclib
-import socket
 
 
 def create_logger(job_id, level=logging.INFO):
@@ -316,6 +317,32 @@ def pull_github_data(config={}, job_dict={}):
         raise
 
 
+def pull_service_configs(config={}, job_dict={}, debug=False):
+    """
+    Pull the service config commits for every service
+    """
+    log = create_logger(job_dict['id'])
+    load_config(config)
+
+    try:
+        start = time.time()
+        log.info('Pulling service config data')
+
+        sc_dal = ServiceConfigDAL()
+        sc_dal.update_service_config_data()
+
+        # always remove maintenance jobs from the queue
+        Queue().remove(job_dict['id'])
+
+        print "\nDONE PULLING SERVICE CONFIG DATA. DIFF: " + str(time.time() - start)
+
+        log.info('Done pulling service config data')
+    except Exception as e:
+        log.error(e.message)
+        log.error(traceback.format_exc())
+        raise
+
+
 def pull_appenv_github_data(config={}, job_dict={}, debug=False):
     """
     Pull the github data for every App environment
@@ -387,6 +414,7 @@ def job_expired(job):
         'pull_cheeseprism_data',
         'pull_github_data',
         'pull_bambino_data',
+        'pull_service_configs',
         'pull_appenv_github_data',
         ]
 

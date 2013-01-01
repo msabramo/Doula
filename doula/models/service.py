@@ -1,6 +1,7 @@
 from doula.models.node import Node
 from doula.models.package import Package
 from doula.models.release import Release
+from doula.models.service_config_dal import ServiceConfigDAL
 from doula.models.tag import Tag
 from doula.util import *
 from fabric.api import *
@@ -127,6 +128,13 @@ class Service(object):
         Return the releases for this service to this site
         """
         return Release.get_releases(self.site_name, self.name)
+
+    def get_configs(self):
+        """
+        Return the ServiceConfig's for this service to this site
+        """
+        sc_dal = ServiceConfigDAL()
+        return sc_dal.get_service_configs(self.site_name, self.name)
 
     def _add_packages(self, pckgs):
         """

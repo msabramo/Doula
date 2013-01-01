@@ -28,6 +28,12 @@ def pull_appenv_github_data():
     q.this(job_dict)
 
 
+def pull_service_configs():
+    job_dict = {'job_type': 'pull_service_configs'}
+    q = Queue()
+    q.this(job_dict)
+
+
 def pull_cheeseprism_data():
     """
     Update the redisd data. ex. CheesePrism Data, Git commit history.
@@ -83,6 +89,9 @@ def start_task_scheduling():
 
     interval = int(Config.get('task_interval_pull_appenv_github_data'))
     sched.add_interval_job(pull_appenv_github_data, seconds=interval)
+
+    interval = int(Config.get('tast_interval_pull_service_configs'))
+    sched.add_interval_job(pull_service_configs, seconds=interval)
 
     cleanup_interval = int(Config.get('task_interval_cleanup_queue'))
     sched.add_interval_job(cleanup_queue, seconds=cleanup_interval)

@@ -11,7 +11,7 @@ _keys = {
   "repos_appenvs": "repos:appenvs",
 
   # GitHub config keys
-  "service_configs": "service:configs:$name",
+  "service_configs": "service:configs:$site:$service",
 
   # Release keys
   "releases": "releases:$site:$service",

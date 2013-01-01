@@ -12,12 +12,13 @@ class ServiceConfig(object):
 
         Ex.
         {
-            "name": "billweb",
-            "date": "2012-12-18T09:57:45-08:00",
-            "sha": "fd743b3de157c38340b03989579bdc35daf5f77d",
-            "message": "Update app.ini",
-            "author": "metalculus84"
+            "service": "billweb",
+            "author": "chrisg@surveymonkey.com",
+            "site": "mt1",
+            "sha": "3a2df77fbcf804165c8e79e3d22d05fa3798e405",
+            "date": "2012-03-06T15:17:44-08:00",
+            "message": "Add ho-DOR"
         }
         """
         self.__dict__.update(dict_data)
-        self.comparable_name = comparable_name(self.name)
+        self.comparable_service = comparable_name(self.service)

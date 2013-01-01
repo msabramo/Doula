@@ -81,6 +81,7 @@ class Queue(object):
         'cycle_service': common_dict,
         'pull_cheeseprism_data': common_dict,
         'pull_github_data': common_dict,
+        'pull_service_configs': common_dict,
         'pull_appenv_github_data': common_dict,
         'pull_bambino_data': common_dict,
         'cleanup_queue': common_dict
@@ -120,6 +121,7 @@ class Queue(object):
             'pull_cheeseprism_data',
             'pull_github_data',
             'pull_appenv_github_data',
+            'pull_service_configs',
             'pull_bambino_data',
             'cleanup_queue']
 

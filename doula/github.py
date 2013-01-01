@@ -448,33 +448,73 @@ def pull_appenv_repos():
 # Pull Config for Service
 ###################################
 
-def pull_services_for_config_names():
+def pull_config_services_with_branches():
     """
-    Pull the configs repos from GitHub
+    Pull the configs repos from GitHub and all their branches
+
+    Returns:
+    [
+        "service": "billweb",
+        "branches": [
+            {
+                "site": "mt1",
+                "sha": "17e6642dca429043725ad6a98ce966e5a67eac69"
+            }
+        ]
+    ]
     """
     url = build_url_to_api("%(domain)s/orgs/%(config)s/repos?access_token=%(token)s")
     git_repos = json.loads(pull_url(url))
     names = []
 
     for repo in git_repos:
-        names.append(repo["name"])
+        if repo["name"] != 'billweb':
+                continue
+
+        branches = _find_pull_service_configs_branches(repo["name"])
+        names.append({
+            "service": repo["name"],
+            "branches": branches
+            })
 
     return names
 
-def pull_service_configs(name, date=''):
+
+def _find_pull_service_configs_branches(service):
+    """
+    Pull all the branches for a service config repo
+    Each branch name corresponds to a site.
+    """
+    # Pull all the branches for each config repo
+    url = "%(domain)s/repos/%(config)s/%(service)s/branches"
+    url = build_url_to_api(url, {"service": service})
+
+    github_branches = json.loads(pull_url(url))
+    branches = []
+
+    for b in github_branches:
+        branch = {"site": b["name"], "sha": b["commit"]["sha"]}
+        branches.append(branch)
+
+    return branches
+
+
+def pull_service_configs(site, service, sha='', date=''):
     """
     Pull all the latest commits for this service since this specific date.
 
     Returns the GitHub API response as a dict object, paired down
     See http://developer.github.com/v3/repos/commits/ for example output
     """
-    # alextodo. you also have to pull the branches. each service needs a branch too.
-    # fuck me
-    url = "%(domain)s/repos/%(config)s/%(name)s/commits?per_page=10&since=%(since)s"
-    params = {"name": name, "since": date}
-    url = build_url_to_api(url, params)
-
+    service_configs = []
     git_service_configs = []
+
+    # Our majestic URL. pull everything on the site branch
+    url = "%(domain)s/repos/%(config)s/%(service)s/commits?"
+    url += "access_token=%(token)s&per_page=10&sha=%(sha)s&since=%(since)s"
+
+    params = {"service": service, "since": date, 'sha': site}
+    url = build_url_to_api(url, params)
 
     try:
         config_as_json = pull_url(url)
@@ -483,18 +523,15 @@ def pull_service_configs(name, date=''):
         # Not all services have commits yet. Ignore those.
         pass
 
-    service_configs = []
-
-    print 'length of the commits: ' + str(len(service_configs))
-
     for git_service_config in git_service_configs:
         service_configs.append({
-            "name": name,
+            "site": site,
+            "service": service,
             "date": git_service_config["commit"]["committer"]["date"],
             "sha" : git_service_config["sha"],
             "author": git_service_config["commit"]["author"]["email"],
             "message": git_service_config["commit"]["message"]
-        })
+            })
 
     return service_configs
 
