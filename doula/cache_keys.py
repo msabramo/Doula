@@ -12,6 +12,7 @@ _keys = {
 
   # GitHub config keys
   "service_configs": "service:configs:$site:$service",
+  "service_config_sha": "service:configs:$site:$service:$sha",
 
   # Release keys
   "releases": "releases:$site:$service",

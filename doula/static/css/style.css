@@ -531,6 +531,12 @@ a.release {
   margin-top: 10px;
   margin-bottom: 25px;
 }
+.help-block-config {
+  line-height: 160%;
+  margin-top: 10px;
+  margin-bottom: 0;
+  display: block;
+}
 .warning {
   color: #C0920A;
 }

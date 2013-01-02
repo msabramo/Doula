@@ -1,7 +1,10 @@
+from doula.config import Config
 from doula.models.node import Node
 from doula.models.package import Package
 from doula.models.release import Release
 from doula.models.service_config_dal import ServiceConfigDAL
+from doula.models.service_config import ServiceConfig
+from doula.helper_filters import formatted_github_day_and_time
 from doula.models.tag import Tag
 from doula.util import *
 from fabric.api import *
@@ -48,7 +51,17 @@ class Service(object):
     #     }
     # },
     # "config": {
-    #     "short_sha1": "\"5f775a3\""
+    #     date: "2011-07-18 15:08:55 -0700",
+    #     sha: "1df6e091b5251dadcb0e8e7671c30438653264b9",
+    #     changed_files: {
+    #       setup.sh: "deleted",
+    #       README.rst: "deleted",
+    #       app.ini: "deleted",
+    #        supervisor.conf: "deleted",
+    #       .gitignore: "deleted"
+    #     },
+    #     branch: "mt3",
+    #     author: "Whit"
     # },
     # "current_branch_config": "mt3",
     # "supervisor_service_names": []
@@ -60,6 +73,7 @@ class Service(object):
 
         self.nodes = {}
 
+        self.config['formatted_date'] = formatted_github_day_and_time(self.config['date'])
         self._add_packages(dict_data['packages'])
         self._add_tags_from_service_dict(dict_data['tags'])
         self.last_tag = self._get_last_tag()
@@ -132,9 +146,23 @@ class Service(object):
     def get_configs(self):
         """
         Return the ServiceConfig's for this service to this site
+
+        Returns a list of ServiceConfig objects.
         """
         sc_dal = ServiceConfigDAL()
-        return sc_dal.get_service_configs(self.site_name, self.name)
+        service_configs = sc_dal.get_service_configs(Config.get_safe_site(self.site_name), self.name)
+
+        # check if the service sha is in the service_configs list
+        found_service_config = False
+
+        if not found_service_config:
+            # Since we did not find the current service_config
+            config_dict = self.config.copy()
+            config_dict['site'] = self.site_name
+            config_dict['service'] = self.name
+            service_configs.append(ServiceConfig(**config_dict))
+
+        return service_configs
 
     def _add_packages(self, pckgs):
         """
@@ -156,8 +184,8 @@ class Service(object):
 
     def get_compare_url(self):
         """
-        Use the remote url to return the Github Comapre view URL.
-        The Github Compare URL has the format:
+        Use the remote url to return the GitHub Comapre view URL.
+        The GitHub Compare URL has the format:
         http://<GITHUB_URL>/<USER>/<REPO>/compare/<START>...<END>
         For us this means
         http://code.corp.surveymonkey.com/DevOps/[name]/compare/[last_tag_app]...[current_branch_app]

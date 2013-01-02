@@ -1,5 +1,5 @@
 """
-A simplified interface to the Github V3 API
+A simplified interface to the GitHub V3 API
 """
 
 from datetime import datetime
@@ -44,7 +44,7 @@ def get_appenv_releases(name, branch):
     """
     Get the service releases. Each release is a commit
     to the repo
-    Github data is in the format
+    GitHub data is in the format
     {
         "name of service": {
             "branches": {
@@ -312,9 +312,6 @@ def pull_devmonkeys_repos():
         }
     """
     repos = {}
-    # todo: pass in the previous git commit. and only pull from there
-    # pass in the param sha=[sha]
-    # see http://developer.github.com/v3/repos/commits/
     start = time.time()
 
     url = build_url_to_api("%(domain)s/orgs/%(packages)s/repos?access_token=%(token)s")
@@ -322,8 +319,6 @@ def pull_devmonkeys_repos():
     git_repos = json.loads(repos_as_json)
 
     diff = time.time() - start
-    print "\n"
-    print 'DIFF IN TIME FOR PULL REPOS: ' + str(diff)
 
     for git_repo in git_repos:
         print 'PULLING GIT REPO: ' + git_repo["name"]
@@ -337,7 +332,7 @@ def pull_devmonkeys_repos():
             "html_url": git_repo["html_url"],
             "ssh_url": git_repo["ssh_url"],
             "org": Config.get('doula.github.packages.org'),
-            "domain": domain,
+            "domain": Config.get('doula.github.api.domain'),
             "html_domain": Config.get('doula.github.html.domain'),
             "tags": tags,
             "branches": branches,
@@ -347,8 +342,8 @@ def pull_devmonkeys_repos():
         repos[comparable_name(repo["name"])] = repo
 
     diff = time.time() - start
-    print "\n"
-    print 'DIFF IN TIME FOR PULL ALL REPOS: ' + str(diff)
+
+    print "\nDIFF IN TIME FOR PULL ALL REPOS: " + str(diff)
 
     return repos
 
@@ -468,9 +463,6 @@ def pull_config_services_with_branches():
     names = []
 
     for repo in git_repos:
-        if repo["name"] != 'billweb':
-                continue
-
         branches = _find_pull_service_configs_branches(repo["name"])
         names.append({
             "service": repo["name"],
@@ -511,7 +503,7 @@ def pull_service_configs(site, service, sha='', date=''):
 
     # Our majestic URL. pull everything on the site branch
     url = "%(domain)s/repos/%(config)s/%(service)s/commits?"
-    url += "access_token=%(token)s&per_page=10&sha=%(sha)s&since=%(since)s"
+    url += "access_token=%(token)s&per_page=30&sha=%(sha)s&since=%(since)s"
 
     params = {"service": service, "since": date, 'sha': site}
     url = build_url_to_api(url, params)

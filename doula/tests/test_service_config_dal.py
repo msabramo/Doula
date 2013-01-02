@@ -27,9 +27,9 @@ class ServiceConfigDALTests(unittest.TestCase):
         sc_dal = ServiceConfigDAL()
         sc_dal.update_service_config_data()
 
-        self.assertTrue(sc_dal._get_last_service_config('mt1', 'billweb'))
-        self.assertTrue(sc_dal._get_last_service_config('mt2', 'billweb'))
-        self.assertTrue(sc_dal._get_last_service_config('mt3', 'billweb'))
+        self.assertTrue(sc_dal._get_latest_service_config('mt1', 'billweb'))
+        self.assertTrue(sc_dal._get_latest_service_config('mt2', 'billweb'))
+        self.assertTrue(sc_dal._get_latest_service_config('mt3', 'billweb'))
 
     def test_get_service_configs(self):
         sc_dal = ServiceConfigDAL()

@@ -1,6 +1,7 @@
 from doula.cheese_prism import CheesePrism
 from doula.config import Config
 from doula.models.doula_dal import DoulaDAL
+from doula.models.release import Release
 from doula.queue import Queue
 from doula.util import comparable_name
 from doula.util import dumps
@@ -27,10 +28,11 @@ def service(request):
     dd = DoulaDAL()
     site = dd.find_site_by_name(request.matchdict['site_name'])
     service = site.services[request.matchdict['service_name']]
+    latest_service_config = service.get_configs()[0]
+
     releases = service.get_releases()
     last_release = get_last_release(releases)
-    active_release = last_release
-
+    selected_release = last_release
     diff = last_release.diff_service_and_release(service)
 
     last_job = get_last_job(site, service)
@@ -45,14 +47,13 @@ def service(request):
         'service': service,
         'config': Config,
         'last_release': last_release,
-        'active_release': active_release,
+        'latest_service_config': latest_service_config,
+        'selected_release': selected_release,
         'last_job': last_job,
         'is_config_up_to_date': service.is_config_up_to_date(),
-        'service_json': dumps(service),
-        'releases_json': dumps(releases),
+        'releases': releases,
         'diff': diff,
         'other_packages': other_packages,
-        'other_packages_json': dumps(other_packages),
         'queued_items': [],
         'jobs_started_after': jobs_started_after
     }
@@ -66,9 +67,11 @@ def get_last_release(releases):
 
 
 def get_proper_version_name(version):
+    # alextodo. i think this code is duplicated.
     # Since the package name needs to be different
     # then the actual git tag, we put it back here
     # so that we can link to the right commit in GitHub
+    # this is needed as a helper
     version_list = version.split('-')
     version_number = version_list.pop(0)
     branch_name = ''
@@ -121,9 +124,10 @@ def service_dashboard(request):
     dd = DoulaDAL()
     site = dd.find_site_by_name(request.matchdict['site_name'])
     service = site.services[request.matchdict['service_name']]
+    latest_service_config = service.get_configs()[0]
     releases = service.get_releases()
     last_release = get_last_release(releases)
-    active_release = last_release
+    selected_release = last_release
 
     diff = last_release.diff_service_and_release(service)
     last_job = get_last_job(site, service)
@@ -133,8 +137,9 @@ def service_dashboard(request):
         'path': request.path,
         'service': service,
         'config': Config,
+        'latest_service_config': latest_service_config,
         'last_release': last_release,
-        'active_release': active_release,
+        'selected_release': selected_release,
         'diff': diff,
         'last_job': last_job,
         'is_config_up_to_date': service.is_config_up_to_date(),
@@ -153,29 +158,41 @@ def service_diff(request):
     dd = DoulaDAL()
     site = dd.find_site_by_name(request.matchdict['site_name'])
     service = site.services[request.matchdict['service_name']]
+
+    latest_service_config = service.get_configs()[0]
     releases = service.get_releases()
-
-    # print 'DATE HERE'
-    # print request.POST['date']
-    # print "\n\n"
     last_release = get_last_release(releases)
+
     # Find the release that the user chose from the dropdown by date
-    active_release = find_release_by_date(releases, request.POST['date'])
+    # we actually need to create the release dynamically. build a manifest
+    # and compare those
 
-    print 'ACTIVE RELEASE'
-    print active_release
-    # pdb.set_trace()
+    # the date is what we selected. we'll be able to tell if it's a specific release
+    # if the date and the thing agree. how do we do what we do here?
+    # will need to do that compare later on to know if we are reverting.
 
-    diff = active_release.diff_service_and_release(service)
+    # todo: right now most things work, but switching between past stuff does not.
+    # fix that and this thing will be ready to rock.
+    # test on other browsers and we're done.
+
+    dict_data = {
+        'date': request.POST['date'],
+        'sha': request.POST['sha'],
+        'packages': json.loads(request.POST['packages'])
+    }
+    selected_release = Release.build_release_on_the_fly(dict_data, service)
+
+    diff = selected_release.diff_service_and_release(service)
     last_job = get_last_job(site, service)
 
     temp_data = {
         'site': site,
         'path': request.path,
         'service': service,
+        'latest_service_config': latest_service_config,
         'config': Config,
         'last_release': last_release,
-        'active_release': active_release,
+        'selected_release': selected_release,
         'diff': diff,
         'last_job': last_job,
         'is_config_up_to_date': service.is_config_up_to_date(),
@@ -238,18 +255,19 @@ def service_release(request):
     service = dd.find_service_by_name(
                 request.matchdict['site_name'],
                 request.matchdict['service_name'])
+
     packages = json.loads(request.POST['packages'])
 
-    job_id = enqueue_release_service(request, service, packages)
+    job_id = enqueue_release_service(request, service, packages, request.POST['sha'])
 
     return dumps({'success': True, 'job_id': job_id})
 
 
-def enqueue_release_service(request, service, packages):
+def enqueue_release_service(request, service, packages, sha):
     """
     Enqueue the job onto the queue
     """
-    manifest = build_release_manifest(request, service, packages)
+    manifest = build_release_manifest(request, service, packages, sha)
 
     return Queue().this({
         "job_type": "release_service",
@@ -260,12 +278,15 @@ def enqueue_release_service(request, service, packages):
     })
 
 
-def build_release_manifest(request, service, packages):
+def build_release_manifest(request, service, packages, sha):
     """
     Build a release manifest for the next release
     # alextodo. we would send a release ID if we were reverting
-    # alextodo. be able to revert. need a test environment.
-    # for now. is_rollback: will always be false until we can really revert
+    # alextodo. will need to calculate if this is a rollback. we will not count
+    # on a release number. we will determine if it's a rollback. then we
+    # will find that release number
+
+    # once we know if it's a release we're golden. then 'were done'
     """
     return {
         "is_rollback": False,
@@ -273,6 +294,7 @@ def build_release_manifest(request, service, packages):
         "site": service.site_name,
         "author": request.user['username'],
         "pip_freeze": packages,
+        "sha1_etc": sha,
         "comparable_packages": build_comparable_packages(packages)
     }
 

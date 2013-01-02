@@ -1,5 +1,8 @@
-from doula.util import pull_url
+from doula.models.service_config_dal import ServiceConfigDAL
 from doula.util import dirify
+from doula.util import pull_url
+from doula.util import dumps
+import pdb
 import logging
 import simplejson as json
 
@@ -7,6 +10,9 @@ log = logging.getLogger('doula')
 
 
 class Node(object):
+    """
+    Represents a node on a bambino.
+    """
     def __init__(self, name, site_name, url, ip,
                  config={}, changed_files=[], supervisor_service_names=[]):
         self.name = name
@@ -18,6 +24,28 @@ class Node(object):
         self.config = config
         self.changed_files = changed_files
         self.supervisor_service_names = supervisor_service_names
+        self._update_node_config()
+
+    def _update_node_config(self):
+        """
+        Update the is_up_to_date key of the config attribute.
+
+        The bambino will return the current sha and any files that have been changed.
+        Here we figure out if the node is actually up to date and save it to the
+        'is_up_to_date' key. We also update the config dict with the 'latest_sha'
+        for the config for that service.
+        """
+        if not self.config:
+            return ''
+
+        sc_dal = ServiceConfigDAL()
+        latest_service_config = sc_dal.latest_service_config(self.site_name, self.config['repo_name'])
+        self.config['latest_sha'] = latest_service_config.sha
+
+        if self.config['sha'] != self.config['latest_sha'] or len(self.config['changed_files']) > 0:
+            self.config['is_up_to_date'] = False
+        else:
+            self.config['is_up_to_date'] = True
 
     def pull_services_as_dicts(self):
         """

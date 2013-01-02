@@ -6,7 +6,7 @@
     </div>
     <div class="clearfix">
     <form>
-        <p>Hi <strong>{{ request.user['username'] }}</strong>! Doula will send all email notifications to your Github Enterprise email <strong>{{ request.user['email'] }}</strong>.</p>
+        <p>Hi <strong>{{ request.user['username'] }}</strong>! Doula will send all email notifications to your GitHub Enterprise email <strong>{{ request.user['email'] }}</strong>.</p>
 
         <p><b>Notify me about a job:</b></p>
         {% set notify_me = request.user['settings']['notify_me'] %}

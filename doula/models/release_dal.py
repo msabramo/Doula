@@ -119,9 +119,7 @@ class ReleaseDAL(object):
         return releases
 
     def _find_github_releases(self, site_name, service_name):
-        # Since the dev branch is the local machine which doesn't have
-        # a branch on the github config repo. we use mt3
-        site_name = 'mt3' if Config.get('env') == 'dev' else site_name
+        site_name = Config.get_safe_site(site_name)
         commits = get_appenv_releases(service_name, site_name)
         releases = []
 

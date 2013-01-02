@@ -7,6 +7,8 @@ var ServiceEnv = {
     init: function() {
         this.releases = __releases;
         this.other_packages = __other_packages;
+        this.latest_service_config = __latest_service_config;
+        this.service = __service;
 
         _mixin(this, AJAXUtil);
         _mixin(this, Packages);
@@ -24,6 +26,8 @@ var ServiceEnv = {
 
         this.addVersionMessageBelowPackageSelects();
         this.bindToReleasesAndPackages();
+        this.bindToServiceConfigChanges();
+
         // Dropdown for add python package
         this.bindToAddPythonPackageSelects();
 
@@ -58,6 +62,12 @@ var ServiceEnv = {
         $('.commit-accordion').on('hide', function () {
             $(this).parent().removeClass('shown').addClass('hidden');
         });
+    },
+
+    bindToServiceConfigChanges: function() {
+        $('#config_sha').on('change blur', $.proxy(this.updateServiceConfigMessage, this));
+        // Always select the latest config onload. Then call onchange.
+        $('#config_sha').val(this.latest_service_config.sha).change();
     },
 
     bindToReleasesAndPackages: function() {
@@ -151,6 +161,83 @@ var ServiceEnv = {
         this.bindToMiniDashboardActions();
     },
 
+
+    /************************************
+    Service Config dropdown
+    *************************************/
+
+    updateServiceConfigMessage: function(event) {
+        var activeSha = $('#config_sha').val();
+        var sc = this.findServiceConfigBySha(activeSha); // Selected Config
+        var ac = this.service.config; // Active Config
+        var lc = this.latest_service_config; // Latest Config
+
+        // If the selected, active and latest configs agree we show no warning. otherwise warn
+        var warnClass = (sc.sha == ac.sha && sc.sha == lc.sha) ? '' : 'warning';
+
+        $('#config_sha').removeClass('warning').addClass(warnClass);
+
+        var warnHTML = this.buildServiceConfigWarnHTML(sc, ac, lc);
+        $('#config_sha_warning').html(warnHTML).removeClass('warning').addClass(warnClass);
+
+        var html = this.buildServiceConfigColHTML(sc);
+        $('#service_config_col').html(html).removeClass('warning').addClass(warnClass);
+    },
+
+    // alextodo. will need to update the current service and the __last_service_config
+    // after a new release. the service only needs to be updated. that is all.
+    // update the current. then make a call to updateServiceConfigMessage
+
+    buildServiceConfigColHTML: function(sc) {
+        var html = "<a href=\"http://code.corp.surveymonkey.com/config/";
+        html += sc.service + "/tree/" + sc.sha + "\" target=\"_blank\">";
+        html += sc.message + "</a>";
+
+        return html;
+    },
+
+    buildServiceConfigWarnHTML: function(sc, ac, lc) {
+        var html = "";
+
+        if (sc.sha == ac.sha && sc.sha == lc.sha) {
+            // This is the only situation that does not appear as a warning
+            html = "The selected config from <strong>" + sc.formatted_date +
+                "</strong> is the latest and active version.";
+        }
+        else if (sc.sha != ac.sha && sc.sha == lc.sha) {
+            // the selected config is not the active config, but it is the latest
+            html = "The selected and latest config from <strong>" + sc.formatted_date +
+                    "</strong> is <strong>NOT</strong> the active config. <br />";
+            html += "The active config is from <strong>" + ac.formatted_date + "</strong>.";
+        }
+        else if (sc.sha == ac.sha && sc.sha != lc.sha) {
+            // the selected and active config is NOT the latest
+            html = "The selected and active config from <strong>" + sc.formatted_date +
+                    "</strong> is <strong>NOT</strong> the latest version. <br />";
+            html += "The latest config is from <strong>" + lc.formatted_date + "</strong>.";
+        }
+        else if (sc.sha != ac.sha && sc.sha != lc.sha) {
+            // the selected config is neither the latest nor the latest
+            html = "The selected config from <strong>" + sc.formatted_date +
+                    "</strong> is <strong>NOT</strong> the latest version. <br />";
+            html += "The latest config is from <strong>" + lc.formatted_date + "</strong>.";
+        }
+
+        return html;
+    },
+
+    findServiceConfigBySha: function(sha) {
+        for (var i = 0; i < __service_configs.length; i++) {
+            if (__service_configs[i].sha == sha) return __service_configs[i];
+        }
+
+        return {};
+    },
+
+    isConfigUpToDate: function() {
+        return (this.latest_service_config.sha == this.service.config.sha);
+    },
+
     /************************************
     Package dropdowns for Release Service
     *************************************/
@@ -173,25 +260,38 @@ var ServiceEnv = {
     *
     */
     selectReleasePackages: function(event, dropdownLink) {
-        console.log('hello there');
-        console.log(event.target);
-
-        this.showDiffForRelease(dropdownLink);
         this.selectReleasePackageFromDropdown(dropdownLink);
+        console.log(dropdownLink);
+        this.showDiffForRelease(dropdownLink);
     },
 
     showDiffForRelease: function(dropdownLink) {
-        var params = {date: dropdownLink.data('date')};
+        var params = this.getDiffForReleaseParams(dropdownLink);
         var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/diff';
         var msg = 'Pulling release diff. Please be patient and stay awesome.';
 
         this.post(url, params, this.doneShowDiffForRelease, null, msg);
     },
 
-    doneShowDiffForRelease: function(rslt) {
-        console.log('hello there rslt');
-        console.log(rslt);
+    /**
+    * Get all the parameters needed to build a release on the fly
+    * (sha for the etc and all the packages)
+    */
+    getDiffForReleaseParams: function(dropdownLink) {
+        var date = '2012-12-03T14:38:57-08:00'; // fill in date. fix. todod fix
 
+        if (typeof(dropdownLink) != 'undefined') {
+            date = dropdownLink.data('date');
+        };
+
+        return {
+            date: date,
+            sha: $('#config_sha').val(),
+            packages: JSON.stringify(this.getActiveReleasePackages(true))
+        };
+    },
+
+    doneShowDiffForRelease: function(rslt) {
         this.doneUpdateMiniDashboard(rslt);
         this.showDashboardDetailView('releases');
     },
@@ -233,6 +333,7 @@ var ServiceEnv = {
         var value = selectEl.val();
 
         this.updatePackageDropdown(name, value);
+        this.showDiffForRelease();
     },
 
     updatePackageDropdown: function(name, version) {
@@ -315,6 +416,7 @@ var ServiceEnv = {
         this.disableReleaseServiceButton();
 
         var params = {
+            sha: $('#config_sha').val(),
             packages: JSON.stringify(this.getActiveReleasePackages())
         };
         var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/release';
@@ -323,8 +425,9 @@ var ServiceEnv = {
         this.post(url, params, this.doneReleaseService, this.failedReleaseService, msg);
     },
 
-    getActiveReleasePackages: function() {
+    getActiveReleasePackages: function(returnAllPackages) {
         var packages = {};
+        returnAllPackages = returnAllPackages || false;
 
         $('select.package-select').each(function(i, select) {
             select = $(select);
@@ -334,7 +437,8 @@ var ServiceEnv = {
             var version = select.val();
             var originalVal = $.trim(select.attr('data-original-val'));
 
-            if (originalVal != version && originalVal != 'undefined') {
+            if ((originalVal != version && typeof(name) != 'undefined') ||
+                (returnAllPackages && typeof(name) != 'undefined')) {
                 packages[name] = version;
             }
         });

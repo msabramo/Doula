@@ -21,3 +21,15 @@ class Config(object):
     def get(key):
         """Get a key out of the settings dict."""
         return Config._instance.settings.get(key, None)
+
+    @staticmethod
+    def get_safe_site(site):
+        """
+        Get the safe name of a site. If we're on localhost we default to
+        'mt3' because that has a history, while the name of our local machine does not.
+        """
+        if Config.get('env') == 'dev':
+            return 'mt3'
+        else:
+            return site
+

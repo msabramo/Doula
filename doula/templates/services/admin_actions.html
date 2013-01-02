@@ -66,6 +66,8 @@
 <div>
   {% include 'services/mini-dashboard.html' %}
 
+  {% include 'services/admin_actions_config.html' %}
+
   {% include 'services/admin_actions_sm_packages.html' %}
 
   {% include 'services/admin_actions_other_packages.html' %}
@@ -85,9 +87,12 @@
 
 {% block scripts %}
 <script>
-var __service = {{service_json|safe}};
-var __releases = {{releases_json|safe}};
-var __other_packages = {{other_packages_json|safe}};
+
+var __service = {{service|stringify|safe}};
+var __releases = {{releases|stringify|safe}};
+var __service_configs = {{service.get_configs()|stringify|safe}};
+var __latest_service_config = {{latest_service_config|stringify|safe}};
+var __other_packages = {{other_packages|stringify|safe}};
 
 // alextodo. change the sortBy filter to status
 // then change filter by user_id or something

@@ -1,6 +1,8 @@
 from doula.config import Config
 from doula.github import get_appenv_releases
 from doula.models.package import Package
+from doula.models.service_config import ServiceConfig
+from doula.models.service_config_dal import ServiceConfigDAL
 from doula.util import date_to_seconds_since_epoch
 from sets import Set
 import re
@@ -19,19 +21,43 @@ class Release(object):
         self.commit_message = commit_message
 
         # Manifest attributes
+        # A release should really just be a bunch of manifest attributes
+        # see how close we are to pulling that from the existing git pull
         self.release_number = 0
         self.sha1_etc = ""
         self.site = ""
         self.service = ""
         self.pip_freeze = []
         self.is_rollback = False
-        self.project_name = ""
-        self.project_release = 0
         self.production = False
 
     ###################
     # Factory Methods
     ###################
+
+    @staticmethod
+    def build_release_on_the_fly(dict_data, service):
+        """
+        Build a release type object on the fly from packages and manifest
+        dict_data = {
+            "sha": "",
+            "packages": {
+                "package name": versin number,
+            }
+        }
+        """
+        # alextodo. create a today date here.
+        release = Release('author', '2012-01-01T00:00:00', '', service.site_name, [])
+        release.sha1_etc = dict_data['sha']
+        release.site = service.site_name
+        release.service = service.name
+        release.date_in_seconds = date_to_seconds_since_epoch(dict_data['date'])
+        release.packages = []
+
+        for name, version in dict_data['packages'].iteritems():
+            release.packages.append(Package(name, version, ''))
+
+        return release
 
     @staticmethod
     def build_from_dict(dict_data):
@@ -92,14 +118,7 @@ class Release(object):
 
     @staticmethod
     def get_releases(branch, service_name):
-        # alextodo. remove this after we move to the release_dal
-        # Dev pulls from mt3 by default because otherwise it's
-        # the name of the local machine
-        if Config.get('env') == 'dev':
-            commits = get_appenv_releases(service_name, 'mt3')
-        else:
-            commits = get_appenv_releases(service_name, branch)
-
+        commits = get_appenv_releases(service_name, Config.get_safe_site(branch))
         releases = []
 
         for cmt in commits:
@@ -120,6 +139,8 @@ class Release(object):
 
         Returns a dictionary with the following format:
         {
+            "current_service_config": ServiceConfig(),
+            "release_service_config": ServiceConfig(),
             "changed_packages": {
                 "Anweb": {
                     "package_name": "Anweb",
@@ -149,9 +170,11 @@ class Release(object):
         release_packages = self._build_release_packages_dict()
 
         return {
-            'changed_packages': self._find_same_packages_with_diff_versions(service, release_packages),
-            'packages_to_add': self._find_packages_to_add(service, release_packages),
-            'packages_to_subtract': self._find_packages_that_will_be_subtracted(service, release_packages)
+            'current_service_config': self._find_service_service_config(service),
+            'release_service_config': self._find_release_service_config(service),
+            'changed_packages'      : self._find_same_packages_with_diff_versions(service, release_packages),
+            'packages_to_add'       : self._find_packages_to_add(service, release_packages),
+            'packages_to_subtract'  : self._find_packages_that_will_be_subtracted(service, release_packages)
         }
 
     def _build_release_packages_dict(self):
@@ -164,13 +187,36 @@ class Release(object):
 
         return release_packages
 
+    def _find_service_service_config(self, service):
+        """
+        Find or build the service config object for this service
+        """
+        return ServiceConfig.build_instance_from_service(service)
+
+    def _find_release_service_config(self, service):
+        """
+        Find or build the service config object for this release
+
+        If there is no existing sha1 for this release, we pull the
+        latest sha1 from the service_config_dal
+        """
+        sc_dal = ServiceConfigDAL()
+        service_config = sc_dal.find_service_config_by_sha(service.site_name, service.name, self.sha1_etc)
+
+        if service_config:
+            return service_config
+        else:
+            return sc_dal.latest_service_config(service.site_name, service.name)
+
     def _find_packages_to_add(self, service, release_packages):
-        """Find the packages in the release but not in the current service"""
+        """
+        Find the packages in the release but not in the current service.
+        The packages on this release need to be added to the service if
+        it's released to the MT environment
+        """
         release_package_names = Set(release_packages.keys())
         service_package_names = Set(service.packages.keys())
 
-        # Packages found on release but not on current service
-        # will need to be added to the service environment
         packages_to_add = {}
         package_names_to_add = release_package_names - service_package_names
 
@@ -181,7 +227,7 @@ class Release(object):
 
     def _find_packages_that_will_be_subtracted(self, service, release_packages):
         """
-        Find the packages in the current service but not in the release_package_names.
+        Find the packages in the current service but not in the release.
         This means if the user reverts to this release those packages will no longer
         exist.
         """

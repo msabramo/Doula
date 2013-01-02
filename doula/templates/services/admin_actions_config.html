@@ -1,0 +1,56 @@
+<div class="accordion-group">
+
+  <div class="accordion-heading group sm-accordion-title packages-title-bar">
+    <a href="#" onclick="return false;" data-toggle="collapse"
+    data-target="#config_table">
+      <strong class="accord-strong">{{ service.name }}'s</strong> Config
+    </a>
+  </div>
+
+<div id="config_table" class="accordion-body collapse {% if not is_config_up_to_date %}in{% endif %}">
+  <div class="accordion-inner">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Config</th>
+          <th>Version</th>
+          <th>Commit Message</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td width="19%">
+            &nbsp;
+          </td>
+          <td width="50%">
+            {# we use a list so that we can access the selected config outside the loop #}
+            {% set selected_service_configs = [] %}
+
+            <select id="config_sha" class="package-select input-xlarge">
+              {% for service_config in service.get_configs() %}
+                {% if service.config['sha'] ==  service_config.sha %}
+                  {% if selected_service_configs.append(service_config) %}{% endif %}
+                {% endif %}
+
+                <option value="{{ service_config.sha }}"
+                {% if selected_service_configs|length > 0 and selected_service_configs[0].sha == service_config.sha %}selected="selected"{% endif %} >
+                  {{ service_config.date|formatted_github_day_and_time }}
+                </option>
+              {% endfor %}
+            </select>
+
+            <span id="config_sha_warning" class="help-block-config">
+              Current version <strong>{{ selected_service_configs[0].date|formatted_github_day_and_time }}</strong>.
+            </span>
+          </td>
+          <td width="30%" id="service_config_col">
+            <a href="http://code.corp.surveymonkey.com/config/{{selected_service_configs[0].service}}/tree/{{selected_service_configs[0].sha}}" target="_blank">
+              {{ selected_service_configs[0].message }}
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+ </div>
+</div>

@@ -5,7 +5,7 @@ import simplejson as json
 
 class User(object):
     """
-    The user represents a user that has logged into Doula via Github
+    The user represents a user that has logged into Doula via GitHub
 
     Example user object:
     user = {

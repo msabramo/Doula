@@ -1,7 +1,24 @@
 from datetime import datetime
 from doula.util import comparable_name
 from doula.util import remove_timezone
+from doula.util import dumps
 import math
+
+
+def stringify(obj):
+    return dumps(obj)
+
+
+def formatted_github_day_and_time(date):
+    """
+    Returns a friendly date in the format: July 10, 2012 12:05 PM
+    date - a github formatted date as a string (ex. "2012-05-08 14:15:31")
+    """
+    datetime_only = remove_timezone(date)
+    datetime_only = datetime_only.replace(' ', 'T', 1).strip()
+
+    dt = datetime.strptime(datetime_only, "%Y-%m-%dT%X")
+    return dt.strftime("%B %d, %Y %I:%M %p")
 
 
 def formatted_github_day(date):
@@ -102,18 +119,18 @@ def clean(text):
 def get_friendly_status_explanation(status, site_or_service='service'):
     """Get a friendly explanation of a status"""
     if status == 'deployed':
-        return "This %s has been tagged on Github and \
+        return "This %s has been tagged on GitHub and \
             been deployed to production" % site_or_service
     elif status == 'tagged':
-        return 'This %s has been comitted to Github \
+        return 'This %s has been comitted to GitHub \
             and tagged' % site_or_service
     elif status == 'uncommitted_changes':
         return "This %s's MT environment has changes that \
-            have not been committed to Github" % site_or_service
+            have not been committed to GitHub" % site_or_service
     elif status == 'unknown':
         return 'The status of this %s is unknown' % site_or_service
     else:
-        return "This %s has been committed to Github \
+        return "This %s has been committed to GitHub \
             but the latest commit has not been tagged" % site_or_service
 
 

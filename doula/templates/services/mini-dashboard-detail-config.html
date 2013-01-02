@@ -3,9 +3,9 @@
   {% for node_name, node in service.nodes.iteritems() %}
     {% if is_config_up_to_date %}
       <p>
-        View the latest
+        The config files are up to date. View them
         <a href="http://code.corp.surveymonkey.com/config/{{ service.name_url }}"
-        target="_blank">config files on Github</a>.
+        target="_blank">on GitHub</a>.
       </p>
     {% else %}
       <p>
@@ -27,14 +27,15 @@
       </p>
       {% endif %}
       <p>
-        {% if node.config['commit'] != node.config['latest_commit'] %}
-        <a href="http://code.corp.surveymonkey.com/config/{{ service.name_url }}/compare/{{node.config['latest_commit']}}...{{node.config['commit']}}"
-          target="_blank">See the diff between this commit and latest commit on Github</a>.
+        {% if node.config['sha'] != node.config['latest_sha'] %}
+
+        <a href="http://code.corp.surveymonkey.com/config/{{ service.name_url }}/compare/{{node.config['sha']}}...{{latest_service_config.sha}}"
+          target="_blank">See the diff between this commit and latest commit on GitHub</a>.
         {% else %}
-        The config files are up to date, but have been modified on the server.
-        View the latest
-        <a href="http://code.corp.surveymonkey.com/config/{{ service.name_url }}"
-        target="_blank">config files on Github</a>.
+        The config files are up to date, but have been modified on the server. View the latest
+          <a href="http://code.corp.surveymonkey.com/config/{{ service.name_url }}"
+        target="_blank">
+          config files on GitHub</a>.
         {% endif %}
       </p>
     {% endif %}

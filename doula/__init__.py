@@ -22,7 +22,7 @@ def main(global_config, **settings):
                           authorization_policy=authorization_policy,
                           session_factory=session_factory)
 
-    # Github integration
+    # GitHub integration
     config.include('velruse.providers.github')
     config.add_github_login_from_settings(prefix='github.')
 
