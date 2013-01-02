@@ -162,24 +162,16 @@ def service_diff(request):
     latest_service_config = service.get_configs()[0]
     releases = service.get_releases()
     last_release = get_last_release(releases)
-
-    # Find the release that the user chose from the dropdown by date
-    # we actually need to create the release dynamically. build a manifest
-    # and compare those
-
-    # the date is what we selected. we'll be able to tell if it's a specific release
-    # if the date and the thing agree. how do we do what we do here?
-    # will need to do that compare later on to know if we are reverting.
-
-    # todo: right now most things work, but switching between past stuff does not.
-    # fix that and this thing will be ready to rock.
-    # test on other browsers and we're done.
+ diff
+    # Need to figure out if this is a reversion by doing a comparison against existing
+    # releases. compare all packages and see. basically it would be doing a diff
 
     dict_data = {
         'date': request.POST['date'],
         'sha': request.POST['sha'],
         'packages': json.loads(request.POST['packages'])
     }
+
     selected_release = Release.build_release_on_the_fly(dict_data, service)
 
     diff = selected_release.diff_service_and_release(service)

@@ -261,7 +261,6 @@ var ServiceEnv = {
     */
     selectReleasePackages: function(event, dropdownLink) {
         this.selectReleasePackageFromDropdown(dropdownLink);
-        console.log(dropdownLink);
         this.showDiffForRelease(dropdownLink);
     },
 
@@ -278,7 +277,7 @@ var ServiceEnv = {
     * (sha for the etc and all the packages)
     */
     getDiffForReleaseParams: function(dropdownLink) {
-        var date = '2012-12-03T14:38:57-08:00'; // fill in date. fix. todod fix
+        var date = '';
 
         if (typeof(dropdownLink) != 'undefined') {
             date = dropdownLink.data('date');
@@ -337,27 +336,34 @@ var ServiceEnv = {
     },
 
     updatePackageDropdown: function(name, version) {
-        var select = $('#pckg_select_' + name);
-        var message = $('#pckg_select_msg_' + name);
-        var originalVal = $.trim(select.attr('data-original-val'));
-
-        if(originalVal != version && originalVal != 'undefined') {
+        // Only proceed if the select has the value
+        if (this.selectHasValue(name, version)) {
+            var select = $('#pckg_select_' + name);
             select.val(version);
-            select.addClass('warning');
-            message.addClass('warning');
 
-            var html = (version) ?
-                'New version <strong>' + version + '</strong>. ' :
-                'Packaged will be removed. ';
-            html += 'Current version <strong>' + originalVal + '</strong>.';
-            message.html(html);
+            var message = $('#pckg_select_msg_' + name);
+            var originalVal = $.trim(select.attr('data-original-val'));
+
+            if(originalVal != version && originalVal != 'undefined') {
+                select.addClass('warning');
+                message.addClass('warning');
+
+                var html = (version) ?
+                    'New version <strong>' + version + '</strong>. ' :
+                    'Packaged will be removed. ';
+                html += 'Current version <strong>' + originalVal + '</strong>.';
+                message.html(html);
+            }
+            else {
+                select.removeClass('warning');
+                message.removeClass('warning');
+                message.html('Current version <strong>' + originalVal + '</strong>.');
+            }
         }
-        else {
-            select.val(version);
-            select.removeClass('warning');
-            message.removeClass('warning');
-            message.html('Current version <strong>' + originalVal + '</strong>.');
-        }
+    },
+
+    selectHasValue: function(name, value) {
+        return $("#pckg_select_" + name + " option[value='"+ value + "']").length !== 0;
     },
 
     makeReleaseLinkActive: function(el) {
@@ -365,7 +371,7 @@ var ServiceEnv = {
             $(li).removeClass('active');
         });
 
-        el.parent().addClass('active');
+        el.closest('li').addClass('active');
     },
 
     updateAddNewPackageVersions: function() {

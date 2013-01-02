@@ -46,8 +46,7 @@ class Release(object):
             }
         }
         """
-        # alextodo. create a today date here.
-        release = Release('author', '2012-01-01T00:00:00', '', service.site_name, [])
+        release = Release('author', dict_data['date'], '', service.site_name, [])
         release.sha1_etc = dict_data['sha']
         release.site = service.site_name
         release.service = service.name

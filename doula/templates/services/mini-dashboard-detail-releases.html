@@ -1,21 +1,23 @@
 <div id="mini-dashboard-detail-releases" class="hide mini-dashboard-detail {% if selected_release.production %}mini-dashboard-detail-prod{% endif %}">
   {% if selected_release %}
 
-  <p style="font-size: 115%; margin-top: 15px;">
+  {% if selected_release.date %}
+    <p style="font-size: 115%; margin-top: 15px;">
+      {% if selected_release.release_number > 0 %}
+        Release <strong>#{{selected_release.release_number}}</strong> sent to <strong>{{ service.name }}</strong> on <strong>{{ site.name }}</strong> on {{selected_release.date|formatted_github_day_and_time}}.
+      {% else %}
+        Release sent to <strong>{{ service.name }}</strong> on <strong>{{ site.name }}</strong>  on {{selected_release.date|formatted_github_day_and_time}}.
+      {% endif %}
+    </p>
     {% if selected_release.release_number > 0 %}
-      Release <strong>#{{selected_release.release_number}}</strong> sent to <strong>{{ service.name }}</strong> on <strong>{{ site.name }}</strong> {{selected_release.date|relative_datetime}}.
-    {% else %}
-      Release sent to <strong>{{ service.name }}</strong> on <strong>{{ site.name }}</strong> {{selected_release.date|relative_datetime}}.
+    <p style="font-size: 115%;">
+      <i class="icon-star"></i>
+      Sent to production {{selected_release.date|formatted_github_day_and_time}}.
+    </p>
     {% endif %}
-  </p>
-  {% if selected_release.release_number > 0 %}
-  <p style="font-size: 115%;">
-    <i class="icon-star"></i>
-    Sent to production {{selected_release.date|relative_datetime}}.
-  </p>
-  {% endif %}
 
-  <br />
+    <br />
+  {% endif %}
 
   <table class="table table-bordered">
     <thead>

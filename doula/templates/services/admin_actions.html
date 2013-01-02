@@ -44,7 +44,7 @@
                         —
                       {% endif %}
                     </span>
-                    <span class="release-date" data-date="{{release.date}}">{{release.date|relative_datetime}}</span>
+                    <span class="release-date" data-date="{{release.date}}">{{release.date|formatted_github_day_and_time}}</span>
 
                     {% if release.production %}
                       <span class="release-prod" data-date="{{release.date}}"><i class="icon-star"></i></span>

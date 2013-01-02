@@ -1,0 +1,319 @@
+{
+  "status": "uncommitted_changes",
+  "last_tag": {
+    "date": 1314296555,
+    "message": "",
+    "name": "sjc-migration"
+  },
+  "change_count_config": 0,
+  "site_name": "alexs-macbook-pro-6.local",
+  "tags": [
+    {
+      "date": 1292611130,
+      "message": "add pubkey for signing",
+      "name": "maintainer-pgp-pub"
+    },
+    {
+      "date": 1314296555,
+      "message": "",
+      "name": "sjc-migration"
+    },
+    {
+      "date": 1292553274,
+      "message": "Tagging release: v0.0rc -- mt1:current-howler",
+      "name": "v0.0rc"
+    },
+    {
+      "date": 1292614931,
+      "message": "Tagging release: v0.1rc1 -- mt1:current-howler",
+      "name": "v0.1rc1"
+    },
+    {
+      "date": 1297186391,
+      "message": "",
+      "name": "v0.2rc1"
+    },
+    {
+      "date": 1297712607,
+      "message": "Tagging release: v0.3 -- mt1:current-text-analysis",
+      "name": "v0.3"
+    },
+    {
+      "date": 1301517764,
+      "message": "Tagging release: v0.6 -- mt1:anon",
+      "name": "v0.6"
+    }
+  ],
+  "is_dirty_app": true,
+  "name_url": "txtasvc",
+  "last_tag_config": {
+    "date": 1314296555,
+    "message": "",
+    "name": "sjc-migration"
+  },
+  "change_count_app": 32,
+  "last_tag_app": {
+    "date": 1314296555,
+    "message": "",
+    "name": "sjc-migration"
+  },
+  "packages": {
+    "pastedeploy": {
+      "github_info": false,
+      "version": "1.3.4",
+      "remote": "",
+      "name": "pastedeploy",
+      "comparable_name": "pastedeploy"
+    },
+    "weberror": {
+      "github_info": false,
+      "version": "0.10.2",
+      "remote": "",
+      "name": "weberror",
+      "comparable_name": "weberror"
+    },
+    "webtest": {
+      "github_info": false,
+      "version": "1.2.2",
+      "remote": "",
+      "name": "webtest",
+      "comparable_name": "webtest"
+    },
+    "pygments": {
+      "github_info": false,
+      "version": "1.3.1",
+      "remote": "",
+      "name": "pygments",
+      "comparable_name": "pygments"
+    },
+    "pip": {
+      "github_info": false,
+      "version": "0.8.1",
+      "remote": "",
+      "name": "pip",
+      "comparable_name": "pip"
+    },
+    "mako": {
+      "github_info": false,
+      "version": "0.3.6",
+      "remote": "",
+      "name": "mako",
+      "comparable_name": "mako"
+    },
+    "repozedebug": {
+      "github_info": false,
+      "version": "0.7.1",
+      "remote": "",
+      "name": "repoze.debug",
+      "comparable_name": "repozedebug"
+    },
+    "formencode": {
+      "github_info": false,
+      "version": "1.2.3dev",
+      "remote": "",
+      "name": "formencode",
+      "comparable_name": "formencode"
+    },
+    "pystemmer": {
+      "github_info": false,
+      "version": "1.2.0",
+      "remote": "",
+      "name": "pystemmer",
+      "comparable_name": "pystemmer"
+    },
+    "redis": {
+      "github_info": false,
+      "version": "2.2.2",
+      "remote": "",
+      "name": "redis",
+      "comparable_name": "redis"
+    },
+    "tempita": {
+      "github_info": false,
+      "version": "0.5dev",
+      "remote": "",
+      "name": "tempita",
+      "comparable_name": "tempita"
+    },
+    "textanalysis": {
+      "github_info": false,
+      "version": "0.3.36-master",
+      "remote": "",
+      "name": "textanalysis",
+      "comparable_name": "textanalysis"
+    },
+    "webob": {
+      "github_info": false,
+      "version": "1.1.1",
+      "remote": "",
+      "name": "webob",
+      "comparable_name": "webob"
+    },
+    "sqlalchemy": {
+      "github_info": false,
+      "version": "0.6.5",
+      "remote": "",
+      "name": "sqlalchemy",
+      "comparable_name": "sqlalchemy"
+    },
+    "pylons": {
+      "github_info": false,
+      "version": "1.0",
+      "remote": "",
+      "name": "pylons",
+      "comparable_name": "pylons"
+    },
+    "mxodbclicense": {
+      "github_info": false,
+      "version": "0.1",
+      "remote": "",
+      "name": "mxodbc-license",
+      "comparable_name": "mxodbclicense"
+    },
+    "markupsafe": {
+      "github_info": false,
+      "version": "0.11",
+      "remote": "",
+      "name": "markupsafe",
+      "comparable_name": "markupsafe"
+    },
+    "jinja2": {
+      "github_info": false,
+      "version": "2.5.5",
+      "remote": "",
+      "name": "jinja2",
+      "comparable_name": "jinja2"
+    },
+    "paste": {
+      "github_info": false,
+      "version": "1.7.5.1",
+      "remote": "",
+      "name": "paste",
+      "comparable_name": "paste"
+    },
+    "decorator": {
+      "github_info": false,
+      "version": "3.2.0",
+      "remote": "",
+      "name": "decorator",
+      "comparable_name": "decorator"
+    },
+    "beaker": {
+      "github_info": false,
+      "version": "1.5.4",
+      "remote": "",
+      "name": "beaker",
+      "comparable_name": "beaker"
+    },
+    "pyyaml": {
+      "github_info": false,
+      "version": "3.09",
+      "remote": "",
+      "name": "pyyaml",
+      "comparable_name": "pyyaml"
+    },
+    "threadframe": {
+      "github_info": false,
+      "version": "0.2",
+      "remote": "",
+      "name": "threadframe",
+      "comparable_name": "threadframe"
+    },
+    "pycrypto": {
+      "github_info": false,
+      "version": "2.3",
+      "remote": "",
+      "name": "pycrypto",
+      "comparable_name": "pycrypto"
+    },
+    "webhelpers": {
+      "github_info": false,
+      "version": "1.2",
+      "remote": "",
+      "name": "webhelpers",
+      "comparable_name": "webhelpers"
+    },
+    "nose": {
+      "github_info": false,
+      "version": "1.0.0",
+      "remote": "",
+      "name": "nose",
+      "comparable_name": "nose"
+    },
+    "setuptools": {
+      "github_info": false,
+      "version": "0.6c11",
+      "remote": "",
+      "name": "setuptools",
+      "comparable_name": "setuptools"
+    },
+    "routes": {
+      "github_info": false,
+      "version": "1.12.3",
+      "remote": "",
+      "name": "routes",
+      "comparable_name": "routes"
+    },
+    "nltk": {
+      "github_info": false,
+      "version": "2.0b9",
+      "remote": "",
+      "name": "nltk",
+      "comparable_name": "nltk"
+    },
+    "pastescript": {
+      "github_info": false,
+      "version": "1.7.3",
+      "remote": "",
+      "name": "pastescript",
+      "comparable_name": "pastescript"
+    }
+  },
+  "full_remote_etc": "origin\tgit@code.corp.surveymonkey.com:config/txtasvc.git",
+  "changed_files": [],
+  "supervisor_service_names": [],
+  "current_branch_app": "mt1",
+  "is_dirty_config": true,
+  "remote": "git@code.corp.surveymonkey.com:AppEnv/txtasvc.git",
+  "name": "txtasvc",
+  "language": "python",
+  "current_branch_config": "mt1",
+  "last_tag_message": "Tagging release: v0.6 -- mt1:anon",
+  "nodes": {
+    "alexs-macbook-pro-6.local": {
+      "errors": [],
+      "site_name": "alexs-macbook-pro-6.local",
+      "name": "alexs-macbook-pro-6.local",
+      "url": "http://5.5.4.39:6542",
+      "ip": "5.5.4.39",
+      "name_url": "alexs-macbook-pro-6.local",
+      "changed_files": [],
+      "config": {
+        "latest_sha": "b2394728900d20d98bf6fff21f89387c52e0282c",
+        "author": "kael",
+        "changed_files": {},
+        "is_up_to_date": false,
+        "sha": "7741d17cb6b48a699e1404f86cedede6efe7891a",
+        "branch": "mt1",
+        "formatted_date": "October 05, 2012 01:24 PM",
+        "date": "2012-10-05 13:24:31 -0700",
+        "message": "Adjusted log time format to indicate local time.",
+        "repo_name": "txtasvc"
+      },
+      "supervisor_service_names": []
+    }
+  },
+  "full_remote": "origin\tgit@code.corp.surveymonkey.com:AppEnv/txtasvc.git",
+  "config": {
+    "latest_sha": "b2394728900d20d98bf6fff21f89387c52e0282c",
+    "author": "kael",
+    "changed_files": {},
+    "is_up_to_date": false,
+    "sha": "7741d17cb6b48a699e1404f86cedede6efe7891a",
+    "branch": "mt1",
+    "formatted_date": "October 05, 2012 01:24 PM",
+    "date": "2012-10-05 13:24:31 -0700",
+    "message": "Adjusted log time format to indicate local time.",
+    "repo_name": "txtasvc"
+  }
+}

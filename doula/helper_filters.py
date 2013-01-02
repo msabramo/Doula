@@ -14,6 +14,9 @@ def formatted_github_day_and_time(date):
     Returns a friendly date in the format: July 10, 2012 12:05 PM
     date - a github formatted date as a string (ex. "2012-05-08 14:15:31")
     """
+    if not date:
+        return date
+
     datetime_only = remove_timezone(date)
     datetime_only = datetime_only.replace(' ', 'T', 1).strip()
 
@@ -226,7 +229,7 @@ def show_sites_not_on_blacklist(site, user):
     (our test accounts) for now
     """
     if site in ['mtclone', 'mt99']:
-        if user in ['tbone', 'alexv', 'whit', 'stefanien']:
+        if user in ['tbone', 'alexv']:
             return True
         else:
             return False

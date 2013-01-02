@@ -16,6 +16,9 @@ def date_to_seconds_since_epoch(date):
         2012-11-13T18:44:56+00:00
         2012-11-10T00:20:03+00:00
     """
+    if not date:
+        return 0
+
     date = remove_timezone(date)
     struct_time = time.strptime(date, "%Y-%m-%dT%H:%M:%S")
 
