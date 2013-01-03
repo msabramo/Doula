@@ -17,7 +17,8 @@ _keys = {
   # Release keys
   "releases": "releases:$site:$service",
   "release_counter": "release:$site:$service:counter",
-  "release": "release:$site:$service:$release_number"
+  "release_by_number": "release:$site:$service:$release_number",
+  "release_by_date": "release:$site:$service:$date"
 }
 
 

@@ -4,6 +4,7 @@ A simplified interface to the GitHub V3 API
 
 from datetime import datetime
 from doula.cache import Redis
+from doula.cache_keys import key_val
 from doula.config import Config
 from doula.util import *
 import simplejson as json
@@ -62,7 +63,7 @@ def get_appenv_releases(name, branch):
     }
     """
     redis = Redis.get_instance()
-    json_text = redis.get("repos:appenvs")
+    json_text = redis.get(key_val("repos_appenvs"))
 
     if json_text:
         github_appenv_data = json.loads(json_text)

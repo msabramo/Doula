@@ -29,9 +29,11 @@ class ReleaseDAL(object):
         Add a new manifest to this site and service
         """
         subs = {"site": site_name, "service": service_name, "release_number": manifest['release_number']}
-        release_key = key_val("release", subs)
+        release_key = key_val("release_by_number", subs)
 
         self.redis.set(release_key, json.dumps(manifest))
+
+        # alextodo. need to add manifests by date too. or maybe just use the dates only.
 
         releases_key = key_val("releases", subs)
         self.redis.zadd(releases_key, release_key, manifest['release_number'])
@@ -41,7 +43,7 @@ class ReleaseDAL(object):
         Manifest by release number
         """
         subs = {"site": site_name, "service": service_name, "release_number": release_number}
-        release_key = key_val("release", subs)
+        release_key = key_val("release_by_number", subs)
 
         manifest_as_json = self.redis.get(release_key)
 
@@ -65,7 +67,7 @@ class ReleaseDAL(object):
             "release_number": manifest['release_number']
         }
 
-        release_key = key_val("release", subs)
+        release_key = key_val("release_by_number", subs)
 
         self.redis.set(release_key, json.dumps(manifest))
 
