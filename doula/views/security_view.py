@@ -48,23 +48,25 @@ def login_complete_view(request):
     credentials = request.context.credentials
     username = profile['preferredUsername']
 
-    r = requests.get('https://api.github.com/users/%s' % username,
-                     params={'auth_token': credentials['oauthAccessToken']})
-    github_user_info = r.json
+    # r = requests.get('https://api.github.com/users/%s' % username,
+    #                  params={'auth_token': credentials['oauthAccessToken']})
+
+    # import pdb; pdb.set_trace()
+    # github_user_info = r.json
 
     user = User.find(username)
 
     # If a user exists we still pull the latest users avatar url and email
     # because those are updated by the user in Github Enterprise.
     if user:
-        user['avatar_url'] = github_user_info.get('avatar_url', '')
+        user['avatar_url'] = ''
         user['email'] = get_email_from_profile(profile)
         user['oauth_token'] = credentials['oauthAccessToken']
     else:
         user = {
             'username': username,
             'oauth_token': credentials['oauthAccessToken'],
-            'avatar_url': github_user_info.get('avatar_url', ''),
+            'avatar_url': '',
             'email': get_email_from_profile(profile),
             'settings': {
                 'notify_me': 'failed',
