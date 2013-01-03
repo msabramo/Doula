@@ -1,4 +1,6 @@
 from doula.models.user import User
+from doula.github import build_url_to_api
+from doula.util import pull_json_obj
 from pyramid.view import (
     view_config,
     forbidden_view_config
@@ -48,25 +50,24 @@ def login_complete_view(request):
     credentials = request.context.credentials
     username = profile['preferredUsername']
 
-    # r = requests.get('https://api.github.com/users/%s' % username,
-    #                  params={'auth_token': credentials['oauthAccessToken']})
-
-    # import pdb; pdb.set_trace()
-    # github_user_info = r.json
+    url = "%(domain)s/users/%(username)s?access_token=%(token)s"
+    params = {"username": username}
+    url = build_url_to_api(url, params)
+    github_user_info = pull_json_obj(url)
 
     user = User.find(username)
 
     # If a user exists we still pull the latest users avatar url and email
     # because those are updated by the user in Github Enterprise.
     if user:
-        user['avatar_url'] = ''
+        user['avatar_url'] = github_user_info.get('avatar_url')
         user['email'] = get_email_from_profile(profile)
         user['oauth_token'] = credentials['oauthAccessToken']
     else:
         user = {
             'username': username,
             'oauth_token': credentials['oauthAccessToken'],
-            'avatar_url': '',
+            'avatar_url': github_user_info.get('avatar_url'),
             'email': get_email_from_profile(profile),
             'settings': {
                 'notify_me': 'failed',

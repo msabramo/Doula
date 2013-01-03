@@ -90,6 +90,19 @@ def pull_url(url, timeout=3.0):
     return r.text
 
 
+def pull_json_obj(url, timeout=3.0):
+    """
+    Pull the url and decode the JSON
+    """
+    obj_as_json = pull_url(url)
+
+    if obj_as_json:
+        return json.loads(obj_as_json)
+    else:
+        return {}
+
+
+
 def dirify(url):
     url = url.lower()
     url = url.replace('<', '')
