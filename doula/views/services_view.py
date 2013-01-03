@@ -162,7 +162,7 @@ def service_diff(request):
     latest_service_config = service.get_configs()[0]
     releases = service.get_releases()
     last_release = get_last_release(releases)
- diff
+
     # Need to figure out if this is a reversion by doing a comparison against existing
     # releases. compare all packages and see. basically it would be doing a diff
 
