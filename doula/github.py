@@ -87,7 +87,7 @@ def pull_doula_admins():
     """
     url = build_url_to_api("%(domain)s/orgs/%(admins)s/members?access_token=%(token)s")
 
-    members = json.loads(pull_url(url))
+    members = pull_json_obj(url)
 
     return [member['login'] for member in members]
 
@@ -125,7 +125,7 @@ def pull_tags(git_repo):
     url = "%(domain)s/repos/%(packages)s/%(repo)s/tags"
     url = build_url_to_api(url, {"repo": git_repo["name"]})
 
-    git_tags = json.loads(pull_url(url))
+    git_tags = pull_json_obj(url)
     tags = []
 
     for tag in git_tags:
@@ -154,7 +154,7 @@ def pull_branches(git_repo):
         url = "%(domain)s/repos/%(packages)s/%(repo)s/commits?per_page=50&sha=%(sha)s"
         url = build_url_to_api(url, {"repo": git_repo["name"], "sha": branch["sha"]})
 
-        commits_for_branch = json.loads(pull_url(url))
+        commits_for_branch = pull_json_obj(url)
         shas = []
 
         for cmt in commits_for_branch:
@@ -223,14 +223,13 @@ def pull_commits(git_repo, tags, branches):
         "package_version": "0.2.3"
     }
     """
-    params = {"repo": git_repo['name']}
-    url = build_url_to_api("%(domain)s/repos/%(packages)s/%(repo)s/commits", params)
-
     commits = []
     git_commits = []
 
     try:
-        git_commits = json.loads(pull_url(url))
+        params = {"repo": git_repo['name']}
+        url = build_url_to_api("%(domain)s/repos/%(packages)s/%(repo)s/commits", params)
+        git_commits = pull_json_obj(url)
     except:
         # Some repos may not have the details, ignore and move on
         pass
@@ -315,8 +314,7 @@ def pull_devmonkeys_repos():
     start = time.time()
 
     url = build_url_to_api("%(domain)s/orgs/%(packages)s/repos?access_token=%(token)s")
-    repos_as_json = pull_url(url)
-    git_repos = json.loads(repos_as_json)
+    git_repos = pull_json_obj(url)
 
     diff = time.time() - start
 
@@ -369,7 +367,7 @@ def pull_appenv_branches(git_repo):
     url = "%(domain)s/repos/%(appenvs)s/%(repo)s/branches"
     url = build_url_to_api(url, {"repo": git_repo['name']})
 
-    github_branches = json.loads(pull_url(url))
+    github_branches = pull_json_obj(url)
     branches = {}
 
     for github_branch in github_branches:
@@ -382,7 +380,7 @@ def pull_appenv_branches(git_repo):
         params = {"repo": git_repo['name'], "sha": github_branch["commit"]["sha"]}
         url = build_url_to_api(url, params)
 
-        commits_for_branch = json.loads(pull_url(url))
+        commits_for_branch = pull_json_obj(url)
 
         # Every commit to this branch and repo is a new
         # release to the environment
@@ -427,8 +425,7 @@ def pull_appenv_repos():
     """
     repos = {}
     url = build_url_to_api("%(domain)s/orgs/%(appenvs)s/repos?access_token=%(token)s")
-
-    git_repos = json.loads(pull_url(url))
+    git_repos = pull_json_obj(url)
 
     for git_repo in git_repos:
         repos[git_repo["name"]] = {
@@ -459,7 +456,7 @@ def pull_config_services_with_branches():
     ]
     """
     url = build_url_to_api("%(domain)s/orgs/%(config)s/repos?access_token=%(token)s")
-    git_repos = json.loads(pull_url(url))
+    git_repos = pull_json_obj(url)
     names = []
 
     for repo in git_repos:
@@ -481,7 +478,7 @@ def _find_pull_service_configs_branches(service):
     url = "%(domain)s/repos/%(config)s/%(service)s/branches"
     url = build_url_to_api(url, {"service": service})
 
-    github_branches = json.loads(pull_url(url))
+    github_branches = pull_json_obj(url)
     branches = []
 
     for b in github_branches:
@@ -501,16 +498,15 @@ def pull_service_configs(site, service, sha='', date=''):
     service_configs = []
     git_service_configs = []
 
-    # Our majestic URL. pull everything on the site branch
-    url = "%(domain)s/repos/%(config)s/%(service)s/commits?"
-    url += "access_token=%(token)s&per_page=30&sha=%(sha)s&since=%(since)s"
-
-    params = {"service": service, "since": date, 'sha': site}
-    url = build_url_to_api(url, params)
-
     try:
-        config_as_json = pull_url(url)
-        git_service_configs = json.loads(config_as_json)
+        # Our majestic URL. pull everything on the site branch
+        url = "%(domain)s/repos/%(config)s/%(service)s/commits?"
+        url += "access_token=%(token)s&per_page=30&sha=%(sha)s&since=%(since)s"
+
+        params = {"service": service, "since": date, 'sha': site}
+        url = build_url_to_api(url, params)
+
+        git_service_configs = pull_json_obj(url)
     except:
         # Not all services have commits yet. Ignore those.
         pass

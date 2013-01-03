@@ -207,19 +207,19 @@ var ServiceEnv = {
         else if (sc.sha != ac.sha && sc.sha == lc.sha) {
             // the selected config is not the active config, but it is the latest
             html = "The selected and latest config from <strong>" + sc.formatted_date +
-                    "</strong> is <strong>NOT</strong> the active config. <br />";
+                    "</strong> is <strong>NOT</strong> the active config. <br /><br />";
             html += "The active config is from <strong>" + ac.formatted_date + "</strong>.";
         }
         else if (sc.sha == ac.sha && sc.sha != lc.sha) {
             // the selected and active config is NOT the latest
             html = "The selected and active config from <strong>" + sc.formatted_date +
-                    "</strong> is <strong>NOT</strong> the latest version. <br />";
+                    "</strong> is <strong>NOT</strong> the latest version. <br /><br />";
             html += "The latest config is from <strong>" + lc.formatted_date + "</strong>.";
         }
         else if (sc.sha != ac.sha && sc.sha != lc.sha) {
             // the selected config is neither the latest nor the latest
             html = "The selected config from <strong>" + sc.formatted_date +
-                    "</strong> is <strong>NOT</strong> the latest version. <br />";
+                    "</strong> is <strong>NOT</strong> the latest version. <br /><br />";
             html += "The latest config is from <strong>" + lc.formatted_date + "</strong>.";
         }
 

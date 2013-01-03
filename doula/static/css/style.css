@@ -538,10 +538,10 @@ a.release {
   display: block;
 }
 .warning {
-  color: #a8695a;
+  color: #c46a0f;
 }
 input.warning {
-  color: #a8695a;
+  color: #c46a0f;
   border-color: #C0920A;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
