@@ -6,7 +6,7 @@ from datetime import datetime
 from doula.cache import Redis
 from doula.cache_keys import key_val
 from doula.config import Config
-from doula.util import pull_json_obj, find_package_and_version_in_pip_freeze_text, date_to_seconds_since_epoch
+from doula.util import pull_json_obj, find_package_and_version_in_pip_freeze_text, date_to_seconds_since_epoch, comparable_name
 import base64
 import pdb
 import re

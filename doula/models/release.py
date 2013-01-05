@@ -3,7 +3,7 @@ from doula.github import get_appenv_releases
 from doula.models.package import Package
 from doula.models.service_config import ServiceConfig
 from doula.models.service_config_dal import ServiceConfigDAL
-from doula.util import date_to_seconds_since_epoch
+from doula.util import date_to_seconds_since_epoch, find_package_and_version_in_pip_freeze_text
 from sets import Set
 
 
@@ -76,7 +76,7 @@ class Release(object):
             {
             'commits': [
                 {
-                    'author': 'test@surveymonkey.com',
+                    'author': 'test@surveymonkey.com',)
                     'date': '2012-08-27T22: 59: 17+00: 00',
                     'message': "Pushedpanel==1.0.24
                         ##################
@@ -102,9 +102,9 @@ class Release(object):
         for line in text.splitlines():
             package_and_version = find_package_and_version_in_pip_freeze_text(line)
 
-            if len(package_and_version.keys) > 0:
+            if len(package_and_version.keys()) > 0:
                 for name, version in package_and_version.iteritems():
-                    packages.append(name, version)
+                    packages.append(Package(name, version))
 
         return packages
 
