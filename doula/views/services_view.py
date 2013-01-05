@@ -285,7 +285,7 @@ def build_release_manifest(request, service, packages, sha):
         "service": service.name,
         "site": service.site_name,
         "author": request.user['username'],
-        "pip_freeze": packages,
+        "packages": packages,
         "sha1_etc": sha,
         "comparable_packages": build_comparable_packages(packages)
     }

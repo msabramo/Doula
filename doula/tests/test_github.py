@@ -31,13 +31,6 @@ class GithubTests(unittest.TestCase):
     #         # Ensure the name is true
     #         self.assertTrue(repo['name'])
 
-    # def test_pull_appenv_repos(self):
-    #     repos = pull_appenv_repos()
-
-    #     for name, repo in repos.iteritems():
-    #         # Ensure the name is true
-    #         self.assertTrue(name)
-
     def test_pull_services_for_config_names(self):
         result = pull_services_for_config_names()
 

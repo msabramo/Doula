@@ -5,6 +5,22 @@ import requests
 import time
 
 
+def find_package_and_version_in_pip_freeze_text(text):
+    """
+    Parses the line like: 'smtemplates==0.27.38' or 'sqlalchemy-migrate==0.6.1'
+    and returns the package name and version number, if it doesn't match
+    we return an emtpy dict
+    """
+    package_and_version = {}
+
+    if text:
+        m = re.match(r'^([\S]+)==([\S]+)$', text.strip())
+
+        if m:
+            package_and_version[m.group(1)] = m.group(2)
+
+    return package_and_version
+
 def date_to_seconds_since_epoch(date):
     """
     Convert a date like 2012-11-13T18:24:21+00:00 to

@@ -112,7 +112,7 @@ def updatedoula(request):
     jobs = [
         'cleanup_queue',
         'pull_github_data',
-        'pull_appenv_github_data',
+        'pull_releases_for_all_services',
         'pull_service_configs',
         'pull_cheeseprism_data',
         'pull_bambino_data']

@@ -5,7 +5,6 @@ from doula.models.service_config import ServiceConfig
 from doula.models.service_config_dal import ServiceConfigDAL
 from doula.util import date_to_seconds_since_epoch
 from sets import Set
-import re
 
 
 class Release(object):
@@ -16,20 +15,20 @@ class Release(object):
         self.author = author
         self.date = date
         self.date_in_seconds = date_to_seconds_since_epoch(date)
+
         self.branch = branch
         self.packages = packages
         self.commit_message = commit_message
 
-        # Manifest attributes
-        # A release should really just be a bunch of manifest attributes
-        # see how close we are to pulling that from the existing git pull
         self.release_number = 0
+        self.sha1 = ""
         self.sha1_etc = ""
-        self.site = ""
+        self.site = branch # the branch and site are equal
         self.service = ""
-        self.pip_freeze = []
+
         self.is_rollback = False
         self.production = False
+        self.rolled_back_from_release_number = 0
 
     ###################
     # Factory Methods
@@ -65,7 +64,7 @@ class Release(object):
         # Site and branch are equal
         release.branch = release.site
         release.date_in_seconds = date_to_seconds_since_epoch(dict_data['date'])
-        release.packages = Release.build_packages_from_pip_freeze(dict_data['commit_message'])
+        release.packages = Release.build_packages_from_commit_message(dict_data['commit_message'])
 
         return release
 
@@ -92,26 +91,20 @@ class Release(object):
             ]
         }
         """
-        packages = Release.build_packages_from_pip_freeze(commit['message'])
+        packages = Release.build_packages_from_commit_message(commit['message'])
         return Release(commit["author"], commit['date'], commit['message'], branch, packages)
 
     @staticmethod
-    def build_packages_from_pip_freeze(text):
+    def build_packages_from_commit_message(text):
         """Build packages from text"""
         packages = []
-        start_looking_for_packages = False
 
         for line in text.splitlines():
-            line = line.strip()
+            package_and_version = find_package_and_version_in_pip_freeze_text(line)
 
-            if re.match(r'^#+$', line):
-                start_looking_for_packages = True
-
-            if start_looking_for_packages:
-                m = re.match(r'(.+)==(.+)', line)
-
-                if m:
-                    packages.append(Package(m.group(1), m.group(2), ''))
+            if len(package_and_version.keys) > 0:
+                for name, version in package_and_version.iteritems():
+                    packages.append(name, version)
 
         return packages
 

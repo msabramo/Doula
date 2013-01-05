@@ -80,7 +80,7 @@ class ServiceConfigDAL(object):
             "service": service,
             "sha": sha
             }
-        # alextodo. this is failing. figure out why
+
         service_config_sha_key = key_val("service_config_sha", key_params)
         service_config_as_json = self.redis.get(service_config_sha_key)
 

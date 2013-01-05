@@ -7,6 +7,7 @@ from doula.github import pull_devmonkeys_repos
 from doula.models.doula_dal import DoulaDAL
 from doula.models.package import Package
 from doula.models.push import Push
+from doula.models.release_dal import ReleaseDAL
 from doula.models.service import Service
 from doula.models.service_config_dal import ServiceConfigDAL
 from doula.queue import Queue
@@ -147,7 +148,7 @@ def release_service(config={}, job_dict={}, debug=False):
         dd = DoulaDAL()
         service = dd.find_service_by_name(job_dict['site'], job_dict['service'])
 
-        packages = ', '.join(["%s==%s" % (x, y) for x, y in job_dict['manifest']['pip_freeze'].iteritems()])
+        packages = ', '.join(["%s==%s" % (x, y) for x, y in job_dict['manifest']['packages'].iteritems()])
         vals = (packages, service.name, service.site_name)
 
         log.info('Pushing the packages %s to %s on %s.' % vals)
@@ -198,7 +199,7 @@ def release_service(config={}, job_dict={}, debug=False):
         run_bambino_data_in_silence(config)
 
         # Update app envs releases
-        run_pull_appenv_in_silence(config)
+        run_pull_releases_for_service_in_silence(config)
 
         # Cycle the service after releasing the service
         cycle_service(config, job_dict)
@@ -225,7 +226,7 @@ def run_bambino_data_in_silence(config):
     logging.getLogger().setLevel(logging.INFO)
 
 
-def run_pull_appenv_in_silence(config):
+def run_pull_releases_for_service_in_silence(config):
     """
     Pull the latest app env data in silence.
     """
@@ -234,8 +235,8 @@ def run_pull_appenv_in_silence(config):
     # Pull the latest app env data as well
     # Create a new job dict because we don't want to mix the logs
     # This will update the releases related ata
-    pull_appenv_github_data_job_dict = {'id': uuid.uuid1().hex}
-    pull_appenv_github_data(config, pull_appenv_github_data_job_dict)
+    pull_releases_for_service_dict = {'id': uuid.uuid1().hex}
+    pull_releases_for_service(config, pull_releases_for_service_dict)
 
     logging.getLogger().setLevel(logging.INFO)
 
@@ -343,7 +344,7 @@ def pull_service_configs(config={}, job_dict={}, debug=False):
         raise
 
 
-def pull_appenv_github_data(config={}, job_dict={}, debug=False):
+def pull_releases_for_all_services(config={}, job_dict={}, debug=False):
     """
     Pull the github data for every App environment
     """
@@ -352,11 +353,10 @@ def pull_appenv_github_data(config={}, job_dict={}, debug=False):
 
     try:
         start = time.time()
-        log.info('Pulling github appenv data')
-        redis = Redis.get_instance()
-        repos = pull_appenv_repos()
+        log.info('Pulling GitHub AppEnv Releases')
 
-        redis.set(key_val("repos_appenvs"), dumps(repos))
+        release_dal = ReleaseDAL()
+        release_dal.update_all_releases()
 
         # always remove maintenance jobs from the queue
         Queue().remove(job_dict['id'])
@@ -366,6 +366,32 @@ def pull_appenv_github_data(config={}, job_dict={}, debug=False):
         print 'DIFF IN TIME FOR PULL APPENV: ' + str(diff)
 
         log.info('Done pulling github appenv data')
+    except Exception as e:
+        log.error(e.message)
+        log.error(traceback.format_exc())
+        raise
+
+
+def pull_releases_for_service(config={}, job_dict={}, debug=False):
+    """
+    Pull the releases for this service only
+    """
+    log = create_logger(job_dict['id'])
+    load_config(config)
+
+    try:
+        start = time.time()
+        log.info('Pulling GitHub Releases for ' + job_dict['service'])
+
+        release_dal = ReleaseDAL()
+        release_dal.update_release_for_service(job_dict['service'])
+
+        # always remove maintenance jobs from the queue
+        Queue().remove(job_dict['id'])
+
+        print "\nDIFF IN TIME FOR PULL APPENV: " + str(time.time() - start)
+
+        log.info('Done pulling releases for ' + job_dict['service'])
     except Exception as e:
         log.error(e.message)
         log.error(traceback.format_exc())
@@ -415,7 +441,7 @@ def job_expired(job):
         'pull_github_data',
         'pull_bambino_data',
         'pull_service_configs',
-        'pull_appenv_github_data',
+        'pull_releases_for_all_services',
         ]
 
     if job['job_type'] in maintenance_job_types:

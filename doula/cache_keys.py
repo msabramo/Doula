@@ -15,10 +15,13 @@ _keys = {
   "service_config_sha": "service:configs:$site:$service:$sha",
 
   # Release keys
-  "releases": "releases:$site:$service",
-  "release_counter": "release:$site:$service:counter",
-  "release_by_number": "release:$site:$service:$release_number",
-  "release_by_date": "release:$site:$service:$date"
+
+  # sorted set, sorted by date, we can't do by release num
+  # because older releases simply don't have a release number
+  "release_counter"     : "release:$site:$service:counter",
+  "releases_for_service": "releases:$site:$service",
+  "release_by_number"   : "release:$site:$service:$release_number",
+  "release_by_date"     : "release:$site:$service:$date"
 }
 
 

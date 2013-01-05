@@ -19,9 +19,9 @@ def pull_github_data():
     q.this(job_dict)
 
 
-def pull_appenv_github_data():
+def pull_releases_for_all_services():
     job_dict = {
-        'job_type': 'pull_appenv_github_data'
+        'job_type': 'pull_releases_for_all_services'
     }
 
     q = Queue()
@@ -87,8 +87,8 @@ def start_task_scheduling():
     git_interval = int(Config.get('task_interval_pull_github_data'))
     sched.add_interval_job(pull_github_data, seconds=git_interval)
 
-    interval = int(Config.get('task_interval_pull_appenv_github_data'))
-    sched.add_interval_job(pull_appenv_github_data, seconds=interval)
+    interval = int(Config.get('task_interval_pull_releases_for_all_services'))
+    sched.add_interval_job(pull_releases_for_all_services, seconds=interval)
 
     interval = int(Config.get('tast_interval_pull_service_configs'))
     sched.add_interval_job(pull_service_configs, seconds=interval)

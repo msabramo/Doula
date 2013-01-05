@@ -67,7 +67,7 @@ class Push(object):
         env.host_string = node_ip
         self.debug = debug
         env.key_filename = self.keyfile
-        self.pip_freeze = ''
+        self.packages = ''
         logging.getLogger().setLevel(logging.ERROR)
 
     #override for testing
@@ -76,7 +76,7 @@ class Push(object):
 
     def packages(self, manifest):
         env.user = self.fabric_user()
-        self.packages = ['%s==%s' % (x, y) for x, y in manifest['pip_freeze'].iteritems()]
+        self.packages = ['%s==%s' % (x, y) for x, y in manifest['packages'].iteritems()]
         self.manifest = manifest
 
         failures = []
@@ -244,10 +244,10 @@ class Push(object):
     def _manifest(self, freeze_text):
         return {
             'sha1_etc':self._etc_sha1(),
-            'doula_release_number':self._get_next_release(),
+            'release_number':self._get_next_release(),
             'site': self.site,
             'service': self.service_name,
-            'pip_freeze': self._freeze_list(freeze_text),
+            'packages': self._freeze_list(freeze_text),
             'is_rollback': self.manifest['is_rollback'],
             'date': int(time.time()),
             'author': self.username

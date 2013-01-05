@@ -6,9 +6,12 @@ from datetime import datetime
 from doula.cache import Redis
 from doula.cache_keys import key_val
 from doula.config import Config
-from doula.util import *
-import simplejson as json
+from doula.util import pull_json_obj, find_package_and_version_in_pip_freeze_text, date_to_seconds_since_epoch
+import base64
+import pdb
 import re
+import simplejson as json
+import sys
 
 ######################
 # PULL FROM CACHE
@@ -95,7 +98,6 @@ def pull_doula_admins():
 ######################
 # PULL DEVMONKEY REPOS FROM GITHUB
 ######################
-
 
 def get_package_github_info(name):
     """
@@ -270,6 +272,9 @@ def pull_commits(git_repo, tags, branches):
 
     return commits
 
+###################################
+# Pull Deve Monkey Repos
+###################################
 
 def pull_devmonkeys_repos():
     """
@@ -346,95 +351,252 @@ def pull_devmonkeys_repos():
 
     return repos
 
+###################################
+# Pull Releases for Service
+###################################
 
-######################
-# PULL APPLICATION ENVS FROM GITHUB
-######################
-
-
-def pull_appenv_branches(git_repo):
+def pull_releases_for_service(service):
     """
-    Pull the commits for the appenvs for every one of their branches
-    Format of response:
+    Pull all the releases for this single service since this release date
+    for all the services branches.
+    Returns releases dict:
+    {
         "mt1": {
-            "commits": [
-                    {
-                        "date": "2012-06-04T20:14:01+00:00",
-                        "message": "Pushed autocompletesvc==0.2.2"
-                    }
-                ]
+            [
+                {
+                "author": author,
+                "date: date,
+                "branch: branch,
+                "packages: packages,
+                "commit_message: commit_message,
+                "release_number: 0,
+                "sha1: "",
+                "sha1_etc: "",
+                "site: branch,
+                "service: "",
+                "is_rollback: False,
+                "production: False,
+                "rolled_back_from_release_number: 0
+            },
+            {
+                ...
+            }]
+        },
+        "mt2": {
+            [{
+                ...
+            },
+            {
+                ...
+            }]
         }
+    }
     """
-    url = "%(domain)s/repos/%(appenvs)s/%(repo)s/branches"
-    url = build_url_to_api(url, {"repo": git_repo['name']})
+    releases = {}
 
-    github_branches = pull_json_obj(url)
-    branches = {}
+    branch_names = _pull_branches_for_service_releases(service)
 
-    for github_branch in github_branches:
-        branches[github_branch["name"]] = {
-            "commits": []
-        }
+    for branch_name in branch_names:
+        print 'Finding commits for ' + branch_name
+        releases[branch_name] = []
 
         # Pull the last 20 sha's for each branch
-        url = "%(domain)s/repos/%(appenvs)s/%(repo)s/commits?per_page=20&sha=%(sha)s"
-        params = {"repo": git_repo['name'], "sha": github_branch["commit"]["sha"]}
+        url = "%(domain)s/repos/%(appenvs)s/%(repo)s/commits?sha=%(sha)s&per_page=20"
+        params = {"repo": service, "sha": branch_name}
         url = build_url_to_api(url, params)
-
         commits_for_branch = pull_json_obj(url)
 
-        # Every commit to this branch and repo is a new
-        # release to the environment
+        print 'Number of commits for service: ' + str(len(commits_for_branch))
+
+        # Every commit to this repo is a new release to the environment
+        # and every child is an angel sans wings.
         for cmt in commits_for_branch:
-            commit = {
-                "author": cmt["commit"]["author"]["email"],
-                "date": cmt["commit"]["author"]["date"],
-                "message": cmt["commit"]["message"]
-            }
+            manifest = _pull_release_manifest(service, cmt["sha"])
+            single_release = _build_release_dict_from_manifest_and_cmt(manifest, cmt, branch_name, service)
+            releases[branch_name].append(single_release)
 
-            branches[github_branch["name"]]["commits"].append(commit)
+    return releases
 
-    return branches
-
-###################################
-# Pull App Env
-# TODO: pull the application env.
-# pull doula.manifest
-# pull from the latest date
-# pull the config file commits too.
-###################################
-
-
-def pull_appenv_repos():
+def _pull_release_manifest(service, sha):
     """
-    Pull the appenv repos in this format.
-    [
-    {
-        "branches": {
-            "mt1": {
-                "commits": [
-                        {
-                            "date": "2012-06-04T20:14:01+00:00",
-                            "message": "Pushed autocompletesvc==0.2.2"
-                        }
-                    ]
-            }
-        },
-        "name": "acsvc"
-    },
-    ]
+    Attempt to find a doula.manifest file for a release.
     """
-    repos = {}
+    url = "%(domain)s/repos/%(appenvs)s/%(repo)s/contents/doula.manifest?"
+    url += "access_token=%(token)s&sha=%(sha)s"
+    params = {"repo": service, "sha": sha}
+
+    url = build_url_to_api(url, params)
+    manifest_as_json = pull_json_obj(url)
+
+    if 'content' in manifest_as_json:
+        # github content returned with a base 64 encoding.
+        manifest_text = base64.b64decode(manifest_as_json['content'])
+
+        if manifest_text:
+            return json.loads(manifest_text)
+
+    return {}
+
+def _build_release_dict_from_manifest_and_cmt(manifest, cmt, branch_name, service):
+    """
+    Build a release from the manifest or the commit.
+    Older release commits will not have a manifest so we do the best we can.
+
+    The release dict with all keys below.
+    """
+    if len(manifest.keys()) > 0:
+        return {
+            "author": cmt["commit"]["author"]["email"],
+            "date": cmt["commit"]["author"]["date"],
+            "date_as_epoch": date_to_seconds_since_epoch(cmt["commit"]["author"]["date"]),
+            "commit_message": cmt["commit"]["message"],
+            "sha1_etc": manifest.get("sha1_etc", ""),
+            "packages": _build_release_packages(manifest, cmt),
+            "branch": branch_name,
+            "site": branch_name,
+            "service": service,
+            "sha1": cmt["sha"],
+            "is_rollback": manifest.get("is_rollback", False),
+            "release_number": manifest.get("release_number", "0"),
+            "production": manifest.get("production", False),
+            "rolled_back_from_release_number": manifest.get("rolled_back_from_release_number", "0")
+        }
+    else:
+        return {
+            "author": cmt["commit"]["author"]["email"],
+            "date": cmt["commit"]["author"]["date"],
+            "date_as_epoch": date_to_seconds_since_epoch(cmt["commit"]["author"]["date"]),
+            "commit_message": cmt["commit"]["message"],
+            "sha1_etc": "",
+            "packages": _build_release_packages({}, cmt),
+            "branch": branch_name,
+            "site": branch_name,
+            "service": service,
+            "sha1": cmt["sha"],
+            "is_rollback": False,
+            "release_number": "0",
+            "production": False,
+            "rolled_back_from_release_number": "0"
+        }
+
+def _build_release_packages(manifest, cmt):
+    """Build packages from commit message or manifest"""
+
+    if 'packages' in manifest:
+        return manifest.get('packages', {})
+    else:
+        packages = {}
+
+        for line in cmt["commit"]["message"].splitlines():
+            package_and_version = find_package_and_version_in_pip_freeze_text(line)
+            packages.update(package_and_version)
+
+    return packages
+
+def _pull_branches_for_service_releases(service):
+    url = "%(domain)s/repos/%(appenvs)s/%(service)s/branches"
+    url = build_url_to_api(url, {"service": service})
+    github_branches = pull_json_obj(url)
+
+    return [branch["name"] for branch in github_branches]
+
+## End Pull releases for service
+
+#############################
+# Pull the Services from Git
+#############################
+
+def pull_appenv_service_names():
+    """
+    Pull appenv service names
+    """
     url = build_url_to_api("%(domain)s/orgs/%(appenvs)s/repos?access_token=%(token)s")
     git_repos = pull_json_obj(url)
 
-    for git_repo in git_repos:
-        repos[git_repo["name"]] = {
-            "name": git_repo["name"],
-            "branches": pull_appenv_branches(git_repo)
-        }
+    return [git_repo["name"] for git_repo in git_repos]
 
-    return repos
+########################
+# Old Pull Appenv Repos
+########################
+# deprecate!!!
+# def pull_appenv_repos():
+#     """
+#     Pull the appenv repos in this format.
+#     [
+#     {
+#         "branches": {
+#             "mt1": {
+#                 "commits": [
+#                         {
+#                             "date": "2012-06-04T20:14:01+00:00",
+#                             "message": "Pushed autocompletesvc==0.2.2"
+#                         }
+#                     ]
+#             }
+#         },
+#         "name": "acsvc"
+#     },
+#     ]
+#     """
+#     repos = {}
+#     url = build_url_to_api("%(domain)s/orgs/%(appenvs)s/repos?access_token=%(token)s")
+#     git_repos = pull_json_obj(url)
+
+#     for git_repo in git_repos:
+#         repos[git_repo["name"]] = {
+#             "name": git_repo["name"],
+#             "branches": pull_appenv_branches(git_repo)
+#         }
+
+#     return repos
+
+# ######################
+# # Old PULL APPLICATION ENVS FROM GITHUB
+# ######################
+# # deprecate!!!
+# def pull_appenv_branches(git_repo):
+#     """
+#     Pull the commits for the appenvs for every one of their branches
+#     Format of response:
+#         "mt1": {
+#             "commits": [
+#                     {
+#                         "date": "2012-06-04T20:14:01+00:00",
+#                         "message": "Pushed autocompletesvc==0.2.2"
+#                     }
+#                 ]
+#         }
+#     """
+#     url = "%(domain)s/repos/%(appenvs)s/%(repo)s/branches"
+#     url = build_url_to_api(url, {"repo": git_repo['name']})
+
+#     github_branches = pull_json_obj(url)
+#     branches = {}
+
+#     for github_branch in github_branches:
+#         branches[github_branch["name"]] = {
+#             "commits": []
+#         }
+
+#         # Pull the last 20 sha's for each branch
+#         url = "%(domain)s/repos/%(appenvs)s/%(repo)s/commits?per_page=20&sha=%(sha)s"
+#         params = {"repo": git_repo['name'], "sha": github_branch["commit"]["sha"]}
+#         url = build_url_to_api(url, params)
+
+#         commits_for_branch = pull_json_obj(url)
+
+#         # Every commit to this branch and repo is a new
+#         # release to the environment
+#         for cmt in commits_for_branch:
+#             commit = {
+#                 "author": cmt["commit"]["author"]["email"],
+#                 "date": cmt["commit"]["author"]["date"],
+#                 "message": cmt["commit"]["message"]
+#             }
+
+#             branches[github_branch["name"]]["commits"].append(commit)
+
+#     return branches
 
 
 ###################################
