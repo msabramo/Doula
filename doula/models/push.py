@@ -114,6 +114,7 @@ class Push(object):
 
             freeze_text = self._freeze()
             manifest = self._manifest(freeze_text)
+	    #import ipdb; ipdb.set_trace()
             self.write_manifest(manifest)
 
             message = message + self.pretty_pip(freeze_text)
@@ -242,7 +243,7 @@ class Push(object):
                     indent=2, separators=(',', ': ')))
 
     def _manifest(self, freeze_text):
-        return {
+        details =  {
             'sha1_etc':self._etc_sha1(),
             'release_number':self._get_next_release(),
             'site': self.site,
@@ -252,6 +253,10 @@ class Push(object):
             'date': int(time.time()),
             'author': self.username
         }
+        for k,v in self.manifest.iteritems():
+            if not details.has_key(k):
+                details[k] = v
+	return details
 
     def _freeze_list(self, freeze_text):
         packages = {}
