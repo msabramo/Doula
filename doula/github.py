@@ -417,25 +417,32 @@ def pull_releases_for_service(service):
 
     return releases
 
+
 def _pull_release_manifest(service, sha):
     """
     Attempt to find a doula.manifest file for a release.
     """
-    url = "%(domain)s/repos/%(appenvs)s/%(repo)s/contents/doula.manifest?"
-    url += "access_token=%(token)s&sha=%(sha)s"
-    params = {"repo": service, "sha": sha}
+    try:
+        url = "%(domain)s/repos/%(appenvs)s/%(repo)s/contents/doula.manifest?"
+        url += "access_token=%(token)s&sha=%(sha)s"
+        params = {"repo": service, "sha": sha}
 
-    url = build_url_to_api(url, params)
-    manifest_as_json = pull_json_obj(url)
+        url = build_url_to_api(url, params)
+        manifest_as_json = pull_json_obj(url)
 
-    if 'content' in manifest_as_json:
-        # github content returned with a base 64 encoding.
-        manifest_text = base64.b64decode(manifest_as_json['content'])
+        if 'content' in manifest_as_json:
+            # github content returned with a base 64 encoding.
+            manifest_text = base64.b64decode(manifest_as_json['content'])
 
-        if manifest_text:
-            return json.loads(manifest_text)
+            if manifest_text:
+                return json.loads(manifest_text)
+    except:
+        # some of these don't have manifests. that's okay cause they're old
+        # releases before we had manifets
+        pass
 
     return {}
+
 
 def _build_release_dict_from_manifest_and_cmt(manifest, cmt, branch_name, service):
     """
@@ -514,89 +521,6 @@ def pull_appenv_service_names():
     git_repos = pull_json_obj(url)
 
     return [git_repo["name"] for git_repo in git_repos]
-
-########################
-# Old Pull Appenv Repos
-########################
-# deprecate!!!
-# def pull_appenv_repos():
-#     """
-#     Pull the appenv repos in this format.
-#     [
-#     {
-#         "branches": {
-#             "mt1": {
-#                 "commits": [
-#                         {
-#                             "date": "2012-06-04T20:14:01+00:00",
-#                             "message": "Pushed autocompletesvc==0.2.2"
-#                         }
-#                     ]
-#             }
-#         },
-#         "name": "acsvc"
-#     },
-#     ]
-#     """
-#     repos = {}
-#     url = build_url_to_api("%(domain)s/orgs/%(appenvs)s/repos?access_token=%(token)s")
-#     git_repos = pull_json_obj(url)
-
-#     for git_repo in git_repos:
-#         repos[git_repo["name"]] = {
-#             "name": git_repo["name"],
-#             "branches": pull_appenv_branches(git_repo)
-#         }
-
-#     return repos
-
-# ######################
-# # Old PULL APPLICATION ENVS FROM GITHUB
-# ######################
-# # deprecate!!!
-# def pull_appenv_branches(git_repo):
-#     """
-#     Pull the commits for the appenvs for every one of their branches
-#     Format of response:
-#         "mt1": {
-#             "commits": [
-#                     {
-#                         "date": "2012-06-04T20:14:01+00:00",
-#                         "message": "Pushed autocompletesvc==0.2.2"
-#                     }
-#                 ]
-#         }
-#     """
-#     url = "%(domain)s/repos/%(appenvs)s/%(repo)s/branches"
-#     url = build_url_to_api(url, {"repo": git_repo['name']})
-
-#     github_branches = pull_json_obj(url)
-#     branches = {}
-
-#     for github_branch in github_branches:
-#         branches[github_branch["name"]] = {
-#             "commits": []
-#         }
-
-#         # Pull the last 20 sha's for each branch
-#         url = "%(domain)s/repos/%(appenvs)s/%(repo)s/commits?per_page=20&sha=%(sha)s"
-#         params = {"repo": git_repo['name'], "sha": github_branch["commit"]["sha"]}
-#         url = build_url_to_api(url, params)
-
-#         commits_for_branch = pull_json_obj(url)
-
-#         # Every commit to this branch and repo is a new
-#         # release to the environment
-#         for cmt in commits_for_branch:
-#             commit = {
-#                 "author": cmt["commit"]["author"]["email"],
-#                 "date": cmt["commit"]["author"]["date"],
-#                 "message": cmt["commit"]["message"]
-#             }
-
-#             branches[github_branch["name"]]["commits"].append(commit)
-
-#     return branches
 
 
 ###################################

@@ -2,7 +2,6 @@ from doula.cache import Redis
 from doula.cache_keys import key_val
 from doula.cheese_prism import CheesePrism
 from doula.config import Config
-from doula.github import pull_appenv_repos
 from doula.github import pull_devmonkeys_repos
 from doula.models.doula_dal import DoulaDAL
 from doula.models.package import Package
@@ -363,7 +362,7 @@ def pull_releases_for_all_services(config={}, job_dict={}, debug=False):
 
         diff = time.time() - start
         print "\n"
-        print 'DIFF IN TIME FOR PULL APPENV: ' + str(diff)
+        print 'DIFF IN TIME FOR PULL PULL ALL RELEASES: ' + str(diff)
 
         log.info('Done pulling github appenv data')
     except Exception as e:

@@ -1,7 +1,7 @@
 from doula.cache import Redis
 from doula.cache_keys import key_val
 from doula.config import Config
-from doula.github import get_appenv_releases
+from doula.github import get_appenv_releases, pull_appenv_service_names, pull_releases_for_service
 from doula.models.release import Release
 from doula.util import date_to_seconds_since_epoch, dumps
 import json
@@ -31,28 +31,30 @@ class ReleaseDAL(object):
         """
         Update the release for a specific service, update all the release keys
         """
-        releases = pull_releases_for_service(service)
+        print 'PULLING RELEASES FOR THE SERVICE: ' + service
+        releases_and_branches = pull_releases_for_service(service)
 
-        for site, release in releases.iteritems():
-            release_as_json = dumps(release)
+        for site, releases in releases_and_branches.iteritems():
+            for release in releases:
+                release_as_json = dumps(release)
 
-            subs = {
-                "site": site,
-                "service": service,
-                "date": release["date_as_epoch"],
-                "release_number": release['release_number']
-            }
+                subs = {
+                    "site": site,
+                    "service": service,
+                    "date": release["date_as_epoch"],
+                    "release_number": release['release_number']
+                }
 
-            if release["release_number"]:
-                release_by_number_key = key_val("release_by_number", subs)
-                self.redis.set(release_by_number_key, release_as_json)
+                if release["release_number"]:
+                    release_by_number_key = key_val("release_by_number", subs)
+                    self.redis.set(release_by_number_key, release_as_json)
 
-            release_by_date_key = key_val("release_by_date", subs)
-            self.redis.set(release_by_date_key, release_as_json)
+                release_by_date_key = key_val("release_by_date", subs)
+                self.redis.set(release_by_date_key, release_as_json)
 
-            # Add the release to the list of releases
-            releases_key = key_val("releases_for_service", subs)
-            self.redis.zadd(releases_key, release_as_json, release["date_as_epoch"])
+                # Add the release to the list of releases
+                releases_key = key_val("releases_for_service", subs)
+                self.redis.zadd(releases_key, release_as_json, release["date_as_epoch"])
 
     #####################
     # Manifest Release
