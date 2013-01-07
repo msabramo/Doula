@@ -31,7 +31,7 @@ def service(request):
     latest_service_config = service.get_configs()[0]
 
     releases = service.get_releases()
-    last_release = get_last_release(releases)
+    last_release = get_last_release(releases, site.name)
     selected_release = last_release
     diff = last_release.diff_service_and_release(service)
 
@@ -59,11 +59,11 @@ def service(request):
     }
 
 
-def get_last_release(releases):
+def get_last_release(releases, site_name):
     if len(releases) > 0:
         return releases[0]
     else:
-        return None
+        return Release.build_empty_release(site_name)
 
 
 def get_proper_version_name(version):
@@ -126,7 +126,7 @@ def service_dashboard(request):
     service = site.services[request.matchdict['service_name']]
     latest_service_config = service.get_configs()[0]
     releases = service.get_releases()
-    last_release = get_last_release(releases)
+    last_release = get_last_release(releases, site.name)
     selected_release = last_release
 
     diff = last_release.diff_service_and_release(service)
@@ -161,7 +161,7 @@ def service_diff(request):
 
     latest_service_config = service.get_configs()[0]
     releases = service.get_releases()
-    last_release = get_last_release(releases)
+    last_release = get_last_release(releases, site.name)
 
     # Need to figure out if this is a reversion by doing a comparison against existing
     # releases. compare all packages and see. basically it would be doing a diff

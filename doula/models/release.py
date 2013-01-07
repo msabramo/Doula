@@ -35,6 +35,13 @@ class Release(object):
     ###################
 
     @staticmethod
+    def build_empty_release(site):
+        """
+        Build an empty release object
+        """
+        return Release('', '', '', site, [])
+
+    @staticmethod
     def build_release_on_the_fly(dict_data, service):
         """
         Build a release type object on the fly from packages and manifest

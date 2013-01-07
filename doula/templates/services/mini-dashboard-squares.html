@@ -1,9 +1,9 @@
 <div id="mini-dashboard-squares" class="mini-dashboard">
   <!-- last release square -->
-  <div class="mini-dashboard-square {% if last_release %}mini-success{% else %}mini-fail{% endif %}"
+  <div class="mini-dashboard-square {% if last_release.date %}mini-success{% else %}mini-fail{% endif %}"
   data-target="#mini-dashboard-detail-releases">
      <h2>Last Release</h2>
-     {% if last_release %}
+     {% if last_release.date %}
       <p>{{last_release.date|relative_datetime}}</p>
       <p>&nbsp;</p>
      {% else %}

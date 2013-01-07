@@ -66,6 +66,9 @@ def relative_datetime(date):
 
     date - a date formatted as a string (ex. "2012-02-15T10:12:01+02:00")
     """
+    if not date:
+        return ''
+
     datetime_only = remove_timezone(date)
     dt = datetime.strptime(datetime_only, "%Y-%m-%dT%X")
     delta = datetime.now() - dt
