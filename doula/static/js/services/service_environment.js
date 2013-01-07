@@ -161,7 +161,6 @@ var ServiceEnv = {
         this.bindToMiniDashboardActions();
     },
 
-
     /************************************
     Service Config dropdown
     *************************************/
@@ -292,7 +291,10 @@ var ServiceEnv = {
 
     doneShowDiffForRelease: function(rslt) {
         this.doneUpdateMiniDashboard(rslt);
-        this.showDashboardDetailView('releases');
+
+        if (rslt.diff_exists) {
+            this.showDashboardDetailView('releases');
+        }
     },
 
     selectReleasePackageFromDropdown: function(dropdownLink) {

@@ -105,6 +105,7 @@ class Queue(object):
         These jobs run behind all other jobs
         """
         maintenance_job_types = [
+            'pull_releases_for_all_services',
             'pull_cheeseprism_data',
             'pull_github_data',
             'cleanup_queue']

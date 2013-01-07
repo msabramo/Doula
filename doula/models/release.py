@@ -168,13 +168,34 @@ class Release(object):
         """
         release_packages = self._build_release_packages_dict()
 
-        return {
+        diff = {
             'current_service_config': self._find_service_service_config(service),
             'release_service_config': self._find_release_service_config(service),
             'changed_packages'      : self._find_same_packages_with_diff_versions(service, release_packages),
             'packages_to_add'       : self._find_packages_to_add(service, release_packages),
             'packages_to_subtract'  : self._find_packages_that_will_be_subtracted(service, release_packages)
         }
+
+        diff['diff_exists'] = self._is_diff_in_diff(diff)
+
+        return diff
+
+    def _is_diff_in_diff(self, diff):
+        """
+        Determines if there is a difference between the release and the service.
+        If the sha's are different or there are any package changes, we know there is a
+        difference.
+        """
+        if (diff['current_service_config'].sha != diff['release_service_config'].sha):
+            return True
+        elif len(diff['changed_packages'].keys()) > 0:
+            return True
+        elif len(diff['packages_to_add'].keys()) > 0:
+            return True
+        elif len(diff['packages_to_subtract'].keys()) > 0:
+            return True
+        else:
+            return False
 
     def _build_release_packages_dict(self):
         """Build a dict from the release packages list"""

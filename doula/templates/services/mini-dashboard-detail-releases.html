@@ -89,9 +89,15 @@
           </a>
         </td>
         <td>
-          <a target="_blank" href="http://code.corp.surveymonkey.com/config/{{service.name_url}}/compare/{{diff['current_service_config'].sha|truncate(7, true, "")}}...{{diff['release_service_config'].sha|truncate(7, true, "")}}">
-            {{diff['current_service_config'].sha|truncate(7, true, "")}}...{{diff['release_service_config'].sha|truncate(7, true, "")}}
-          </a>
+          {% if diff['current_service_config'].sha != diff['release_service_config'].sha %}
+            <a target="_blank" href="http://code.corp.surveymonkey.com/config/{{service.name_url}}/compare/{{diff['current_service_config'].sha|truncate(7, true, "")}}...{{diff['release_service_config'].sha|truncate(7, true, "")}}">
+              {{diff['current_service_config'].sha|truncate(7, true, "")}}...{{diff['release_service_config'].sha|truncate(7, true, "")}}
+            </a>
+          {% else %}
+            <a target="_blank" href="http://code.corp.surveymonkey.com/config/{{service.name_url}}/commit/{{diff['release_service_config'].sha}}">
+              {{diff['current_service_config'].sha|truncate(7, true, "")}}
+            </a>
+          {% endif %}
         </td>
       </tr>
     </tbody>

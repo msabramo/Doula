@@ -6,12 +6,13 @@ from datetime import datetime
 from doula.cache import Redis
 from doula.cache_keys import key_val
 from doula.config import Config
-from doula.util import pull_json_obj, find_package_and_version_in_pip_freeze_text, date_to_seconds_since_epoch, comparable_name, dumps
+from doula.util import pull_json_obj, pull_url, find_package_and_version_in_pip_freeze_text, date_to_seconds_since_epoch, comparable_name, dumps
 import base64
 import pdb
 import re
 import simplejson as json
 import sys
+import time
 
 ######################
 # PULL FROM CACHE
@@ -318,7 +319,6 @@ def pull_devmonkeys_repos():
     """
     repos = {}
     start = time.time()
-
     url = build_url_to_api("%(domain)s/orgs/%(packages)s/repos?access_token=%(token)s")
     git_repos = pull_json_obj(url)
 
