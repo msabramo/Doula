@@ -1,11 +1,10 @@
 from doula.config import Config
-from doula.github import get_appenv_releases
 from doula.models.package import Package
 from doula.models.service_config import ServiceConfig
 from doula.models.service_config_dal import ServiceConfigDAL
 from doula.util import date_to_seconds_since_epoch, find_package_and_version_in_pip_freeze_text
 from sets import Set
-
+import pdb
 
 class Release(object):
     # See https://github.com/Doula/Doula/wiki/manifest
@@ -114,19 +113,6 @@ class Release(object):
                     packages.append(Package(name, version))
 
         return packages
-
-    @staticmethod
-    def get_releases(branch, service_name):
-        commits = get_appenv_releases(service_name, Config.get_safe_site(branch))
-        releases = []
-
-        for cmt in commits:
-            release = Release.build_release_from_repo(branch, cmt)
-            releases.append(release)
-
-        releases.sort(key=lambda x: x.date_in_seconds, reverse=True)
-
-        return releases
 
     ###########################
     # Diff package and release

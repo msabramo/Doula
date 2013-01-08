@@ -18,7 +18,6 @@ import time
 # PULL FROM CACHE
 ######################
 
-
 def get_devmonkey_repo(name):
     redis = Redis.get_instance()
     repo_as_json = redis.get("repo.devmonkeys:" + comparable_name(name))
@@ -43,42 +42,6 @@ def get_doula_admins():
         redis.set('doula.admins', dumps(admins))
 
     return admins
-
-
-def get_appenv_releases(name, branch):
-    """
-    Get the service releases. Each release is a commit
-    to the repo
-    GitHub data is in the format
-    {
-        "name of service": {
-            "branches": {
-                "mtx": {
-                    "commits": {
-                        [{
-                            "date": "",
-                            "message": "",
-                            "author": ""
-                        }]
-                    }
-                }
-            }
-        }
-    }
-    """
-    redis = Redis.get_instance()
-    json_text = redis.get(key_val("repos_appenvs"))
-
-    if json_text:
-        github_appenv_data = json.loads(json_text)
-
-        if name in github_appenv_data:
-            branches = github_appenv_data[name]["branches"]
-
-            if branch in branches:
-                return branches[branch]["commits"]
-
-    return {}
 
 ######################
 # PULL DOULA ADMINS

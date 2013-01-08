@@ -147,6 +147,7 @@ def service_dashboard(request):
 
     return dumps({
         'success': True,
+        'diff': diff,
         'squaresHTML': render('doula:templates/services/mini-dashboard-squares.html', temp_data),
         'configHTML': render('doula:templates/services/mini-dashboard-detail-config.html', temp_data),
         'releasesHTML': render('doula:templates/services/mini-dashboard-detail-releases.html', temp_data)
@@ -192,6 +193,7 @@ def service_diff(request):
 
     return dumps({
         'success': True,
+        'diff': diff,
         'squaresHTML': render('doula:templates/services/mini-dashboard-squares.html', temp_data),
         'configHTML': render('doula:templates/services/mini-dashboard-detail-config.html', temp_data),
         'releasesHTML': render('doula:templates/services/mini-dashboard-detail-releases.html', temp_data)

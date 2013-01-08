@@ -4,6 +4,7 @@ from doula.models.package import Package
 from doula.models.release import Release
 from doula.models.service_config_dal import ServiceConfigDAL
 from doula.models.service_config import ServiceConfig
+from doula.models.release_dal import ReleaseDAL
 from doula.helper_filters import formatted_github_day_and_time
 from doula.models.tag import Tag
 from doula.util import *
@@ -141,7 +142,8 @@ class Service(object):
         """
         Return the releases for this service to this site
         """
-        return Release.get_releases(self.site_name, self.name)
+        release_dal = ReleaseDAL()
+        return release_dal.find_releases_for_service(self.site_name, self.name)
 
     def get_configs(self):
         """

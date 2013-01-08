@@ -18,7 +18,7 @@
     </li>
     <li>
       <div class="btn-group" style="display: inline; float: right;">
-        <a id="release-service" href="#" rel="popover" delay="500"
+        <a id="{% if site.is_locked() %}release-service-locked{% else %}release-service{% endif %}" href="#" rel="popover" delay="500"
         title="Release Error" data-content="You must make a change to make new release."
         class="{% if site.is_locked() %}disabled{% endif %} btn sm-btn">
           {% if site.is_locked() %}
@@ -38,8 +38,8 @@
                 <li class="release {% if loop.index == 1 %}active{% endif %}">
                   <a class="release" data-date="{{release.date}}" href="#">
                     <span class="release-num" data-date="{{release.date}}">
-                      {% if release.release_number %}
-                        #{{loop.revindex}}
+                      {% if release.release_number|int > 0 %}
+                        #{{release.release_number}}
                       {% else %}
                         —
                       {% endif %}
@@ -94,8 +94,6 @@ var __service_configs = {{service.get_configs()|stringify|safe}};
 var __latest_service_config = {{latest_service_config|stringify|safe}};
 var __other_packages = {{other_packages|stringify|safe}};
 
-// alextodo. change the sortBy filter to status
-// then change filter by user_id or something
 var __queueFilters = {
   "site": "{{ site.name }}",
   "service": "{{ service.name }}",

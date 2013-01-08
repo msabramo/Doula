@@ -1,11 +1,11 @@
 from doula.cache import Redis
 from doula.cache_keys import key_val
 from doula.config import Config
-from doula.github import get_appenv_releases, pull_appenv_service_names, pull_releases_for_service
+from doula.github import pull_appenv_service_names, pull_releases_for_service
 from doula.models.release import Release
 from doula.util import date_to_seconds_since_epoch, dumps
 import json
-
+import pdb
 
 class ReleaseDAL(object):
     """
@@ -81,7 +81,7 @@ class ReleaseDAL(object):
         service_name - the name of the service
         limit        - max number releases to return
         """
-        subs = {"site": site_name, "service": service_name}
+        subs = {"site": Config.get_safe_site(site_name), "service": service_name}
         releases_key = key_val("releases_for_service", subs)
 
         releases = []

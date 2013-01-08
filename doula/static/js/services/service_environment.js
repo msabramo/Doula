@@ -1,3 +1,8 @@
+
+/*
+alextod. reorganize the logic here. into multiple files.
+*/
+
 var ServiceEnv = {
 
     /****************
@@ -19,6 +24,10 @@ var ServiceEnv = {
         this.bindToDataActions();
         this.initPackagesAsMixin(Data.site_name, Data.name_url);
     },
+
+    /**********************
+    UI Actions
+    ***********************/
 
     bindToUIActions: function() {
         this.initToolTips();
@@ -71,6 +80,7 @@ var ServiceEnv = {
     },
 
     bindToReleasesAndPackages: function() {
+        $('#release-service-locked')._on('click', function() {});
         $('a.release')._on('click', this.selectReleasePackages, this);
 
         $('select.package-select').
@@ -292,7 +302,7 @@ var ServiceEnv = {
     doneShowDiffForRelease: function(rslt) {
         this.doneUpdateMiniDashboard(rslt);
 
-        if (rslt.diff_exists) {
+        if (rslt.diff.diff_exists) {
             this.showDashboardDetailView('releases');
         }
     },
@@ -400,8 +410,7 @@ var ServiceEnv = {
 
         if (packageName && version) {
             var name = this.other_packages[packageName].name;
-            msg = 'Adding package <strong>' + name + '</strong> ';
-            msg += 'version <strong>' + version + '</strong>.';
+            msg = 'New version <strong>' + name + version + '</strong>. No current version exists.';
         }
 
         $('#pckg_select_add_new_package_msg').html(msg);
@@ -421,16 +430,18 @@ var ServiceEnv = {
     *****************/
 
     releaseService: function(event) {
-        this.disableReleaseServiceButton();
+        if (!$('#release-service').prop('disabled')) {
+            this.disableReleaseServiceButton();
 
-        var params = {
-            sha: $('#config_sha').val(),
-            packages: JSON.stringify(this.getActiveReleasePackages())
-        };
-        var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/release';
-        var msg = 'Releasing '+Data.name+' to '+Data.site_name+
-                '. Please be patient and stay awesome.';
-        this.post(url, params, this.doneReleaseService, this.failedReleaseService, msg);
+            var params = {
+                sha: $('#config_sha').val(),
+                packages: JSON.stringify(this.getActiveReleasePackages())
+            };
+            var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/release';
+            var msg = 'Releasing '+Data.name+' to '+Data.site_name+
+                    '. Please be patient and stay awesome.';
+            this.post(url, params, this.doneReleaseService, this.failedReleaseService, msg);
+        }
     },
 
     getActiveReleasePackages: function(returnAllPackages) {
@@ -474,11 +485,13 @@ var ServiceEnv = {
     },
 
     disableReleaseServiceButton: function() {
-        $('#release-service').addClass('disabled');
+        $('#release-service').prop('disabled', true).addClass('disabled');
     },
 
     enableReleaseServiceButton: function() {
-        $('#release-service').removeClass('disabled');
+        setTimeout(function() {
+            $('#release-service').prop('disabled', false).removeClass('disabled');
+        }, 4000);
     },
 
     // Update the current service and drop downs
