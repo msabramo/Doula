@@ -153,11 +153,10 @@ class Service(object):
         """
         sc_dal = ServiceConfigDAL()
         service_configs = sc_dal.get_service_configs(Config.get_safe_site(self.site_name), self.name)
+        service_configs = service_configs or []
 
         # check if the service sha is in the service_configs list
-        found_service_config = False
-
-        if not found_service_config:
+        if not self._current_sha_in_list_of_service_configs(service_configs):
             # Since we did not find the current service_config
             config_dict = self.config.copy()
             config_dict['site'] = self.site_name
@@ -165,6 +164,13 @@ class Service(object):
             service_configs.append(ServiceConfig(**config_dict))
 
         return service_configs
+
+    def _current_sha_in_list_of_service_configs(self, service_configs):
+        for service_config in service_configs:
+            if service_config.sha == self.config['sha']:
+                return True
+
+        return False
 
     def _add_packages(self, pckgs):
         """
