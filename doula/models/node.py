@@ -57,8 +57,6 @@ class Node(object):
             # time to gather the data
             print 'PULLING SERVICES FOR: ' + self.url + '/services'
             services_as_json = pull_url(self.url + '/services', 60)
-            print services_as_json
-            print "\n"
 
             if services_as_json:
                 services_as_dicts = json.loads(services_as_json)
