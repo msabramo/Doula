@@ -198,7 +198,7 @@ def release_service(config={}, job_dict={}, debug=False):
         run_bambino_data_in_silence(config)
 
         # Update app envs releases
-        run_pull_releases_for_service_in_silence(config)
+        run_pull_releases_for_service_in_silence(config, job_dict)
 
         # Cycle the service after releasing the service
         cycle_service(config, job_dict)
@@ -225,7 +225,7 @@ def run_bambino_data_in_silence(config):
     logging.getLogger().setLevel(logging.INFO)
 
 
-def run_pull_releases_for_service_in_silence(config):
+def run_pull_releases_for_service_in_silence(config, job_dict):
     """
     Pull the latest app env data in silence.
     """
@@ -233,8 +233,9 @@ def run_pull_releases_for_service_in_silence(config):
 
     # Pull the latest app env data as well
     # Create a new job dict because we don't want to mix the logs
-    # This will update the releases related ata
-    pull_releases_for_service_dict = {'id': uuid.uuid1().hex}
+
+    pull_releases_for_service_dict = job_dict.copy()
+    pull_releases_for_service_dict['id'] = uuid.uuid1().hex
     pull_releases_for_service(config, pull_releases_for_service_dict)
 
     logging.getLogger().setLevel(logging.INFO)
