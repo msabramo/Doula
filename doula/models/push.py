@@ -74,7 +74,7 @@ class Push(object):
     def fabric_user(self):
         return 'doula'
 
-    def packages(self, manifest):
+    def packages_to_node(self, manifest):
         env.user = self.fabric_user()
         self.packages = ['%s==%s' % (x, y) for x, y in manifest['packages'].iteritems()]
         self.manifest = manifest
@@ -140,16 +140,11 @@ class Push(object):
     """
     def config(self):
         with workon(self._etc(), self.debug):
-            result = run('git clean -f -d')
-            if result.succeeded:
-                result = run('git reset --hard HEAD')
-                if result.succeeded:
-                    result = run('git pull origin %s' % self._branch())
-                else:
-                    raise Exception(str(result).replace('\n', ', '))
+            run('git clean -f -d')
+            run('git reset --hard HEAD')
+            run('git checkout %s' % self.manifest['sha1_etc'])
 
         self._chown()
-        return result
 
     def rollback(self, etc_sha1):
         with workon(self._webapp(), self.debug):
