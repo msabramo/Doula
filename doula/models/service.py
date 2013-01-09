@@ -74,7 +74,7 @@ class Service(object):
 
         self.nodes = {}
 
-        self.config['formatted_date'] = formatted_github_day_and_time(self.config.get(['date']))
+        self.config['formatted_date'] = formatted_github_day_and_time(self.config.get('date'))
         self._add_packages(dict_data['packages'])
         self._add_tags_from_service_dict(dict_data['tags'])
         self.last_tag = self._get_last_tag()
