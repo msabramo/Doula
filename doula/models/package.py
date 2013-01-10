@@ -185,17 +185,8 @@ class Package(object):
         updated_lines = []
 
         for line in lines:
-            if re.match(r'^\*\* Copyright', line.strip(), re.I):
-                new_line = "** Copyright SurveyMonkey %s **" % datetime.now().strftime("%a, %d %b %Y %H:%M:%S")
-                updated_lines.append(new_line)
-            elif re.match(r'(version\s+=\s(\'|")(.+)(\'|"))', line.strip(), re.I):
+            if re.match(r'(version\s+=\s(\'|")(.+)(\'|"))', line.strip(), re.I):
                 updated_lines.append("version = '%s'" % version)
-            elif re.match(r'^Source: ', line.strip(), re.I):
-                # remote_url takes format: git@github.com:Doula/Doula.git
-                org_and_proj = remote_url.split(':')[1].replace('.git', '')
-                vals = (org_and_proj, branch, parent_sha[:7])
-                new_line = 'Source:      %s *%s %s' % vals
-                updated_lines.append(new_line)
             else:
                 updated_lines.append(line.rstrip())
 
