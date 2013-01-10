@@ -81,7 +81,7 @@ var ServiceEnv = {
 
     bindToReleasesAndPackages: function() {
         $('#release-service-locked')._on('click', function() {});
-        $('a.release')._on('click', this.selectReleasePackages, this);
+        $('a.release')._on('click', this.selectReleaseConfigAndPackages, this);
 
         $('select.package-select').
             on('change', $.proxy(this.updatePackageDropdownOnChange, this));
@@ -193,10 +193,6 @@ var ServiceEnv = {
         $('#service_config_col').html(html).removeClass('warning').addClass(warnClass);
     },
 
-    // alextodo. will need to update the current service and the __last_service_config
-    // after a new release. the service only needs to be updated. that is all.
-    // update the current. then make a call to updateServiceConfigMessage
-
     buildServiceConfigColHTML: function(sc) {
         var html = "<a href=\"http://code.corp.surveymonkey.com/config/";
         html += sc.service + "/tree/" + sc.sha + "\" target=\"_blank\">";
@@ -268,7 +264,8 @@ var ServiceEnv = {
     * show the release diff in the dashboard
     *
     */
-    selectReleasePackages: function(event, dropdownLink) {
+    selectReleaseConfigAndPackages: function(event, dropdownLink) {
+        // alextodo. select the config too.
         this.selectReleasePackageFromDropdown(dropdownLink);
         this.showDiffForRelease(dropdownLink);
     },
@@ -494,6 +491,13 @@ var ServiceEnv = {
         }, 4000);
     },
 
+    updateServiceAfterRelease: function(job) {
+        this.service.config.sha = job.manifest.sha1_etc;
+        this.updateServiceConfigMessage();
+        this.updateServicePackagesAfterRelease(job);
+        this.updateMiniDashboard();
+    },
+
     // Update the current service and drop downs
     updateServicePackagesAfterRelease: function(job) {
         for (var comparable_name in job.manifest.comparable_packages) {
@@ -554,7 +558,7 @@ var ServiceEnv = {
             }
 
             if (job.status == 'complete') {
-                this.updateServicePackagesAfterRelease(job);
+                this.updateServiceAfterRelease(job);
             }
         }
     }

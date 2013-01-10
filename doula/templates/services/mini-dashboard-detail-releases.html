@@ -9,7 +9,7 @@
         Release sent to <strong>{{ service.name }}</strong> on <strong>{{ site.name }}</strong>  on {{selected_release.date|formatted_github_day_and_time}}.
       {% endif %}
     </p>
-    {% if selected_release.release_number > 0 %}
+    {% if selected_release.production %}
     <p style="font-size: 115%;">
       <i class="icon-star"></i>
       Sent to production {{selected_release.date|formatted_github_day_and_time}}.
