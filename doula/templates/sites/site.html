@@ -54,26 +54,15 @@
   <div class="accordion-group filterable" data-filter-data="{{ service.name }}" >
 
     <div class="accordion-heading group service-title-bar">
-      <span id="link_{{ service.name_url }}"
-      class="accordion-toggle accord-title"
-      title="{{ service.get_status()|get_friendly_status_explanation }}"
-      rel="tooltip">
+      <span id="link_{{ service.name_url }}" class="accordion-toggle accord-title">
         <span class="{{ service.get_status()|get_status_class }}"></span>
         {{ service.name }}
-      </span>
-      <span class="service-title-last-updated hide">
-        Last Release October 12th, 2012
       </span>
     </div>
 
     <div style="display: block;" class="group">
       <a href="/sites/{{ site.name_url }}/{{ service.name_url }}" class="admin-action-link accord-link ">
         Admin Actions
-      </a>
-
-      <a href="/sites/{{ site.name_url }}/{{ service.name_url }}/details"
-      class="accord-link service-details-link">
-        Tag For Release
       </a>
     </div>
 

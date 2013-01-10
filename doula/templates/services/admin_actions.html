@@ -7,8 +7,8 @@
 	<h2>
     <a href="/sites">Sites</a> /
     <a href="/sites/{{site.name_url}}">{{ site.name }}</a> /
-    <a href="/sites/{{site.name_url}}/{{service.name_url}}">{{ service.name }}
-  </h2></a>
+    <a href="/sites/{{site.name_url}}/{{service.name_url}}">{{ service.name }}</a>
+  </h2>
   <ul>
     <li>
       <a id="cycle" class="btn sm-btn" href="#" style="float: left;">
@@ -32,7 +32,6 @@
           <span class="caret"></span>
         </a>
         <ul id="release-dropdown" class="dropdown-menu">
-            <!-- example of prod release -->
             {% if service.get_releases()|length > 0 %}
               {% for release in service.get_releases() %}
                 <li class="release {% if loop.index == 1 %}active{% endif %}">
@@ -44,7 +43,9 @@
                         —
                       {% endif %}
                     </span>
-                    <span class="release-date" data-date="{{release.date}}">{{release.date|formatted_github_day_and_time}}</span>
+                    <span class="release-date" data-date="{{release.date}}">
+                      {{release.date|formatted_github_day_and_time}}
+                    </span>
 
                     {% if release.production %}
                       <span class="release-prod" data-date="{{release.date}}"><i class="icon-star"></i></span>

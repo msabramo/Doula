@@ -2,20 +2,22 @@
     <div class="accordion-heading group sm-accordion-title">
       <a href="#" onclick="return false;" data-toggle="collapse"
       data-target="#other_packages_table">
-      <strong class="accord-strong">{{ service.name }}'s</strong> Other Python Packages
+        <strong class="accord-strong">
+          {{ service.name }}'s</strong> Other Python Packages
       </a>
     </div>
 
-    <div id="other_packages_table" class="accordion-body collapse hide-on-load"
-    style="display: none;">
+    <div id="other_packages_table" class="accordion-body collapse hide-on-load" style="display: none;">
       <div class="accordion-inner">
         <table class="table">
+
           <thead>
             <tr>
               <th>Package</th>
               <th>Version</th>
             </tr>
           </thead>
+
           <tbody>
             {% for pckg in service.packages|dictsort %}
             {% if not pckg[1].get_github_info() %}
@@ -45,7 +47,7 @@
             {% endfor %}
           </tbody>
         </table>
+
       </div>
     </div>
-  </div>
 </div>
