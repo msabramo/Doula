@@ -30,7 +30,6 @@ class TestSitesDAL(unittest.TestCase):
         self.dd.register_node(node1)
         self.dd.register_node(node2)
 
-        # alextodo. the call to nodes() need to be replace. it is wrong
         self.assertEqual(len(self.dd.nodes(site).keys()), 2)
 
         node3 = {

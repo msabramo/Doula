@@ -16,13 +16,6 @@ class PackageTests(unittest.TestCase):
     def testDown(self):
         pass
 
-    def test_get_proper_package_name(self):
-        name = '1.2.7b11-admintools-new'
-        expected = '1.2.7b11-admintools_new'
-        result = get_proper_version_name(name)
-
-        self.assertEqual(result, expected)
-
     def test_build_release_manifest(self):
         service = Service(**{
             "site_name": "mt3",

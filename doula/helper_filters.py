@@ -9,6 +9,27 @@ def stringify(obj):
     return dumps(obj)
 
 
+def version_number_to_git_tag(version):
+    """
+    Convert a version number to a git tag
+    Git tags use underscores, while our version numbers sometimes use dashes.
+    A typical version number is like so: [version number]-[git branch]
+    Ex.
+    2.6.93-server-throttling -> 2.6.93-server_throttling
+    """
+    version_list = version.split('-')
+    version_number = version_list.pop(0)
+    branch_name = ''
+
+    for part in version_list:
+        branch_name += part + '_'
+
+    if branch_name:
+        return version_number + '-' + branch_name.rstrip('_')
+    else:
+        return version_number
+
+
 def formatted_github_day_and_time(date):
     """
     Returns a friendly date in the format: July 10, 2012 12:05 PM

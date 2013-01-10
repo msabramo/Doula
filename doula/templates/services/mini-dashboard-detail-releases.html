@@ -54,8 +54,7 @@
             </td>
 
             <td>
-              <!-- TODO: the current version is not good enough. need to replace the dashes with underscores for tags. or just put them in the right place. we have code for this in helpers. -->
-              <a target="_blank" href="http://code.corp.surveymonkey.com/devmonkeys/{{package_diff['package'].name}}/compare/v{{package_diff['service_version']}}...v{{package_diff['release_version']}}">
+              <a target="_blank" href="http://code.corp.surveymonkey.com/devmonkeys/{{package_diff['package'].name}}/compare/v{{package_diff['service_version']|version_number_to_git_tag}}...v{{package_diff['release_version']|version_number_to_git_tag}}">
                 {{package_diff['service_version']}}...{{package_diff['release_version']}}
               </a>
             </td>

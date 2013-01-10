@@ -65,26 +65,6 @@ def get_last_release(releases, site_name):
     else:
         return Release.build_empty_release(site_name)
 
-
-def get_proper_version_name(version):
-    # alextodo. i think this code is duplicated.
-    # Since the package name needs to be different
-    # then the actual git tag, we put it back here
-    # so that we can link to the right commit in GitHub
-    # this is needed as a helper
-    version_list = version.split('-')
-    version_number = version_list.pop(0)
-    branch_name = ''
-
-    for part in version_list:
-        branch_name += part + '_'
-
-    if branch_name:
-        return version_number + '-' + branch_name.rstrip('_')
-    else:
-        return version_number
-
-
 def get_last_job(site, service):
     """
     Return the last cycle or release_service job
@@ -164,6 +144,7 @@ def service_diff(request):
     releases = service.get_releases()
     last_release = get_last_release(releases, site.name)
 
+    # alextodo.
     # Need to figure out if this is a reversion by doing a comparison against existing
     # releases. compare all packages and see. basically it would be doing a diff
 
@@ -198,40 +179,6 @@ def service_diff(request):
         'configHTML': render('doula:templates/services/mini-dashboard-detail-config.html', temp_data),
         'releasesHTML': render('doula:templates/services/mini-dashboard-detail-releases.html', temp_data)
     })
-
-
-def find_release_by_date(releases, date):
-    for release in releases:
-        if release.date == date:
-            return release
-
-    return False
-
-####################
-# Service Details
-####################
-
-
-@view_config(route_name='service_details', renderer="services/service_details.html")
-def service_details(request):
-    dd = DoulaDAL()
-    site = dd.find_site_by_name(request.matchdict['site_name'])
-    service = site.services[request.matchdict['service_name']]
-
-    return {'site': site, 'service': service, 'config': Config}
-
-
-@view_config(route_name='service_tag', renderer="string")
-def service_tag(request):
-    dd = DoulaDAL()
-    service = dd.find_service_by_name(
-                request.matchdict['site_name'],
-                request.matchdict['service_name'])
-
-    tag = git_dirify(request.POST['tag'])
-    service.tag(tag, request.POST['msg'], request.user['username'])
-
-    return dumps({'success': True, 'service': service})
 
 ############
 # Release
@@ -337,24 +284,4 @@ def enqueue_cycle_service(request, service):
         'site': service.site_name,
         'user_id': request.user['username']
     })
-
-##############
-# Freeze
-##############
-
-@view_config(route_name="service_freeze")
-def service_freeze(request):
-    dd = DoulaDAL()
-    service = dd.find_service_by_name(
-                request.matchdict['site_name'],
-                request.matchdict['service_name'])
-
-    response = Response(content_type='service/octet-stream')
-    file_name = service.site_name + '_' + service.name_url + '_requirements.txt'
-    response.content_disposition = 'attachment; filename="' + file_name + '"'
-    response.charset = "UTF-8"
-    response.text = unicode(service.freeze_requirements())
-
-    return response
-
 
