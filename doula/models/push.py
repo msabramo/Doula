@@ -233,9 +233,8 @@ class Push(object):
 
     def write_manifest(self, manifest):
         path = os.path.join(self.web_app_dir, self.service_name, 'doula.manifest')
-        with open(path, 'w') as f:
-            f.write(json.dumps(manifest, sort_keys=True,
-                    indent=2, separators=(',', ': ')))
+        out = json.dumps(manifest, sort_keys=True, indent=2, separators=(',', ': '))
+        run("echo '%s' > %s" % (out, path))
 
     def _manifest(self, freeze_text):
         details =  {
