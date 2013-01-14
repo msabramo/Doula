@@ -393,11 +393,11 @@ def _pull_release_manifest(service, sha):
 
         if manifest_as_json:
             return json.loads(manifest_as_json)
-    except Exception as e:
-        print 'ERROR: ' + e.message
+    except:
         # some of these don't have manifests. that's okay cause they're old
         # releases before we had manifets
-        pass
+        print 'ERROR PULLING RELEASE MANIFEST'
+        print sys.exc_info()
 
     return {}
 
