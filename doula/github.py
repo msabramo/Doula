@@ -547,7 +547,6 @@ def pull_service_configs(site, service, sha='', date=''):
         # Our majestic URL. pull everything on the site branch
         url = "%(domain)s/repos/%(config)s/%(service)s/commits?"
         url += "access_token=%(token)s&per_page=30&sha=%(sha)s&since=%(since)s"
-
         params = {"service": service, "since": date, 'sha': site}
         url = build_url_to_api(url, params)
 

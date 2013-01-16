@@ -50,23 +50,32 @@
 
   {% for key_val_pair in site.services|dictsort %}
   {% set service = key_val_pair[1] %}
+    <div class="accordion-group filterable" data-filter-data="{{ service.name }}" >
 
-  <div class="accordion-group filterable" data-filter-data="{{ service.name }}" >
+      <div class="accordion-heading group service-title-bar">
+        <span id="link_{{ service.name_url }}" class="accordion-toggle accord-title">
+          <span class="{{ service.get_status()|get_status_class }}"></span>
+          {{ service.name }}
+        </span>
 
-    <div class="accordion-heading group service-title-bar">
-      <span id="link_{{ service.name_url }}" class="accordion-toggle accord-title">
-        <span class="{{ service.get_status()|get_status_class }}"></span>
-        {{ service.name }}
-      </span>
+        {% if config.get('env') == 'dev' %}
+        <span class="accord-title-label">
+          <a href="#" class="blank">
+            Click to Label
+          </a>
+          <i class="icon-pencil"></i>
+          <input type="text" value="" placeholder="Add a label to the service" />
+        </span>
+        {% endif %}
+      </div>
+
+      <div style="display: block;" class="group">
+        <a href="/sites/{{ site.name_url }}/{{ service.name_url }}" class="admin-action-link accord-link ">
+          Admin Actions
+        </a>
+      </div>
+
     </div>
-
-    <div style="display: block;" class="group">
-      <a href="/sites/{{ site.name_url }}/{{ service.name_url }}" class="admin-action-link accord-link ">
-        Admin Actions
-      </a>
-    </div>
-
-  </div>
   <!-- end of individual site -->
   {% endfor %}
 </div>

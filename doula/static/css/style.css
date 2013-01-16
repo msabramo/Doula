@@ -291,6 +291,18 @@ body {
 .hide {
   display: none !important;
 }
+img.center {
+  display: block;
+  margin: 0 auto 1.5em;
+}
+img.right {
+  float: right;
+  margin-left: 1.5em;
+}
+img.left {
+  float: left;
+  margin-right: 1.5em;
+}
 /* END COMMON MIXINS */
 .container {
   height: auto !important;
@@ -421,6 +433,44 @@ div.navbar-inner {
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   font-size: 18px;
 }
+/* Docs Related */
+.docs h1,
+.docs h2,
+.docs h3,
+.docs h4,
+.docs h5 {
+  padding-top: 0.5em;
+  padding-bottom: 0.2em;
+  border-bottom: 1px solid #eeeeee;
+}
+.docs {
+  line-height: 1.6em;
+  color: #222;
+}
+.docs p,
+.docs blockquote,
+.docs ul,
+.docs ol {
+  margin-bottom: 1.5em;
+}
+.docs p {
+  font-size: 125%;
+  display: block;
+  -webkit-margin-before: 1em;
+  -webkit-margin-after: 1em;
+  -webkit-margin-start: 0px;
+  -webkit-margin-end: 0px;
+}
+div.docs {
+  text-align: center;
+  margin: 20px 0px;
+  padding: 0px;
+}
+div.docs-content {
+  width: 825px;
+  margin: 0px auto;
+  text-align: left;
+}
 /* Title actions */
 .title-bar {
   background: #F7F7F9;
@@ -459,6 +509,9 @@ div.navbar-inner {
 }
 .service-title-bar span {
   font-size: 18px;
+}
+.service-title-bar span.tag {
+  font-size: 16px;
 }
 span.service-title-last-updated {
   color: #999;
@@ -787,6 +840,37 @@ Mini Dashboard
 }
 .accord-strong {
   letter-spacing: 1px;
+}
+/** label tag **/
+span.accord-title-label a {
+  display: block;
+  padding: 8px 5px 8px 10px;
+  float: left;
+  font-size: 14px;
+  color: #8c8c8c;
+}
+span.accord-title-label a.blank {
+  padding-top: 10px;
+  font-size: 12px;
+}
+span.accord-title-label a.hidden {
+  display: none;
+}
+span.accord-title-label i {
+  display: none;
+  float: left;
+  margin-top: 10px;
+}
+span.accord-title-label a:hover + i {
+  display: block;
+  float: left;
+}
+span.accord-title-label input {
+  display: none;
+  margin-top: 1px;
+}
+span.accord-title-label input.active {
+  display: block;
 }
 [class^="status"] {
   display: inline-block;

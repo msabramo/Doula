@@ -13,6 +13,7 @@ from pyramid.view import view_config
 import logging
 import os
 import simplejson as json
+import markdown
 
 log = logging.getLogger(__name__)
 
@@ -124,10 +125,31 @@ def updatedoula(request):
     return {'jobs_html': html.rstrip(', ')}
 
 
-@view_config(route_name='docs', permission=NO_PERMISSION_REQUIRED)
-def docs_view(request):
-    return HTTPFound(location='http://code.corp.surveymonkey.com/pages/DevOps/DoulaDocs/docs/')
+@view_config(route_name='docs', permission=NO_PERMISSION_REQUIRED, renderer="docs/index.html")
+def docs(request):
+    if 'page' in request.matchdict:
+        page = request.matchdict['page'] + '.markdown'
+    else:
+        page = 'index.markdown'
 
+    return {'doc_content': markdown.markdown(get_docs_text(page))}
+
+
+@view_config(route_name='docs_page', permission=NO_PERMISSION_REQUIRED, renderer="docs/index.html")
+def docs_page(request):
+    if 'page' in request.matchdict:
+        page = request.matchdict['page'] + '.markdown'
+    else:
+        page = 'index.markdown'
+
+    return {'doc_content': markdown.markdown(get_docs_text(page))}
+
+def get_docs_text(filename):
+    index_file = open(os.getcwd() + '/doula/templates/docs/' + filename)
+    text = unicode(index_file.read(), errors='ignore')
+    index_file.close()
+
+    return text
 
 ####################
 # Service events

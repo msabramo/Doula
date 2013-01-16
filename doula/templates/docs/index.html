@@ -1,0 +1,11 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+<div class="title-bar clearfix">
+  <h2><a href="/docs">Overview</a> &middot; <a href="/docs/glossary">Glossary</a></h2>
+</div>
+<div class="docs">
+  <div class="docs-content">
+    {{doc_content|safe}}
+  </div>
+</div>
+{% endblock %}

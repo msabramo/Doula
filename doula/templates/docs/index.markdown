@@ -1,0 +1,111 @@
+[Doula](http://doula.corp.surveymonkey.com/) is a release management system developed at Survey Monkey to help engineering version and deploy the components that make up SurveyMonkey.com to multiple testing environments for development and quality assurance testing.
+
+Because each testing environment is composed of over 20 python services that run on one or more servers, it is complex to manually update, version and cycle those services. Doula simplifies interactions with the testing environments. It handles all these tasks and provides status information and notifications to the software and quality assurance engineers actively developing SurveyMonkey.com.
+
+Doula refers to each testing environment as a site. Each site is composed of individual python services that are responsible for different parts of the site's functionality. Each service is composed of individual python packages.
+
+Below is a simplified overview of the process of getting a service released to a site. All of the python packages under development are hosted in an internal instance of [Github](http://code.corp.surveymonkey.com/organizations/devmonkeys). Code is first committed to a Git repository by a development team. Then it's bundled as a python package and hosted in an internal PyPi named CheesePrism. This package is then released to a monkey test environment as part of a service. Once released the service's config files are updated and the service is restarted.
+
+<!-- todo: update the flow diagram. use new terms. expand a bit? -->
+
+<img class="center" src="/images/docs/doula_overview.png" title="Doula Overview" />
+
+Login
+-----
+
+<img class="right" src="/images/docs/doula_login.png" title="Doula Login" />
+
+Doula authenticates against Survey Monkey's internal [Github](http://code.corp.surveymonkey.com/). The first time you login you'll be asked to authorize Doula to access your Github account. Once logged in you’ll have access to every part of the site.
+
+All email notifications are sent to the email address associated with your Github account. To update the email address: logout of Doula, update your email address on Github and log back into Doula.
+
+<!-- clear the section -->
+<div class="group"></div>
+
+Sites
+-----
+
+<img class="right" src="/images/docs/doula_sites.png" title="Doula Sites" />
+
+Every monkey test environment (currently [MT1](http://mt1-pyweb01/), [MT2](http://mktest2-py.corp.surveymonkey.com/) and [MT3](http://mktest3-py.corp.surveymonkey.com/)) is a site managed by Doula. Each site is composed of the individual services that make up the Survey Monkey website.
+
+Each site (and on a more granular level each service) can be in one of three states: has uncommitted changes (red), has been committed but not tagged as the latest release (orange) or been committed and tagged (green). The status of the site is simply the most severe state of the services that compose the site.
+
+<!-- clear the section -->
+<div class="group"></div>
+
+Services
+--------
+
+<img class="right" src="/images/docs/doula_services.png" title="Doula Services" />
+
+Since Survey Monkey is a service oriented architecture the entire website is composed of over 20 individual python services. Each of these services is hosted in the [devmonkeys](http://code.corp.surveymonkey.com/organizations/devmonkeys) Github organization. The devmonkeys organization has over 50 repositories being actively developed by Survey Monkey engineering. Each service is composed of python packages and runs in it's own virtual environment on a site.
+
+<div class="group"></div>
+
+#### Service Details and Admin Actions
+
+There are two major actions for each service. The first, Server Details, provides information about the status of the server. Here you'll see which files have been changed, what packages exist for this service and the Git tagging information for this [service environment](#gloss). The second action, Admin Actions, allows you to view the packages' Git commit history, build new packages and release a service to a testing environment.
+
+<img class="center" src="/images/docs/doula_service_actions.png" title="Service Action" />
+
+
+<!-- clear the section -->
+<div class="group"></div>
+
+##### Package Commit History
+
+Each Survey Monkey package's Git commit history is available in Admin Actions. Clicking on the packages's name shows the familiar Github commit history with quick links to Git diffs.
+
+The active commit (the commit currently in the testing environment) is highlighted and marked as 'active package'. If no active package is found this means it wasn't found in the last 50 commits to the package's repository.
+
+<img class="center" src="/images/docs/doula_git_commit_history.png" title="Doula Service Action" />
+
+#### Build New Package
+
+You can build a new python package from a Git repository. When you click the 'Build New Package' button you'll be prompted to select the branch and version number you'd like to release from. Doula now appends the branch **name** to the **version** number when you build a new package. This allows everyone to quickly see what branch a build came from.
+
+After the package is built and pushed to CheesePrism it'll be available for release to a site.
+
+<img class="center" src="/images/docs/doula_build_new_package.png" title="Doula Service Action" />
+
+
+#### Cycle Service
+
+Cycle Service shuts down a service and starts it back up again via Supevisor.
+
+#### Release Service
+
+Releasing a service means updating the service's python packages and config files. Doula will first pull packages from CheesePrism and pip install those packages onto the testing environment. After the packages have been installed the config files are updated and the entire service environment is committed to Github.
+
+It's worth noting that this process will remove any config files edited on the service and not committted back to Github. The correct place to make config file changes is through Github and not on the server itself.
+
+<img class="center" src="/images/docs/doula_release.png" title="Doula Release" />
+
+It is now possible to lock down a testing environment. This means that no one will be able to release a service until the site is unlocked. Doula admins (mostly technical leads at Survey Monkey) will be able to freeze a site for testing prior to a release to production. When a site is locked the 'Release Service' button will appear disabled and read 'Site Locked'.
+
+<img class="center" src="/images/docs/doula_release_locked.png" title="Doula Release Locked" />
+
+
+Queue
+-----
+
+Since many of the tasks that Doula handles take longer than a few seconds Doula must schedule tasks in a queue. The [Queue](http://doula.corp.surveymonkey.com/queue) is the dashboard for all theses tasks.
+
+The Queue displays every job Doula is processing, has processed or failed to process. Every job contains detailed information about what went right or wrong when Doula processed the job. The job also includes details about when it was run and a stack trace if it failed.
+
+You can filter jobs by status (Queued, Complete or Failed) and job creator (all jobs or jobs you created).
+
+<img class="center" src="/images/docs/doula_queue.png" title="Doula Queue" />
+
+<!-- clear the section -->
+<div class="group"></div>
+
+Settings
+--------
+
+Doula keeps notification settings for every user that logs in. By default Doula will send an email notification if a job you create fails. You can also subscribe to notifications to a site or service.
+
+To get to the notifications page click the drop down in the top right corner and select the 'Settings' link.
+
+<img class="center" src="/images/docs/doula_settings.png" title="Doula Settings" />
