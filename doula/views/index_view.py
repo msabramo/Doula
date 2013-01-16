@@ -145,7 +145,12 @@ def docs_page(request):
     return {'doc_content': markdown.markdown(get_docs_text(page))}
 
 def get_docs_text(filename):
-    index_file = open(os.getcwd() + '/doula/templates/docs/' + filename)
+    path = '/opt/doula/src/doula/doula/templates/docs/' + filename
+
+    if Config.get('env') == 'dev':
+        path = os.getcwd() + '/doula/templates/docs/' + filename
+
+    index_file = open(path)
     text = unicode(index_file.read(), errors='ignore')
     index_file.close()
 
