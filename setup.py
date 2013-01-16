@@ -45,6 +45,9 @@ setup(name='Doula',
       include_package_data=True,
       zip_safe=False,
       install_requires=requires,
+      data_files=[
+        ('markdown', ['doula/templates/docs/index.markdown'])
+      ],
       setup_requires=[
         'egggitinfo'
       ],
