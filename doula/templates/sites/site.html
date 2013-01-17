@@ -58,20 +58,20 @@
           {{ service.name }}
         </span>
 
-        {% if config.get('env') == 'dev' %}
         <span class="accord-title-label">
-          <a href="#" class="blank">
-            Click to Label
+          <a id="label-for-{{ service.name_url }}" class="edit-label" data-site="{{ service.site_name }}" data-service="{{ service.name_url }}" href="#">
+            {{ service.get_label() }}
           </a>
-          <i class="icon-pencil"></i>
-          <input type="text" value="" placeholder="Add a label to the service" />
+          <input id="input-label-for-{{ service.name_url }}" data-service="{{ service.name_url }}" data-site="{{ service.site_name }}" type="text" value="{{ service.get_label() }}" placeholder="Add a label to the service" />
         </span>
-        {% endif %}
       </div>
 
       <div style="display: block;" class="group">
         <a href="/sites/{{ site.name_url }}/{{ service.name_url }}" class="admin-action-link accord-link ">
           Admin Actions
+        </a>
+        <a data-service="{{ service.name_url }}" data-site="{{ service.site_name }}" href="#" class="admin-action-link accord-link edit-label">
+          Edit Label
         </a>
       </div>
 
@@ -89,6 +89,7 @@
 '/js/common/util.js',
 '/js/site/data.js',
 '/js/site/ui.js',
-'/js/site/site.js'
+'/js/site/site.js',
+'/js/services/service_label.js'
 ]|js_script|safe }}
 {% endblock %}

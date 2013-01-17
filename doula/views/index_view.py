@@ -1,4 +1,5 @@
 from doula.cache import Redis
+from doula.cache_keys import key_val
 from doula.config import Config
 from doula.jobs_timer import start_task_scheduling
 from doula.models.doula_dal import DoulaDAL
@@ -11,9 +12,9 @@ from pyramid.response import FileResponse
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
 import logging
+import markdown
 import os
 import simplejson as json
-import markdown
 
 log = logging.getLogger(__name__)
 
@@ -67,6 +68,19 @@ def site_lock(request):
         site.lock()
     else:
         site.unlock()
+
+    return {'success': True}
+
+
+@view_config(route_name='site_label', renderer="json")
+def site_label(request):
+    """
+    Save new label
+    """
+    dd = DoulaDAL()
+    site = dd.find_site_by_name(request.matchdict['site_name'])
+    service = site.services[request.matchdict['service_name']]
+    service.save_label(request.POST['label'])
 
     return {'success': True}
 

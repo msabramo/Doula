@@ -9,6 +9,7 @@
     <a href="/sites/{{site.name_url}}">{{ site.name }}</a> /
     <a href="/sites/{{site.name_url}}/{{service.name_url}}">{{ service.name }}</a>
   </h2>
+
   <ul>
     <li>
       <a id="cycle" class="btn sm-btn" href="#" style="float: left;">
@@ -62,6 +63,15 @@
       </div>
     </li>
   </ul>
+
+  <div class="accord-title-label">
+    <span class="accord-title-label">
+      <a id="label-for-{{ service.name_url }}" class="edit-label" data-site="{{ service.site_name }}" data-service="{{ service.name_url }}" href="#">
+        {{ service.get_label() }}
+      </a>
+      <input id="input-label-for-{{ service.name_url }}" data-service="{{ service.name_url }}" data-site="{{ service.site_name }}" type="text" value="{{ service.get_label() }}" placeholder="Add a label to the service" />
+    </span>
+  </div>
 </div>
 
 <div>
@@ -108,6 +118,7 @@ var __limitInitialQueueItems = true;
 '/js/common/util.js',
 '/js/common/queue.js',
 '/js/packages/packages.js',
+'/js/services/service_label.js',
 '/js/services/service_data.js',
 '/js/services/service_environment.js'
 ]|js_script|safe }}

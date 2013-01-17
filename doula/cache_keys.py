@@ -3,6 +3,9 @@
 from string import Template
 
 _keys = {
+  # Site + Service keys
+  "site_service_label": "label:$site:$service",
+
   # Cheeseprism keys
   "cheeseprism_packages": "cheeseprism:packages",
   "cheeseprism_package": "cheeseprism:package:$name",

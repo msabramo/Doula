@@ -523,10 +523,13 @@ span.service-title-last-updated {
 .site-title {
   font-size: 18px;
 }
+a.admin-action-link:first-child {
+  margin: 10px 5px 10px 48px;
+}
 a.admin-action-link {
   float: left;
   font-size: 14px;
-  margin: 10px 5px 10px 48px;
+  margin: 10px 5px 10px 10px;
 }
 a.service-details-link {
   float: left;
@@ -849,21 +852,8 @@ span.accord-title-label a {
   font-size: 14px;
   color: #8c8c8c;
 }
-span.accord-title-label a.blank {
-  padding-top: 10px;
-  font-size: 12px;
-}
 span.accord-title-label a.hidden {
   display: none;
-}
-span.accord-title-label i {
-  display: none;
-  float: left;
-  margin-top: 10px;
-}
-span.accord-title-label a:hover + i {
-  display: block;
-  float: left;
 }
 span.accord-title-label input {
   display: none;
@@ -871,6 +861,17 @@ span.accord-title-label input {
 }
 span.accord-title-label input.active {
   display: block;
+}
+div.accord-title-label {
+  display: block;
+  float: left;
+  clear: both;
+  padding: 0px;
+  margin: 0px;
+}
+div.accord-title-label a {
+  margin: 0 0 5px 0;
+  padding: 0px;
 }
 [class^="status"] {
   display: inline-block;

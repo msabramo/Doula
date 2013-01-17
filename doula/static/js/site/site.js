@@ -94,9 +94,6 @@ var Site = {
         $('textarea.commit').on('change', this.validateMsg);
         $('a.deploy').on('click', this.deployService);
         $('#lock-site').on('click', $.proxy(this.toggleSiteLock, this));
-        $('span.accord-title-label a')._on('click', this.handleLabelEdit, this);
-        $('span.accord-title-label input')._on('blur', this.handleLabelLostFocus, this);
-        $('span.accord-title-label input')._on('keydown', this.handleLabelKeydown, this, true);
     },
 
     tag: function(event) {
@@ -182,43 +179,6 @@ var Site = {
                 addClass('locked').
                 html('<i class="icon-lock icon-black"></i> Unlock Site');
         }
-    },
-
-    /*********************
-    Handle Label Edits
-    **********************/
-
-    // alextodo. ask wags if this even makes sense. then implement. show where it will show.
-
-    handleLabelEdit: function(event, link) {
-        link.addClass('hidden');
-
-        var input = link.next().next();
-        input.addClass('active').focus();
-    },
-
-    handleLabelLostFocus: function(event, input) {
-        this.handleLabelSave(input);
-    },
-
-    handleLabelKeydown: function(event, input) {
-        if (event.keyCode == 13) {
-            this.handleLabelSave(input);
-        }
-    },
-
-    handleLabelSave: function(input) {
-        input.removeClass('active');
-        var link = input.prev().prev();
-
-        if ($.trim(input.val())) {
-            link.html(input.val()).removeClass('blank');
-        }
-        else {
-            link.html('Click to Label').addClass('blank');
-        }
-
-        link.removeClass('hidden');
     }
 };
 

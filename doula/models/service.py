@@ -1,3 +1,5 @@
+from doula.cache import Redis
+from doula.cache_keys import key_val
 from doula.config import Config
 from doula.models.node import Node
 from doula.models.package import Package
@@ -241,6 +243,28 @@ class Service(object):
                 latest_tag_date = tag.date
 
         return latest_tag
+
+    #######################
+    # Label Related
+    #######################
+
+    def save_label(self, label):
+        """Save new service label"""
+        redis = Redis.get_instance(1)
+        subs = {"site": self.site_name, "service": self.name}
+
+        redis.set(key_val('site_service_label', subs), label)
+
+    def get_label(self):
+        """Return the site's label"""
+        redis = Redis.get_instance(1)
+        subs = {"site": self.site_name, "service": self.name}
+
+        return redis.get(key_val('site_service_label', subs)) or ''
+
+    ####################
+    # Status Related
+    ####################
 
     def get_status(self):
         return self.status

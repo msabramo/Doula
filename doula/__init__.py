@@ -56,6 +56,7 @@ def main(global_config, **settings):
     config.add_route('updatedoula', '/updatedoula')
 
     config.add_route('site', '/sites/{site_name}')
+    config.add_route('site_label', '/sites/{site_name}/{service_name}/label')
     config.add_route('site_lock', '/sites/{site_name}/lock')
 
     # Services routes
