@@ -54,7 +54,8 @@
 
       <div class="accordion-heading group service-title-bar">
         <span id="link_{{ service.name_url }}" class="accordion-toggle accord-title">
-          <span class="{{ service.get_status()|get_status_class }}"></span>
+          <span class="left-status {% if service.is_config_up_to_date() %}status-passed{% else %}status-failed{% endif %}"></span>
+          <span class="right-status {% if service.get_last_job_status() == 'complete' %}status-passed{% else %}status-failed{% endif %}"></span>
           {{ service.name }}
         </span>
 

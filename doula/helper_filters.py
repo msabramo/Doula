@@ -143,45 +143,6 @@ def clean(text):
     return comparable_name(text)
 
 
-def get_friendly_status_explanation(status, site_or_service='service'):
-    """Get a friendly explanation of a status"""
-    if status == 'deployed':
-        return "This %s has been tagged on GitHub and \
-            been deployed to production" % site_or_service
-    elif status == 'tagged':
-        return 'This %s has been comitted to GitHub \
-            and tagged' % site_or_service
-    elif status == 'uncommitted_changes':
-        return "This %s's MT environment has changes that \
-            have not been committed to GitHub" % site_or_service
-    elif status == 'unknown':
-        return 'The status of this %s is unknown' % site_or_service
-    else:
-        return "This %s has been committed to GitHub \
-            but the latest commit has not been tagged" % site_or_service
-
-
-def get_status_class(status):
-    return get_class('status', status)
-
-
-def get_stat_class(status):
-    return get_class('stat', status)
-
-
-def get_class(prefix, status):
-    if status == 'deployed':
-        return prefix + '-deployed'
-    elif status == 'tagged':
-        return prefix + '-tagged'
-    elif status == 'uncommitted_changes':
-        return prefix + '-error'
-    elif status == 'unknown':
-        return prefix + '-unknown'
-    else:
-        return prefix + '-changed'
-
-
 def format_datetime(date):
     year = int(date[0:4])
     month = int(date[4:6])
@@ -226,25 +187,6 @@ def format_isodate_time(isodate):
     dt = datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
 
     return dt.strftime('%I:%M %p')
-
-
-def get_pretty_status(status):
-    """
-    Return a print friendly status
-    """
-    statuses = {
-        'tagged': 'Tagged',
-        'deployed': 'Deployed',
-        'change_to_config': 'Changes to Configuration',
-        'change_to_app': 'Changes to Service Environment',
-        'change_to_app_and_config': 'Changes to Configuration and Service Environment',
-        'uncommitted_changes': 'Uncommitted Changes'
-    }
-
-    if status in statuses:
-        return statuses[status]
-    else:
-        return 'Unknown'
 
 
 def show_sites_not_on_blacklist(site, user):

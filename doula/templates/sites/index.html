@@ -7,10 +7,8 @@
   {% if sites_count > 0 %}
     {% for name, site in sites.iteritems()|sort %}
     {% if name|show_sites_not_on_blacklist(username) %}
-      <li>
-        <a href="/sites/{{ site.name_url }}" rel="tooltip"
-          title="{{ site.get_status()|get_friendly_status_explanation('site') }}">
-          <span class="{{ site.get_status()|get_status_class }}"></span>
+      <li class="site-title">
+        <a href="/sites/{{ site.name_url }}">
           <strong class="site-title">{{ site.name|upper }}</strong>
         </a>
       </li>
@@ -22,6 +20,8 @@
     </li>
   {% endif %}
 </ul>
+
+
 {% endblock %}
 {% block scripts %}
 {{ [

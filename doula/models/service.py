@@ -1,5 +1,6 @@
 from doula.cache import Redis
 from doula.cache_keys import key_val
+from doula.queue import Queue
 from doula.config import Config
 from doula.models.node import Node
 from doula.models.package import Package
@@ -139,6 +140,38 @@ class Service(object):
                 return False
 
         return True
+
+    def get_last_job_status(self):
+        """
+        Returns the status of the last cycle/release_service
+        """
+        query = {
+            'site': self.site_name,
+            'service': self.name,
+            'job_type': ['cycle_service', 'release_service']
+        }
+
+        queue = Queue()
+        jobs = queue.get(query)
+
+        last_job = None
+
+        # Find the last job for this service. job must also be complete or failed
+        # we don't want jobs that haven't completed as a status.
+        for job in jobs:
+            if job['status'] == 'queued':
+                continue
+
+            if last_job == None:
+                last_job = job
+            elif last_job['time_started'] < job['time_started']:
+                last_job = job
+
+        if last_job:
+            return last_job['status']
+        else:
+            # Default to passed
+            return 'complete'
 
     def get_releases(self):
         """
