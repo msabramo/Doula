@@ -1,8 +1,11 @@
 from datetime import datetime
+from doula.config import Config
 from doula.util import comparable_name
-from doula.util import remove_timezone
 from doula.util import dumps
+from doula.util import remove_timezone
 import math
+import markdown
+import os
 
 
 def stringify(obj):
@@ -201,3 +204,21 @@ def show_sites_not_on_blacklist(site, user):
             return False
 
     return True
+
+
+def doc_snippet(snippet):
+    snippet = snippet + '.markdown'
+    return markdown.markdown(_get_docs_text(snippet))
+
+
+def _get_docs_text(filename):
+    path = '/opt/doula/src/doula/doula/templates/docs/' + filename
+
+    if Config.get('env') == 'dev':
+        path = os.getcwd() + '/doula/templates/docs/' + filename
+
+    index_file = open(path)
+    text = unicode(index_file.read(), errors='ignore')
+    index_file.close()
+
+    return text

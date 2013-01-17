@@ -471,6 +471,10 @@ div.docs-content {
   margin: 0px auto;
   text-align: left;
 }
+.doc-help {
+  margin: 0 0 0 5px;
+  cursor: pointer;
+}
 /* Title actions */
 .title-bar {
   background: #F7F7F9;

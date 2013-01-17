@@ -158,6 +158,14 @@ def docs_page(request):
 
     return {'doc_content': markdown.markdown(get_docs_text(page))}
 
+
+@view_config(route_name='docs_snippet', permission=NO_PERMISSION_REQUIRED, renderer="json")
+def docs_snippet(request):
+    snippet = request.POST['snippet'] + '.markdown'
+
+    return {'doc': markdown.markdown(get_docs_text(snippet))}
+
+
 def get_docs_text(filename):
     path = '/opt/doula/src/doula/doula/templates/docs/' + filename
 
