@@ -265,9 +265,16 @@ var ServiceEnv = {
     *
     */
     selectReleaseConfigAndPackages: function(event, dropdownLink) {
-        // alextodo. select the config too.
+        this.seleectReleaseConfig(dropdownLink);
         this.selectReleasePackageFromDropdown(dropdownLink);
         this.showDiffForRelease(dropdownLink);
+    },
+
+    seleectReleaseConfig: function(dropdownLink) {
+        var releaseDate = dropdownLink.attr('data-date');
+        var release = this.findReleaseByDate(releaseDate);
+
+        $('#config_sha').val(release.sha1_etc);
     },
 
     showDiffForRelease: function(dropdownLink) {
