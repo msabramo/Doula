@@ -274,7 +274,7 @@ var ServiceEnv = {
         var releaseDate = dropdownLink.attr('data-date');
         var release = this.findReleaseByDate(releaseDate);
 
-        $('#config_sha').val(release.sha1_etc);
+        $('#config_sha').val(release.sha1_etc).change();
     },
 
     showDiffForRelease: function(dropdownLink) {
