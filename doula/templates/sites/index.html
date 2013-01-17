@@ -7,7 +7,7 @@
   {% if sites_count > 0 %}
     {% for name, site in sites.iteritems()|sort %}
     {% if name|show_sites_not_on_blacklist(username) %}
-      <li class="site-title">
+      <li>
         <a href="/sites/{{ site.name_url }}">
           <strong class="site-title">{{ site.name|upper }}</strong>
         </a>

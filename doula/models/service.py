@@ -76,7 +76,7 @@ class Service(object):
         self.name_url = dirify(self.name)
 
         self.nodes = {}
-
+        self.last_job_status = None
         self.config['formatted_date'] = formatted_github_day_and_time(self.config.get('date'))
         self._add_packages(dict_data['packages'])
         self._add_tags_from_service_dict(dict_data['tags'])
@@ -145,6 +145,9 @@ class Service(object):
         """
         Returns the status of the last cycle/release_service
         """
+        if self.last_job_status:
+            return self.last_job_status
+
         query = {
             'site': self.site_name,
             'service': self.name,
@@ -153,7 +156,17 @@ class Service(object):
 
         queue = Queue()
         jobs = queue.get(query)
+        last_job = self._get_last_job_from_jobs(jobs)
 
+        if last_job:
+            self.last_job_status = last_job['status']
+        else:
+            # Default to passed
+            self.last_job_status = 'complete'
+
+        return self.last_job_status
+
+    def _get_last_job_from_jobs(self, jobs):
         last_job = None
 
         # Find the last job for this service. job must also be complete or failed
@@ -167,11 +180,7 @@ class Service(object):
             elif last_job['time_started'] < job['time_started']:
                 last_job = job
 
-        if last_job:
-            return last_job['status']
-        else:
-            # Default to passed
-            return 'complete'
+        return last_job
 
     def get_releases(self):
         """

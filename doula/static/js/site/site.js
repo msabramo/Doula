@@ -17,6 +17,11 @@ var Site = {
 
     bindToUIActions: function() {
         this.initFilter();
+        this.initToolTips();
+    },
+
+    initToolTips: function() {
+        $('[rel="tooltip"]').tooltip();
     },
 
     /*******************
