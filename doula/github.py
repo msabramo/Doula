@@ -395,6 +395,7 @@ def _pull_release_manifest(service, sha):
         if manifest_as_json:
             return json.loads(manifest_as_json)
     except:
+        pass
         # some of these don't have manifests. that's okay cause they're old
         # releases before we had manifets
         # print 'ERROR PULLING RELEASE MANIFEST'
