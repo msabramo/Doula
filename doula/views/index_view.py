@@ -195,7 +195,6 @@ def get_docs_text(filename):
     index_file = open(path)
     text = unicode(index_file.read(), errors='ignore')
     index_file.close()
->>>>>>> 42117290d7005d86397afd709636096a080d8e06
 
     return text
 
