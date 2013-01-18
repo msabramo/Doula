@@ -154,9 +154,9 @@ def webhook(request):
         # do even better stuff
 
 
-@view_config(route_name='docs', permission=NO_PERMISSION_REQUIRED)
-def docs_view(request):
-    return HTTPFound(location='http://code.corp.surveymonkey.com/pages/DevOps/DoulaDocs/docs/')
+#@view_config(route_name='docs', permission=NO_PERMISSION_REQUIRED)
+#def docs_view(request):
+    #return HTTPFound(location='http://code.corp.surveymonkey.com/pages/DevOps/DoulaDocs/docs/')
 
 @view_config(route_name='docs', permission=NO_PERMISSION_REQUIRED, renderer="docs/index.html")
 def docs(request):
