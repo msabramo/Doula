@@ -397,8 +397,8 @@ def _pull_release_manifest(service, sha):
     except:
         # some of these don't have manifests. that's okay cause they're old
         # releases before we had manifets
-        print 'ERROR PULLING RELEASE MANIFEST'
-        print sys.exc_info()
+        # print 'ERROR PULLING RELEASE MANIFEST'
+        # print sys.exc_info()
 
     return {}
 
@@ -459,8 +459,8 @@ def add_hook_to_repo(repo, callback_url, owner='devmonkeys'):
     params = {'owner': owner, 'repo': repo}
     url = "%(domain)s/repos/%(owner)s/%(repo)s/hooks?access_token=%(token)s"
     url = build_url_to_api(url, params)
-    data = json.dumps({'name': 'web', 
-            'config': 
+    data = json.dumps({'name': 'web',
+            'config':
                 {'url':callback_url,
                  'content_type': 'json',
                  'secret':'sauce',
