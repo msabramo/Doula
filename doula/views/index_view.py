@@ -149,8 +149,7 @@ def webhook(request):
     if webhook.org == 'devmonkeys':
         pass
         # do neat stuff
-    elif:
-        webhook.org == 'config'
+    elif webhook.org == 'config':
         # do even better stuff
 
 
