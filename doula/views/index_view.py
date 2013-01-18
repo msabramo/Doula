@@ -73,8 +73,6 @@ def site_lock(request):
     return {'success': True}
 
 
-<<<<<<< HEAD
-=======
 @view_config(route_name='site_label', renderer="json")
 def site_label(request):
     """
@@ -87,7 +85,6 @@ def site_label(request):
 
     return {'success': True}
 
->>>>>>> 42117290d7005d86397afd709636096a080d8e06
 
 # BAMBINO VIEWS
 @view_config(route_name='bambino_register', renderer='json', permission=NO_PERMISSION_REQUIRED)
