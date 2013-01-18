@@ -1,12 +1,36 @@
 from datetime import datetime
+from doula.config import Config
 from doula.util import comparable_name
-from doula.util import remove_timezone
 from doula.util import dumps
+from doula.util import remove_timezone
 import math
+import markdown
+import os
 
 
 def stringify(obj):
     return dumps(obj)
+
+
+def version_number_to_git_tag(version):
+    """
+    Convert a version number to a git tag
+    Git tags use underscores, while our version numbers sometimes use dashes.
+    A typical version number is like so: [version number]-[git branch]
+    Ex.
+    2.6.93-server-throttling -> 2.6.93-server_throttling
+    """
+    version_list = version.split('-')
+    version_number = version_list.pop(0)
+    branch_name = ''
+
+    for part in version_list:
+        branch_name += part + '_'
+
+    if branch_name:
+        return version_number + '-' + branch_name.rstrip('_')
+    else:
+        return version_number
 
 
 def formatted_github_day_and_time(date):
@@ -122,45 +146,6 @@ def clean(text):
     return comparable_name(text)
 
 
-def get_friendly_status_explanation(status, site_or_service='service'):
-    """Get a friendly explanation of a status"""
-    if status == 'deployed':
-        return "This %s has been tagged on GitHub and \
-            been deployed to production" % site_or_service
-    elif status == 'tagged':
-        return 'This %s has been comitted to GitHub \
-            and tagged' % site_or_service
-    elif status == 'uncommitted_changes':
-        return "This %s's MT environment has changes that \
-            have not been committed to GitHub" % site_or_service
-    elif status == 'unknown':
-        return 'The status of this %s is unknown' % site_or_service
-    else:
-        return "This %s has been committed to GitHub \
-            but the latest commit has not been tagged" % site_or_service
-
-
-def get_status_class(status):
-    return get_class('status', status)
-
-
-def get_stat_class(status):
-    return get_class('stat', status)
-
-
-def get_class(prefix, status):
-    if status == 'deployed':
-        return prefix + '-deployed'
-    elif status == 'tagged':
-        return prefix + '-tagged'
-    elif status == 'uncommitted_changes':
-        return prefix + '-error'
-    elif status == 'unknown':
-        return prefix + '-unknown'
-    else:
-        return prefix + '-changed'
-
-
 def format_datetime(date):
     year = int(date[0:4])
     month = int(date[4:6])
@@ -207,25 +192,6 @@ def format_isodate_time(isodate):
     return dt.strftime('%I:%M %p')
 
 
-def get_pretty_status(status):
-    """
-    Return a print friendly status
-    """
-    statuses = {
-        'tagged': 'Tagged',
-        'deployed': 'Deployed',
-        'change_to_config': 'Changes to Configuration',
-        'change_to_app': 'Changes to Service Environment',
-        'change_to_app_and_config': 'Changes to Configuration and Service Environment',
-        'uncommitted_changes': 'Uncommitted Changes'
-    }
-
-    if status in statuses:
-        return statuses[status]
-    else:
-        return 'Unknown'
-
-
 def show_sites_not_on_blacklist(site, user):
     """
     We only want Doula developers to see mtclone and mt99
@@ -238,3 +204,21 @@ def show_sites_not_on_blacklist(site, user):
             return False
 
     return True
+
+
+def doc_snippet(snippet):
+    snippet = snippet + '.markdown'
+    return markdown.markdown(_get_docs_text(snippet))
+
+
+def _get_docs_text(filename):
+    path = '/opt/doula/src/doula/doula/templates/docs/' + filename
+
+    if Config.get('env') == 'dev':
+        path = os.getcwd() + '/doula/templates/docs/' + filename
+
+    index_file = open(path)
+    text = unicode(index_file.read(), errors='ignore')
+    index_file.close()
+
+    return text

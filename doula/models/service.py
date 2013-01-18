@@ -1,3 +1,6 @@
+from doula.cache import Redis
+from doula.cache_keys import key_val
+from doula.queue import Queue
 from doula.config import Config
 from doula.models.node import Node
 from doula.models.package import Package
@@ -73,7 +76,7 @@ class Service(object):
         self.name_url = dirify(self.name)
 
         self.nodes = {}
-
+        self.last_job_status = None
         self.config['formatted_date'] = formatted_github_day_and_time(self.config.get('date'))
         self._add_packages(dict_data['packages'])
         self._add_tags_from_service_dict(dict_data['tags'])
@@ -137,6 +140,47 @@ class Service(object):
                 return False
 
         return True
+
+    def get_last_job_status(self):
+        """
+        Returns the status of the last cycle/release_service
+        """
+        if self.last_job_status:
+            return self.last_job_status
+
+        query = {
+            'site': self.site_name,
+            'service': self.name,
+            'job_type': ['cycle_service', 'release_service']
+        }
+
+        queue = Queue()
+        jobs = queue.get(query)
+        last_job = self._get_last_job_from_jobs(jobs)
+
+        if last_job:
+            self.last_job_status = last_job['status']
+        else:
+            # Default to passed
+            self.last_job_status = 'complete'
+
+        return self.last_job_status
+
+    def _get_last_job_from_jobs(self, jobs):
+        last_job = None
+
+        # Find the last job for this service. job must also be complete or failed
+        # we don't want jobs that haven't completed as a status.
+        for job in jobs:
+            if job['status'] == 'queued':
+                continue
+
+            if last_job == None:
+                last_job = job
+            elif last_job['time_started'] < job['time_started']:
+                last_job = job
+
+        return last_job
 
     def get_releases(self):
         """
@@ -241,6 +285,28 @@ class Service(object):
                 latest_tag_date = tag.date
 
         return latest_tag
+
+    #######################
+    # Label Related
+    #######################
+
+    def save_label(self, label):
+        """Save new service label"""
+        redis = Redis.get_instance(1)
+        subs = {"site": self.site_name, "service": self.name}
+
+        redis.set(key_val('site_service_label', subs), label)
+
+    def get_label(self):
+        """Return the site's label"""
+        redis = Redis.get_instance(1)
+        subs = {"site": self.site_name, "service": self.name}
+
+        return redis.get(key_val('site_service_label', subs)) or ''
+
+    ####################
+    # Status Related
+    ####################
 
     def get_status(self):
         return self.status

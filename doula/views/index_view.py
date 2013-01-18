@@ -1,4 +1,5 @@
 from doula.cache import Redis
+from doula.cache_keys import key_val
 from doula.config import Config
 from doula.jobs_timer import start_task_scheduling
 from doula.models.doula_dal import DoulaDAL
@@ -12,6 +13,7 @@ from pyramid.response import FileResponse
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
 import logging
+import markdown
 import os
 import simplejson as json
 
@@ -71,6 +73,21 @@ def site_lock(request):
     return {'success': True}
 
 
+<<<<<<< HEAD
+=======
+@view_config(route_name='site_label', renderer="json")
+def site_label(request):
+    """
+    Save new label
+    """
+    dd = DoulaDAL()
+    site = dd.find_site_by_name(request.matchdict['site_name'])
+    service = site.services[request.matchdict['service_name']]
+    service.save_label(request.POST['label'])
+
+    return {'success': True}
+
+>>>>>>> 42117290d7005d86397afd709636096a080d8e06
 
 # BAMBINO VIEWS
 @view_config(route_name='bambino_register', renderer='json', permission=NO_PERMISSION_REQUIRED)
@@ -142,6 +159,45 @@ def webhook(request):
 def docs_view(request):
     return HTTPFound(location='http://code.corp.surveymonkey.com/pages/DevOps/DoulaDocs/docs/')
 
+@view_config(route_name='docs', permission=NO_PERMISSION_REQUIRED, renderer="docs/index.html")
+def docs(request):
+    if 'page' in request.matchdict:
+        page = request.matchdict['page'] + '.markdown'
+    else:
+        page = 'index.markdown'
+
+    return {'doc_content': markdown.markdown(get_docs_text(page))}
+
+
+@view_config(route_name='docs_page', permission=NO_PERMISSION_REQUIRED, renderer="docs/index.html")
+def docs_page(request):
+    if 'page' in request.matchdict:
+        page = request.matchdict['page'] + '.markdown'
+    else:
+        page = 'index.markdown'
+
+    return {'doc_content': markdown.markdown(get_docs_text(page))}
+
+
+@view_config(route_name='docs_snippet', permission=NO_PERMISSION_REQUIRED, renderer="json")
+def docs_snippet(request):
+    snippet = request.POST['snippet'] + '.markdown'
+
+    return {'doc': markdown.markdown(get_docs_text(snippet))}
+
+
+def get_docs_text(filename):
+    path = '/opt/doula/src/doula/doula/templates/docs/' + filename
+
+    if Config.get('env') == 'dev':
+        path = os.getcwd() + '/doula/templates/docs/' + filename
+
+    index_file = open(path)
+    text = unicode(index_file.read(), errors='ignore')
+    index_file.close()
+>>>>>>> 42117290d7005d86397afd709636096a080d8e06
+
+    return text
 
 ####################
 # Service events

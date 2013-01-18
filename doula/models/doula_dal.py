@@ -1,9 +1,11 @@
 from doula.cache import Redis
-from doula.util import dirify
+from doula.config import Config
 from doula.models.model_factory import ModelFactory
+from doula.util import dirify
 from doula.util import dumps
 import logging
 import simplejson as json
+
 
 log = logging.getLogger('doula')
 
@@ -134,7 +136,7 @@ class DoulaDAL(object):
         # The names should always be dirified, makes them comparable
         # that way we can ignore casing and other odd characters
         node["name"] = dirify(node["name"])
-        node["site"] = dirify(node["site"])
+        node["site"] = Config.get_safe_site(dirify(node["site"]))
         registered_site = self.get_registered_site(node['site'])
 
         # log.debug('Registering Site')
@@ -162,7 +164,8 @@ class DoulaDAL(object):
                 "site": "mt1"
             }
         """
-        registered_site = self.get_registered_site(node['site'])
+        site = Config.get_safe_site(node['site'])
+        registered_site = self.get_registered_site(site)
 
         if node['name'] in registered_site['nodes']:
             del registered_site['nodes'][node['name']]

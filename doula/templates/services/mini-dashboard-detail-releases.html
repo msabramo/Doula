@@ -9,7 +9,7 @@
         Release sent to <strong>{{ service.name }}</strong> on <strong>{{ site.name }}</strong>  on {{selected_release.date|formatted_github_day_and_time}}.
       {% endif %}
     </p>
-    {% if selected_release.release_number > 0 %}
+    {% if selected_release.production %}
     <p style="font-size: 115%;">
       <i class="icon-star"></i>
       Sent to production {{selected_release.date|formatted_github_day_and_time}}.
@@ -54,8 +54,7 @@
             </td>
 
             <td>
-              <!-- TODO: the current version is not good enough. need to replace the dashes with underscores for tags. or just put them in the right place. we have code for this in helpers. -->
-              <a target="_blank" href="http://code.corp.surveymonkey.com/devmonkeys/{{package_diff['package'].name}}/compare/v{{package_diff['service_version']}}...v{{package_diff['release_version']}}">
+              <a target="_blank" href="http://code.corp.surveymonkey.com/devmonkeys/{{package_diff['package'].name}}/compare/v{{package_diff['service_version']|version_number_to_git_tag}}...v{{package_diff['release_version']|version_number_to_git_tag}}">
                 {{package_diff['service_version']}}...{{package_diff['release_version']}}
               </a>
             </td>
@@ -71,7 +70,9 @@
       <!-- config row. -->
       <tr class="title">
         <th>Config Files</th>
-        <th>Current Commit</th>
+        <th>Current Commit
+          <i rel="popover" class="icon-question-sign doc-help" data-content="{{'help_config_commit'|doc_snippet}}"></i>
+        </th>
         <th>Selected Commit</th>
         <th>Compare View</th>
       </tr>

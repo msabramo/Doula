@@ -1,0 +1,1 @@
+The current config commit is the latest GitHub commit for this site on the 'configs' organization.

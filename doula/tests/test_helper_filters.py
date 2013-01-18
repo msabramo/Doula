@@ -12,6 +12,13 @@ class HelperTests(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def test_version_number_to_git_tag(self):
+        name = '1.2.7b11-admintools-new'
+        expected = '1.2.7b11-admintools_new'
+        result = version_number_to_git_tag(name)
+
+        self.assertEqual(result, expected)
+
     def test_format_isodate(self):
         date_string = "2012-05-05T16:30:20.140762"
         pretty_date = format_isodate(date_string)
@@ -65,7 +72,14 @@ class HelperTests(unittest.TestCase):
         self.assertEqual('5 days ago at 10:31 AM', result)
 
         # expect 2 months ago
-        days_ago = datetime(now.year, now.month - 2, now.day - 2, 10, 31, 10)
+        month = now.month - 2
+        year  = now.year
+
+        if month < 1:
+            month = 12 + month
+            year = year - 1
+
+        days_ago = datetime(year, month, now.day - 2, 10, 31, 10)
         days_ago_val = days_ago.strftime("%Y-%m-%dT%X+02:00")
         result = relative_datetime(days_ago_val)
 

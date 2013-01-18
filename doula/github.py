@@ -387,23 +387,18 @@ def _pull_release_manifest(service, sha):
     Attempt to find a doula.manifest file for a release.
     """
     try:
-        url = "%(domain)s/repos/%(appenvs)s/%(repo)s/contents/doula.manifest?"
-        url += "access_token=%(token)s&sha=%(sha)s"
+        url = "http://code.corp.surveymonkey.com/%(appenvs)s/%(repo)s/raw/%(sha)s/doula.manifest"
         params = {"repo": service, "sha": sha}
-
         url = build_url_to_api(url, params)
-        manifest_as_json = pull_json_obj(url)
+        manifest_as_json = pull_url(url)
 
-        if 'content' in manifest_as_json:
-            # github content returned with a base 64 encoding.
-            manifest_text = base64.b64decode(manifest_as_json['content'])
-
-            if manifest_text:
-                return json.loads(manifest_text)
+        if manifest_as_json:
+            return json.loads(manifest_as_json)
     except:
         # some of these don't have manifests. that's okay cause they're old
         # releases before we had manifets
-        pass
+        print 'ERROR PULLING RELEASE MANIFEST'
+        print sys.exc_info()
 
     return {}
 
@@ -584,7 +579,6 @@ def pull_service_configs(site, service, sha='', date=''):
         # Our majestic URL. pull everything on the site branch
         url = "%(domain)s/repos/%(config)s/%(service)s/commits?"
         url += "access_token=%(token)s&per_page=30&sha=%(sha)s&since=%(since)s"
-
         params = {"service": service, "since": date, 'sha': site}
         url = build_url_to_api(url, params)
 

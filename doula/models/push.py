@@ -142,6 +142,7 @@ class Push(object):
         with workon(self._etc(), self.debug):
             run('git clean -f -d')
             run('git reset --hard HEAD')
+            run('git fetch')
             run('git checkout %s' % self.manifest['sha1_etc'])
 
         self._chown()

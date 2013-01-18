@@ -7,8 +7,9 @@
 	<h2>
     <a href="/sites">Sites</a> /
     <a href="/sites/{{site.name_url}}">{{ site.name }}</a> /
-    <a href="/sites/{{site.name_url}}/{{service.name_url}}">{{ service.name }}
-  </h2></a>
+    <a href="/sites/{{site.name_url}}/{{service.name_url}}">{{ service.name }}</a>
+  </h2>
+
   <ul>
     <li>
       <a id="cycle" class="btn sm-btn" href="#" style="float: left;">
@@ -18,9 +19,8 @@
     </li>
     <li>
       <div class="btn-group" style="display: inline; float: right;">
-        <a id="{% if site.is_locked() %}release-service-locked{% else %}release-service{% endif %}" href="#" rel="popover" delay="500"
-        title="Release Error" data-content="You must make a change to make new release."
-        class="{% if site.is_locked() %}disabled{% endif %} btn sm-btn">
+        <a id="{% if site.is_locked() %}release-service-locked{% else %}release-service{% endif %}"
+           href="#" class="{% if site.is_locked() %}disabled{% endif %} btn sm-btn">
           {% if site.is_locked() %}
           <i class="icon-lock icon-black"></i> Site Locked
           {% else %}
@@ -32,7 +32,6 @@
           <span class="caret"></span>
         </a>
         <ul id="release-dropdown" class="dropdown-menu">
-            <!-- example of prod release -->
             {% if service.get_releases()|length > 0 %}
               {% for release in service.get_releases() %}
                 <li class="release {% if loop.index == 1 %}active{% endif %}">
@@ -44,7 +43,9 @@
                         —
                       {% endif %}
                     </span>
-                    <span class="release-date" data-date="{{release.date}}">{{release.date|formatted_github_day_and_time}}</span>
+                    <span class="release-date" data-date="{{release.date}}">
+                      {{release.date|formatted_github_day_and_time}}
+                    </span>
 
                     {% if release.production %}
                       <span class="release-prod" data-date="{{release.date}}"><i class="icon-star"></i></span>
@@ -61,6 +62,15 @@
       </div>
     </li>
   </ul>
+
+  <div class="accord-title-label">
+    <span class="accord-title-label">
+      <a id="label-for-{{ service.name_url }}" class="edit-label" data-site="{{ service.site_name }}" data-service="{{ service.name_url }}" href="#">
+        {{ service.get_label() }}
+      </a>
+      <input id="input-label-for-{{ service.name_url }}" data-service="{{ service.name_url }}" data-site="{{ service.site_name }}" type="text" value="{{ service.get_label() }}" placeholder="Add a label to the service" />
+    </span>
+  </div>
 </div>
 
 <div>
@@ -106,7 +116,9 @@ var __limitInitialQueueItems = true;
 {{ [
 '/js/common/util.js',
 '/js/common/queue.js',
+'/js/common/bs_inits.js',
 '/js/packages/packages.js',
+'/js/services/service_label.js',
 '/js/services/service_data.js',
 '/js/services/service_environment.js'
 ]|js_script|safe }}

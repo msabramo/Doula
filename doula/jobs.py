@@ -195,7 +195,7 @@ def release_service(config={}, job_dict={}, debug=False):
         create_logger(job_dict['id'])
         log.info('Done installing packages.')
 
-        # Update bambinos
+        # Update bambinos, they should update the nodes and services.
         run_bambino_data_in_silence(config)
 
         # Update app envs releases
@@ -218,10 +218,11 @@ def run_bambino_data_in_silence(config):
     """
     logging.getLogger().setLevel(logging.ERROR)
     # Update this site by pulling the latest data for the site
-    # Create a new job dict because we don't want logs mixed up
-    # This will update the config related informaton.
-    pull_bambino_data_job_dict = {'id': uuid.uuid1().hex}
-    pull_bambino_data(config, pull_bambino_data_job_dict)
+    # These calls need to be run in real time because doula depends on this
+    # data being correct.
+
+    dd = DoulaDAL()
+    dd.update_site_and_service_models()
 
     logging.getLogger().setLevel(logging.INFO)
 

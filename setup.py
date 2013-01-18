@@ -23,7 +23,8 @@ requires = [
     'retools',
     'pygments',
     'pyyaml',
-    'pyramid_mailer'
+    'pyramid_mailer',
+    'markdown'
     ]
 
 setup(name='Doula',
@@ -44,6 +45,9 @@ setup(name='Doula',
       include_package_data=True,
       zip_safe=False,
       install_requires=requires,
+      data_files=[
+        ('doula', ['*.markdown', '**/*.markdown'])
+      ],
       setup_requires=[
         'egggitinfo'
       ],
