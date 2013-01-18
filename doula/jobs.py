@@ -2,7 +2,7 @@ from doula.cache import Redis
 from doula.cache_keys import key_val
 from doula.cheese_prism import CheesePrism
 from doula.config import Config
-from doula.github import pull_devmonkeys_repos
+from doula.github import *
 from doula.models.doula_dal import DoulaDAL
 from doula.models.package import Package
 from doula.models.push import Push
@@ -11,6 +11,7 @@ from doula.models.service import Service
 from doula.models.service_config_dal import ServiceConfigDAL
 from doula.queue import Queue
 from doula.util import *
+from requests import HTTPError
 import logging
 import os
 import simplejson as json
@@ -460,6 +461,36 @@ def find_expired_jobs(jobs):
     """Find all the jobs on the queue that have expired"""
     return [job['id'] for job in jobs if job_expired(job)]
 
+def add_webhook_callbacks():
+    for org in ['devmonkeys', 'config']:
+        _webhooks_by_org(org, Config.get('doula.github.webhook.url'))
+
+def _webhooks_by_org(org, url):
+    config_repos = all_repos_in_org(org)
+    for repo in config_repos:
+
+        match, hooks = _webhooks(repo['name'], org)
+        if not match:
+            print 'no match'
+            continue
+
+        if len(hooks) > 0:
+            add = True
+            for hook in hooks:
+                if hook['config']['url'] == url:
+                    add = False
+                    continue
+            if add:
+                add_hook_to_repo(repo['name'], url, org)
+        else:
+            print 'adding hook to %s' % repo['name']
+            add_hook_to_repo(repo['name'], url, org)
+
+def _webhooks(repo, org):
+    try:
+        return (True, pull_repo_hooks(repo, org))
+    except HTTPError as e:
+        return (False, '')
 
 def cleanup_queue(config={}, job_dict={}):
     """

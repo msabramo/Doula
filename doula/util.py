@@ -100,10 +100,22 @@ def pull_url(url, timeout=3.0):
     """
     Pull the URL text. Always raise the status error.
     """
-    r = requests.get(url, timeout=timeout)
+    response = requests.get(url, timeout=timeout)
+    # If the response is non 200, we raise an error
+    response.raise_for_status()
+    return response.text
+
+def post_url(url, data, timeout=3.0):
+    """
+    Pull the URL text. Always raise the status error.
+    """
+    r = requests.post(url, data=data, timeout=timeout)
     # If the response is non 200, we raise an error
     r.raise_for_status()
-    return r.text
+    if obj_as_json:
+        return json.loads(r.text)
+    else:
+        return {}
 
 
 def pull_json_obj(url, timeout=3.0):
@@ -116,8 +128,6 @@ def pull_json_obj(url, timeout=3.0):
         return json.loads(obj_as_json)
     else:
         return {}
-
-
 
 def dirify(url):
     url = url.lower()

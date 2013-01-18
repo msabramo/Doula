@@ -53,6 +53,7 @@ def main(global_config, **settings):
     config.add_route('login', '/login')
     config.add_route('logout', '/logout')
     config.add_route('updatedoula', '/updatedoula')
+    config.add_route('webhook', '/webhook/callback')
 
     config.add_route('site', '/sites/{site_name}')
     config.add_route('site_lock', '/sites/{site_name}/lock')

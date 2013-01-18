@@ -2,6 +2,7 @@ from doula.cache import Redis
 from doula.config import Config
 from doula.jobs_timer import start_task_scheduling
 from doula.models.doula_dal import DoulaDAL
+from doula.models.webhook import WebHook
 from doula.queue import Queue
 from doula.util import dumps
 from pyramid.events import ApplicationCreated
@@ -70,6 +71,7 @@ def site_lock(request):
     return {'success': True}
 
 
+
 # BAMBINO VIEWS
 @view_config(route_name='bambino_register', renderer='json', permission=NO_PERMISSION_REQUIRED)
 def bambino_register(request):
@@ -122,6 +124,18 @@ def updatedoula(request):
         html += job + ', '
 
     return {'jobs_html': html.rstrip(', ')}
+
+
+@view_config(route_name='webhook', renderer="json", permission=NO_PERMISSION_REQUIRED)
+def webhook(request):
+    webhook = WebHook(json.loads(request.POST['payload']))
+    # todo: implement callback logic
+    # be sure to look at the object to
+    # see what u can get.  it is pretty full-featured
+    if webhook.org == 'devmonkeys':
+        # do neat stuff
+    elif webhook.org == 'config'
+        # do even better stuff
 
 
 @view_config(route_name='docs', permission=NO_PERMISSION_REQUIRED)

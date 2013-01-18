@@ -13,6 +13,7 @@ import re
 import simplejson as json
 import sys
 import time
+import requests
 
 ######################
 # PULL FROM CACHE
@@ -449,6 +450,37 @@ def _build_release_dict_from_manifest_and_cmt(manifest, cmt, branch_name, servic
             "rolled_back_from_release_number": "0"
         }
 
+
+def pull_repo_hooks(repo, owner='devmonkeys'):
+    params = {'owner': owner, 'repo': repo}
+    url = "%(domain)s/repos/%(owner)s/%(repo)s/hooks?access_token=%(token)s"
+    url = build_url_to_api(url, params)
+    print url
+    val =  pull_json_obj(url)
+    return val
+
+
+def add_hook_to_repo(repo, callback_url, owner='devmonkeys'):
+    params = {'owner': owner, 'repo': repo}
+    url = "%(domain)s/repos/%(owner)s/%(repo)s/hooks?access_token=%(token)s"
+    url = build_url_to_api(url, params)
+    data = json.dumps({'name': 'web', 
+            'config': 
+                {'url':callback_url,
+                 'content_type': 'json',
+                 'secret':'sauce',
+                 'insecure_ssl': 1
+                 }
+            })
+    return post_url(url, data)
+
+
+def all_repos_in_org(org):
+    url = "%(domain)s/orgs/%(org)s/repos?access_token=%(token)s"
+    url = build_url_to_api(url, {'org': org})
+    return pull_json_obj(url)
+
+
 def _build_release_packages(manifest, cmt):
     """Build packages from commit message or manifest"""
 
@@ -589,3 +621,16 @@ def build_url_to_api(url, params={}):
     params["admins"]   = Config.get('doula.github.doula.admins.org')
 
     return url % params
+
+def post_url(url, data, timeout=3.0):
+    """
+    Pull the URL text. Always raise the status error.
+    """
+    response = requests.post(url, data=data, timeout=timeout)
+    # If the response is non 200, we raise an error
+    response.raise_for_status()
+    if response:
+        return json.loads(response.text)
+    else:
+        return {}
+
