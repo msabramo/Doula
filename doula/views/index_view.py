@@ -150,6 +150,7 @@ def webhook(request):
         pass
         # do neat stuff
     elif webhook.org == 'config':
+        pass
         # do even better stuff
 
 
