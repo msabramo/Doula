@@ -19,9 +19,8 @@
     </li>
     <li>
       <div class="btn-group" style="display: inline; float: right;">
-        <a id="{% if site.is_locked() %}release-service-locked{% else %}release-service{% endif %}" href="#" rel="popover" delay="500"
-        title="Release Error" data-content="You must make a change to make new release."
-        class="{% if site.is_locked() %}disabled{% endif %} btn sm-btn">
+        <a id="{% if site.is_locked() %}release-service-locked{% else %}release-service{% endif %}"
+           href="#" class="{% if site.is_locked() %}disabled{% endif %} btn sm-btn">
           {% if site.is_locked() %}
           <i class="icon-lock icon-black"></i> Site Locked
           {% else %}
