@@ -122,16 +122,17 @@ def updatedoula(request):
     Update Doula makes calls to update all the data Doula depends on
     e.g.
     """
-    q = Queue()
-
     html = ''
     jobs = [
         'cleanup_queue',
+        'add_webhook_callbacks',
         'pull_github_data',
         'pull_releases_for_all_services',
         'pull_service_configs',
         'pull_cheeseprism_data',
         'pull_bambino_data']
+
+    q = Queue()
 
     for job in jobs:
         q.this({'job_type': job})
@@ -150,8 +151,9 @@ def webhook(request):
         pass
         # do neat stuff
     elif webhook.org == 'config':
-        pass
-        # do even better stuff
+        # todo. make it more fine grained
+        q = Queue()
+        q.this({'job_type': 'pull_service_configs'})
 
 
 #@view_config(route_name='docs', permission=NO_PERMISSION_REQUIRED)

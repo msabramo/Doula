@@ -439,6 +439,7 @@ def job_expired(job):
     # The maintenance jobs always get popped off
     maintenance_job_types = [
         'cleanup_queue',
+        'add_webhook_callbacks',
         'pull_cheeseprism_data',
         'pull_github_data',
         'pull_bambino_data',
@@ -462,36 +463,6 @@ def find_expired_jobs(jobs):
     """Find all the jobs on the queue that have expired"""
     return [job['id'] for job in jobs if job_expired(job)]
 
-def add_webhook_callbacks():
-    for org in ['devmonkeys', 'config']:
-        _webhooks_by_org(org, Config.get('doula.github.webhook.url'))
-
-def _webhooks_by_org(org, url):
-    config_repos = all_repos_in_org(org)
-    for repo in config_repos:
-
-        match, hooks = _webhooks(repo['name'], org)
-        if not match:
-            print 'no match'
-            continue
-
-        if len(hooks) > 0:
-            add = True
-            for hook in hooks:
-                if hook['config']['url'] == url:
-                    add = False
-                    continue
-            if add:
-                add_hook_to_repo(repo['name'], url, org)
-        else:
-            print 'adding hook to %s' % repo['name']
-            add_hook_to_repo(repo['name'], url, org)
-
-def _webhooks(repo, org):
-    try:
-        return (True, pull_repo_hooks(repo, org))
-    except HTTPError as e:
-        return (False, '')
 
 def cleanup_queue(config={}, job_dict={}):
     """
@@ -520,3 +491,43 @@ def cleanup_queue(config={}, job_dict={}):
         log.error(e.message)
         log.error(traceback.format_exc())
         raise
+
+
+#####################
+# Web Hooks
+#####################
+
+def add_webhook_callbacks():
+    try:
+        for org in ['devmonkeys', 'config']:
+            _webhooks_by_org(org, Config.get('doula.github.webhook.url'))
+    except:
+        print 'ERROR CALLING WEBHOOKS'
+        raise
+
+def _webhooks_by_org(org, url):
+    config_repos = all_repos_in_org(org)
+    for repo in config_repos:
+
+        match, hooks = _webhooks(repo['name'], org)
+        if not match:
+            print 'no match'
+            continue
+
+        if len(hooks) > 0:
+            add = True
+            for hook in hooks:
+                if hook['config']['url'] == url:
+                    add = False
+                    continue
+            if add:
+                add_hook_to_repo(repo['name'], url, org)
+        else:
+            print 'adding hook to %s' % repo['name']
+            add_hook_to_repo(repo['name'], url, org)
+
+def _webhooks(repo, org):
+    try:
+        return (True, pull_repo_hooks(repo, org))
+    except HTTPError as e:
+        return (False, '')

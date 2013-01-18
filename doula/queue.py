@@ -85,7 +85,8 @@ class Queue(object):
         'pull_releases_for_all_services': common_dict,
         'pull_releases_for_service': common_dict,
         'pull_bambino_data': common_dict,
-        'cleanup_queue': common_dict
+        'cleanup_queue': common_dict,
+        'add_webhook_callbacks': common_dict
     }
 
     def __init__(self):
@@ -105,6 +106,7 @@ class Queue(object):
         These jobs run behind all other jobs
         """
         maintenance_job_types = [
+            'add_webhook_callbacks',
             'pull_releases_for_all_services',
             'pull_cheeseprism_data',
             'pull_github_data',
@@ -125,6 +127,7 @@ class Queue(object):
             'pull_releases_for_all_services',
             'pull_service_configs',
             'pull_bambino_data',
+            'add_webhook_callbacks',
             'cleanup_queue']
 
         if 'job_type' in attrs and attrs['job_type'] in job_types:

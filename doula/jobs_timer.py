@@ -11,27 +11,15 @@ def pull_github_data():
     """
     Pull the data for the dev monkeys org
     """
-    job_dict = {
-        'job_type': 'pull_github_data'
-    }
-
-    q = Queue()
-    q.this(job_dict)
+    _queue_up('pull_github_data')
 
 
 def pull_releases_for_all_services():
-    job_dict = {
-        'job_type': 'pull_releases_for_all_services'
-    }
-
-    q = Queue()
-    q.this(job_dict)
+    _queue_up('pull_releases_for_all_services')
 
 
 def pull_service_configs():
-    job_dict = {'job_type': 'pull_service_configs'}
-    q = Queue()
-    q.this(job_dict)
+    _queue_up('pull_service_configs')
 
 
 def pull_cheeseprism_data():
@@ -39,36 +27,33 @@ def pull_cheeseprism_data():
     Update the redisd data. ex. CheesePrism Data, Git commit history.
     Put the tasks on the queue
     """
-    job_dict = {
-        'job_type': 'pull_cheeseprism_data'
-    }
-
-    q = Queue()
-    q.this(job_dict)
+    _queue_up('pull_cheeseprism_data')
 
 
 def pull_bambino_data():
     """
     Update the redisd bambino data
     """
-    job_dict = {
-        'job_type': 'pull_bambino_data'
-    }
-
-    q = Queue()
-    q.this(job_dict)
+    _queue_up('pull_bambino_data')
 
 
 def cleanup_queue():
     """
     Update the redisd bambino data
     """
-    job_dict = {
-        'job_type': 'cleanup_queue'
-    }
+    _queue_up('cleanup_queue')
 
+
+def add_webhook_callbacks():
+    """
+    Add the webhook callbacks
+    """
+    _queue_up('add_webhook_callbacks')
+
+
+def _queue_up(name):
     q = Queue()
-    q.this(job_dict)
+    q.this({'job_type': name})
 
 
 def start_task_scheduling():
@@ -95,3 +80,6 @@ def start_task_scheduling():
 
     cleanup_interval = int(Config.get('task_interval_cleanup_queue'))
     sched.add_interval_job(cleanup_queue, seconds=cleanup_interval)
+
+    interval = int(Config.get('tast_interval_add_webhook_callbacks'))
+    sched.add_interval_job(add_webhook_callbacks, seconds=interval)
