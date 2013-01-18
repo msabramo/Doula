@@ -148,7 +148,8 @@ def webhook(request):
     # see what u can get.  it is pretty full-featured
     if webhook.org == 'devmonkeys':
         # do neat stuff
-    elif webhook.org == 'config'
+    elif:
+        webhook.org == 'config'
         # do even better stuff
 
 
