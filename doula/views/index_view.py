@@ -156,10 +156,6 @@ def webhook(request):
         q.this({'job_type': 'pull_service_configs'})
 
 
-#@view_config(route_name='docs', permission=NO_PERMISSION_REQUIRED)
-#def docs_view(request):
-    #return HTTPFound(location='http://code.corp.surveymonkey.com/pages/DevOps/DoulaDocs/docs/')
-
 @view_config(route_name='docs', permission=NO_PERMISSION_REQUIRED, renderer="docs/index.html")
 def docs(request):
     if 'page' in request.matchdict:

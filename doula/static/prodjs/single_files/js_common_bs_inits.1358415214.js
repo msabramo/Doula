@@ -1,1 +1,0 @@
-$(document).ready(function(){setTimeout(function(){$('[rel="popover"]').popover();},500);});
