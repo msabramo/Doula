@@ -85,6 +85,7 @@ def build_new_package(config={}, job_dict={}):
     except Exception as e:
         log.error(e.message)
         log.error(traceback.format_exc())
+        log.error(dumps(job_dict))
         raise
 
 

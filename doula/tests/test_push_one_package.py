@@ -1,7 +1,5 @@
 from doula.config import Config
 from doula.models.package import Package
-from mock import call
-from mock import patch
 import os
 import uuid
 import unittest
