@@ -518,7 +518,7 @@ def _webhooks_by_org(org, url):
         if len(hooks) > 0:
             add = True
             for hook in hooks:
-                if hook['config']['url'] == url:
+                if 'url' in hook['config'] and hook['config']['url'] == url:
                     add = False
                     continue
             if add:
