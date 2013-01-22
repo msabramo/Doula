@@ -4,7 +4,7 @@ Because each testing environment is composed of over 20 python services that run
 
 Doula refers to each testing environment as a site. Each site is composed of individual python services that are responsible for different parts of the site's functionality. Each service is composed of individual python packages.
 
-Below is a simplified overview of the process of getting a service released to a site. All of the python packages under development are hosted in an internal instance of [Github](http://code.corp.surveymonkey.com/organizations/devmonkeys). Code is first committed to a Git repository by a development team. Then it's bundled as a python package and hosted in an internal PyPi named CheesePrism. This package is then released to a monkey test environment as part of a service. Once released the service's config files are updated and the service is restarted.
+Below is a simplified overview of the process of getting a service released to a site. All of the python packages under development are hosted in an internal instance of [GitHub](http://code.corp.surveymonkey.com/organizations/devmonkeys). Code is first committed to a Git repository by a development team. Then it's bundled as a python package and hosted in an internal PyPi named CheesePrism. This package is then released to a monkey test environment as part of a service. Once released the service's config files are updated and the service is restarted.
 
 <!-- todo: update the flow diagram. use new terms. expand a bit? -->
 
@@ -15,9 +15,9 @@ Login
 
 <img class="right" src="/images/docs/doula_login.png" title="Doula Login" />
 
-Doula authenticates against Survey Monkey's internal [Github](http://code.corp.surveymonkey.com/). The first time you login you'll be asked to authorize Doula to access your Github account. Once logged in you’ll have access to every part of the site.
+Doula authenticates against Survey Monkey's internal [GitHub](http://code.corp.surveymonkey.com/). The first time you login you'll be asked to authorize Doula to access your GitHub account. Once logged in you’ll have access to every part of the site.
 
-All email notifications are sent to the email address associated with your Github account. To update the email address: logout of Doula, update your email address on Github and log back into Doula.
+All email notifications are sent to the email address associated with your GitHub account. To update the email address: logout of Doula, update your email address on GitHub and log back into Doula.
 
 <!-- clear the section -->
 <div class="group"></div>
@@ -25,11 +25,9 @@ All email notifications are sent to the email address associated with your Githu
 Sites
 -----
 
-<img class="right" src="/images/docs/doula_sites.png" title="Doula Sites" />
+<img class="right" style="width: 40%;" src="/images/docs/doula_sites.png" title="Doula Sites" />
 
-Every monkey test environment (currently [MT1](http://mt1-pyweb01/), [MT2](http://mktest2-py.corp.surveymonkey.com/) and [MT3](http://mktest3-py.corp.surveymonkey.com/)) is a site managed by Doula. Each site is composed of the individual services that make up the Survey Monkey website.
-
-Each site (and on a more granular level each service) can be in one of three states: has uncommitted changes (red), has been committed but not tagged as the latest release (orange) or been committed and tagged (green). The status of the site is simply the most severe state of the services that compose the site.
+Every monkey test environment (currently [MT1](http://mt1-pyweb01/), [MT2](http://mktest2-py.corp.surveymonkey.com/) and [MT3](http://mktest3-py.corp.surveymonkey.com/) and MT4) is a site managed by Doula. Each site is composed of the individual services that make up the Survey Monkey website.
 
 <!-- clear the section -->
 <div class="group"></div>
@@ -39,13 +37,15 @@ Services
 
 <img class="right" src="/images/docs/doula_services.png" title="Doula Services" />
 
-Since Survey Monkey is a service oriented architecture the entire website is composed of over 20 individual python services. Each of these services is hosted in the [devmonkeys](http://code.corp.surveymonkey.com/organizations/devmonkeys) Github organization. The devmonkeys organization has over 50 repositories being actively developed by Survey Monkey engineering. Each service is composed of python packages and runs in it's own virtual environment on a site.
+Since Survey Monkey is a service oriented architecture (SOA) the entire website is composed of over 20 individual python services. Each of these services is hosted in the [devmonkeys](http://code.corp.surveymonkey.com/organizations/devmonkeys) GitHub organization.
+
+The devmonkeys organization has over 50 repositories being actively developed by Survey Monkey engineering.
 
 <div class="group"></div>
 
 #### Service Details and Admin Actions
 
-There are two major actions for each service. The first, Server Details, provides information about the status of the server. Here you'll see which files have been changed, what packages exist for this service and the Git tagging information for this [service environment](#gloss). The second action, Admin Actions, allows you to view the packages' Git commit history, build new packages and release a service to a testing environment.
+There are two major actions for each service. The first action, Admin Actions, allows you to view the packages' Git commit history, build new packages and release a service to a testing environment. The second action, Edit Label, allows anyone to add a label to an existing service letting everyone know the current state of the service.
 
 <img class="center" src="/images/docs/doula_service_actions.png" title="Service Action" />
 
@@ -55,7 +55,7 @@ There are two major actions for each service. The first, Server Details, provide
 
 ##### Package Commit History
 
-Each Survey Monkey package's Git commit history is available in Admin Actions. Clicking on the packages's name shows the familiar Github commit history with quick links to Git diffs.
+Each Survey Monkey package's Git commit history is available in Admin Actions. Clicking on the packages's name shows the familiar GitHub commit history with quick links to Git diffs.
 
 The active commit (the commit currently in the testing environment) is highlighted and marked as 'active package'. If no active package is found this means it wasn't found in the last 50 commits to the package's repository.
 
@@ -72,17 +72,21 @@ After the package is built and pushed to CheesePrism it'll be available for rele
 
 #### Cycle Service
 
-Cycle Service shuts down a service and starts it back up again via Supevisor.
+Cycle Service shuts down a service and starts it back up again via Supervisor.
 
 #### Release Service
 
-Releasing a service means updating the service's python packages and config files. Doula will first pull packages from CheesePrism and pip install those packages onto the testing environment. After the packages have been installed the config files are updated and the entire service environment is committed to Github.
+Releasing a service means updating python packages and config files. Doula pip installs from CheesePrism and pulls config files from the GitHub config repository as part of creating a new release. The versions of the python packages and the config commit are chosen via the Doula UI.
 
-It's worth noting that this process will remove any config files edited on the service and not committted back to Github. The correct place to make config file changes is through Github and not on the server itself.
+The python packages available are pulled from CheesePrism. Doula polls CheesePrism regularly for the latest python packages.
+
+Doula also polls the GitHub [config organization](http://code.corp.surveymonkey.com/config). Each service has a Git repository with a branch for each site. This means that if you want to update the config files for Anweb on MT1 you'll need to commit to the mt1 branch of the anweb repository you find [here](http://code.corp.surveymonkey.com/config/anweb).
 
 <img class="center" src="/images/docs/doula_release.png" title="Doula Release" />
 
-It is now possible to lock down a testing environment. This means that no one will be able to release a service until the site is unlocked. Doula admins (mostly technical leads at Survey Monkey) will be able to freeze a site for testing prior to a release to production. When a site is locked the 'Release Service' button will appear disabled and read 'Site Locked'.
+#### Lock Site
+
+Sites on Doula can be locked by members of the DoulaAdmin group (made up of the technical leads at SurveyMonkey) on GitHub. When a site is locked everyone is prevented from releasing updates to python packages and config files. Only another technical lead can unlock a site.
 
 <img class="center" src="/images/docs/doula_release_locked.png" title="Doula Release Locked" />
 

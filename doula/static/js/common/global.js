@@ -25,4 +25,25 @@ $(document).ready(function() {
     setSideTab();
   });
 
+  // Scroll for docs
+  if (document.location.href.match(/docs/)) {
+    var sideBarEl = $('#docs-sidebar');
+    var ogTop = sideBarEl.offset().top;
+
+    scrollSideTab = function() {
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop  || document.body.scrollTop;
+
+      if(scrollTop >= ogTop) {
+        var scrollTop = scrollTop - ogTop + 7 + 'px';
+        sideBarEl.css('marginTop', scrollTop);
+      }
+      else{
+        scrollTop - 7 + 'px';
+        sideBarEl.css('marginTop', scrollTop);
+      }
+    }
+
+    $(window).on('scroll', scrollSideTab);
+  }
+
 });

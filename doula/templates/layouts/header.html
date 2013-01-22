@@ -42,6 +42,12 @@
               </ul>
           </li>
         </ul>
+        <ul class="nav pull-right">
+          {% set path = request.path %}
+          <li {% if path.startswith('/docs') %} class="active" {% endif %}>
+              <a href="/docs"><i class="icon-question-sign icon-white"></i></a>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
