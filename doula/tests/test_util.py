@@ -14,13 +14,19 @@ class UtilTests(unittest.TestCase):
         self.assertEqual(result, '0.1.4')
 
         result = next_version('0.1.9')
-        self.assertEqual(result, '0.1.91')
+        self.assertEqual(result, '0.1.10')
 
         result = next_version('2.9.9')
-        self.assertEqual(result, '2.9.91')
+        self.assertEqual(result, '2.9.10')
 
         result = next_version('9.9rc')
-        self.assertEqual(result, '9.91rc')
+        self.assertEqual(result, '9.10rc')
+
+        result = next_version('2.9.11')
+        self.assertEqual(result, '2.9.12')
+
+        result = next_version('9.13rc')
+        self.assertEqual(result, '9.14rc')
 
     def test_find_package_and_version_in_pip_freeze_text(self):
         text = 'sqlalchemy-migrate==0.6.1'

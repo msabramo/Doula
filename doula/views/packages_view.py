@@ -83,7 +83,6 @@ def validate_package_release(package, branch, next_version):
         The version number isn't empty
     """
     errors = []
-    git_info = package.get_github_info()
 
     if not next_version:
         errors.append('Version number cannot be empty')
@@ -91,16 +90,19 @@ def validate_package_release(package, branch, next_version):
     if next_version.find('@') > -1:
         errors.append('You cannot include the "@" symbol in a version')
 
+    if next_version in package.get_versions():
+        errors.append('This version already exist')
+
+    # Ensure the tags don't already exist
+    git_info = package.get_github_info()
+
     for tag in git_info['tags']:
         # tags by doula are always prefixed with a v
         # and test that it doesn't match without
         tag_name = re.sub(r'^v', '', str(tag['name']))
 
         if tag_name == next_version:
-            msg = "This package version (%s) already exists. "
-            msg += "Try another version."
-            msg = msg % next_version
-            errors.append(msg)
+            errors.append('This version already exist')
 
     return errors
 

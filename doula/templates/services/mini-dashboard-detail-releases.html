@@ -29,7 +29,7 @@
       </tr>
     </thead>
     <tbody>
-      {% if diff['changed_packages'].keys()|length < 1 %}
+      {% if (diff['changed_packages'].keys()|length + diff['packages_to_add'].keys()|length + diff['packages_to_subtract'].keys()|length) < 1 %}
         <tr>
           <td>&nbsp;</td>
           <td colspan="3">No package changes</td>
@@ -40,7 +40,6 @@
         <tr>
           {% if package_diff['package'].get_github_info() %}
             <td>{{name}}</td>
-
             <td>
               <a target="_blank" href="http://code.corp.surveymonkey.com/devmonkeys/{{package_diff['package'].name}}/tree/v{{package_diff['service_version']}}">
                 {{package_diff['service_version']}}
@@ -64,6 +63,15 @@
             <td>{{package_diff['release_version']}}</td>
             <td>&nbsp;</td>
           {% endif %}
+        </tr>
+      {% endfor %}
+
+      {% for name, package in diff['packages_to_add'].iteritems()|sort %}
+        <tr>
+          <td>{{package.name}}</td>
+          <td>&nbsp;</td>
+          <td>{{package.version}}</td>
+          <td>&nbsp;</td>
         </tr>
       {% endfor %}
 

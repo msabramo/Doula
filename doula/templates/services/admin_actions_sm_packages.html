@@ -37,7 +37,7 @@
             data-comparable-name="{{ pckg[1].comparable_name }}"
             data-name="{{ pckg[1].name }}"
             class="package-select">
-              {% for version in pckg[1].get_versions()|sort(reverse=True, case_sensitive=False) %}
+              {% for version in pckg[1].get_versions()|natural_sort(reverse=True) %}
                 <option value="{{ version }}"
                 {% if pckg[1].version == version %}selected="selected"{% endif %} >
                   {{ version }}

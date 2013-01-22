@@ -12,6 +12,15 @@ class HelperTests(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def test_natural_sort(self):
+        l = ['elm1', 'elm7', 'elm4', 'elm0']
+        nat_l = natural_sort(l)
+
+        self.assertEqual(nat_l[0], 'elm0')
+        self.assertEqual(nat_l[1], 'elm1')
+        self.assertEqual(nat_l[2], 'elm4')
+        self.assertEqual(nat_l[3], 'elm7')
+
     def test_version_number_to_git_tag(self):
         name = '1.2.7b11-admintools-new'
         expected = '1.2.7b11-admintools_new'

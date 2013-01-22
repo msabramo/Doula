@@ -88,11 +88,14 @@ var ServiceEnv = {
     },
 
     bindToAddPythonPackageSelects: function() {
-        $('#pckg_select_add_new_package').on('change',
-            $.proxy(this.updateAddNewPackageVersions, this));
+        $('#pckg_select_add_new_package')._on('change',
+                                               this.updateAddNewPackageVersions,
+                                               this,
+                                               allowEventToBubble=true);
 
-        $('#pckg_select_add_new_package, #pckg_select_add_new_package_version').on('change',
-            $.proxy(this.updateAddNewPackageVersionsMessage, this));
+        var addNewPackageSelects = $('#pckg_select_add_new_package, #pckg_select_add_new_package_version');
+        addNewPackageSelects._on('change', this.updateAddNewPackageVersionsMessage, this);
+        addNewPackageSelects._on('change', this.updateAfterSelectAddNewPackageVersion, this);
     },
 
     /*********************
@@ -390,6 +393,13 @@ var ServiceEnv = {
         el.closest('li').addClass('active');
     },
 
+    /****************************
+    Add Python Package Functions
+    *****************************/
+
+    /**
+    * Update the version number according to the version
+    */
     updateAddNewPackageVersions: function() {
         var value = $('#pckg_select_add_new_package').val();
 
@@ -407,6 +417,16 @@ var ServiceEnv = {
         }
     },
 
+    /*
+    * Update the diff UI after a user selects a new package to add to python
+    */
+    updateAfterSelectAddNewPackageVersion: function() {
+        this.showDiffForRelease();
+    },
+
+    /**
+    * Update the message
+    */
     updateAddNewPackageVersionsMessage: function() {
         var packageName = $('#pckg_select_add_new_package').val();
         var version = $('#pckg_select_add_new_package_version').val();

@@ -6,6 +6,21 @@ from doula.util import remove_timezone
 import math
 import markdown
 import os
+import re
+
+
+def natural_sort(l, reverse=False):
+    """
+    Natural sort a list
+    """
+    convert = lambda text: int(text) if text.isdigit() else text.lower()
+    alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ]
+    natural_sorted_list = sorted(l, key = alphanum_key)
+
+    if reverse:
+        natural_sorted_list.reverse()
+
+    return natural_sorted_list
 
 
 def stringify(obj):
