@@ -1,8 +1,3 @@
-
-/*
-alextodo. reorganize the logic here. into multiple files.
-*/
-
 var ServiceEnv = {
 
     /****************
@@ -18,11 +13,9 @@ var ServiceEnv = {
         _mixin(this, AJAXUtil);
         _mixin(this, Packages);
 
-        Data.init();
-
         this.bindToUIActions();
         this.bindToDataActions();
-        this.initPackagesAsMixin(Data.site_name, Data.name_url);
+        this.initPackagesAsMixin(this.service.site_name, this.service.name_url);
     },
 
     /**********************
@@ -30,7 +23,6 @@ var ServiceEnv = {
     ***********************/
 
     bindToUIActions: function() {
-        this.initToolTips();
         this.showElementsHiddenOnLoad();
 
         this.addVersionMessageBelowPackageSelects();
@@ -47,15 +39,6 @@ var ServiceEnv = {
 
         // Handle the mini
         this.bindToMiniDashboardActions();
-    },
-
-    initToolTips: function() {
-        $('a[rel="tooltip"]').tooltip({
-            "delay": {
-                "show": 500,
-                "hide": 100
-            }
-        });
     },
 
     // Hide elements marked as hide on load, makes page load smoother
@@ -157,7 +140,7 @@ var ServiceEnv = {
     // Update the mini dashboard after a change
 
     updateMiniDashboard: function() {
-        var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/dash';
+        var url = '/sites/' + this.service.site_name + '/' + this.service.name_url + '/dash';
         this.get(url, {}, this.doneUpdateMiniDashboard, false, msg=false);
     },
 
@@ -282,7 +265,7 @@ var ServiceEnv = {
 
     showDiffForRelease: function(dropdownLink) {
         var params = this.getDiffForReleaseParams(dropdownLink);
-        var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/diff';
+        var url = '/sites/' + this.service.site_name + '/' + this.service.name_url + '/diff';
         var msg = 'Pulling release diff. Please be patient and stay awesome.';
 
         this.post(url, params, this.doneShowDiffForRelease, null, msg);
@@ -461,8 +444,8 @@ var ServiceEnv = {
                 sha: $('#config_sha').val(),
                 packages: JSON.stringify(this.getActiveReleasePackages())
             };
-            var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/release';
-            var msg = 'Releasing '+Data.name+' to '+Data.site_name+
+            var url = '/sites/' + this.service.site_name + '/' + this.service.name_url + '/release';
+            var msg = 'Releasing '+this.service.name+' to '+this.service.site_name+
                     '. Please be patient and stay awesome.';
             this.post(url, params, this.doneReleaseService, this.failedReleaseService, msg);
         }
@@ -537,7 +520,7 @@ var ServiceEnv = {
             select.change();
 
             // Update the data attribute value for the version
-            Data.packages[comparable_name]['version'] = version;
+            this.service.packages[comparable_name]['version'] = version;
         }
     },
 
@@ -549,8 +532,8 @@ var ServiceEnv = {
         if (!button.hasClass('disabled')) {
             this.disableCycleButton();
 
-            var url = '/sites/' + Data.site_name + '/' + Data.name_url + '/cycle';
-            var msg = 'Cycling ' + Data.name + '. Please be patient and stay awesome.';
+            var url = '/sites/' + this.service.site_name + '/' + this.service.name_url + '/cycle';
+            var msg = 'Cycling ' + this.service.name + '. Please be patient and stay awesome.';
             this.get(url, {}, this.doneCycleService, false, msg);
         }
     },

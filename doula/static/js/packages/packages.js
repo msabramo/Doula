@@ -10,17 +10,7 @@ var Packages = {
     init: function() {
         _mixin(this, AJAXUtil);
 
-        this.setupTooltips();
         this.bindToBuildNewPackageButtons();
-    },
-
-    setupTooltips: function() {
-        $('a[rel="tooltip"]').tooltip({
-            "delay": {
-                "show": 500,
-                "hide": 100
-            }
-        });
     },
 
     // This object is used as a mixin by service_environment.js
@@ -34,7 +24,7 @@ var Packages = {
     },
 
     bindToBuildNewPackageButtons: function() {
-        $('.new-version-btn').on('click', $.proxy(this.showBuildNewPackageModal, this));
+        $('.new-version-btn')._on('click', this.showBuildNewPackageModal, this);
 
         // Queue stuff
         QueueView.subscribe(
@@ -47,12 +37,10 @@ var Packages = {
     *****************/
 
     // Make ajax call to get build new package modal HTML
-    showBuildNewPackageModal: function(event) {
-        var name = $(event.target).data('name');
+    showBuildNewPackageModal: function(event, button) {
+        var name = button.data('name');
         var url = '/packages/build_new_package_modal';
         this.get(url, {'name': name}, this.doneShowBuildNewPackageModal);
-
-        return false;
     },
 
     doneShowBuildNewPackageModal: function(rslt) {
@@ -65,7 +53,7 @@ var Packages = {
                 .on('keyup', this.validateShowBuildNewPackageModal)
                 .on('mouseup', this.validateShowBuildNewPackageModal);
 
-            $('#build_new_package').on('click', $.proxy(this.buildNewPackage, this));
+            $('#build_new_package')._on('click', this.buildNewPackage, this);
         }, this));
 
         $('#build-new-package-modal').html(rslt).removeClass('hide').modal();
@@ -87,9 +75,9 @@ var Packages = {
     /**
     *   Send the build new package request to queue
     */
-    buildNewPackage: function(event) {
+    buildNewPackage: function(event, button) {
         // Check that the push isn't disabled
-        if(!$(event.target).hasClass('disabled')) {
+        if(!button.hasClass('disabled')) {
             var url = '/packages/build_new_package';
             var params = {
                 'site_name': this.siteName,
@@ -103,8 +91,6 @@ var Packages = {
 
             this.get(url, params, this.doneBuildNewPackage, this.failedBuildNewPackage, msg);
         }
-
-        return false;
     },
 
     doneBuildNewPackage: function(rslt) {

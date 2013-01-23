@@ -9,6 +9,7 @@ $(document).ready(function() {
   // Initialize the popovers for bootstrap
   setTimeout(function() {
     $('[rel="popover"]').popover();
+    $('[rel="tooltip"]').tooltip();
   }, 500);
 
   // Set the horizontal position of the feedback tab
