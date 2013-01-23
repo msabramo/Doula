@@ -9,6 +9,7 @@ var Packages = {
     */
     init: function() {
         _mixin(this, AJAXUtil);
+        this.serviceEnvExists = (typeof(ServiceEnv) == 'undefined') ? false : true;
 
         this.bindToBuildNewPackageButtons();
     },
@@ -97,7 +98,7 @@ var Packages = {
         $('#build-new-package-modal').modal('hide');
 
         // If the ServiceEnv exist then show this
-        if (ServiceEnv) ServiceEnv.showDashboardDetailView();
+        if (this.serviceEnvExists) ServiceEnv.showDashboardDetailView();
     },
 
     failedBuildNewPackage: function(rslt) {
@@ -114,7 +115,7 @@ var Packages = {
                 this.updatePackagesDropdown(job);
 
                 // If the ServiceEnv exist then show this
-                if (ServiceEnv) ServiceEnv.showDashboardDetailView();
+                if (this.serviceEnvExists) ServiceEnv.showDashboardDetailView();
             }
         }
     },
