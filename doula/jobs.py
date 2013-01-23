@@ -184,6 +184,9 @@ def release_service(config={}, job_dict={}, debug=False):
             print e.message
 
             failures.append({'package': 'git', 'error': str(e)})
+        except:
+            print "RELEASE SERVICE"
+            print sys.exc_info()
 
         if failures:
             # timtodo. this used to use join, failures returns this
