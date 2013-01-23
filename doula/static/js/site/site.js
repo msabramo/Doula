@@ -2,9 +2,9 @@
 var Site = {
 
     init: function() {
-        _mixin(this, AJAXUtil);
+        this.site = __site;
 
-        Data.init();
+        _mixin(this, AJAXUtil);
 
         this.bindToUIActions();
         this.bindToDataActions();
@@ -81,7 +81,7 @@ var Site = {
     },
 
     getCookieName: function() {
-        return 'serviceFilter.' + Data.name;
+        return 'serviceFilter.' + this.site.name;
     },
 
     /*************
@@ -108,7 +108,7 @@ var Site = {
                 msg = 'Unlocking site. Please be patient and stay awesome.';
             }
 
-            var url = '/sites/' + Data.name_url + '/lock';
+            var url = '/sites/' + this.site.name_url + '/lock';
             this.post(url, params, this.doneToggleSiteLock, false, msg);
         }
     },
