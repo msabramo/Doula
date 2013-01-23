@@ -19,8 +19,8 @@ Doula's heavily integrated with [GitHub Enterprise](http://code.corp.surveymonke
 #### [How can I tell why my job failed?](#fail)
 Visit the [Queue](http://doula.corp.surveymonkey.com/queue). Here you'll find a listing of all the jobs within the last 24 hours. Click on your job and you'll see a history and stack trace of why your job failed.
 
-#### [Why doesn't my commit to the Config repository show?](#config)
-Doula regularly polls the GitHub config repositories. If it's been longer than 10 minutes since you've updated the config repository visit this [link](http://doula.corp.surveymonkey.com/updatedoula). It asks Doula to request the latest information from GitHub. Your commit should show within ten minutes.
+#### [Why doesn't my commit to the config repository show?](#config)
+Doula regularly polls the GitHub [config repositories](http://code.corp.surveymonkey.com/organizations/config). If it's been longer than 10 minutes since you've updated the config repository visit this [link](http://doula.corp.surveymonkey.com/updatedoula). It asks Doula to request the latest information from GitHub. Your commit should show within ten minutes.
 
 #### [How do I subscribe to job failures on Doula?](#subscribetofail)
 Visit your own Doula [Settings Page](http://doula.corp.surveymonkey.com/settings). Click on the sites and services you'd like to subscribe to. You can also choose whether you receive emails on failure, success or never.

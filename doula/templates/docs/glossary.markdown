@@ -4,23 +4,23 @@ Engineering at Survey Monkey runs different versions of SurveyMonkey.com for act
 
 #### [Monkey Test Environment](#mt)
 
-Engineering at Survey Monkey refers to each instance of SurveyMonkey.com as a monkey test environment. Doula refers to each monkey test environment as a [Site](#site)
+Engineering at Survey Monkey refers to each instance of SurveyMonkey.com as a monkey test environment. Doula refers to each monkey test environment as a [Site](#site).
 
 #### [Node](#service)
 
-A node is server or [virtual machine](http://en.wikipedia.org/wiki/Virtual_machine) that runs one or more services.
+A node is a server or [virtual machine](http://en.wikipedia.org/wiki/Virtual_machine) that runs one or more services.
 
 #### [Service](#service)
 
-SurveyMonkey.com is built as a [service oriented architechture](http://en.wikipedia.org/wiki/Service-oriented_architecture). This means the site's functionality is broken up into individual services. There are currently over 20 services that make up SurveyMonkey.com.
+SurveyMonkey.com is a [service oriented architechture](http://en.wikipedia.org/wiki/Service-oriented_architecture). This means the site is developed as individual python web programs we call services. There are over 20 services that make up SurveyMonkey.com.
 
 #### [Queue](#queue)
 
-Since many of the tasks that Doula handles take longer than a few milliseconds Doula must schedule tasks. The [Queue](http://doula.corp.surveymonkey.com/queue) is the dashboard for all theses tasks. Each task has a title, status and log information.
+Since many of the tasks that Doula handles take longer than a few milliseconds Doula must schedule tasks. Each task has a title, status and log information. The [Queue](http://doula.corp.surveymonkey.com/queue) manages these tasks executing each in the order they were scheduled. The Queue also handles sending notifications for job completed.
 
-#### [Github Enterprise](#github)
+#### [GitHub Enterprise](#github)
 
-Survey Monkey engineering uses Git for version control. [Github Enterprise](http://code.corp.surveymonkey.com/) is the internally hosted instance of [Github](http://github.com) used by engineering.
+Survey Monkey engineering uses Git for version control. [GitHub Enterprise](http://code.corp.surveymonkey.com/) is the internally hosted instance of [GitHub](http://github.com) used by engineering.
 
 #### [CheesePrism](#cheeseprism)
 
@@ -28,7 +28,7 @@ Survey Monkey engineering uses Git for version control. [Github Enterprise](http
 
 #### [PIP](#pip)
 
-This is a tool for installing and managing Python packages, such as those found in the Python Package Index.
+The Python Package Installer is a tool for installing and managing Python packages. PIP installs from a python repository like PyPi or CheesePrism.
 
 #### [PyPi](#pypi)
 

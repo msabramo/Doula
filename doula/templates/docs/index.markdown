@@ -1,8 +1,10 @@
+Doula?
+-----
 [Doula](http://doula.corp.surveymonkey.com/) is a release management system developed at Survey Monkey to help engineering version and deploy the components that make up SurveyMonkey.com to multiple testing environments for development and quality assurance testing.
 
 Because each testing environment is composed of over 20 python services that run on one or more servers, it is complex to manually update, version and cycle those services. Doula simplifies interactions with the testing environments. It handles all these tasks and provides status information and notifications to the software and quality assurance engineers actively developing SurveyMonkey.com.
 
-Doula refers to each testing environment as a site. Each site is composed of individual python services that are responsible for different parts of the site's functionality. Each service is composed of individual python packages.
+Doula refers to each testing environment as a [site](/docs/glossary#site). Each site is composed of python services that are responsible for different parts of the site's functionality. Each service is composed of python packages and configuration files (INI files).
 
 Below is a simplified overview of the process of getting a service released to a site. All of the python packages under development are hosted in an internal instance of [GitHub](http://code.corp.surveymonkey.com/organizations/devmonkeys). Code is first committed to a Git repository by a development team. Then it's bundled as a python package and hosted in an internal PyPi named CheesePrism. This package is then released to a monkey test environment as part of a service. Once released the service's config files are updated and the service is restarted.
 
