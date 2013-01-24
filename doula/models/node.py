@@ -5,6 +5,7 @@ from doula.util import dumps
 import pdb
 import logging
 import simplejson as json
+import sys
 
 log = logging.getLogger('doula')
 
@@ -62,7 +63,7 @@ class Node(object):
                 services_as_dicts = json.loads(services_as_json)
 
             return services_as_dicts
-        except Exception as e:
+        except:
             from doula.models.doula_dal import DoulaDAL
 
             # If we're not able to contact a bambino we unregister
@@ -70,7 +71,7 @@ class Node(object):
             dd = DoulaDAL()
             dd.unregister_node({'site': self.site_name, 'name': self.name})
 
-            vals = (self.url + '/services', e.message)
+            vals = (self.url + '/services', sys.exc_info())
             msg = 'Unable to contact Bambino at %s because of error %s' % vals
             print msg
             log.error(msg)

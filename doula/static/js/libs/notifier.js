@@ -70,6 +70,8 @@ var Notifier = (function() {
     document.body.appendChild(config.container);
     return {
         notify: function(message, title, image) {
+            // remove any current messages
+            $('.notification_message').remove();
 
             var notification = document.createElement('div');
             notification.className = 'notification_message';

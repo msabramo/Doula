@@ -87,6 +87,12 @@ def build_new_package(config={}, job_dict={}):
         log.error(traceback.format_exc())
         log.error(dumps(job_dict))
         raise
+    except:
+        msg = sys.exc_info()
+        print "Error attempting to release service"
+        print msg
+        log.error(msg)
+        raise msg
 
 
 def cycle_service(config={}, job_dict={}):
@@ -185,8 +191,9 @@ def release_service(config={}, job_dict={}, debug=False):
 
             failures.append({'package': 'git', 'error': str(e)})
         except:
-            print "RELEASE SERVICE"
+            print "Error attempting to release service"
             print sys.exc_info()
+            log.error(sys.exc_info())
 
         if failures:
             # timtodo. this used to use join, failures returns this
