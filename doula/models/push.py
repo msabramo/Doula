@@ -171,16 +171,15 @@ class Push(object):
                 # We use error instead of info to log because
                 # setting the logging status to info would fill up our logs
                 # with lots of logging information from Fabric
-                logging.error('Running asset check.')
+                logging.info('Running asset check.')
 
                 result = run('asset_check %s' % self.service_name)
 
                 if result.succeeded:
-                    logging.error('Assets detected.  gonna bake them up nice and hot')
+                  
                     result = sudo('paster --plugin=smlib.assets bake etc/app.ini %s' % self.outdir)
 
-                    logging.error('Asset push completed. Output follows:')
-                    logging.error(result)
+                    logging.info(result)
 
                     if result.succeeded:
                         return (True, True)
