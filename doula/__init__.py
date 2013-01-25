@@ -44,6 +44,7 @@ def main(global_config, **settings):
     config.add_static_view(name='css', path='static/css')
     config.add_static_view(name='images', path='static/images')
     config.add_static_view(name='img', path='static/img')
+    config.add_static_view(name='videos', path='static/videos')
 
     # routes for doula
     config.add_route('favicon', '/favicon.ico')
