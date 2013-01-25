@@ -179,8 +179,6 @@ class Push(object):
                   
                     result = sudo('paster --plugin=smlib.assets bake etc/app.ini %s' % self.outdir)
 
-                    logging.info(result)
-
                     if result.succeeded:
                         return (True, True)
                     else:
@@ -194,8 +192,6 @@ class Push(object):
             return (False, result)
         except:
             raise Exception('Error installing assets for ' + self.service_name)
-        finally:
-            logging.error("Done running install asset")
 
     def _chown(self):
         with debuggable(self.debug):
