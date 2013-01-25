@@ -33,9 +33,6 @@ def load_production_js_filenames():
 
 load_production_js_filenames()
 
-print 'NAME TO PROD FILENAME'
-print production_js_filenames
-
 ############################
 # js_script and js_script_dev are called from jinja2 templates
 # they return the proper script tags

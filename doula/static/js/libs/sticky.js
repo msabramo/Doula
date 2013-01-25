@@ -27,8 +27,15 @@
     // Update the height of the sticky element
     updateElHeight = function() {
       var newHeight = $(defaults.resizeHeightFrom).height() + defaults.bottomSpacing;
-
       $('.' + defaults.wrapperClassName).css('height', newHeight);
+
+      for (var i = 0; i < sticked.length; i++) {
+        var s = sticked[i];
+
+        if (typeof s.getWidthFrom !== 'undefined') {
+          s.stickyElement.css('width', $(s.getWidthFrom).width());
+        }
+      }
     },
     scroller = function() {
       var scrollTop = $window.scrollTop(),
