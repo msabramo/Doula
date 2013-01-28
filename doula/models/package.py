@@ -220,18 +220,18 @@ class Package(object):
         try:
             with lcd(repo.working_dir):
                 url = Config.get('doula.cheeseprism_url') + '/simple'
-                result = local('python setup.py sdist upload -r ' + url, capture=True)
+                command = 'python setup.py sdist upload -r ' + url
+                logging.info("command: %s" %  command)
+                result = local(command, capture=True)
 
                 logging.info(result)
 
                 # Check for a 200 success
                 if not re.search(r'server\s+response\s+\(200\)', result, re.I):
-                    logging.error(result)
                     logging.error("Error building new package")
                     raise Exception("Error building new package")
         except:
             # We make sure that the result always runs. sometimes we error out
             # and the call is killed, catch all for errors
-            logging.error(result)
             logging.error(sys.exc_info())
             raise Exception('Error uploading ' + self.name + ' to Cheese Prism.')
