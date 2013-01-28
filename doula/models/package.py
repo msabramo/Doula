@@ -13,6 +13,7 @@ import os
 import pwd
 import re
 import shutil
+import sys
 
 """
 Git-Python makes a call to os.getlogin that fails
