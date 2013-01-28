@@ -225,6 +225,7 @@ class Package(object):
 
                 # Check for a 200 success
                 if not re.search(r'server\s+response\s+\(200\)', result, re.I):
+                    logging.error(result)
                     logging.error("Error building new package")
                     raise Exception("Error building new package")
         except:
