@@ -6,6 +6,7 @@ from doula.config import Config
 from doula.github import get_package_github_info
 from doula.util import comparable_name
 from fabric.api import *
+from fabric.context_managers import settings
 from git import *
 from sets import Set
 import logging
@@ -222,13 +223,19 @@ class Package(object):
                 url = Config.get('doula.cheeseprism_url') + '/simple'
                 command = 'python setup.py sdist upload -r ' + url
                 logging.info("command: %s" %  command)
-                result = local(command, capture=True)
+                with settings(warn_only=True):
+                    result = local(command, capture=True)
+
+                if result.failed:
+                    logging.error(result)
+                    raise Exception(result)
 
                 logging.info(result)
 
                 # Check for a 200 success
                 if not re.search(r'server\s+response\s+\(200\)', result, re.I):
                     logging.error("Error building new package")
+                    logging.error(result)
                     raise Exception("Error building new package")
         except:
             # We make sure that the result always runs. sometimes we error out
