@@ -232,5 +232,6 @@ class Package(object):
         except:
             # We make sure that the result always runs. sometimes we error out
             # and the call is killed, catch all for errors
+            logging.error(result)
             logging.error(sys.exc_info())
             raise Exception('Error uploading ' + self.name + ' to Cheese Prism.')
