@@ -41,18 +41,16 @@ var ServiceEnv = {
         this.bindToMiniDashboardActions();
 
         // Make the details sticky
-        $(window).load(function() {
-            $("#mini-dashboard-details").sticky({
-                topSpacing: 15,
-                bottomSpacing: 8,
-                center: true,
-                className: 'fixed-details',
-                getWidthFrom: '#mini-dashboard',
-                resizeHeightFrom: '#mini-dashboard-details'
-            });
-
-            ServiceEnv.updateHeightOfMiniDashboardDetails();
+        $("#mini-dashboard-details").sticky({
+            topSpacing: 15,
+            bottomSpacing: 8,
+            center: true,
+            className: 'fixed-details',
+            getWidthFrom: '#mini-dashboard',
+            resizeHeightFrom: '#mini-dashboard-details'
         });
+
+        ServiceEnv.updateHeightOfMiniDashboardDetails();
     },
 
     // Hide elements marked as hide on load, makes page load smoother

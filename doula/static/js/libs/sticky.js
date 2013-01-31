@@ -33,6 +33,7 @@
         var s = sticked[i];
 
         if (typeof s.getWidthFrom !== 'undefined') {
+          $('.' + defaults.wrapperClassName).width($(s.getWidthFrom).innerWidth());
           s.stickyElement.css('width', $(s.getWidthFrom).width());
         }
       }
