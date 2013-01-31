@@ -144,6 +144,7 @@ def updatedoula(request):
 @view_config(route_name='webhook', renderer="json", permission=NO_PERMISSION_REQUIRED)
 def webhook(request):
     webhook = WebHook(json.loads(request.POST['payload']))
+
     # todo: implement callback logic
     # be sure to look at the object to
     # see what u can get.  it is pretty full-featured

@@ -13,9 +13,25 @@ var ServiceEnv = {
         _mixin(this, AJAXUtil);
         _mixin(this, Packages);
 
+        this.showElementsHiddenOnLoad();
         this.bindToUIActions();
         this.bindToDataActions();
         this.initPackagesAsMixin(this.service.site_name, this.service.name_url);
+    },
+
+    // Hide elements marked as hide on load, makes page load smoother
+    showElementsHiddenOnLoad: function() {
+        $(".hide-on-load").each(function(index, el) {
+            $(el).show();
+        });
+
+        $('.commit-accordion').on('show', function () {
+            $(this).parent().removeClass('hidden').addClass('shown');
+        });
+
+        $('.commit-accordion').on('hide', function () {
+            $(this).parent().removeClass('shown').addClass('hidden');
+        });
     },
 
     /**********************
@@ -23,8 +39,6 @@ var ServiceEnv = {
     ***********************/
 
     bindToUIActions: function() {
-        this.showElementsHiddenOnLoad();
-
         this.addVersionMessageBelowPackageSelects();
         this.bindToReleasesAndPackages();
         this.bindToServiceConfigChanges();
@@ -51,21 +65,6 @@ var ServiceEnv = {
         });
 
         ServiceEnv.updateHeightOfMiniDashboardDetails();
-    },
-
-    // Hide elements marked as hide on load, makes page load smoother
-    showElementsHiddenOnLoad: function() {
-        $(".hide-on-load").each(function(index, el) {
-            $(el).show();
-        });
-
-        $('.commit-accordion').on('show', function () {
-            $(this).parent().removeClass('hidden').addClass('shown');
-        });
-
-        $('.commit-accordion').on('hide', function () {
-            $(this).parent().removeClass('shown').addClass('hidden');
-        });
     },
 
     bindToServiceConfigChanges: function() {
@@ -145,7 +144,7 @@ var ServiceEnv = {
         setTimeout(function() {
             // Always resize the sticky area when the dashboard moves
             $("#mini-dashboard-details").sticky('updateHeight');
-        }, 50);
+        }, 100);
     },
 
     // After any job action open up the recent jobs view
@@ -157,6 +156,7 @@ var ServiceEnv = {
         $('#mini-dashboard-detail-' + viewType).removeClass('hide');
 
         this.miniDashboardDetails.slideDown('fast', this.updateHeightOfMiniDashboardDetails);
+        this.updateHeightOfMiniDashboardDetails();
     },
 
     // Update the mini dashboard after a change
@@ -314,11 +314,15 @@ var ServiceEnv = {
     doneShowDiffForRelease: function(rslt) {
         this.doneUpdateMiniDashboard(rslt);
 
-        if (rslt.diff.diff_exists) {
+        if (rslt.diff.diff_exists && !this.isJobsDetailViewVisible()) {
             this.showDashboardDetailView('releases');
         }
 
         this.updateHeightOfMiniDashboardDetails();
+    },
+
+    isJobsDetailViewVisible: function() {
+        return $('#mini-dashboard-detail-jobs').is(':visible');
     },
 
     selectReleasePackageFromDropdown: function(dropdownLink) {
@@ -579,7 +583,6 @@ var ServiceEnv = {
     *****************/
 
     queueServiceJobChanged: function(event, job) {
-        // Cycle button gets enabled once
         if (job.job_type == 'cycle_service') {
             if(job.status == 'failed' || job.status == 'complete') {
                 this.enableCycleButton();
@@ -593,6 +596,11 @@ var ServiceEnv = {
 
             if (job.status == 'complete') {
                 this.updateServiceAfterRelease(job);
+            }
+        }
+        else if (job.job_type == 'build_new_package') {
+            if (job.status == 'complete') {
+                this.showDashboardDetailView();
             }
         }
     }
