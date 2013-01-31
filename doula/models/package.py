@@ -6,6 +6,7 @@ from doula.config import Config
 from doula.github import get_package_github_info
 from doula.util import comparable_name
 from fabric.api import *
+from fabric.context_managers import settings
 from git import *
 from sets import Set
 import logging
@@ -13,6 +14,7 @@ import os
 import pwd
 import re
 import shutil
+import sys
 
 """
 Git-Python makes a call to os.getlogin that fails
@@ -219,15 +221,24 @@ class Package(object):
         try:
             with lcd(repo.working_dir):
                 url = Config.get('doula.cheeseprism_url') + '/simple'
-                result = local('python setup.py sdist upload -r ' + url, capture=True)
+                command = 'python setup.py sdist upload -r ' + url
+                logging.info("command: %s" %  command)
+                with settings(warn_only=True):
+                    result = local(command, capture=True)
+
+                if result.failed:
+                    logging.error(result)
+                    raise Exception(result)
 
                 logging.info(result)
 
                 # Check for a 200 success
                 if not re.search(r'server\s+response\s+\(200\)', result, re.I):
                     logging.error("Error building new package")
+                    logging.error(result)
                     raise Exception("Error building new package")
         except:
             # We make sure that the result always runs. sometimes we error out
             # and the call is killed, catch all for errors
+            logging.error(sys.exc_info())
             raise Exception('Error uploading ' + self.name + ' to Cheese Prism.')
