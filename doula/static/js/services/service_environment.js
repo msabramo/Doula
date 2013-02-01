@@ -53,18 +53,6 @@ var ServiceEnv = {
 
         // Handle the mini
         this.bindToMiniDashboardActions();
-
-        // Make the details sticky
-        $("#mini-dashboard-details").sticky({
-            topSpacing: 15,
-            bottomSpacing: 8,
-            center: true,
-            className: 'fixed-details',
-            getWidthFrom: '#mini-dashboard',
-            resizeHeightFrom: '#mini-dashboard-details'
-        });
-
-        ServiceEnv.updateHeightOfMiniDashboardDetails();
     },
 
     bindToServiceConfigChanges: function() {
@@ -105,9 +93,8 @@ var ServiceEnv = {
             this.firstRun = false;
 
             // The first time around everything is hidden
-            this.miniDashboardDetails.slideUp('fast', this.updateHeightOfMiniDashboardDetails);
+            this.miniDashboardDetails.slideUp('fast');
             this.miniDashboardDetailElements.addClass('hide');
-            this.updateHeightOfMiniDashboardDetails();
         }
 
         $('.mini-dashboard-square').unbind();
@@ -119,7 +106,7 @@ var ServiceEnv = {
 
             // This target is visible and got clicked. Hide everything
             if (targetDetail.is(":visible")) {
-                this.miniDashboardDetails.slideUp('fast', this.updateHeightOfMiniDashboardDetails);
+                this.miniDashboardDetails.slideUp('fast');
                 this.miniDashboardDetailElements.addClass('hide');
             }
             // Another box got clicked while open. Show the target element
@@ -133,18 +120,9 @@ var ServiceEnv = {
                 this.miniDashboardDetailElements.addClass('hide');
                 targetDetail.removeClass('hide');
 
-                this.miniDashboardDetails.slideDown('fast', this.updateHeightOfMiniDashboardDetails);
+                this.miniDashboardDetails.slideDown('fast');
             }
-
-            this.updateHeightOfMiniDashboardDetails();
         }, this));
-    },
-
-    updateHeightOfMiniDashboardDetails: function() {
-        setTimeout(function() {
-            // Always resize the sticky area when the dashboard moves
-            $("#mini-dashboard-details").sticky('updateHeight');
-        }, 100);
     },
 
     // After any job action open up the recent jobs view
@@ -155,8 +133,7 @@ var ServiceEnv = {
         this.miniDashboardDetailElements.addClass('hide');
         $('#mini-dashboard-detail-' + viewType).removeClass('hide');
 
-        this.miniDashboardDetails.slideDown('fast', this.updateHeightOfMiniDashboardDetails);
-        this.updateHeightOfMiniDashboardDetails();
+        this.miniDashboardDetails.slideDown('fast');
     },
 
     // Update the mini dashboard after a change
@@ -317,8 +294,6 @@ var ServiceEnv = {
         if (rslt.diff.diff_exists && !this.isJobsDetailViewVisible()) {
             this.showDashboardDetailView('releases');
         }
-
-        this.updateHeightOfMiniDashboardDetails();
     },
 
     isJobsDetailViewVisible: function() {
