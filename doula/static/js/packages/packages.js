@@ -10,6 +10,7 @@ var Packages = {
     init: function() {
         _mixin(this, AJAXUtil);
 
+        Filter.init('packages');
         this.bindToBuildNewPackageButtons();
     },
 
