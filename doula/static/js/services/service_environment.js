@@ -562,6 +562,7 @@ var ServiceEnv = {
             if(job.status == 'failed' || job.status == 'complete') {
                 this.enableCycleButton();
                 this.updateMiniDashboard();
+                this.showDiffForRelease();
             }
         }
         else if (job.job_type == 'release_service') {
