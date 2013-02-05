@@ -211,7 +211,7 @@ class Service(object):
 
     def _current_sha_in_list_of_service_configs(self, service_configs):
         for service_config in service_configs:
-            if service_config.sha == self.config['sha']:
+            if service_config.sha == self.config.get('sha'):
                 return True
 
         return False
