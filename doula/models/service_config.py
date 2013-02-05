@@ -34,4 +34,9 @@ class ServiceConfig(object):
         config_dict["service"] = service.name
         config_dict["site"] = service.site_name
 
+        if service.config.get('sha', False):
+            config_dict['sha'] = service.config.get('sha')
+        else:
+            config_dict['sha'] = ''
+
         return ServiceConfig(**config_dict)
