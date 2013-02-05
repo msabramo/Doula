@@ -77,7 +77,10 @@ class DoulaDAL(object):
         sites = {}
 
         for site_name, registered_site in self.get_all_registered_sites().iteritems():
-            sites[site_name] = self.find_site_by_name(site_name)
+            site = self.find_site_by_name(site_name)
+
+            if site:
+                sites[site_name] = site
 
         return sites
 
@@ -90,7 +93,7 @@ class DoulaDAL(object):
         if site_as_json:
             return self.mf.build_site_from_cache(json.loads(site_as_json))
         else:
-            raise Exception('Unable to find site %s' % site_name)
+            return False
 
     def find_service_by_name(self, site_name, service_name):
         """
