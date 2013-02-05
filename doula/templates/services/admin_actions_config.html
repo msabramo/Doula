@@ -39,14 +39,18 @@
               {% endfor %}
             </select>
 
+            {% if selected_service_configs|length > 0 %}
             <span id="config_sha_warning" class="help-block-config">
               Current version <strong>{{ selected_service_configs[0].date|formatted_github_day_and_time }}</strong>.
             </span>
+            {% endif %}
           </td>
           <td width="30%" id="service_config_col">
+            {% if selected_service_configs|length > 0 %}
             <a href="http://code.corp.surveymonkey.com/config/{{selected_service_configs[0].service}}/tree/{{selected_service_configs[0].sha}}" target="_blank">
               {{ selected_service_configs[0].message }}
             </a>
+            {% endif %}
           </td>
         </tr>
       </tbody>
