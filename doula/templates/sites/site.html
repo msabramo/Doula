@@ -66,14 +66,22 @@
           <a id="label-for-{{ service.name_url }}" class="edit-label" data-site="{{ service.site_name }}" data-service="{{ service.name_url }}" href="#">
             {{ service.get_label() }}
           </a>
-          <input id="input-label-for-{{ service.name_url }}" data-service="{{ service.name_url }}" data-site="{{ service.site_name }}" type="text" value="{{ service.get_label() }}" placeholder="Add a label to the service" />
+          <input id="input-label-for-{{ service.name_url }}" data-service="{{ service.name_url }}"
+          data-site="{{ service.site_name }}" type="text" value="{{ service.get_label() }}" placeholder="Add a label to the service" />
         </span>
       </div>
 
       <div style="display: block;" class="group">
-        <a href="/sites/{{ site.name_url }}/{{ service.name_url }}" class="admin-action-link accord-link ">
+        <a href="/sites/{{ site.name_url }}/{{ service.name_url }}" class="admin-action-link accord-link">
           Admin Actions
         </a>
+        {% if config.get('env') == 'dev' %}
+        <a href="#" class="admin-action-link accord-link tag-release" data-toggle="collapse"
+                    data-service="{{ service.name_url }}" onclick="return false;"
+                    data-target="#tag_form_{{ service.name_url }}">
+          Tag for Release
+        </a>
+        {% endif %}
         <a data-service="{{ service.name_url }}" data-site="{{ service.site_name }}" href="#" class="admin-action-link accord-link edit-label">
           Edit Label
         </a>
@@ -81,6 +89,43 @@
 
     </div>
   <!-- end of individual site -->
+
+  <!-- the tagging form for release -->
+  <div id="tag_form_{{ service.name_url }}" class="accordion-body collapse">
+    <div class="accordion-group accordion-inner">
+      <div id="tag_diff_{{ service.name_url }}">
+
+        {% set diff = diffs[service.name_url] %}
+        {% set current_version_title = 'Current Release' %}
+        {% set selected_version_title = 'Last Production' %}
+        {% include 'templates/parts/diff_releases.html' %}
+
+      </div>
+      <form id="form_{{ service.name_url }}" class="tag-form">
+        <fieldset>
+          <legend>Tag Latest Release of <strong>{{ service.name }}</strong> for Release to Production</legend>
+
+          <label for="tag_tag_{{ service.name_url }}">Tag Name</label>
+          <input id="tag_tag_{{ service.name_url }}" name="tag_tag_{{ service.name_url }}"
+          class="input-xlarge" type="text" placeholder="Name of the tag">
+
+          <label for="tag_message_{{ service.name_url }}">Tag Message</label>
+          <textarea id="tag_message_{{ service.name_url }}" name="tag_message_{{ service.name_url }}"
+          class="input-xlarge"
+          rows="3"></textarea>
+
+          <div class="hide">
+            <span class="help-block" style="color: red;">Error message goes here.</span>
+          </div>
+
+          <div class="group">
+            <button type="submit" class="btn">Save Tag</button>
+            <button type="button" class="cancel-save-tag btn" data-name-url="{{ service.name_url }}" class="btn">Cancel</button>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
   {% endfor %}
 </div>
 <script>

@@ -20,7 +20,7 @@ var Filter = {
         var searchText = $.trim(filter.val().toLowerCase());
 
         // Save to cookie for future searches
-        $.cookie(this.cookieName, searchText);
+        $.cookie(this.cookieName, searchText, {expires: 180});
         var searchArray = searchText.split(',');
 
         this.filterableEls.each($.proxy(function(i, el) {

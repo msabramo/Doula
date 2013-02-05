@@ -9,6 +9,7 @@
         Release sent to <strong>{{ service.name }}</strong> on <strong>{{ site.name }}</strong>  on {{selected_release.date|formatted_github_day_and_time}}.
       {% endif %}
     </p>
+
     {% if selected_release.production %}
     <p style="font-size: 115%;">
       <i class="icon-star"></i>
@@ -19,98 +20,10 @@
     <br />
   {% endif %}
 
-  <table class="table table-bordered">
-    <thead>
-      <tr class="title">
-        <th>Package Name</th>
-        <th>Current Version</th>
-        <th>Selected Version</th>
-        <th>Compare View</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% if (diff['changed_packages'].keys()|length + diff['packages_to_add'].keys()|length + diff['packages_to_subtract'].keys()|length) < 1 %}
-        <tr>
-          <td>&nbsp;</td>
-          <td colspan="3">No package changes</td>
-        </tr>
-      {% endif %}
+  {% set current_version_title = 'Current' %}
+  {% set selected_version_title = 'Selected' %}
+  {% include 'templates/parts/diff_releases.html' %}
 
-      {% for name, package_diff in diff['changed_packages'].iteritems()|sort %}
-        <tr>
-          {% if package_diff['package'].get_github_info() %}
-            <td>{{name}}</td>
-            <td>
-              <a target="_blank" href="http://code.corp.surveymonkey.com/devmonkeys/{{package_diff['package'].name}}/tree/v{{package_diff['service_version']}}">
-                {{package_diff['service_version']}}
-              </a>
-            </td>
-
-            <td>
-              <a target="_blank" href="http://code.corp.surveymonkey.com/devmonkeys/{{package_diff['package'].name}}/tree/v{{package_diff['release_version']}}">
-                {{package_diff['release_version']}}
-              </a>
-            </td>
-
-            <td>
-              <a target="_blank" href="http://code.corp.surveymonkey.com/devmonkeys/{{package_diff['package'].name}}/compare/v{{package_diff['service_version']|version_number_to_git_tag}}...v{{package_diff['release_version']|version_number_to_git_tag}}">
-                {{package_diff['service_version']}}...{{package_diff['release_version']}}
-              </a>
-            </td>
-          {% else %}
-            <td>{{name}}</td>
-            <td>{{package_diff['service_version']}}</td>
-            <td>{{package_diff['release_version']}}</td>
-            <td>&nbsp;</td>
-          {% endif %}
-        </tr>
-      {% endfor %}
-
-      {% for name, package in diff['packages_to_add'].iteritems()|sort %}
-        <tr>
-          <td>{{package.name}}</td>
-          <td>&nbsp;</td>
-          <td>{{package.version}}</td>
-          <td>&nbsp;</td>
-        </tr>
-      {% endfor %}
-
-      <!-- config row. -->
-      <tr class="title">
-        <th>Config Files</th>
-        <th>Current Commit
-          <i rel="popover" class="icon-question-sign doc-help" data-content="{{'help_config_commit'|doc_snippet}}"></i>
-        </th>
-        <th>Selected Commit</th>
-        <th>Compare View</th>
-      </tr>
-
-      <tr>
-        <td rowspan="2">&nbsp;</td>
-        <td rowspan="2">
-          <a target="_blank" href="http://code.corp.surveymonkey.com/config/{{service.name_url}}/commit/{{diff['current_service_config'].sha}}">
-            {{diff['current_service_config'].formatted_date}}
-          </a>
-        </td>
-        <td rowspan="2">
-          <a target="_blank" href="http://code.corp.surveymonkey.com/config/{{service.name_url}}/commit/{{diff['release_service_config'].sha}}">
-            {{diff['release_service_config'].formatted_date}}
-          </a>
-        </td>
-        <td>
-          {% if diff['current_service_config'].sha != diff['release_service_config'].sha %}
-            <a target="_blank" href="http://code.corp.surveymonkey.com/config/{{service.name_url}}/compare/{{diff['current_service_config'].sha|truncate(7, true, "")}}...{{diff['release_service_config'].sha|truncate(7, true, "")}}">
-              {{diff['current_service_config'].sha|truncate(7, true, "")}}...{{diff['release_service_config'].sha|truncate(7, true, "")}}
-            </a>
-          {% else %}
-            <a target="_blank" href="http://code.corp.surveymonkey.com/config/{{service.name_url}}/commit/{{diff['release_service_config'].sha}}">
-              {{diff['current_service_config'].sha|truncate(7, true, "")}}
-            </a>
-          {% endif %}
-        </td>
-      </tr>
-    </tbody>
-  </table>
   {% else %}
     <p>The last release date is <strong>unknown</strong>.</p>
   {% endif %}

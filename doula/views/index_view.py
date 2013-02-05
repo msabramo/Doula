@@ -47,13 +47,34 @@ def site(request):
     dd = DoulaDAL()
     site = dd.find_site_by_name(request.matchdict['site_name'])
 
+    # diffs for all services, # need to diff the service's last prod release
+    diffs = {}
+
+    for service_name, service in site.services.iteritems():
+        last_release = find_last_production_release(site, service)
+        diff = last_release.diff_service_and_release(service)
+        diffs[service.name_url] = diff
+
     return {
         'site': site,
         'user': request.user,
         'site_json': dumps(site),
         'token': Config.get('token'),
-        'config': Config
+        'config': Config,
+        'diffs': diffs
     }
+
+
+def find_last_production_release(site, service):
+    """
+    todo: find the production release
+    """
+    releases = service.get_releases()
+
+    if len(releases) > 0:
+        return releases[0]
+    else:
+        return Release.build_empty_release(site_name)
 
 
 @view_config(route_name='site_lock', renderer="json")

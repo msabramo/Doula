@@ -40,7 +40,7 @@ class Node(object):
             return ''
 
         sc_dal = ServiceConfigDAL()
-        latest_service_config = sc_dal.latest_service_config(self.site_name, self.config['repo_name'])
+        latest_service_config = sc_dal.latest_service_config(self.site_name, self.config.get('repo_name', self.name))
         self.config['latest_sha'] = latest_service_config.sha
 
         if self.config['sha'] != self.config['latest_sha'] or len(self.config['changed_files']) > 0:

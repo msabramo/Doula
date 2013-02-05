@@ -24,6 +24,8 @@ var Site = {
 
     bindToDataActions: function() {
         $('#lock-site')._on('click', this.toggleSiteLock, this);
+        $('.tag-form')._on('submit', this.tagServiceForRelease, this);
+        $('.cancel-save-tag')._on('click', this.cancelSaveTag, this);
     },
 
     /****************
@@ -63,6 +65,18 @@ var Site = {
                 addClass('locked').
                 html('<i class="icon-lock icon-black"></i> Unlock Site');
         }
+    },
+
+    /*************************
+    Tag a Service for Release
+    **************************/
+
+    tagServiceForRelease: function(event, rslt) {
+        console.log('tag this mofo.');
+    },
+
+    cancelSaveTag: function(event, button) {
+        var nameURL = button.data('name-url');
     }
 };
 
