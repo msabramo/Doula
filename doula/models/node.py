@@ -43,7 +43,7 @@ class Node(object):
         latest_service_config = sc_dal.latest_service_config(self.site_name, self.config.get('repo_name', self.name))
         self.config['latest_sha'] = latest_service_config.sha
 
-        if self.config['sha'] != self.config['latest_sha'] or len(self.config['changed_files']) > 0:
+        if self.config.get('sha', '') != self.config.get('latest_sha', '') or len(self.config('changed_files', [])) > 0:
             self.config['is_up_to_date'] = False
         else:
             self.config['is_up_to_date'] = True
