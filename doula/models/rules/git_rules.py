@@ -25,11 +25,16 @@ class ValidateServiceOrigin(Rule):
     def description(self):
         return "Validate that the serice origin is properly configured."
 
-    def validate(self, org, service_name, fqdn='code.corp.surveymonkey.com'):
-        with warn_only(self._service_path()):
+    def validate(self, org, service_name, is_etc=False, fqdn='code.corp.surveymonkey.com'):
+        if is_etc:
+            path = self._etc_path()
+        else:
+            path = self._service_path()
+
+        with warn_only(path):
             self.result = run("git remote -v | head -1 | awk '{print $2}'")
 
-        self.origin = "git@%s:%s/%s" % (fqdn, org, service_name)
+        self.origin = "git@%s:%s/%s.git" % (fqdn, org, service_name)
         return self.validate_logic(self.result == self.origin)
 
 

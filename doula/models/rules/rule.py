@@ -5,8 +5,8 @@ class Rule(object):
 
     def __init__(self,
             service_name,
-            web_app_dir,
             node_ip,
+            web_app_dir,
             keyfile,
             debug=False):
 
