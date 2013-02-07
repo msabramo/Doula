@@ -1,7 +1,9 @@
 from doula.util_fabric import *
+from doula.github import build_url_to_api
+from doula.util import pull_json_obj, post_url
 import os
 
-class Rule(object):
+class FabricBase(object):
 
     def __init__(self,
             service_name,
@@ -12,6 +14,7 @@ class Rule(object):
 
         self.service_name = service_name
         self.web_app_dir = web_app_dir
+        self.is_valid = True
 
         env.host_string = node_ip
         env.key_filename = keyfile
@@ -31,7 +34,6 @@ class Rule(object):
 
     def _service_path(self):
             return os.path.join(self.web_app_dir, self.service_name)
-
 
     #override for testing
     def fabric_user(self):

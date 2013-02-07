@@ -1,8 +1,8 @@
-from doula.models.rules.rule import Rule
+from doula.models.fabric_base import FabricBase
 from doula.util_fabric import *
 import re
 
-class ValidateGitBranch(Rule):
+class ValidateGitBranch(FabricBase):
 
     def description(self):
         return "Validate that this service is on the correct branch."
@@ -13,14 +13,12 @@ class ValidateGitBranch(Rule):
             self.result = run("git symbolic-ref HEAD 2>/dev/null | cut -d'/' -f 3")
         return self.validate_logic(self.result == branch)
 
-
     def error_text(self):
         output = "The branch '%s' does not match \
                       the intended branch '%s'" % (self.result, self.branch)
         return self.error_logic(output)
 
-
-class ValidateServiceOrigin(Rule):
+class ValidateServiceOrigin(FabricBase):
 
     def description(self):
         return "Validate that the serice origin is properly configured."
