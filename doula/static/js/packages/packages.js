@@ -39,9 +39,20 @@ var Packages = {
 
     // Make ajax call to get build new package modal HTML
     showBuildNewPackageModal: function(event, button) {
-        var name = button.data('name');
+        var name = this.getNameFromButton(button);
+
         var url = '/packages/build_new_package_modal';
         this.get(url, {'name': name}, this.doneShowBuildNewPackageModal);
+    },
+
+    getNameFromButton: function(button) {
+        var name = button.data('name');
+
+        if (!name) {
+            name = button.parent().data('name');
+        }
+
+        return name;
     },
 
     doneShowBuildNewPackageModal: function(rslt) {
