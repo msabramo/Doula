@@ -24,9 +24,11 @@ _keys = {
   "release_counter"     : "release:$site:$service:counter",
   "releases_for_service": "releases:$site:$service",
   "release_by_number"   : "release:$site:$service:$release_number",
-  "release_by_date"     : "release:$site:$service:$date"
-}
+  "release_by_date"     : "release:$site:$service:$date",
 
+  # Queue keys
+  "job_queue": "doula:jobs:$queue"
+}
 
 def key_val(name, subs={}):
     """

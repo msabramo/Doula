@@ -155,7 +155,7 @@ class Service(object):
         }
 
         queue = Queue()
-        jobs = queue.get(query)
+        jobs = queue.find_jobs(query)
         last_job = self._get_last_job_from_jobs(jobs)
 
         if last_job:

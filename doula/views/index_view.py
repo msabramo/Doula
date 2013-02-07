@@ -1,6 +1,7 @@
 from doula.cache import Redis
 from doula.cache_keys import key_val
 from doula.config import Config
+from doula.models.release import Release
 from doula.jobs_timer import start_task_scheduling
 from doula.models.doula_dal import DoulaDAL
 from doula.models.webhook import WebHook
@@ -74,7 +75,7 @@ def find_last_production_release(site, service):
     if len(releases) > 0:
         return releases[0]
     else:
-        return Release.build_empty_release(site_name)
+        return Release.build_empty_release(site.name)
 
 
 @view_config(route_name='site_lock', renderer="json")
@@ -156,7 +157,7 @@ def updatedoula(request):
     q = Queue()
 
     for job in jobs:
-        q.this({'job_type': job})
+        q.enqueue({'job_type': job})
         html += job + ', '
 
     return {'jobs_html': html.rstrip(', ')}
@@ -175,7 +176,7 @@ def webhook(request):
     elif webhook.org == 'config':
         # todo. make it more fine grained
         q = Queue()
-        q.this({'job_type': 'pull_service_configs'})
+        q.enqueue({'job_type': 'pull_service_configs'})
 
 
 @view_config(route_name='docs', permission=NO_PERMISSION_REQUIRED, renderer="docs/index.html")

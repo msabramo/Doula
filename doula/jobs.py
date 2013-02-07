@@ -486,7 +486,7 @@ def cleanup_queue(config={}, job_dict={}):
         log.info('Cleaning up the queue')
 
         queue = Queue()
-        expired_job_ids = find_expired_jobs(queue.get())
+        expired_job_ids = find_expired_jobs(queue.find_jobs())
 
         queue.remove(expired_job_ids)
 

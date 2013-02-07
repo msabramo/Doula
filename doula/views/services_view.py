@@ -77,7 +77,7 @@ def get_last_job(site, service):
     }
 
     queue = Queue()
-    jobs = queue.get(query)
+    jobs = queue.find_jobs(query)
 
     last_job = None
 
@@ -210,7 +210,7 @@ def enqueue_release_service(request, service, packages, sha):
     """
     manifest = build_release_manifest(request, service, packages, sha)
 
-    return Queue().this({
+    return Queue().enqueue({
         "job_type": "release_service",
         "service": service.name,
         "site": service.site_name,
@@ -278,7 +278,7 @@ def enqueue_cycle_service(request, service):
     """
     Enqueue the cycle services job onto the queue
     """
-    return Queue().this({
+    return Queue().enqueue({
         'job_type': 'cycle_service',
         'service': service.name,
         'site': service.site_name,
