@@ -65,6 +65,7 @@ def main(global_config, **settings):
     # Services routes
     config.add_route('service', '/sites/{site_name}/{service_name}')
     config.add_route('service_dashboard', '/sites/{site_name}/{service_name}/dash')
+    config.add_route('service_validate', '/sites/{site_name}/{service_name}/validate')
     config.add_route('service_diff', '/sites/{site_name}/{service_name}/diff')
     config.add_route('service_cycle', '/sites/{site_name}/{service_name}/cycle')
     config.add_route('service_release', '/sites/{site_name}/{service_name}/release')

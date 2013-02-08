@@ -75,6 +75,13 @@
         <a href="/sites/{{ site.name_url }}/{{ service.name_url }}" class="admin-action-link accord-link">
           Admin Actions
         </a>
+
+        {% if config.get('env') == 'dev' %}
+        <a href="/sites/{{ site.name_url }}/{{ service.name_url }}/validate" class="admin-action-link accord-link">
+          Validate Service
+        </a>
+        {% endif %}
+
         {% if config.get('env') == 'dev' %}
         <a href="#" class="admin-action-link accord-link tag-release" data-toggle="collapse"
                     data-service="{{ service.name_url }}" onclick="return false;"
@@ -82,6 +89,7 @@
           Tag for Release
         </a>
         {% endif %}
+
         <a data-service="{{ service.name_url }}" data-site="{{ service.site_name }}" href="#" class="admin-action-link accord-link edit-label">
           Edit Label
         </a>

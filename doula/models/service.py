@@ -126,6 +126,8 @@ class Service(object):
 
         # exceptions are weird with xmlrpc: http://betabug.ch/blogs/ch-athens/1012
         except (socket_error, xmlrpclib.Fault, xmlrpclib.ProtocolError, xmlrpclib.ResponseError), error_code:
+            tailcall
+            log.error(output)
             raise CycleServiceException(error_code)
 
     def is_config_up_to_date(self):

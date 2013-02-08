@@ -2,6 +2,7 @@ from doula.cheese_prism import CheesePrism
 from doula.config import Config
 from doula.models.doula_dal import DoulaDAL
 from doula.models.release import Release
+from doula.models.rules.rule_factory import RuleFactory
 from doula.queue import Queue
 from doula.util import comparable_name
 from doula.util import dumps
@@ -18,10 +19,10 @@ import pdb
 
 log = logging.getLogger(__name__)
 
+
 ####################
 # SERVICE INDEX VIEW
 ####################
-
 
 @view_config(route_name='service', renderer="services/admin_actions.html")
 def service(request):
@@ -285,3 +286,30 @@ def enqueue_cycle_service(request, service):
         'user_id': request.user['username']
     })
 
+
+####################
+# Validate Service
+####################
+
+@view_config(route_name='service_validate', renderer="services/validate.html")
+def service_validate(request):
+    dd = DoulaDAL()
+    site = dd.find_site_by_name(request.matchdict['site_name'])
+    service = site.services[request.matchdict['service_name']]
+
+    # localhost should be a branch.
+    # rf = RuleFactory(service.name, 'localhost')
+    # rules = rf.rules(code_org=Config.get('doula.github.appenvs.org'), branch=site.name)
+
+    [
+        {
+            "errors"
+        }
+    ]
+
+    return {
+        'site': site,
+        'path': request.path,
+        'service': service,
+        'config': Config
+    }
