@@ -629,3 +629,15 @@ def post_url(url, data, timeout=3.0):
     else:
         return {}
 
+def delete_url(url, timeout=3.0):
+    """
+    Pull the URL text. Always raise the status error.
+    """
+    response = requests.delete(url, timeout=timeout)
+    # If the response is non 200, we raise an error
+    response.raise_for_status()
+    if response:
+        return json.loads(response.text)
+    else:
+        return {}
+
