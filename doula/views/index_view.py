@@ -165,11 +165,10 @@ def updatedoula(request):
 
 @view_config(route_name='webhook', renderer="json", permission=NO_PERMISSION_REQUIRED)
 def webhook(request):
-    print 'REQUEST POST'
-    print request
     print 'DONE WITH REQUEST'
-    print dumps(request.POST)
-    webhook = WebHook(json.loads(request.POST['payload']))
+    print request.body
+
+    webhook = WebHook(json.loads(request.body))
 
     if webhook.org == 'devmonkeys':
         # todo. update the dev monkeys repos
