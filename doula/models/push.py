@@ -1,40 +1,15 @@
-from contextlib import contextmanager
 from doula.models.user import User
 from doula.models.release_dal import ReleaseDAL
 from doula.models.release import Release
+
 from fabric.api import *
-from fabric.context_managers import cd
-from fabric.context_managers import hide
-from fabric.context_managers import prefix
-from fabric.context_managers import settings
+from doula.util_fabric import *
+
 import os
 import time
 import json
 import logging
 import re
-
-
-@contextmanager
-def debuggable(debug=False):
-    if debug:
-        yield
-    else:
-        with hide('warnings', 'running', 'stdout', 'stderr'):
-            yield
-
-
-@contextmanager
-def workon(path, debug):
-    with cd(path):
-        if 'etc' in path:
-            source = 'source %s/../bin/activate' % path
-        else:
-            source = 'source %s/bin/activate' % path
-        with prefix(source):
-            with debuggable(debug):
-                with settings(warn_only=True):
-                    yield
-
 
 class Push(object):
 
@@ -271,6 +246,14 @@ class Push(object):
     def _branch(self):
         with workon(self._webapp(), self.debug):
             return run('git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3')
+
+
+    def _webapp(self):
+            return os.path.join(self.web_app_dir, self.service_name)
+
+
+    def _etc(self):
+        return os.path.join(self.web_app_dir, self.service_name, 'etc')
 
 
     def _etc_sha1(self):
