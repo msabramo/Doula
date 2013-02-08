@@ -13,8 +13,8 @@
       <thead>
         <tr>
           <th>Package</th>
-          <th>Version</th>
-          <th> &nbsp;</th>
+          <th>Release Version</th>
+          <th>&nbsp; Package Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -32,7 +32,7 @@
             {{ pckg[1].name }}
           </a>
           </td>
-          <td width="80%">
+          <td width="40%">
             <select id="pckg_select_{{ pckg[1].comparable_name }}"
             data-comparable-name="{{ pckg[1].comparable_name }}"
             data-name="{{ pckg[1].name }}"
@@ -47,19 +47,21 @@
                 <option value="">Remove Package</option>
               {% endif %}
             </select>
+            <span id="pckg_select_msg_{{ pckg[1].comparable_name }}" class="help-block">
+              Current version 1.4.5
+            </span>
+          </td>
+          <td width="40%">
             <a class="btn sm-btn-success new-version-btn"
             data-comparable-name="{{ pckg[1].comparable_name }}"
             data-name="{{ pckg[1].name }}"
             href="#">
               <i class="icon-chevron-right icon-white"></i>
-              Build New <strong>{{ pckg[1].name }}</strong> Package
+              Build New Package
             </a>
             <span>
-              <i rel="popover" class="icon-question-sign doc-help"
-              data-content="Push to new package to CheesePrism so you can release to test environment later." data-original-title=""></i>
-            </span>
-            <span id="pckg_select_msg_{{ pckg[1].comparable_name }}" class="help-block">
-              Current version 1.4.5
+              <i rel="popover" class="icon-question-sign doc-help" data-placement="top"
+              data-content="Push new package to CheesePrism so you can release new GitHub code to test environment." data-original-title=""></i>
             </span>
           </td>
         </tr>

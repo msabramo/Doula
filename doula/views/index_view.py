@@ -167,16 +167,15 @@ def updatedoula(request):
 def webhook(request):
     webhook = WebHook(json.loads(request.POST['payload']))
 
-    # todo: implement callback logic
-    # be sure to look at the object to
-    # see what u can get.  it is pretty full-featured
     if webhook.org == 'devmonkeys':
+        # todo. update the dev monkeys repos
         pass
-        # do neat stuff
     elif webhook.org == 'config':
-        # todo. make it more fine grained
         q = Queue()
-        q.enqueue({'job_type': 'pull_service_configs'})
+        q.enqueue({
+            'service': webhook.repo,
+            'job_type': 'pull_service_configs_for_service'
+            })
 
 
 @view_config(route_name='docs', permission=NO_PERMISSION_REQUIRED, renderer="docs/index.html")

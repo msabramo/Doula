@@ -39,6 +39,7 @@ class Queue(object):
         'add_webhook_callbacks',
         'pull_releases_for_all_services',
         'pull_service_configs',
+        'pull_service_configs_for_service',
         'pull_cheeseprism_data',
         'pull_github_data',
         'cleanup_queue']

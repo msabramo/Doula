@@ -114,7 +114,6 @@ class Push(object):
 
             freeze_text = self._freeze()
             manifest = self._manifest(freeze_text)
-	    #import ipdb; ipdb.set_trace()
             self.write_manifest(manifest)
 
             message = message + self.pretty_pip(freeze_text)
@@ -176,7 +175,7 @@ class Push(object):
                 result = run('asset_check %s' % self.service_name)
 
                 if result.succeeded:
-                  
+
                     result = sudo('paster --plugin=smlib.assets bake etc/app.ini %s' % self.outdir)
 
                     if result.succeeded:
