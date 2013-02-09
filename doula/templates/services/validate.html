@@ -10,8 +10,19 @@
   </h2>
 </div>
 
+<!-- all the results for the validation -->
 <div>
-  <h1>Hello Validate This. See mockup in paper app.</h1>
+  {% for category, category_rules in rules.iteritems() %}
+    {% if category_rules['error_count'] > 0 %}
+        {% include 'services/validate-category.html' %}
+    {% endif %}
+  {% endfor %}
+
+  {% for category, category_rules in rules.iteritems() %}
+    {% if category_rules['error_count'] == 0 %}
+        {% include 'services/validate-category.html' %}
+    {% endif %}
+  {% endfor %}
 </div>
 
 {% endblock %}

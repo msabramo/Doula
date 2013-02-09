@@ -1,0 +1,24 @@
+<div class="group val-category">
+    <div class="val-num">
+        <h1 class="val-error-number {% if category_rules['error_count'] > 0 %}val-error-number-fail{% else %}val-error-number-pass{% endif %}">
+            {% if category_rules['error_count'] > 0 %}
+                {{ category_rules['error_count'] }}
+            {% else %}
+                &#x2713;
+            {% endif %}
+        </h1>
+    </div>
+    <div class="val-category-rules">
+        <h2>{{ category }}</h2>
+        <ul>
+            {% for rule in category_rules['rules'] %}
+                <li>
+                    <p>{{ rule.description }}</p>
+                    {% if not rule.is_valid %}
+                        <p style="color: red;">{{ rule.error_text }}</p>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>

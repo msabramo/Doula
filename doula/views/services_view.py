@@ -291,25 +291,49 @@ def enqueue_cycle_service(request, service):
 # Validate Service
 ####################
 
+from doula.models.rules.example_rules import ExampleRule
+
 @view_config(route_name='service_validate', renderer="services/validate.html")
 def service_validate(request):
     dd = DoulaDAL()
     site = dd.find_site_by_name(request.matchdict['site_name'])
     service = site.services[request.matchdict['service_name']]
 
+    ex1 = ExampleRule('Git')
+    ex1.validate()
+    ex2 = ExampleRule('Git')
+    ex2.validate()
+
+    ex3 = ExampleRule('Structure')
+    ex3.validate()
+    ex4 = ExampleRule('Structure')
+    ex4.validate()
+
+    rules = {}
+    rules_list = [ex1, ex2, ex3, ex4]
+
+    for rule in rules_list:
+        if not rule.category in rules:
+            # add category for the first time
+            rules[rule.category] = {
+                'rules': [],
+                'error_count': 0
+                }
+
+        if not rule.is_valid:
+            rules[rule.category]['error_count'] += 1
+
+        rules[rule.category]['rules'].append(rule)
+
     # localhost should be a branch.
     # rf = RuleFactory(service.name, 'localhost')
     # rules = rf.rules(code_org=Config.get('doula.github.appenvs.org'), branch=site.name)
-
-    [
-        {
-            "errors"
-        }
-    ]
+    print rules
 
     return {
         'site': site,
         'path': request.path,
         'service': service,
-        'config': Config
+        'config': Config,
+        'rules': rules
     }

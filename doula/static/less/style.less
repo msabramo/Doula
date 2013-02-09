@@ -40,6 +40,17 @@ body {
 	-khtml-border-radius: @radius; /* for old Konqueror browsers */
 }
 
+.circular (@width) {
+	width: @width;
+	height: @width;
+	line-height: @width;
+    text-align: center;
+
+	border-radius: (@width / 2);
+	-webkit-border-radius: (@width / 2);
+	-moz-border-radius: (@width / 2);
+}
+
 .group:after {
 	visibility: hidden;
 	display: block;
@@ -974,5 +985,43 @@ Filter Styles
 
 	form {
 		margin-bottom: 0px;
+	}
+}
+
+/******************
+Validate page
+*******************/
+
+.val-category {
+	margin-bottom: 25px;
+}
+
+.val-num {
+	float: left;
+	margin-right: 25px;
+}
+
+.val-error-number {
+	color: #383838;
+	.circular(75px);
+}
+
+.val-error-number-pass {
+	border: 1px solid @pass-border-color;
+	background-color: @pass-color;
+}
+
+.val-error-number-fail {
+	border: 1px solid @fail-border-color;
+	background-color: @fail-color;
+}
+
+.val-category-rules {
+	float: left;
+	width: 80%;
+
+	h1, h2 {
+		margin-top: 20px;
+		border-bottom: 1px solid #EEE;
 	}
 }
