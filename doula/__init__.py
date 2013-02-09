@@ -68,6 +68,7 @@ def main(global_config, **settings):
     config.add_route('service_diff', '/sites/{site_name}/{service_name}/diff')
     config.add_route('service_cycle', '/sites/{site_name}/{service_name}/cycle')
     config.add_route('service_release', '/sites/{site_name}/{service_name}/release')
+    config.add_route('deployed_to_production', '/production/deployed')
 
     config.add_route('queue', '/queue')
     config.add_route('settings', '/settings')

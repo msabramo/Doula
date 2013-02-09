@@ -2,6 +2,7 @@ from doula.cheese_prism import CheesePrism
 from doula.config import Config
 from doula.models.doula_dal import DoulaDAL
 from doula.models.release import Release
+from doula.models.release_dal import ReleaseDAL
 from doula.queue import Queue
 from doula.util import comparable_name
 from doula.util import dumps
@@ -285,3 +286,20 @@ def enqueue_cycle_service(request, service):
         'user_id': request.user['username']
     })
 
+###############
+# Production
+###############
+
+@view_config(route_name='deployed_to_production', renderer="string")
+def deployed_to_production(request):
+    # alextodo. mark as deployed to prod here.
+    # will need to mark the service.
+    # todo: what do we need passed in?
+    # who do we need to call locally?
+
+    # What we're sending to kael right now is. a tag. that's all he needs. no?
+
+    rdal = ReleaseDAL()
+    manifest = rdal.find_manifest_by_release_number(site_name, service_name, release_number)
+
+    return dumps({'success': True})
