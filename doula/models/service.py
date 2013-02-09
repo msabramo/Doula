@@ -123,9 +123,22 @@ class Service(object):
                 True
             else:
                 raise CycleServiceException('one service failed', results)
-
         # exceptions are weird with xmlrpc: http://betabug.ch/blogs/ch-athens/1012
         except (socket_error, xmlrpclib.Fault, xmlrpclib.ProtocolError, xmlrpclib.ResponseError), error_code:
+            try:
+                logging.error('Error from supervisord process')
+                logging.error('START-------------------------------')
+
+                # Log the last 500 chars if errored out
+                tail_text = proxy.supervisor.tailProcessStdoutLog(service_name, 0, 500)[0] + "\n"
+                tail_text += proxy.supervisor.tailProcessStderrLog(service_name, 0, 500)[0]
+
+                logging.error(tail_text.strip())
+                logging.error('END-------------------------------')
+            except:
+                # Make sure we continue
+                pass
+
             raise CycleServiceException(error_code)
 
     def is_config_up_to_date(self):
