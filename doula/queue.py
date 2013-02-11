@@ -53,6 +53,7 @@ class Queue(object):
         self.maint_qm = QueueManager(default_queue_name=self.maintenance_queue_name)
         self.qm.subscriber('job_postrun', handler='doula.queue:add_result')
         self.qm.subscriber('job_failure', handler='doula.queue:add_failure')
+        self.qm.subscriber('job_prerun', handler='doula.queue:update_prerun')
 
     def enqueue(self, new_job_dict):
         """
@@ -137,21 +138,11 @@ class Queue(object):
         """
         found_jobs = []
         job_dict_query = original_job_dict_query.copy()
-        find_these_job_types = None
-
-        if 'job_type' in job_dict_query:
-            find_these_job_types = job_dict_query['job_type']
-            del job_dict_query['job_type']
-
+        find_these_job_types = job_dict_query.pop('job_type', None)
         job_dict_query_set = set(job_dict_query.items())
 
-        # http://docs.python.org/2/library/stdtypes.html#set.intersection
         for id, job_as_json in self._all_jobs().iteritems():
             job_dict = json.loads(job_as_json)
-
-            # If no job_type key in job_dict. move on
-            if not 'job_type' in job_dict:
-                continue
 
             # If job is NOT a standard job, skip it
             if not self.is_standard_job(job_dict.get('job_type', '')):
@@ -162,6 +153,7 @@ class Queue(object):
                 if not job_dict['job_type'] in find_these_job_types:
                     continue
 
+            # http://docs.python.org/2/library/stdtypes.html#set.intersection
             if self.safe_job_dict_set(job_dict) >= job_dict_query_set:
                 # Test whether every element in job_dict_query_set is in the job_dict
                 found_jobs.append(job_dict)
@@ -169,12 +161,9 @@ class Queue(object):
         return found_jobs
 
     def safe_job_dict_set(self, job_dict):
-        # Remove keys that will mess up the set() call.
-        if 'exc' in job_dict:
-            del job_dict['exc']
-
-        if 'manifest' in job_dict:
-            del job_dict['manifest']
+        # Remove keys that will mess up the set() call. it can't set
+        job_dict.pop('exc', '')
+        job_dict.pop('manifest', '')
 
         return set(job_dict.items())
 
@@ -264,7 +253,7 @@ class Queue(object):
 # Retools Event Subscribers
 #############################
 
-def update_job_after_completion(job_dict, status, tb=None):
+def update_job_status(job_dict, status, tb=None, remove_is_okay=True):
     q = Queue()
 
     if q.is_standard_job(job_dict['job_type']):
@@ -277,8 +266,9 @@ def update_job_after_completion(job_dict, status, tb=None):
         q.update_buckets()
         send_notification(job_dict, tb)
     else:
-        # The job should just be removed
-        q.remove(job_dict['id'])
+        if remove_is_okay:
+            # The job should just be removed
+            q.remove(job_dict['id'])
 
 
 def add_result(job=None, result=None):
@@ -288,7 +278,11 @@ def add_result(job=None, result=None):
     print "\n SUCCESSFUL JOB\N"
     print job.kwargs['job_dict']
 
-    update_job_after_completion(job.kwargs['job_dict'], 'complete')
+    update_job_status(job.kwargs['job_dict'], 'complete')
+
+
+def update_prerun(job=None, result=None):
+    update_job_status(job.kwargs['job_dict'], 'running', None, False)
 
 
 def add_failure(job=None, exc=None):
@@ -298,6 +292,7 @@ def add_failure(job=None, exc=None):
     tb = traceback.format_exc()
 
     print "\n Job Failed"
-    print tb
+    print tb + "\n"
+    print job.kwargs['job_dict']
 
-    update_job_after_completion(job.kwargs['job_dict'], 'failed', tb)
+    update_job_status(job.kwargs['job_dict'], 'failed', tb)

@@ -1,6 +1,7 @@
 import simplejson as json
 import unittest
 import uuid
+import time
 from mock import call
 from mock import Mock
 from mock import patch
@@ -68,6 +69,27 @@ class QueueTests(unittest.TestCase):
         found_jobs = self.queue.find_jobs(job_dict_query)
 
         self.assertEqual(len(found_jobs), 3)
+
+    def test_find_jobs_test_time(self):
+        job = {'job_type': 'build_new_package', 'status': 'complete'}
+
+        for i in range(10000):
+            self._add_job(job.copy())
+
+        job_dict_query = {
+            'job_type': ['build_new_package']
+        }
+
+        start = time.time()
+        found_jobs = self.queue.find_jobs(job_dict_query)
+        diff_time = time.time() - start
+
+        print "\n"
+        print 'Diff Time'
+        print diff_time
+
+        # ensure we can roll through 10000 in less than 10 milliseconds
+        self.assertTrue(diff_time < 0.10)
 
     def test_find_jobs_filter_by_job_type(self):
         self._add_job({'job_type': 'build_new_package'})

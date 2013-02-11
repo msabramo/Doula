@@ -11,14 +11,13 @@ class Redis(object):
     redis = None
     # redis_store holds onto the permanent data for Doula
     redis_store = None
+    host = '127.0.0.1'
+    port = 6379
 
     @staticmethod
-    def connect(host, port, db):
-        host = host or '127.0.0.1'
-        port = port or 6379
-
+    def connect(db):
         try:
-            redis_client = redis.Redis(host=host, port=int(port), db=db)
+            redis_client = redis.Redis(host=Redis.host, port=int(Redis.port), db=db)
             redis_client.ping()
             log.debug("Connected to redis db: %s" % db)
 
@@ -37,11 +36,11 @@ class Redis(object):
 
         if db == 0:
             if not Redis.redis:
-                Redis.redis = Redis.connect(Config.get('redis.host'), Config.get('redis.port'), db)
+                Redis.redis = Redis.connect(db)
 
             return Redis.redis
         elif db == 1:
             if not Redis.redis_store:
-                Redis.redis_store = Redis.connect(Config.get('redis.host'), Config.get('redis.port'), db)
+                Redis.redis_store = Redis.connect(db)
 
         return Redis.redis_store
