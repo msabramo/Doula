@@ -123,8 +123,7 @@ def enqueue_push_package(user_id, site_name, service_name, package, remote, bran
         'job_type': 'build_new_package'
     }
 
-    q = Queue()
-    job_id = q.this(job_dict)
+    job_id = Queue().enqueue(job_dict)
     job_dict['id'] = job_id
 
     return job_dict

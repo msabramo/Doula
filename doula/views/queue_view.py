@@ -18,12 +18,12 @@ def show_queue(request):
 
 @view_config(route_name='queue', request_param='jobs_started_after', renderer='json', xhr=True)
 def query_queue_view(request):
-    response = {'success': True}
     queue = Queue()
 
     bucket_id = request.params.getone('bucket_id')
     last_updated = request.params.getone('last_updated')
     last_updated = last_updated if last_updated else 0
+    response = {'success': True}
 
     if queue.has_bucket_changed(bucket_id, last_updated):
         # Pull the bucket from queue. If it doesn't exist the queue

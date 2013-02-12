@@ -2,6 +2,7 @@ from doula.cheese_prism import CheesePrism
 from doula.config import Config
 from doula.models.doula_dal import DoulaDAL
 from doula.models.release import Release
+from doula.models.rules.rule_factory import RuleFactory
 from doula.queue import Queue
 from doula.util import comparable_name
 from doula.util import dumps
@@ -18,10 +19,10 @@ import pdb
 
 log = logging.getLogger(__name__)
 
+
 ####################
 # SERVICE INDEX VIEW
 ####################
-
 
 @view_config(route_name='service', renderer="services/admin_actions.html")
 def service(request):
@@ -77,7 +78,7 @@ def get_last_job(site, service):
     }
 
     queue = Queue()
-    jobs = queue.get(query)
+    jobs = queue.find_jobs(query)
 
     last_job = None
 
@@ -210,7 +211,7 @@ def enqueue_release_service(request, service, packages, sha):
     """
     manifest = build_release_manifest(request, service, packages, sha)
 
-    return Queue().this({
+    return Queue().enqueue({
         "job_type": "release_service",
         "service": service.name,
         "site": service.site_name,
@@ -278,10 +279,61 @@ def enqueue_cycle_service(request, service):
     """
     Enqueue the cycle services job onto the queue
     """
-    return Queue().this({
+    return Queue().enqueue({
         'job_type': 'cycle_service',
         'service': service.name,
         'site': service.site_name,
         'user_id': request.user['username']
     })
 
+
+####################
+# Validate Service
+####################
+
+from doula.models.rules.example_rules import ExampleRule
+
+@view_config(route_name='service_validate', renderer="services/validate.html")
+def service_validate(request):
+    dd = DoulaDAL()
+    site = dd.find_site_by_name(request.matchdict['site_name'])
+    service = site.services[request.matchdict['service_name']]
+
+    ex1 = ExampleRule('Git')
+    ex1.validate()
+    ex2 = ExampleRule('Git')
+    ex2.validate()
+
+    ex3 = ExampleRule('Structure')
+    ex3.validate()
+    ex4 = ExampleRule('Structure')
+    ex4.validate()
+
+    rules = {}
+    rules_list = [ex1, ex2, ex3, ex4]
+
+    for rule in rules_list:
+        if not rule.category in rules:
+            # add category for the first time
+            rules[rule.category] = {
+                'rules': [],
+                'error_count': 0
+                }
+
+        if not rule.is_valid:
+            rules[rule.category]['error_count'] += 1
+
+        rules[rule.category]['rules'].append(rule)
+
+    # localhost should be a branch.
+    # rf = RuleFactory(service.name, 'localhost')
+    # rules = rf.rules(code_org=Config.get('doula.github.appenvs.org'), branch=site.name)
+    print rules
+
+    return {
+        'site': site,
+        'path': request.path,
+        'service': service,
+        'config': Config,
+        'rules': rules
+    }

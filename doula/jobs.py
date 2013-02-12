@@ -357,6 +357,34 @@ def pull_service_configs(config={}, job_dict={}, debug=False):
         raise
 
 
+def pull_service_configs_for_service(config={}, job_dict={}, debug=False):
+    """
+    Pull the service config commits for a specific service
+    """
+    log = create_logger(job_dict['id'])
+    load_config(config)
+
+    try:
+        start = time.time()
+        log.info('Pulling service config data for ' + job_dict['service'])
+
+        config_service = pull_config_branches_for_service(job_dict['service'])
+
+        sc_dal = ServiceConfigDAL()
+        sc_dal.update_service_config_data_for_service(config_service)
+
+        # always remove maintenance jobs from the queue
+        Queue().remove(job_dict['id'])
+
+        print "\nDONE PULLING SERVICE CONFIG DATA. DIFF: " + str(time.time() - start)
+
+        log.info('Done pulling service config data: ' + job_dict['service'])
+    except Exception as e:
+        log.error(e.message)
+        log.error(traceback.format_exc())
+        raise
+
+
 def pull_releases_for_all_services(config={}, job_dict={}, debug=False):
     """
     Pull the github data for every App environment
@@ -455,6 +483,7 @@ def job_expired(job):
         'pull_github_data',
         'pull_bambino_data',
         'pull_service_configs',
+        'pull_service_configs_for_service',
         'pull_releases_for_all_services',
         ]
 
@@ -486,7 +515,7 @@ def cleanup_queue(config={}, job_dict={}):
         log.info('Cleaning up the queue')
 
         queue = Queue()
-        expired_job_ids = find_expired_jobs(queue.get())
+        expired_job_ids = find_expired_jobs(queue.find_jobs())
 
         queue.remove(expired_job_ids)
 

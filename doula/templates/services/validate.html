@@ -1,0 +1,34 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<!-- service title bar area -->
+<div class="title-bar clearfix">
+  <h2>
+    <a href="/sites">Sites</a> /
+    <a href="/sites/{{site.name_url}}">{{ site.name }}</a> /
+    <a href="/sites/{{site.name_url}}/{{service.name_url}}/validate">{{ service.name }}</a>
+  </h2>
+</div>
+
+<!-- all the results for the validation -->
+<div>
+  {% for category, category_rules in rules.iteritems() %}
+    {% if category_rules['error_count'] > 0 %}
+        {% include 'services/validate-category.html' %}
+    {% endif %}
+  {% endfor %}
+
+  {% for category, category_rules in rules.iteritems() %}
+    {% if category_rules['error_count'] == 0 %}
+        {% include 'services/validate-category.html' %}
+    {% endif %}
+  {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ [
+'/js/common/util.js'
+]|js_script|safe }}
+{% endblock %}

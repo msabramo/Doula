@@ -547,6 +547,23 @@ def pull_config_services_with_branches():
     return names
 
 
+def pull_config_branches_for_service(service_name):
+    """
+    Pull the configs repos for a specific branch and all their branches
+    Returns:
+        [
+            {
+                "site": "mt1",
+                "sha": "17e6642dca429043725ad6a98ce966e5a67eac69"
+            }
+        ]
+    """
+    return {
+        "service": service_name,
+        "branches": _find_pull_service_configs_branches(service_name)
+    }
+
+
 def _find_pull_service_configs_branches(service):
     """
     Pull all the branches for a service config repo

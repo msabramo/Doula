@@ -1,6 +1,9 @@
 import re
 
 class WebHook(object):
+    """
+    Represent a webhook call back object.
+    """
 
     def parse_payload(self, payload_object):
         # example payload:

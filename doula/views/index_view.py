@@ -1,6 +1,7 @@
 from doula.cache import Redis
 from doula.cache_keys import key_val
 from doula.config import Config
+from doula.models.release import Release
 from doula.jobs_timer import start_task_scheduling
 from doula.models.doula_dal import DoulaDAL
 from doula.models.webhook import WebHook
@@ -47,13 +48,34 @@ def site(request):
     dd = DoulaDAL()
     site = dd.find_site_by_name(request.matchdict['site_name'])
 
+    # diffs for all services, # need to diff the service's last prod release
+    diffs = {}
+
+    for service_name, service in site.services.iteritems():
+        last_release = find_last_production_release(site, service)
+        diff = last_release.diff_service_and_release(service)
+        diffs[service.name_url] = diff
+
     return {
         'site': site,
         'user': request.user,
         'site_json': dumps(site),
         'token': Config.get('token'),
-        'config': Config
+        'config': Config,
+        'diffs': diffs
     }
+
+
+def find_last_production_release(site, service):
+    """
+    todo: find the production release
+    """
+    releases = service.get_releases()
+
+    if len(releases) > 0:
+        return releases[0]
+    else:
+        return Release.build_empty_release(site.name)
 
 
 @view_config(route_name='site_lock', renderer="json")
@@ -135,7 +157,7 @@ def updatedoula(request):
     q = Queue()
 
     for job in jobs:
-        q.this({'job_type': job})
+        q.enqueue({'job_type': job})
         html += job + ', '
 
     return {'jobs_html': html.rstrip(', ')}
@@ -143,17 +165,20 @@ def updatedoula(request):
 
 @view_config(route_name='webhook', renderer="json", permission=NO_PERMISSION_REQUIRED)
 def webhook(request):
-    webhook = WebHook(json.loads(request.POST['payload']))
-    # todo: implement callback logic
-    # be sure to look at the object to
-    # see what u can get.  it is pretty full-featured
+    rslt = json.loads(request.body)
+
+    webhook = WebHook()
+    webhook.parse_payload(rslt)
+
     if webhook.org == 'devmonkeys':
+        # todo. update the dev monkeys repos
         pass
-        # do neat stuff
     elif webhook.org == 'config':
-        # todo. make it more fine grained
         q = Queue()
-        q.this({'job_type': 'pull_service_configs'})
+        q.enqueue({
+            'service': webhook.repo,
+            'job_type': 'pull_service_configs_for_service'
+            })
 
 
 @view_config(route_name='docs', permission=NO_PERMISSION_REQUIRED, renderer="docs/index.html")

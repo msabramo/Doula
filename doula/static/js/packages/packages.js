@@ -9,8 +9,8 @@ var Packages = {
     */
     init: function() {
         _mixin(this, AJAXUtil);
-        this.serviceEnvExists = (typeof(ServiceEnv) == 'undefined') ? false : true;
 
+        Filter.init('packages');
         this.bindToBuildNewPackageButtons();
     },
 
@@ -39,9 +39,20 @@ var Packages = {
 
     // Make ajax call to get build new package modal HTML
     showBuildNewPackageModal: function(event, button) {
-        var name = button.data('name');
+        var name = this.getNameFromButton(button);
+
         var url = '/packages/build_new_package_modal';
         this.get(url, {'name': name}, this.doneShowBuildNewPackageModal);
+    },
+
+    getNameFromButton: function(button) {
+        var name = button.data('name');
+
+        if (!name) {
+            name = button.parent().data('name');
+        }
+
+        return name;
     },
 
     doneShowBuildNewPackageModal: function(rslt) {
@@ -98,7 +109,9 @@ var Packages = {
         $('#build-new-package-modal').modal('hide');
 
         // If the ServiceEnv exist then show this
-        if (this.serviceEnvExists) ServiceEnv.showDashboardDetailView();
+        if (ServiceEnv) {
+            ServiceEnv.showDashboardDetailView();
+        }
     },
 
     failedBuildNewPackage: function(rslt) {
@@ -115,7 +128,9 @@ var Packages = {
                 this.updatePackagesDropdown(job);
 
                 // If the ServiceEnv exist then show this
-                if (this.serviceEnvExists) ServiceEnv.showDashboardDetailView();
+                if (ServiceEnv) {
+                    ServiceEnv.showDashboardDetailView();
+                }
             }
         }
     },

@@ -9,7 +9,7 @@ QueueView = {
     queueFilters: {},
     bucket_id: 0,
     last_updated: 0,
-    pollInterval: 2000,
+    pollInterval: 1500,
 
     init: function(kwargs) {
         _mixin(this, AJAXUtil);
@@ -24,7 +24,7 @@ QueueView = {
         this.limitInitialQueueItems = __limitInitialQueueItems;
 
         if (this.limitInitialQueueItems) {
-            this.pollInterval = 1000;
+            this.pollInterval = 300;
         }
 
         this.bindToUIActions();

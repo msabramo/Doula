@@ -1,5 +1,4 @@
 {% extends 'layouts/base.html' %}
-{% import 'queue/queued_item.html' as queued_item_tmpl %}
 
 {% block content %}
 <div class="title-bar clearfix">
@@ -12,6 +11,18 @@
 {% include 'queue/queued_items_packages.html' %}
 
 <div>
+
+<div class="filter group">
+  <form id="filter-form" class="form-search" action="#" onsubmit="return false;">
+    <div class="input-append">
+      <input id="filter" placeholder="Filter Packages" type="text" class="span3 search-query">
+      <a id="clear" class="btn sm-btn" href="#" >
+        <i class="icon-remove icon-black"></i>
+        Clear
+      </a>
+    </div>
+  </form>
+</div>
 
 <div class="accordion group" id="package-accordion">
   <div class="accordion-group">
@@ -28,30 +39,33 @@
         <thead>
           <tr>
             <th>Package</th>
-            <th>Version</th>
-            <th> &nbsp;</th>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
           </tr>
         </thead>
         <tbody>
           <!-- our packages first, the ones with the github repo data -->
           {% for pckg in sm_packages|sort(attribute='name') %}
 
-          <tr>
-            <td width="20%">
-              <span href="#" onclick="return false;" rel="tooltip" >
-              {{ pckg.name }}
-              </span>
-            </td>
-            <td width="80%">
-              <a class="btn sm-btn-success new-version-btn sm-pckg-btn"
-              data-name="{{pckg.comparable_name}}" href="#">
-                <i class="icon-chevron-right icon-white"></i> Build New Package
-              </a>
-              <div id="pckg_select_msg_{{ pckg.comparable_name }}" class="help-block">
-                Latest version <strong>{{ pckg.version }}</strong>
-              </div>
-            </td>
-          </tr>
+            <tr class="filterable" data-filter-data="{{ pckg.name }}">
+
+              <td width="20%">
+                <span href="#" onclick="return false;" rel="tooltip" >
+                {{ pckg.name }}
+                </span>
+              </td>
+              <td width="80%">
+                <a class="btn sm-btn-success new-version-btn sm-pckg-btn"
+                data-name="{{pckg.comparable_name}}" href="#">
+                  <i class="icon-chevron-right icon-white"></i> Build New Package
+                </a>
+                <div id="pckg_select_msg_{{ pckg.comparable_name }}" class="help-block">
+                  Latest version <strong>{{ pckg.version }}</strong>
+                </div>
+              </td>
+
+            </tr>
+
           {% endfor %}
         </tbody>
       </table>
@@ -89,6 +103,7 @@ var __limitInitialQueueItems = true;
 {{ [
 '/js/common/util.js',
 '/js/common/queue.js',
+'/js/common/filter.js',
 '/js/common/update_job_status.js',
 '/js/packages/packages.js'
 ]|js_script|safe }}

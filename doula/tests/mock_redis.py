@@ -89,7 +89,6 @@ class MockRedis(object):
 
     def hget(self, hashkey, attribute):  # pylint: disable=R0201
         """Emulate hget."""
-
         # Return '' if the attribute does not exist
         result = self.redis[hashkey][attribute] if attribute in self.redis[hashkey] \
                  else ''
@@ -97,7 +96,6 @@ class MockRedis(object):
 
     def hgetall(self, hashkey):  # pylint: disable=R0201
         """Emulate hgetall."""
-
         return self.redis[hashkey]
 
     def hlen(self, hashkey):  # pylint: disable=R0201
@@ -112,10 +110,15 @@ class MockRedis(object):
         for attributekey, attributevalue in value.items():
             self.redis[hashkey][attributekey] = attributevalue
 
-    def hset(self, hashkey, attribute, value):  # pylint: disable=R0201
-        """Emulate hset."""
+    def hdel(self, hashkey, key):
+        if key in self.redis[hashkey]:
+            del self.redis[hashkey][key]
 
-        self.redis[hashkey][attribute] = value
+    def hset(self, hashkey, key, value):
+        if not hashkey in self.redis:
+            self.redis[hashkey] = {}
+
+        self.redis[hashkey][key] = value
 
     def lrange(self, key, start, stop):
         """Emulate lrange."""

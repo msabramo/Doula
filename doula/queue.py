@@ -1,6 +1,7 @@
 from doula.cache import Redis
 from doula.notifications import send_notification
 from retools.queue import QueueManager
+from doula.cache_keys import key_val
 import simplejson as json
 import logging
 import time
@@ -11,49 +12,13 @@ import math
 
 class Queue(object):
     """
-    This class represents all of Doula's interaction with the queueing
-    engine.  The common link between Doula and this class is the
-    "Job" dict.  This "Job" dict is of the following format:
-
-    Common for every job:
-    {
-        id: '',
-        user_id: '',
-        status: (queued, complete, failed),
-        job_type: (push_package|cycle_service)
-        site: '',
-        service: '',
-        time_started: ''
-    }
-
-    Push to Cheese Prism
-    {
-        remote: '', (origin to pull from)
-        branch: '', (the branch to pull from)
-        version: '', (the version of the package we want to create on cheeseprism)
-    }
-
-    Cycle Services
-    {
-
-    }
-
-    API:
-    ----
-    Queue.this(dict)
-    - Accepts a "Job" dict, determines the correct job function, and enqueues the job
-      function
-
-    Queue.get(dict)
-    - Accepts a "Job" dict, queries redis to obtain all of the related jobs, and always
-      returns an array of jobs.
-
+    The Queue class handles enqueuing jobs added to the Doula queue. It allows
+    the rest of the application to query and update the queue.
     """
-
     default_queue_name = 'main'
     maintenance_queue_name = 'maintenance'
 
-    common_dict = {
+    base_job_dict = {
         'id': 0,
         'user_id': '',
         'status': '',
@@ -64,30 +29,20 @@ class Queue(object):
         'exc': ''
     }
 
-    release_service_dict = dict({
-        'packages': []
-    }.items() + common_dict.items())
-
-    build_new_package_dict = dict({
-        'remote': '',
-        'branch': 'master',
-        'version': ''
-    }.items() + common_dict.items())
-
-    base_dicts = {
-        'base': common_dict,
-        'build_new_package': build_new_package_dict,
-        'release_service': release_service_dict,
-        'cycle_service': common_dict,
-        'pull_cheeseprism_data': common_dict,
-        'pull_github_data': common_dict,
-        'pull_service_configs': common_dict,
-        'pull_releases_for_all_services': common_dict,
-        'pull_releases_for_service': common_dict,
-        'pull_bambino_data': common_dict,
-        'cleanup_queue': common_dict,
-        'add_webhook_callbacks': common_dict
+    standard_job_types = {
+        'build_new_package',
+        'release_service',
+        'cycle_service'
     }
+
+    maintenance_job_types = [
+        'add_webhook_callbacks',
+        'pull_releases_for_all_services',
+        'pull_service_configs',
+        'pull_service_configs_for_service',
+        'pull_cheeseprism_data',
+        'pull_github_data',
+        'cleanup_queue']
 
     def __init__(self):
         # Initialize redis database
@@ -98,163 +53,119 @@ class Queue(object):
         self.maint_qm = QueueManager(default_queue_name=self.maintenance_queue_name)
         self.qm.subscriber('job_postrun', handler='doula.queue:add_result')
         self.qm.subscriber('job_failure', handler='doula.queue:add_failure')
+        self.qm.subscriber('job_prerun', handler='doula.queue:update_prerun')
 
-    def is_maintenance_job(self, job_type):
-        """
-        Determines if a job is considered a maintenance job
-
-        These jobs run behind all other jobs
-        """
-        maintenance_job_types = [
-            'add_webhook_callbacks',
-            'pull_releases_for_all_services',
-            'pull_cheeseprism_data',
-            'pull_github_data',
-            'cleanup_queue']
-
-        return job_type in maintenance_job_types
-
-    def this(self, attrs):
+    def enqueue(self, new_job_dict):
         """
         Enqueues a job onto the retools queue
         """
-        job_types = [
-            'build_new_package',
-            'release_service',
-            'cycle_service',
-            'pull_cheeseprism_data',
-            'pull_github_data',
-            'pull_releases_for_all_services',
-            'pull_service_configs',
-            'pull_bambino_data',
-            'add_webhook_callbacks',
-            'cleanup_queue']
+        job_dict = self.build_valid_job_dict(new_job_dict)
+        queue_name = 'doula.jobs:%s' % job_dict['job_type']
 
-        if 'job_type' in attrs and attrs['job_type'] in job_types:
-            _type = attrs['job_type']
-            job_dict = self.base_dicts[_type].copy()
+        if self.is_maintenance_job(job_dict['job_type']):
+            self.maint_qm.enqueue(queue_name, config=self.get_config(), job_dict=job_dict)
         else:
-            return Exception('A valid job type must be specified.')
+            self.qm.enqueue(queue_name, config=self.get_config(), job_dict=job_dict)
 
-        for key, val in attrs.items():
-            job_dict[key] = val
-
-        # generate unique id
-        job_dict['id'] = uuid.uuid1().hex
-        job_dict['status'] = 'queued'
-        job_dict['time_started'] = time.time()
-        job_type = job_dict['job_type']
-
-        p = self.redis.pipeline()
-
-        if self.is_maintenance_job(job_type):
-            self.maint_qm.enqueue('doula.jobs:%s' % job_type, config=self.get_config(), job_dict=job_dict)
-        else:
-            self.qm.enqueue('doula.jobs:%s' % job_type, config=self.get_config(), job_dict=job_dict)
-
-        self._save(p, job_dict)
-        p.execute()
+        self.save_job(job_dict)
 
         # Anytime a job is added we update the buckets
         self.update_buckets()
 
         return job_dict['id']
 
-    def get_config(self):
-        """
-        Load the config from redis
-        """
-        return json.loads(self.redis.get('doula:settings'))
+    def build_valid_job_dict(self, new_job_dict):
+        """Build a job dict with all required keys"""
+        job_dict = self.base_job_dict.copy()
+        job_dict.update(new_job_dict)
 
-    def update(self, job_dict):
-        if not 'id' in job_dict:
-            raise Exception('Must pass an id into the update function.')
-
-        p = self.redis.pipeline()
-        job_dict = self._update(p, job_dict)
-        p.execute()
+        # Generate new UUID used to identify the job
+        job_dict['id'] = uuid.uuid1().hex
+        job_dict['status'] = 'queued'
+        job_dict['time_started'] = time.time()
 
         return job_dict
 
-    def remove(self, job_dict_ids):
-        if isinstance(job_dict_ids, basestring):
-            job_dict_ids = [job_dict_ids]
+    def is_maintenance_job(self, job_type):
+        """Determine if job_type is maintenance job"""
+        return job_type in self.maintenance_job_types
 
-        p = self.redis.pipeline()
-        self._remove_jobs(p, job_dict_ids)
-        p.execute()
+    def is_standard_job(self, job_type):
+        """Determine if the job_type is a standard job"""
+        return job_type in self.standard_job_types
 
-    def _keys(self):
-        """
-        Returns the standard keys for interacting with redis.
-        """
-        return {
-            'jobs': 'doula:jobs:' + self.default_queue_name
-        }
+    def get_config(self):
+        """Load the config from redis"""
+        return json.loads(self.redis.get('doula:settings'))
 
-    def _get_jobs(self):
-        # Combine the two job locations
-        k = self._keys()
-        jobs_json = self.redis.smembers(k['jobs'])
+    def save_job(self, new_job_dict):
+        """Save or update the job_dict"""
+        job_dict_as_json = self.redis.hget(self._job_queue_key(), new_job_dict['id'])
 
-        # Created a list of all of the jobs(dict)
-        jobs = []
-
-        for job_json in jobs_json:
-            job = json.loads(job_json)
-            jobs.append(job)
-
-        return jobs
-
-    def _get_job(self, id):
-        jobs = self._get_jobs()
-
-        for job in jobs:
-            if job['id'] == id:
-                return job
-
-    def _pop_job(self, p, id):
-        k = self._keys()
-        jobs = self._get_jobs()
-
-        for job in jobs:
-            if job['id'] == id:
-                p.srem(k['jobs'], json.dumps(job, sort_keys=True))
-                return job
-
-        return None
-
-    def _remove_jobs(self, p, ids):
-        k = self._keys()
-        jobs = self._get_jobs()
-
-        for job in jobs:
-            if job['id'] in ids:
-                p.srem(k['jobs'], json.dumps(job, sort_keys=True))
-
-    def _save(self, p, attrs):
-        """
-        Given a complete "Job" dict, saves it
-        """
-        k = self._keys()
-        p.sadd(k['jobs'], json.dumps(attrs, sort_keys=True))
-
-    def _update(self, p, attrs):
-        """
-        Updates a specific "Job" dict, must be given an id
-        """
-        k = self._keys()
-        job_dict = self._pop_job(p, attrs['id'])
-
-        if job_dict:
-            for key, val in attrs.items():
-                job_dict[key] = val
-
-            p.sadd(k['jobs'], json.dumps(job_dict, sort_keys=True))
-
-            return job_dict
+        if job_dict_as_json:
+            # update existing
+            job_dict = json.loads(job_dict_as_json)
+            job_dict.update(new_job_dict)
         else:
-            return False
+            # save new job
+            job_dict = new_job_dict
+
+        job_dict_as_json = json.dumps(job_dict, sort_keys=True)
+
+        self.redis.hset(self._job_queue_key(), job_dict['id'], job_dict_as_json)
+
+        return job_dict
+
+    def remove(self, job_ids):
+        """Remove the job ids."""
+        if isinstance(job_ids, basestring):
+            job_ids = [job_ids]
+
+        for id in job_ids:
+            self.redis.hdel(self._job_queue_key(), id)
+
+    def _job_queue_key(self):
+        """Return retools job queue key"""
+        return key_val("job_queue", {"queue": self.default_queue_name})
+
+    def _all_jobs(self):
+        """Return all the jobs on the queue"""
+        return self.redis.hgetall(self._job_queue_key())
+
+    def find_jobs(self, original_job_dict_query={}):
+        """
+        Find the jobs that meet criteria sent in the job_dict
+        """
+        found_jobs = []
+        job_dict_query = original_job_dict_query.copy()
+        find_these_job_types = job_dict_query.pop('job_type', None)
+        job_dict_query_set = set(job_dict_query.items())
+
+        for id, job_as_json in self._all_jobs().iteritems():
+            job_dict = json.loads(job_as_json)
+
+            # If job is NOT a standard job, skip it
+            if not self.is_standard_job(job_dict.get('job_type', '')):
+                continue
+
+            # If find_these_job_types exists, skip if job_type not in list
+            if find_these_job_types:
+                if not job_dict['job_type'] in find_these_job_types:
+                    continue
+
+            # http://docs.python.org/2/library/stdtypes.html#set.intersection
+            if self.safe_job_dict_set(job_dict) >= job_dict_query_set:
+                # Test whether every element in job_dict_query_set is in the job_dict
+                found_jobs.append(job_dict)
+
+        return found_jobs
+
+    def safe_job_dict_set(self, job_dict):
+        # Remove keys that will mess up the set() call. it can't set
+        job_dict.pop('exc', '')
+        job_dict.pop('manifest', '')
+
+        return set(job_dict.items())
 
     #######################
     # Query Section of Queue
@@ -282,7 +193,7 @@ class Queue(object):
         self.redis.expire('doula.query.bucket:' + bucket_id, 30)
         self.redis.expire('doula.query.bucket.last_updated:' + bucket_id, 30)
 
-    def get_query_bucket(self, bucket_id, query):
+    def get_query_bucket(self, bucket_id, job_dict_query):
         """
         Check if a bucket exist under the ID, if so return it,
         otherwise build and return the new query bucket
@@ -299,14 +210,32 @@ class Queue(object):
             # build a bucket and save it
             bucket = {
                 "id": uuid.uuid1().hex,
-                "query": query,
+                "query": job_dict_query,
                 "last_updated": time.time(),
-                "jobs": self.get(query)
+                "jobs": self.find_jobs(job_dict_query)
             }
+
+            bucket['query'] = job_dict_query
 
             self.save_bucket_redis_values(bucket)
 
         return bucket
+
+    def update_buckets(self):
+        """
+        Update all the buckets in the 'doula.query.buckets' set with newest details
+        """
+        for bucket_id in self.redis.smembers('doula.query.buckets'):
+            bucket_as_json = self.redis.get('doula.query.bucket:' + bucket_id)
+
+            if bucket_as_json:
+                bucket = json.loads(bucket_as_json)
+                bucket["last_updated"] = time.time()
+                bucket["jobs"] = self.find_jobs(bucket["query"])
+                self.save_bucket_redis_values(bucket)
+            else:
+                # bucket expired. remove from doula.query.buckets set
+                self.redis.srem("doula.query.buckets", bucket_id)
 
     def save_bucket_redis_values(self, bucket):
         """
@@ -319,48 +248,29 @@ class Queue(object):
 
         self.extend_bucket_expiration(bucket['id'])
 
-    def get(self, job_dict={}):
-        """
-        Find the jobs that meet criteria sent in the job_dict
-        """
-        # alextodo. rewrite this to be faster. looping sucks.
-        jobs = self._get_jobs()
 
-        # Loop through each criteria, throw out the jobs that don't meet
-        for job in list(jobs):
-            for k, v in job_dict.items():
-                try:
-                    if isinstance(v, basestring):
-                        if job[k] != v:
-                            jobs.remove(job)
-                    elif type(v) == list:
-                        if not job[k] in v:
-                            jobs.remove(job)
-                except (KeyError, ValueError):
-                    continue
+#############################
+# Retools Event Subscribers
+#############################
 
-        return jobs
+def update_job_status(job_dict, status, tb=None, remove_is_okay=True):
+    q = Queue()
 
-    def update_buckets(self):
-        """
-        Update all the buckets in the 'doula.query.buckets' set with newest details
-        """
-        for bucket_id in self.redis.smembers('doula.query.buckets'):
-            bucket_as_json = self.redis.get('doula.query.bucket:' + bucket_id)
+    if q.is_standard_job(job_dict['job_type']):
+        job_dict = q.save_job({
+            'id': job_dict['id'],
+            'status': status,
+            'exc': tb
+            })
 
-            if bucket_as_json:
-                bucket = json.loads(bucket_as_json)
-                bucket["last_updated"] = time.time()
-                bucket["jobs"] = self.get(bucket["query"])
-                self.save_bucket_redis_values(bucket)
-            else:
-                # bucket expired. remove from doula.query.buckets set
-                self.redis.srem("doula.query.buckets", bucket_id)
+        q.update_buckets()
+        send_notification(job_dict, tb)
+    else:
+        if remove_is_okay:
+            # The job should just be removed
+            q.remove(job_dict['id'])
 
 
-#
-# Retools Subscribers
-#
 def add_result(job=None, result=None):
     """
     Subscriber that gets called right after the job gets run, and is successful.
@@ -368,16 +278,11 @@ def add_result(job=None, result=None):
     print "\n SUCCESSFUL JOB\N"
     print job.kwargs['job_dict']
 
-    if can_update_job(job.kwargs['job_dict']['job_type']):
-        queue = Queue()
+    update_job_status(job.kwargs['job_dict'], 'complete')
 
-        job_dict = queue.update({'id': job.kwargs['job_dict']['id'], 'status': 'complete'})
 
-        # Update the buckets with the newest details
-        queue.update_buckets()
-
-        # Notify user of successful job
-        send_notification(job_dict)
+def update_prerun(job=None, result=None):
+    update_job_status(job.kwargs['job_dict'], 'running', None, False)
 
 
 def add_failure(job=None, exc=None):
@@ -385,35 +290,9 @@ def add_failure(job=None, exc=None):
     Subscriber that gets called when a job fails.
     """
     tb = traceback.format_exc()
-    logging.error(exc)
 
-    print "\n FAILED JOB"
-    print exc
-    print tb
+    print "\n Job Failed"
+    print tb + "\n"
+    print job.kwargs['job_dict']
 
-    if can_update_job(job.kwargs['job_dict']['job_type']):
-        queue = Queue()
-        job_dict = queue.update({
-            'exc': tb,
-            'status': 'failed',
-            'id': job.kwargs['job_dict']['id']
-        })
-
-        queue.update_buckets()
-
-        # Notify user of failed job
-        send_notification(job_dict, tb)
-
-
-def can_update_job(job_type):
-    """
-    Determines if the job can be updated by according to its type
-    We never have to update the maintenance_job_types
-    """
-    updateable_job_types = [
-        'build_new_package',
-        'cycle_service',
-        'release_service'
-        ]
-
-    return job_type in updateable_job_types
+    update_job_status(job.kwargs['job_dict'], 'failed', tb)
