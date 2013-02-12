@@ -17,6 +17,8 @@ import logging
 import re
 import requests
 import xmlrpclib
+import sys
+import StringIO
 
 log = logging.getLogger('doula')
 
@@ -129,11 +131,17 @@ class Service(object):
                 logging.error('Error from supervisord process')
                 logging.error('START-------------------------------')
 
-                # Log the last 500 chars if errored out
-                tail_text = proxy.supervisor.tailProcessStdoutLog(service_name, 0, 500)[0] + "\n"
-                tail_text += proxy.supervisor.tailProcessStderrLog(service_name, 0, 500)[0]
+                # Redirect stdout to a string
+                stdold, stdnew = sys.stdout, StringIO.StringIO()
+                sys.stdout = stdnew
 
-                logging.error(tail_text.strip())
+                # Log the last 1000 chars if errored out
+                proxy.supervisor.tailProcessStdoutLog(service_name, 0, 1000)
+
+                # Put stdout back where it goes
+                sys.stdout = stdold
+
+                logging.error(stdnew.getvalue())
                 logging.error('END-------------------------------')
             except:
                 # Make sure we continue
