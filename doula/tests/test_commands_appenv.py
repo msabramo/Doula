@@ -56,5 +56,45 @@ class TestCommands(unittest.TestCase):
         command.service_name = ''
         self.assertTrue(command.run())
 
+    def test_add_remote(self):
+        _, u = commands.getstatusoutput('rm -rf /tmp/dookie')
+        _, u = commands.getstatusoutput('mkdir /tmp/dookie')
+        command = self.get_one(InitGitRepo)
+        command.web_app_dir = '/tmp'
+        command.service_name = 'dookie'
+        self.assertTrue(command.run())
+
+        command = self.get_one(AddRemote)
+        command.web_app_dir = '/tmp'
+        command.service_name = 'dookie'
+        self.assertTrue(command.run('boing'))
+
+    def test_add_submodule(self):
+        _, u = commands.getstatusoutput('rm -rf /tmp/anonweb')
+        _, u = commands.getstatusoutput('mkdir /tmp/anonweb')
+        command = self.get_one(InitGitRepo)
+        command.web_app_dir = '/tmp'
+        command.service_name = 'anonweb'
+        self.assertTrue(command.run())
+
+        command = self.get_one(AddSubmodule)
+        command.web_app_dir = '/tmp'
+        command.service_name = 'anonweb'
+        self.assertTrue(command.run(org="config"))
+
+    def test_add_submodule_failed(self):
+        _, u = commands.getstatusoutput('rm -rf /tmp/anonweb')
+        _, u = commands.getstatusoutput('mkdir /tmp/anonweb')
+        command = self.get_one(InitGitRepo)
+        command.web_app_dir = '/tmp'
+        command.service_name = 'anonweb'
+        self.assertTrue(command.run())
+
+        command = self.get_one(AddSubmodule)
+        command.web_app_dir = '/tmp'
+        command.service_name = 'anonweb'
+        # invalid org
+        self.assertFalse(command.run(org="configg"))
+
 if __name__ == '__main__':
     unittest.main()

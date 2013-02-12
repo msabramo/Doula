@@ -35,6 +35,14 @@ class FabricBase(object):
     def _service_path(self):
             return os.path.join(self.web_app_dir, self.service_name)
 
+    def _choose_path(self):
+        if not hasattr(self, 'args'):
+            return self._service_path()
+
+        if 'is_etc' in self.args:
+            if self.args['is_etc']:
+                return self._etc_path()
+
     #override for testing
     def fabric_user(self):
         return 'doula'

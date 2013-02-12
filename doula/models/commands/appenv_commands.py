@@ -87,10 +87,10 @@ class CreateServiceFolder(FabricBase):
         with warn_only('/tmp'):
             command = "if ! [ -d %(dir)s ] ;\
                     then mkdir -p %(dir)s; fi; \
-                    echo 'yep'" % {'dir':self._service_path()}
+                    " % {'dir':self._service_path()}
 
             self.result = run(command)
-        return self.validate_logic(self.result == 'yep')
+        return self.validate_logic(self.result.succeeded)
 
     def error_text(self):
         output = "Could not create the directory for service '%s'" % self.service_name
@@ -101,19 +101,83 @@ class InitGitRepo(FabricBase):
     def description(self):
         return "Creating the root directory for the app in /opt/webapp"
 
-    def run(self, **args):
+    def run(self):
         """
         Public: Checks that the root directory, i.e.: /opt/webapp/{{service}} is absent
 
-        service_name - the service we're testing for
         """
-        self.args = args
         with warn_only(self._service_path()):
-            command = "git init; echo 'yep'"
+            command = "if ! [ -d .git ]; then git init 1> /dev/null; fi; echo 'yep'"
             self.result = run(command)
-        import ipdb; ipdb.set_trace()
-        return self.validate_logic(self.result == 'yep' or re.match("Reinitialized", self.result))
+        return self.validate_logic(self.result == 'yep')
 
     def error_text(self):
         output = "Could not init the git repo '%s'" % self.service_name
+        return self.error_logic(output)
+
+class AddRemote(FabricBase):
+
+    def description(self):
+        return "Adding the git remote to the repo."
+
+    def run(self, org):
+        """
+        Public: adds the git remote to the repo
+
+        org - the org in the org/repo relationship
+        """
+        self.org = org
+        with warn_only(self._service_path()):
+            command = "\
+                    git remote add origin git@code.corp.surveymonkey.com:%s/%s.git; \
+                    " % (org, self.service_name)
+            self.result = run(command)
+        return self.validate_logic(self.result.succeeded)
+
+    def error_text(self):
+        output = "Could not add the remote.  One already exists."
+        return self.error_logic(output)
+
+
+class InitVirtualEnv(FabricBase):
+
+    def description(self):
+        return "Initializing the virtualenv"
+
+    def run(self):
+        """
+        Public: creates a new virtual env here
+
+        """
+        with warn_only(self._service_path()):
+            command = "\
+                    virtualenv . \
+                    "
+            self.result = run(command)
+        return self.validate_logic(self.result.succeeded)
+
+    def error_text(self):
+        output = "Could not create virtualenv"
+        return self.error_logic(output)
+
+class AddSubmodule(FabricBase):
+
+    def description(self):
+        return "Adding the config submodule."
+
+    def run(self, **args):
+        """
+        Public: creates a new virtual env here
+
+        """
+        self.args = args
+        with warn_only(self._service_path()):
+            command = "\
+                    git submodule add git@code.corp.surveymonkey.com:%s/%s.git etc\
+                    " % (args['org'], self.service_name)
+            self.result = run(command)
+        return self.validate_logic(self.result.succeeded)
+
+    def error_text(self):
+        output = "Could not add submodule"
         return self.error_logic(output)

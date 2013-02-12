@@ -1,0 +1,14 @@
+# a doula haiku:
+
+# this is a template
+# made by your friend doula web
+# fill it with goodness
+
+# the contents of the app.ini is up to you
+# but you must, at very least, have the following
+# section to make your app work with supervisor
+
+[server:paste]
+use = egg:Paste#http
+host = 0.0.0.0
+port = %(httpport)s

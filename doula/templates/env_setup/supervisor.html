@@ -1,0 +1,21 @@
+[program:{{service_name}}]
+user={{service_name}}user
+command=/opt/webapp/{{service_name}}/bin/python /opt/webapp/{{service_name}}/bin/{{paster_command}} /opt/webapp/{{service_name}}/etc/app.ini --server-name=paste httpport={{upstream_port_prefix}}%(process_num)0{{proc_len}}d
+numprocs={{num_procs}}
+process_name={{upstream_port_prefix}}%(process_num)0{{proc_len}}d
+startsecs=5
+startretries=0
+priority = 12
+redirect_stderr = true
+autorestart = true
+stopsignal = HUP
+stopwaitsecs = 10
+directory=/opt/webapp/{{service_name}}
+stdout_logfile=/var/log/sm/{{service_name}}-app-out.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=10
+stdout_capture_maxbytes=1MB
+stderr_logfile=/var/log/sm/{{service_name}}-app-err.log
+stderr_logfile_maxbytes=10MB
+stderr_logfile_backups=10
+stderr_capture_maxbytes=1MB
