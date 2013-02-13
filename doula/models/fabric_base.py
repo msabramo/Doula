@@ -15,6 +15,7 @@ class FabricBase(object):
         self.service_name = service_name
         self.web_app_dir = web_app_dir
         self.is_valid = True
+        self.debug = debug
 
         env.host_string = node_ip
         env.key_filename = keyfile
