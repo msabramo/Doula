@@ -26,31 +26,36 @@ class ServiceConfigDAL(object):
 
         # For every service name
         for config_service in config_services:
-            for branch in config_service["branches"]:
-                # Pull the latest date for each site and service service
-                latest_service_config = self._get_latest_service_config_as_dict(
-                    branch["site"], config_service["service"])
+            self.update_service_config_data_for_service(config_service)
 
-                # Pull the data
-                service_configs = pull_service_configs(branch["site"],
-                                                       config_service["service"],
-                                                       latest_service_config["sha"],
-                                                       latest_service_config['date'])
+    def update_service_config_data_for_service(self, config_service):
+        """
+        Update the service config repo data for all the configs
+        """
+        for branch in config_service["branches"]:
+            # Pull the latest date for each site and service service
+            latest_service_config = self._get_latest_service_config_as_dict(
+                branch["site"], config_service["service"])
 
-                # Add all the newly pulled service configs to the redis sorted set
-                key_params = {"site": branch["site"], "service": config_service["service"]}
-                service_config_key = key_val("service_configs", key_params)
+            # Pull the data
+            service_configs = pull_service_configs(branch["site"],
+                                                   config_service["service"],
+                                                   latest_service_config["sha"],
+                                                   latest_service_config['date'])
 
-                for service_config in service_configs:
-                    # Save the service config with the sha as the key
-                    key_params["sha"] = service_config["sha"]
-                    service_config_sha_key = key_val("service_config_sha", key_params)
-                    self.redis.set(service_config_sha_key, json.dumps(service_config))
+            # Add all the newly pulled service configs to the redis sorted set
+            key_params = {"site": branch["site"], "service": config_service["service"]}
+            service_config_key = key_val("service_configs", key_params)
 
-                    # Add to the sorted set
-                    date_as_epoch = float(date_to_seconds_since_epoch(service_config["date"]))
-                    self.redis.zadd(service_config_key, json.dumps(service_config), date_as_epoch)
+            for service_config in service_configs:
+                # Save the service config with the sha as the key
+                key_params["sha"] = service_config["sha"]
+                service_config_sha_key = key_val("service_config_sha", key_params)
+                self.redis.set(service_config_sha_key, json.dumps(service_config))
 
+                # Add to the sorted set
+                date_as_epoch = float(date_to_seconds_since_epoch(service_config["date"]))
+                self.redis.zadd(service_config_key, json.dumps(service_config), date_as_epoch)
 
     def _get_latest_service_config_as_dict(self, site, service):
         """

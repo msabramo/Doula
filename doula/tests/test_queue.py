@@ -1,306 +1,167 @@
 import simplejson as json
 import unittest
 import uuid
-
 from mock import call
 from mock import Mock
 from mock import patch
-from mockredis import MockRedis
-
+from doula.cache import Redis
 from doula.queue import Queue
 from doula.queue import add_result
 from doula.queue import add_failure
+from doula.config import Config
 
 
-@patch('doula.queue.redis.Redis', new=MockRedis)
 class QueueTests(unittest.TestCase):
-    @patch('doula.queue.redis.Redis', new=MockRedis)
     def setUp(self):
+        settings = {}
+        Config.load_config(settings)
+        Redis.env = 'dev'
+        self.redis = Redis.get_instance()
+
         self.queue = Queue()
-        self.k = self.queue._keys()
+        self.queue.redis.flushdb()
 
-    @patch('doula.queue.redis.Redis', new=MockRedis)
-    def tearDown(self):
-        self.queue.rdb.flushdb()
+    def test_is_maintenance_job(self):
+        self.assertTrue(self.queue.is_maintenance_job('cleanup_queue'))
+        self.assertFalse(self.queue.is_maintenance_job('bad'))
 
-    def _test_job_dict(self, _type):
-        return self.queue.base_dicts[_type]
+    def test_is_standard_job(self):
+        self.assertTrue(self.queue.is_standard_job('build_new_package'))
+        self.assertFalse(self.queue.is_standard_job('bad'))
 
-    def _add_job(self, id):
-        rdb = self.queue.rdb
-
-        # Create test "Job" dict, with a specific id
-        build_new_package = self._test_job_dict('build_new_package')
-        build_new_package['id'] = id
-
-        # Add to redis, and return the "Job" dict
-        rdb.sadd(self.k['jobs'], json.dumps(build_new_package, sort_keys=True))
-        return build_new_package
-
-    def test_keys(self):
-        self.assertIn('jobs', self.queue._keys())
-
-    def test_get_jobs(self):
-        # Create 5 test jobs
-        for i in range(5):
-            self._add_job(i)
-        jobs = self.queue._get_jobs()
-
-        self.assertEqual(len(jobs), 5)
-
-    def test_get_job(self):
-        add_job = self._add_job(1)
-        job = self.queue._get_job(1)
-
-        self.assertEqual(add_job, job)
-
-    def test_pop_job(self):
-        add_job = self._add_job('1')
-
-        p = self.queue.rdb.pipeline()
-        job = self.queue._pop_job(p, '1')
-        p.execute()
-
-        self.assertEqual(add_job, job)
-        jobs = self.queue.rdb.smembers(self.k['jobs'])
-        self.assertEqual(len(jobs), 0)
-
-    def test_pop_job_none(self):
-        self._add_job('1')
-
-        p = self.queue.rdb.pipeline()
-        job = self.queue._pop_job(p, '2')
-        p.execute()
-
-        self.assertEqual(job, None)
-        jobs = self.queue.rdb.smembers(self.k['jobs'])
-        self.assertEqual(len(jobs), 1)
-
-    def test_remove_job(self):
-        ids = ['1', '2', '3', '4', '5']
-        for i in ids:
-            self._add_job(i)
-
-        ids.remove('2')
-        ids.remove('4')
-        p = self.queue.rdb.pipeline()
-        self.queue._remove_jobs(p, ids)
-        p.execute()
-
-        jobs = self.queue.rdb.smembers(self.k['jobs'])
-        persisted_ids = [json.loads(job)['id'] for job in jobs]
-        self.assertEqual(len(jobs), 2)
-        self.assertIn('2', persisted_ids)
-        self.assertIn('4', persisted_ids)
-
-    def test_save(self):
-        p = self.queue.rdb.pipeline()
-        self.queue._save(p, {'id': '1', 'job_type': 'build_new_package'})
-        p.execute()
-
-        jobs = self.queue.rdb.smembers(self.k['jobs'])
-        self.assertEqual(len(jobs), 1)
-        job = self.queue.rdb.srandmember(self.k['jobs'])
-        job = json.loads(job)
-        self.assertEqual(job['id'], '1')
-
-    def test_api_update(self):
-        self._add_job('1')
-
-        self.queue.update({'id': '1', 'status': 'complete'})
-
-        jobs = self.queue.rdb.smembers(self.k['jobs'])
-        job = json.loads(jobs.pop())
-        self.assertEqual(job['id'], '1')
-        self.assertEqual(job['status'], 'complete')
-
-    def test_api_update_exception(self):
-        self._add_job('1')
-        self.assertRaises(Exception, self.queue.update, {'status': 'complete'})
-
-    def test_update(self):
-        self._add_job('1')
-
-        p = self.queue.rdb.pipeline()
-        self.queue._update(p, {'id': '1', 'status': 'complete'})
-        p.execute()
-
-        jobs = self.queue.rdb.smembers(self.k['jobs'])
-        self.assertEqual(len(jobs), 1)
-        job = json.loads(jobs.pop())
-        self.assertEqual(job['status'], 'complete')
-
-    def test_update_not_in_redis(self):
-        p = self.queue.rdb.pipeline()
-        result = self.queue._update(p, {'id': '2', 'status': 'complete'})
-        p.execute()
-
-        self.assertEqual(result, False)
-
-    def test_pub_update_no_id(self):
-        p = self.queue.rdb.pipeline()
-
-        self.assertRaises(Exception, self.queue.update, p, {})
-
-    def test_queue_init(self):
-        self.assertIn('job_postrun', self.queue.qm.global_events)
-        self.assertIn('job_failure', self.queue.qm.global_events)
-
-    @patch('doula.queue.time.time')
-    def test_queue_this_push(self, time):
-        time.return_value = 0
-        qm = self.queue.qm
-        qm.enqueue = Mock()
-
-        id = self.queue.this({'job_type': 'build_new_package'})
-        expected = [call('doula.jobs:build_new_package', job_dict={'status': 'queued',
-                                                                     'remote': '',
-                                                                     'time_started': 0,
-                                                                     'service': '',
-                                                                     'job_type': 'build_new_package',
-                                                                     'site': '',
-                                                                     'version': '',
-                                                                     'branch': 'master',
-                                                                     'id': '%s' % id,
-                                                                     'exc': ''})]
-        self.assertEqual(qm.enqueue.mock_calls, expected)
-
-    @patch('doula.queue.time.time')
-    def test_queue_this_cycle(self, time):
-        time.return_value = 0
-        qm = self.queue.qm
-        qm.enqueue = Mock()
-
-        id = self.queue.this({'job_type': 'cycle_service'})
-        expected = [call('doula.jobs:cycle_service', job_dict={'status': 'queued',
-                                                                'time_started': 0,
-                                                                'service': '',
-                                                                'exc': '',
-                                                                'job_type': 'cycle_service',
-                                                                'site': '',
-                                                                'id': '%s' % id})]
-        self.assertEqual(qm.enqueue.mock_calls, expected)
-
-    @patch('doula.queue.time.time')
-    def test_queue_this_pull_cheeseprism(self, time):
-        time.return_value = 0
-        qm = self.queue.qm
-        qm.enqueue = Mock()
-
-        id = self.queue.this({'job_type': 'pull_cheeseprism_data'})
-        expected = [call('doula.jobs:pull_cheeseprism_data', job_dict={'status': 'queued',
-                                                                'time_started': 0,
-                                                                'service': '',
-                                                                'exc': '',
-                                                                'job_type': 'pull_cheeseprism_data',
-                                                                'site': '',
-                                                                'id': '%s' % id})]
-        self.assertEqual(qm.enqueue.mock_calls, expected)
-
-    @patch('doula.queue.time.time')
-    def test_queue_this_github(self, time):
-        time.return_value = 0
-        qm = self.queue.qm
-        qm.enqueue = Mock()
-
-        id = self.queue.this({'job_type': 'pull_github_data'})
-        expected = [call('doula.jobs:pull_github_data', job_dict={'status': 'queued',
-                                                                'time_started': 0,
-                                                                'service': '',
-                                                                'exc': '',
-                                                                'job_type': 'pull_github_data',
-                                                                'site': '',
-                                                                'id': '%s' % id})]
-        self.assertEqual(qm.enqueue.mock_calls, expected)
-
-    @patch('doula.queue.time.time')
-    def test_queue_this_bambino(self, time):
-        time.return_value = 0
-        qm = self.queue.qm
-        qm.enqueue = Mock()
-
-        id = self.queue.this({'job_type': 'pull_bambino_data'})
-        expected = [call('doula.jobs:pull_bambino_data', job_dict={'status': 'queued',
-                                                                'time_started': 0,
-                                                                'service': '',
-                                                                'exc': '',
-                                                                'job_type': 'pull_bambino_data',
-                                                                'site': '',
-                                                                'id': '%s' % id})]
-        self.assertEqual(qm.enqueue.mock_calls, expected)
-
-    def test_queue_this_wrong_job_type(self):
-        id = self.queue.this({'job_type': 'asdf'})
-        self.assertTrue(isinstance(id, Exception))
-
-    def test_queue_this_none_jobtype(self):
-        id = self.queue.this({})
-        self.assertTrue(isinstance(id, Exception))
-
-    def test_queue_get(self):
-        # Have it return a random hex string as an id
-        qm = self.queue.qm
-        qm.enqueue = Mock(side_effect=lambda *args, **kwargs: uuid.uuid4().hex)
-
-        id = self.queue.this({'job_type': 'build_new_package'})
-        self.queue.this({'job_type': 'build_new_package'})
-        self.queue.this({'job_type': 'cycle_service'})
-
-        jobs = self.queue.get({'id': id, 'blah': 'key'})
-        self.assertEqual(jobs[0]['job_type'], 'build_new_package')
-
-        jobs = self.queue.get({'job_type': 'build_new_package'})
-        self.assertEqual(len(jobs), 2)
-        self.assertEqual(jobs[0]['job_type'], 'build_new_package')
-
-    def test_queue_get_list(self):
-        # Have it return a random hex string as an id
-        qm = self.queue.qm
-        qm.enqueue = Mock(side_effect=lambda *args, **kwargs: uuid.uuid4().hex)
-
-        self.queue.this({'job_type': 'build_new_package'})
-        self.queue.this({'job_type': 'pull_github_data'})
-        self.queue.this({'job_type': 'build_new_package'})
-        self.queue.this({'job_type': 'cycle_service'})
-
-        jobs = self.queue.get({'job_type': ['build_new_package', 'cycle_service']})
-        self.assertEqual(len(jobs), 3)
-
-    def test_add_result_subscriber(self):
-        retools_job = Mock()
-        retools_job.kwargs = {
-            'job_dict': {
-                'id': uuid.uuid4().hex
-            }
+    def test_save_job(self):
+        new_job_dict = {
+            'id': 1,
+            'status': 'queued',
+            'job_type': 'build_new_package'
         }
 
-        job_dict = self.queue.common_dict
-        job_dict['id'] = retools_job.kwargs['job_dict']['id']
-        job_dict['status'] = 'queued'
-        self.queue.rdb.sadd(self.k['jobs'], json.dumps(job_dict, sort_keys=True))
+        rslt = self.queue.save_job(new_job_dict)
+        self.assertEqual(new_job_dict['id'], rslt['id'])
 
-        add_result(job=retools_job)
-
-        job = self.queue.rdb.srandmember(self.k['jobs'])
-        job = json.loads(job)
-        self.assertEqual(job['status'], 'complete')
-
-    def test_add_failure_subscriber(self):
-        retools_job = Mock()
-        retools_job.kwargs = {
-            'job_dict': {
-                'id': uuid.uuid4().hex
-            }
+    def test_remove(self):
+        new_job_dict = {
+            'id': '1',
+            'status': 'queued',
+            'job_type': 'build_new_package'
         }
 
-        job_dict = self.queue.common_dict
-        job_dict['id'] = retools_job.kwargs['job_dict']['id']
-        job_dict['status'] = 'queued'
-        self.queue.rdb.sadd(self.k['jobs'], json.dumps(job_dict, sort_keys=True))
+        rslt = self.queue.save_job(new_job_dict)
 
-        add_failure(job=retools_job, exc=Exception('This is an exception!'))
+        self.queue.remove('1')
 
-        job = self.queue.rdb.srandmember(self.k['jobs'])
-        job = json.loads(job)
-        self.assertEqual(job['status'], 'failed')
-        self.assertIsNot(job['exc'], None)
+        job_queue_key = self.queue._job_queue_key()
+        all_jobs = self.redis.hgetall(job_queue_key)
+        self.assertEqual(len(all_jobs.keys()), 0)
+
+    def test_find_jobs(self):
+        job = {'job_type': 'build_new_package', 'status': 'complete'}
+
+        self._add_job(job.copy())
+        self._add_job(job.copy())
+        self._add_job(job.copy())
+
+        job_dict_query = {
+            'job_type': ['build_new_package']
+        }
+
+        found_jobs = self.queue.find_jobs(job_dict_query)
+
+        self.assertEqual(len(found_jobs), 3)
+
+    def test_find_jobs_filter_by_job_type(self):
+        self._add_job({'job_type': 'build_new_package'})
+        self._add_job({'job_type': 'cycle_service'})
+        self._add_job({'job_type': 'build_new_package'})
+
+        job_dict_query = {
+            'job_type': ['build_new_package']
+        }
+
+        found_jobs = self.queue.find_jobs(job_dict_query)
+
+        self.assertEqual(len(found_jobs), 2)
+
+    def test_find_jobs_filter_by_site(self):
+        self._add_job({'job_type': 'build_new_package', 'site': 'mt3', 'service': 'anweb'})
+        self._add_job({'job_type': 'cycle_service', 'site': 'mt3', 'service': 'anweb'})
+        self._add_job({'job_type': 'build_new_package', 'site': 'mt2', 'service': 'anweb'})
+
+        job_dict_query = {
+            'site': 'mt2'
+        }
+
+        found_jobs = self.queue.find_jobs(job_dict_query)
+
+        self.assertEqual(len(found_jobs), 1)
+
+    def test_find_jobs_filter_by_service(self):
+        self._add_job({'job_type': 'build_new_package', 'site': 'mt3', 'service': 'anweb'})
+        self._add_job({'job_type': 'cycle_service', 'site': 'mt3', 'service': 'anonweb'})
+        self._add_job({'job_type': 'build_new_package', 'site': 'mt2', 'service': 'anweb'})
+
+        job_dict_query = {
+            'service': 'anweb'
+        }
+
+        found_jobs = self.queue.find_jobs(job_dict_query)
+
+        self.assertEqual(len(found_jobs), 2)
+
+    def test_find_jobs_filter_by_site(self):
+        self._add_job({'job_type': 'build_new_package', 'site': 'mt3'})
+        self._add_job({'job_type': 'cycle_service', 'site': 'mt3'})
+        self._add_job({'job_type': 'build_new_package', 'site': 'mt2'})
+
+        job_dict_query = {
+            'site': 'mt2',
+            'service': 'anweb'
+        }
+
+        found_jobs = self.queue.find_jobs(job_dict_query)
+
+        self.assertEqual(len(found_jobs), 0)
+
+    def test_find_jobs_filter_by_site_and_service(self):
+        self._add_job({'job_type': 'build_new_package', 'site': 'mt3', 'service': 'anweb'})
+        self._add_job({'job_type': 'cycle_service', 'site': 'mt3', 'service': 'anweb'})
+        self._add_job({'job_type': 'build_new_package', 'site': 'mt2', 'service': 'anweb'})
+
+        job_dict_query = {
+            'site': 'mt3',
+            'service': 'anweb',
+            'job_type': ['cycle_service', 'release_service', 'build_new_package']
+        }
+
+        found_jobs = self.queue.find_jobs(job_dict_query)
+
+        self.assertEqual(len(found_jobs), 2)
+
+    def test_find_jobs_filter_by_job_type_solo(self):
+        self._add_job({'job_type': 'build_new_package', 'site': 'mt3', 'service': 'anweb'})
+        self._add_job({'job_type': 'cycle_service', 'site': 'mt3', 'service': 'anweb'})
+        self._add_job({'job_type': 'build_new_package', 'site': 'mt3', 'service': 'anweb'})
+
+        job_dict_query = {
+            'job_type': ['build_new_package']
+        }
+
+        found_jobs = self.queue.find_jobs(job_dict_query)
+
+        self.assertEqual(len(found_jobs), 2)
+
+    def _add_job(self, new_job_dict={}):
+        job_dict = {
+            'id': uuid.uuid1().hex,
+            'status': 'queued',
+            'job_type': 'build_new_package'
+        }
+
+        job_dict.update(new_job_dict)
+
+        self.queue.save_job(job_dict)
+
+
+
+if __name__ == '__main__':
+    unittest.main()

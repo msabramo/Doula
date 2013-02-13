@@ -47,4 +47,31 @@ $(document).ready(function() {
     $(window).on('scroll', scrollSideTab);
   }
 
+  /* Click away for help docs */
+
+  /**
+  *   When the user clicks away from an element we hide the element. For example a settings
+  *   pane should be hidden when the user clicks away.
+  */
+  _hideElementWhenUserClicksAway = function(selector, onClickAway) {
+    $('body').bind('click', function(e) {
+      // If the user clicks outside of the form, hide it.
+      closestElements = $(e.target).closest(selector);
+      elementsOfInterest = $(selector);
+
+      // If the element clicked isn't part of what was clicked, hide the element
+      if (closestElements.length === 0) {
+        if (elementsOfInterest.is(':visible')) {
+          if (typeof(onClickAway) == 'function') onClickAway(e);
+          else elementsOfInterest.hide();
+        }
+      }
+    });
+  };
+
+  _hideElementWhenUserClicksAway('[rel="popover"]', function() {
+    // Hide all the elements
+    $('[rel="popover"]').popover('hide');
+  });
+
 });

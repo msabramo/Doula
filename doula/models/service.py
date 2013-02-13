@@ -17,6 +17,8 @@ import logging
 import re
 import requests
 import xmlrpclib
+import sys
+import StringIO
 
 log = logging.getLogger('doula')
 
@@ -123,9 +125,28 @@ class Service(object):
                 True
             else:
                 raise CycleServiceException('one service failed', results)
-
         # exceptions are weird with xmlrpc: http://betabug.ch/blogs/ch-athens/1012
         except (socket_error, xmlrpclib.Fault, xmlrpclib.ProtocolError, xmlrpclib.ResponseError), error_code:
+            try:
+                logging.error('Error from supervisord process')
+                logging.error('START-------------------------------')
+
+                # Redirect stdout to a string
+                stdold, stdnew = sys.stdout, StringIO.StringIO()
+                sys.stdout = stdnew
+
+                # Log the last 1000 chars if errored out
+                proxy.supervisor.tailProcessStdoutLog(service_name, 0, 1000)
+
+                # Put stdout back where it goes
+                sys.stdout = stdold
+
+                logging.error(stdnew.getvalue())
+                logging.error('END-------------------------------')
+            except:
+                # Make sure we continue
+                pass
+
             raise CycleServiceException(error_code)
 
     def is_config_up_to_date(self):
@@ -155,7 +176,7 @@ class Service(object):
         }
 
         queue = Queue()
-        jobs = queue.get(query)
+        jobs = queue.find_jobs(query)
         last_job = self._get_last_job_from_jobs(jobs)
 
         if last_job:

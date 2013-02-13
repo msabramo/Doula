@@ -53,7 +53,7 @@ def add_webhook_callbacks():
 
 def _queue_up(name):
     q = Queue()
-    q.this({'job_type': name})
+    q.enqueue({'job_type': name})
 
 
 def start_task_scheduling():

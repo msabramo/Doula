@@ -634,7 +634,7 @@ input.warning {
 }
 /* TABLE */
 td a.btn {
-  margin: 0px 0px 9px 15px;
+  margin: 0px 0px 9px 5px;
 }
 tr.first-row td {
   border-top: 0 none white;
