@@ -195,9 +195,12 @@ class Push(object):
     def _chown(self):
         with debuggable(self.debug):
             path = os.path.join(self.web_app_dir, self.service_name)
+            build_path = os.path.join(path, 'build')
+            sudo('if ! [ -d %s ]; then  mkdir %s; fi' % (build_path, build_path))
             result = sudo('chown -R %suser:sm_users %s' % (self.service_name, path))
             if result.succeeded:
                 sudo('chmod -R g+rwx %s' % path)
+                sudo('chmod 0777 %s' % build_path)
         if result.failed:
             raise Exception(str(result).replace('\n', ', '))
 
