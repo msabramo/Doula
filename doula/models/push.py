@@ -182,6 +182,7 @@ class Push(object):
                         return (True, True)
                     else:
                         logging.error("Unable to install assets")
+                        logging.error(result)
                         raise Exception(result)
                 else:
                     #a non-success means that the plugin does not exist
@@ -195,9 +196,13 @@ class Push(object):
     def _chown(self):
         with debuggable(self.debug):
             path = os.path.join(self.web_app_dir, self.service_name)
+            build_path = os.path.join(path, 'build')
+            sudo('if ! [ -d %s ]; then  mkdir %s; fi' % (build_path, build_path))
             result = sudo('chown -R %suser:sm_users %s' % (self.service_name, path))
             if result.succeeded:
                 sudo('chmod -R g+rwx %s' % path)
+                out = sudo('chmod 0777 %s' % build_path)
+		print 'out:', out
         if result.failed:
             raise Exception(str(result).replace('\n', ', '))
 
