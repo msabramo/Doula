@@ -182,6 +182,7 @@ class Push(object):
                         return (True, True)
                     else:
                         logging.error("Unable to install assets")
+                        logging.error(result)
                         raise Exception(result)
                 else:
                     #a non-success means that the plugin does not exist
@@ -200,7 +201,8 @@ class Push(object):
             result = sudo('chown -R %suser:sm_users %s' % (self.service_name, path))
             if result.succeeded:
                 sudo('chmod -R g+rwx %s' % path)
-                sudo('chmod 0777 %s' % build_path)
+                out = sudo('chmod 0777 %s' % build_path)
+		print 'out:', out
         if result.failed:
             raise Exception(str(result).replace('\n', ', '))
 
