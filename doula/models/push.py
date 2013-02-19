@@ -88,6 +88,9 @@ class Push(object):
         #for safety, on systems that don't have group write permissions
         self._chown()
 
+        print 'about to start installing packages'
+        print self.packages
+
         with workon(self._webapp(), self.debug):
             if self.manifest['is_rollback']:
                 self.rollback(self._etc_sha1())
