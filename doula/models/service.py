@@ -129,6 +129,7 @@ class Service(object):
         except (socket_error, xmlrpclib.Fault, xmlrpclib.ProtocolError, xmlrpclib.ResponseError), error_code:
             try:
                 logging.error('Error from supervisord process')
+                logging.error('Logging for supervisord process named: ' + service_name)
                 logging.error('START-------------------------------')
 
                 # Redirect stdout to a string
@@ -136,7 +137,8 @@ class Service(object):
                 sys.stdout = stdnew
 
                 # Log the last 1000 chars if errored out
-                proxy.supervisor.tailProcessStdoutLog(service_name, 0, 1000)
+                print proxy.supervisor.tailProcessStdoutLog(service_name, 0, 1000)
+                print proxy.supervisor.tailProcessStderrLog(service_name, 0, 1000)
 
                 # Put stdout back where it goes
                 sys.stdout = stdold
