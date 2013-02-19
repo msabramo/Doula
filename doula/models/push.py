@@ -93,6 +93,7 @@ class Push(object):
                 self.rollback(self._etc_sha1())
 
             for package in self.packages:
+                logging.info('pip install -i %s %s' % (self.cheeseprism_url, package))
                 result = run('pip install -i %s %s' % (self.cheeseprism_url, package))
                 if result.succeeded:
                     successes.append(package)
