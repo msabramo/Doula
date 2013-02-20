@@ -92,22 +92,11 @@ class Push(object):
         print 'about to start installing packages'
         print self.packages
 
+        self.delete_build_dir()
+
         with workon(self._webapp(), self.debug):
             if self.manifest['is_rollback']:
                 self.rollback(self._etc_sha1())
-
-            try:
-                path = os.path.join(self.web_app_dir, self.service_name)
-                build_dir_path = os.path.join(path, 'build')
-
-                print 'Removing build dir'
-                print build_dir_path
-
-                if os.path.isdir(build_dir_path):
-                    shutil.rmtree(build_dir_path)
-            except:
-                print 'failed to remove build dir'
-                pass
 
             for package in self.packages:
                 print 'pip install -i %s %s' % (self.cheeseprism_url, package)
@@ -146,7 +135,24 @@ class Push(object):
 
             raise Exception(failures)
 
+        self.delete_build_dir()
+
         return successes, failures
+
+    def delete_build_dir(self):
+        try:
+            path = os.path.join(self.web_app_dir, self.service_name)
+            build_dir_path = os.path.join(path, 'build')
+
+            print 'Removing build dir'
+            print build_dir_path
+
+            if os.path.isdir(build_dir_path):
+                shutil.rmtree(build_dir_path)
+        except:
+            print 'Failed to remove build dir.'
+            pass
+
     """
     This call does the following:
         * gets the branch name
