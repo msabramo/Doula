@@ -148,11 +148,11 @@ class Push(object):
             print 'Removing build dir'
             print build_dir_path
 
-            call(['rm', '-rf', build_dir_path])
+            with debuggable(self.debug):
+                print run('rm -rf ' + build_dir_path)
         except:
             print 'FAILED TO REMOVE BUILD DIR'
             print sys.exc_info()
-            pass
 
     """
     This call does the following:
