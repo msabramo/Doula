@@ -13,6 +13,7 @@ import json
 import logging
 import re
 import shutil
+from subprocess import call
 
 
 @contextmanager
@@ -147,10 +148,10 @@ class Push(object):
             print 'Removing build dir'
             print build_dir_path
 
-            if os.path.isdir(build_dir_path):
-                shutil.rmtree(build_dir_path)
+            call(['rm', '-rf', build_dir_path])
         except:
-            print 'Failed to remove build dir.'
+            print 'FAILED TO REMOVE BUILD DIR'
+            print sys.exc_info()
             pass
 
     """
