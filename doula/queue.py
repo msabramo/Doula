@@ -16,6 +16,7 @@ class Queue(object):
     the rest of the application to query and update the queue.
     """
     default_queue_name = 'main'
+    long_run_queue_name = 'long'
     maintenance_queue_name = 'maintenance'
 
     base_job_dict = {
@@ -50,9 +51,16 @@ class Queue(object):
 
         # Initialize the QueueManager
         self.qm = QueueManager(default_queue_name=self.default_queue_name)
-        self.maint_qm = QueueManager(default_queue_name=self.maintenance_queue_name)
         self.qm.subscriber('job_postrun', handler='doula.queue:add_result')
         self.qm.subscriber('job_failure', handler='doula.queue:add_failure')
+
+        self.long_run_qm = QueueManager(default_queue_name=self.long_run_queue_name)
+        self.long_run_qm.subscriber('job_postrun', handler='doula.queue:add_result')
+        self.long_run_qm.subscriber('job_failure', handler='doula.queue:add_failure')
+
+        self.maint_qm = QueueManager(default_queue_name=self.maintenance_queue_name)
+        self.maint_qm.subscriber('job_postrun', handler='doula.queue:add_result')
+        self.maint_qm.subscriber('job_failure', handler='doula.queue:add_failure')
 
     def enqueue(self, new_job_dict):
         """
@@ -63,6 +71,8 @@ class Queue(object):
 
         if self.is_maintenance_job(job_dict['job_type']):
             self.maint_qm.enqueue(queue_name, config=self.get_config(), job_dict=job_dict)
+        elif self.is_long_run_job(job_dict):
+            self.long_run_qm.enqueue(queue_name, config=self.get_config(), job_dict=job_dict)
         else:
             self.qm.enqueue(queue_name, config=self.get_config(), job_dict=job_dict)
 
@@ -84,6 +94,14 @@ class Queue(object):
         job_dict['time_started'] = time.time()
 
         return job_dict
+
+    def is_long_run_job(self, job_dict):
+        """Long running jobs get put on their own slow queue."""
+        service = job_dict.get('service', '')
+        package = job_dict.get('package_name', '')
+        long_run_jobs = ['anonweb', 'anweb']
+
+        return service in long_run_jobs or package in long_run_jobs
 
     def is_maintenance_job(self, job_type):
         """Determine if job_type is maintenance job"""
