@@ -24,7 +24,7 @@ import xmlrpclib
 
 def create_logger(job_id, level=logging.INFO):
     logging.basicConfig(filename=os.path.join('/var/log/doula', str(job_id) + '.log'),
-                        format='%(asctime)s %(levelname)-4s %(message)s',
+                        format='%(message)s',
                         level=level)
     return logging.getLogger()
 
