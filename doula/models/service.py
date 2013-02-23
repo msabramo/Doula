@@ -140,15 +140,14 @@ class Service(object):
         try:
             logging.error('START-------------------------------')
 
-            # Redirect stdout to a string
-            # stdold, stdnew = sys.stdout, StringIO.StringIO()
-            # sys.stdout = stdnew
+            for proc in s.supervisor.getAllProcessInfo():
+                if proc['group'] == service_name:
+                    sup_name = proc['group'] + ':' + proc['name']
 
-            # Log the last 1000 chars if errored out
-            log_text = proxy.supervisor.tailProcessStdoutLog(service_name, 0, 1000)[0]
-
-            if include_errors:
-                log_text += proxy.supervisor.tailProcessStderrLog(service_name, 0, 1000)[0]
+                    if include_errors:
+                        logging.error(proxy.supervisor.tailProcessStderrLog(sup_name, 0, 1000)[0])
+                    else:
+                        logging.error(proxy.supervisor.tailProcessStdoutLog(sup_name, 0, 1000)[0])
 
             # Put stdout back where it goes
             # sys.stdout = stdold
