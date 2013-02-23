@@ -122,34 +122,42 @@ class Service(object):
                     success = False
 
             if(success):
+                log_tail_text(proxy, service_name)
+
                 True
             else:
                 raise CycleServiceException('one service failed', results)
         # exceptions are weird with xmlrpc: http://betabug.ch/blogs/ch-athens/1012
         except (socket_error, xmlrpclib.Fault, xmlrpclib.ProtocolError, xmlrpclib.ResponseError), error_code:
-            try:
-                logging.error('Error from supervisord process')
-                logging.error('Logging for supervisord process named: ' + service_name)
-                logging.error('START-------------------------------')
-
-                # Redirect stdout to a string
-                stdold, stdnew = sys.stdout, StringIO.StringIO()
-                sys.stdout = stdnew
-
-                # Log the last 1000 chars if errored out
-                print proxy.supervisor.tailProcessStdoutLog(service_name, 0, 1000)
-                print proxy.supervisor.tailProcessStderrLog(service_name, 0, 1000)
-
-                # Put stdout back where it goes
-                sys.stdout = stdold
-
-                logging.error(stdnew.getvalue())
-                logging.error('END-------------------------------')
-            except:
-                # Make sure we continue
-                pass
+            logging.error('Error from supervisord process')
+            logging.error('Logging for supervisord process named: ' + service_name)
+            log_tail_text(proxy, service_name, include_errors=True)
 
             raise CycleServiceException(error_code)
+
+    @staticmethod
+    def log_tail_text(proxy, service_name, include_errors=False):
+        try:
+            logging.error('START-------------------------------')
+
+            # Redirect stdout to a string
+            # stdold, stdnew = sys.stdout, StringIO.StringIO()
+            # sys.stdout = stdnew
+
+            # Log the last 1000 chars if errored out
+            log_text = proxy.supervisor.tailProcessStdoutLog(service_name, 0, 1000)[0]
+
+            if include_errors:
+                log_text += proxy.supervisor.tailProcessStderrLog(service_name, 0, 1000)[0]
+
+            # Put stdout back where it goes
+            # sys.stdout = stdold
+
+            logging.error(log_text)
+            logging.error('END-------------------------------')
+        except:
+            # Make sure we continue
+            pass
 
     def is_config_up_to_date(self):
         """
