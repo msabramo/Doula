@@ -138,7 +138,7 @@ class Service(object):
     @staticmethod
     def log_tail_text(proxy, service_name, include_errors=False):
         try:
-            logging.error('START-------------------------------')
+            logging.error('------------ Supervisor Process Tail Start ------------')
 
             for proc in proxy.supervisor.getAllProcessInfo():
                 if proc['group'] == service_name:
@@ -149,11 +149,7 @@ class Service(object):
                     else:
                         logging.error(proxy.supervisor.tailProcessStdoutLog(sup_name, 0, 1000)[0])
 
-            # Put stdout back where it goes
-            # sys.stdout = stdold
-
-            logging.error(log_text)
-            logging.error('END-------------------------------')
+            logging.error('------------ Supervisor Process Tail End ------------')
         except:
             # Make sure we continue
             print 'Error trying to log tail text'
