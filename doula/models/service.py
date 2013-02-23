@@ -140,7 +140,7 @@ class Service(object):
         try:
             logging.error('START-------------------------------')
 
-            for proc in s.supervisor.getAllProcessInfo():
+            for proc in proxy.supervisor.getAllProcessInfo():
                 if proc['group'] == service_name:
                     sup_name = proc['group'] + ':' + proc['name']
 
