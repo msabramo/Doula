@@ -157,7 +157,8 @@ class Service(object):
             logging.error('END-------------------------------')
         except:
             # Make sure we continue
-            pass
+            print 'Error trying to log tail text'
+            print sys.exc_info()
 
     def is_config_up_to_date(self):
         """
