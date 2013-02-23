@@ -122,7 +122,7 @@ class Service(object):
                     success = False
 
             if(success):
-                log_tail_text(proxy, service_name)
+                Service.log_tail_text(proxy, service_name)
 
                 True
             else:
@@ -131,7 +131,7 @@ class Service(object):
         except (socket_error, xmlrpclib.Fault, xmlrpclib.ProtocolError, xmlrpclib.ResponseError), error_code:
             logging.error('Error from supervisord process')
             logging.error('Logging for supervisord process named: ' + service_name)
-            log_tail_text(proxy, service_name, include_errors=True)
+            Service.log_tail_text(proxy, service_name, include_errors=True)
 
             raise CycleServiceException(error_code)
 
