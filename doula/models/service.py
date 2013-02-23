@@ -123,11 +123,11 @@ class Service(object):
 
             if(success):
                 Service.log_tail_text(proxy, service_name)
-
-                True
             else:
                 raise CycleServiceException('one service failed', results)
-        # exceptions are weird with xmlrpc: http://betabug.ch/blogs/ch-athens/1012
+            # exceptions are weird with xmlrpc: http://betabug.ch/blogs/ch-athens/1012
+
+            return True
         except (socket_error, xmlrpclib.Fault, xmlrpclib.ProtocolError, xmlrpclib.ResponseError), error_code:
             logging.error('Error from supervisord process')
             logging.error('Logging for supervisord process named: ' + service_name)
