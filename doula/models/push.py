@@ -108,8 +108,10 @@ class Push(object):
                 else:
                     failures.append({'package': package, 'error': str(result).replace('\r\n', ', ')})
 
+	
         #assets like css, js
         success, result = self.install_assets()
+        self._chown()
 
         if not success:
             logging.error("Unable to install assets for %s" % self.service_name)
@@ -137,7 +139,7 @@ class Push(object):
             raise Exception(failures)
 
         self.delete_build_dir()
-
+	
         return successes, failures
 
     def delete_build_dir(self):
