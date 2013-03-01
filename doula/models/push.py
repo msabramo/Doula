@@ -224,7 +224,11 @@ class Push(object):
             path = os.path.join(self.web_app_dir, self.service_name)
             build_path = os.path.join(path, 'build')
             sudo('if ! [ -d %s ]; then  mkdir %s; fi' % (build_path, build_path))
-            result = sudo('chown -R %suser:sm_users %s' % (self.service_name, path))
+            
+            chown_command = 'chown -R %suser:sm_users %s' % (self.service_name, path)
+            print chown_command
+            result = sudo(chown_command)
+            
             if result.succeeded:
                 sudo('chmod -R g+rwx %s' % path)
                 out = sudo('chmod 0777 %s' % build_path)
