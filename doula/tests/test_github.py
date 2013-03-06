@@ -31,15 +31,25 @@ class GithubTests(unittest.TestCase):
     #         # Ensure the name is true
     #         self.assertTrue(repo['name'])
 
-    def test_pull_services_for_config_names(self):
-        result = pull_services_for_config_names()
+    def test_pull_appenv_service_names(self):
+        result = pull_appenv_service_names()
+
+        self.assertTrue(len(result) > 0)
+
+    def test_pull_config_services_with_branches(self):
+        result = pull_config_services_with_branches()
+
+        self.assertTrue(len(result) > 0)
+
+    def test_pull_config_branches_for_service(self):
+        result = pull_config_branches_for_service('billweb')
 
         self.assertTrue(len(result) > 0)
 
     def test_pull_service_configs(self):
-        result = pull_service_configs('billweb')
+        result = pull_service_configs('mt3', 'billweb')
 
-        self.assertTrue(result)
+        self.assertTrue(len(result) > 0)
 
     def test_build_url_to_api(self):
         url = "%(domain)s and %(token)s and %(name)s"
