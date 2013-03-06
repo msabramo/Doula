@@ -12,8 +12,8 @@ class GithubHooksTests(unittest.TestCase):
             'doula.github.packages.org': 'devmonkeys',
             'doula.github.config.org': 'config',
             'doula.github.html.domain': 'http://code.corp.surveymonkey.com',
-            'doula.github.token': '17e6642dca429043725ad6a98ce966e5a67eac69'
-            'doula.github.webhook.url':'http://doula.corp.surveymonkey.com/webhook/callbacks'
+            'doula.github.token': '17e6642dca429043725ad6a98ce966e5a67eac69',
+            'doula.github.webhook.url':'http://doula.corp.surveymonkey.com/webhook/callbacks',
         }
 
         Config.load_config(settings)
