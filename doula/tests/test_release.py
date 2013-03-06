@@ -51,7 +51,9 @@ class ReleaseTests(unittest.TestCase):
                                                 self.repo['commits'][0])
 
         self.assertEqual(release.author, 'quezo')
-        self.assertEqual(len(release.packages), 3)
+
+        # release.packages has 4 entries: ['Pushedpanel', 'Beaker', 'Chameleon', 'Elixir']
+        self.assertEqual(len(release.packages), 4)
 
     def test__build_release_packages_dict(self):
         """Build a dict from the release packages list"""
