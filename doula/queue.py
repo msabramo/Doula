@@ -30,11 +30,11 @@ class Queue(object):
         'exc': ''
     }
 
-    standard_job_types = {
+    standard_job_types = [
         'build_new_package',
         'release_service',
         'cycle_service'
-    }
+    ]
 
     maintenance_job_types = [
         'add_webhook_callbacks',
