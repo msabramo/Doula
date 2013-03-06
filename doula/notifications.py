@@ -5,7 +5,6 @@ from doula.helper_filters import relative_datetime_from_epoch_time
 from jinja2 import Environment, PackageLoader
 from pyramid_mailer.mailer import Mailer
 from pyramid_mailer.message import Message
-from sets import Set
 import traceback
 
 env = Environment(loader=PackageLoader('doula', 'templates'))
@@ -81,7 +80,7 @@ def build_email_list(job_dict):
     Users are notified about jobs if they've either created the job themselves
     or subscribed to the site or service for notifications.
     """
-    email_list = Set([])
+    email_list = set([])
 
     for user in User.users():
         is_subscribed_to_this = False
