@@ -38,14 +38,14 @@ class PackageTests(unittest.TestCase):
 
     def test_repo(self):
         package = self.make_one()
-        with package.repo() as repo:
+        with package.repo(branch='master') as repo:
             self.assertEqual(os.path.exists('repos'), True)
             self.assertEqual(hasattr(repo, 'working_dir'), True)
         self.assertEqual(os.path.exists(repo.working_dir), False)
 
     def test_update_version(self):
         package = self.make_one()
-        with package.repo() as repo:
+        with package.repo(branch='master') as repo:
             package.update_version(repo, "1.3.2")
 
             setup_py_path = os.path.join(repo.working_dir, 'setup.py')
