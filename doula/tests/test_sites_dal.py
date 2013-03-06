@@ -1,5 +1,6 @@
 import unittest
 from doula.cache import Redis
+from doula.config import Config
 from doula.models.doula_dal import DoulaDAL
 
 
@@ -9,6 +10,9 @@ class TestSitesDAL(unittest.TestCase):
         self.redis = Redis.get_instance()
         self.redis.flushdb()
         self.dd = DoulaDAL()
+
+        settings = {}
+        Config.load_config(settings)
 
     def test_register_node(self):
         site = 'site1'
