@@ -61,3 +61,7 @@ egggitinfo-0.1-py2.7.egg
 Procfile
 build
 doula/models/repos
+
+# Tox #
+#######
+.tox
