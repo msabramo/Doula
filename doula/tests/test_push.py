@@ -6,7 +6,6 @@ from doula.models.push import Push
 from mock import patch
 from mockredis import MockRedis
 from doula.config import Config
-import ipdb
 
 class PushTests2(unittest.TestCase):
 
