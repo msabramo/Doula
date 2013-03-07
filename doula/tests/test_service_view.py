@@ -36,7 +36,7 @@ class PackageTests(unittest.TestCase):
         }
 
         self.request.user = {'username': 'quez'}
-        manifest = build_release_manifest(self.request, service, packages)
+        manifest = build_release_manifest(self.request, service, packages, sha='28f4540d945a317002ac4bec64bf1afa815325cd')
 
         self.assertEqual(manifest["is_rollback"], False)
 
