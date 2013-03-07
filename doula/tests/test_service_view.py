@@ -2,7 +2,6 @@ from doula.models.package import Package
 from doula.models.release import Release
 from doula.models.service import Service
 from doula.views.services_view import build_release_manifest
-from doula.views.services_view import get_proper_version_name
 from mock import Mock
 from pyramid import testing
 import unittest
