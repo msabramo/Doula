@@ -1,10 +1,7 @@
-import os
 import unittest
 import commands
 from mock import Mock
 from doula.models.push import Push
-from mock import patch
-from mockredis import MockRedis
 from doula.config import Config
 
 class PushTests2(unittest.TestCase):
