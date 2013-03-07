@@ -14,13 +14,16 @@ class PushTests2(unittest.TestCase):
         Config.load_config(settings)
 
     def test_stuff(self):
-        push = Push('createweb', 'localhost',
-                    'tsabat', '/opt/webapp',
-                    'http://yorick:9003',
-                    '~/.ssh/id_rsa',
-                    '',
-                    'mt1',
-                    True)
+        push = Push(
+            service_name='createweb',
+            node_ip='localhost',
+            username='tsabat',
+            web_app_dir='/opt/webapp',
+            cheeseprism_url='http://yorick:9003',
+            keyfile='~/.ssh/id_rsa',
+            outdir='',
+            site='mt1',
+            debug=True)
 
         _, u = commands.getstatusoutput('whoami')
         push.fabric_user = Mock(return_value=u)
