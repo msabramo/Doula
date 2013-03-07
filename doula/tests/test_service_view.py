@@ -20,7 +20,8 @@ class PackageTests(unittest.TestCase):
             "site_name": "mt3",
             "name": "anweb",
             "packages": {},
-            "tags": []
+            "tags": [],
+            "config": {"date": "2011-07-18 15:08:55 -0700"},
             })
 
         packages = {
